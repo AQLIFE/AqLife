@@ -1,0 +1,14 @@
+body,div#app{
+    /* display: grid; */
+    padding: 0;
+    border: 0;
+    margin: 0;
+    --webbkit-user-drag: none;
+}
+
+
+:root{
+    --back_color_lv1:rgb(233, 233, 235);
+    --back_color_lv2:rgb(222, 223, 224);
+
+}
