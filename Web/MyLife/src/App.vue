@@ -7,10 +7,10 @@ import { RouterView } from 'vue-router';
 	<ElContainer id="Mylife">
 		<ElCol id="left" :span="6"></ElCol>
 		<ElCol :span="18" id="right">
-			<ElHeader :height="`${120}`">Header</ElHeader>
-			<ElRow>
+			<ElHeader height="120">Header</ElHeader>
+			<ElCol>
 				<RouterView />
-			</ElRow>
+			</ElCol>
 		</ElCol>
 	</ElContainer>
 </template>
