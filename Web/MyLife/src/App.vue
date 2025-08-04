@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import {  ElCol, ElContainer, ElHeader, ElRow } from 'element-plus';
+import { ElCol, ElContainer, ElHeader, ElRow } from 'element-plus';
 import { RouterView } from 'vue-router';
 import AuthorCard from '@/components/AuthorCard.vue'
+import SkillCard from './components/SkillCard.vue';
 </script>
 
 <template>
 	<ElContainer id="Mylife">
 		<ElCol id="left" :span="6">
-			<ElRow>
-				<ElCol class="lcard"><AuthorCard/></ElCol>
+			<ElRow wrap="nowrap">
+				<ElCol class="lcard">
+					<AuthorCard />
+				</ElCol>
+				<ElCol class="lcard">
+					<SkillCard />
+				</ElCol>
 			</ElRow>
 
 		</ElCol>
@@ -28,11 +34,18 @@ import AuthorCard from '@/components/AuthorCard.vue'
 }
 
 #left {
-	background-color: var(--back_color_lv1);
+	background-color: var(--back_color_lv2);
 }
 
-.lcard{padding:4vw;}
-#right{
+#left>.el-row {
+	height: inherit;
+}
+
+.lcard {
+	padding:1vw  4vw ;
+}
+
+#right {
 	background-color: var(--back_color_lv2);
 }
 </style>

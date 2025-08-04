@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ElCard, ElImage, ElRow, ElCol, ElDivider } from 'element-plus';
+import {  ElImage, ElRow, ElCol, ElDivider } from 'element-plus';
 </script>
 
 <style scoped>
