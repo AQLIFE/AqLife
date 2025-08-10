@@ -1,11 +1,27 @@
 @import './base.css';
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+body,div#app{
+    padding: 0;
+    border: 0;
+    margin: 0;
+    --webbkit-user-drag: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    height: 100vh;
 }
+body::-webkit-scrollbar{display: none;}
+
+
+
+
+:root{
+    --back_color_lv1:rgb(233, 233, 235);
+    --back_color_lv2:rgb(222, 223, 224);
+    --el-font-family:Unifont,"Cascadia Code PL";
+}
+
 
 a,
 .green {
@@ -22,14 +38,12 @@ a,
 }
 
 @media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+  body,#app{width: 100%;}
+  #app{display: flex;}
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+
+@media (min-width:1900px){
+  body,#app{width: 100%;}
+  #app{display: flex;}
 }
