@@ -2,7 +2,7 @@
     <ElCol id="author">
         <ElRow flex="row" wrap="nowrap" justify="start" align="middle">
             <ElCol id="avatar" :span="8">
-                <ElImage src="/src/assets/b_6584376235e266a00019954e8c2e7d26.jpg" />
+                <ElImage src="/src/assets/6584376235e266a00019954e8c2e7d26.jpg" />
             </ElCol>
             <ElCol id="info" :span="16">
                 <ElRow flex="column" wrap="nowrap">

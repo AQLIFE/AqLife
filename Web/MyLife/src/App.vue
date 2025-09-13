@@ -4,6 +4,7 @@ import { RouterView } from 'vue-router';
 import AuthorCard from '@/components/AuthorCard.vue'
 import SkillCard from './components/SkillCard.vue';
 import NavigationBar from './components/NavigationBar.vue';
+import DevPlan from './components/DevPlan.vue';
 </script>
 
 <template>
@@ -14,6 +15,10 @@ import NavigationBar from './components/NavigationBar.vue';
 			</ElCol>
 			<ElCol class="lcard">
 				<SkillCard />
+			</ElCol>
+
+			<ElCol class="lcard">
+				<DevPlan />
 			</ElCol>
 		</ElRow>
 	</ElCol>

@@ -8,7 +8,7 @@
                 <ElTag type="warning">Pinia</ElTag>
                 <ElTag>TypeScript</ElTag>
             </ElDescriptionsItem>
-            <ElDescriptionsItem label="打包工具">Vite</ElDescriptionsItem>
+            <ElDescriptionsItem label="前端打包工具">Vite</ElDescriptionsItem>
             <ElDescriptionsItem label="字体信息">
                 <ElLink type="warning" target="_blank" href="https://unifoundry.com/unifont/index.html" underline="hover">Unifoundry</ElLink>
             </ElDescriptionsItem>

@@ -5,7 +5,9 @@
         <ElCol :span="4">建文</ElCol>
         <ElCol :span="4">测试</ElCol>
         <ElCol :span="4">开发</ElCol>
-        <ElCol :span="4">开发</ElCol>
+        <ElCol :span="4">
+            <RouterLink to="/info">关于</RouterLink>
+        </ElCol>
     </ElRow>
 </template>
 
@@ -15,4 +17,5 @@ import { ElCol, ElRow } from 'element-plus';
 
 <style scoped>
 .el-row>.el-col{height: inherit;line-height:inherit;}
+.a{color: var(--text_color_lv1);}
 </style>
