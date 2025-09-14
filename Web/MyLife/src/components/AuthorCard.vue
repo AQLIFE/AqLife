@@ -6,9 +6,17 @@
             </ElCol>
             <ElCol id="info" :span="16">
                 <ElRow flex="column" wrap="nowrap">
-                    <ElCol id="name">AQ</ElCol>
+                    <ElCol id="name" :icon="GithubIcon" title="点击直达作者github主页">
+                        <ElLink href="https://github.com/aqlife" target="_blank">
+                            <ElIcon>
+                                <GithubIcon />
+                            </ElIcon>
+                            AQ
+                        </ElLink>
+
+                    </ElCol>
                     <ElDivider title="个人概述" />
-                    <ElCol id="desc">喜欢Web,虽然只是略懂</ElCol>
+                    <ElCol id="desc">虽然只是略懂,但也喜欢Web</ElCol>
                 </ElRow>
             </ElCol>
         </ElRow>
@@ -16,7 +24,8 @@
 </template>
 
 <script lang="ts" setup>
-import {  ElImage, ElRow, ElCol, ElDivider } from 'element-plus';
+import GithubIcon from '@/assets/icons/GithubIcon.vue';
+import { ElImage, ElRow, ElCol, ElDivider, ElIcon, ElLink } from 'element-plus';
 </script>
 
 <style scoped>
@@ -25,23 +34,54 @@ import {  ElImage, ElRow, ElCol, ElDivider } from 'element-plus';
     overflow: hidden;
 }
 
-#author .el-row{
+#author .el-row {
     height: initial;
 }
 
-#avatar{font-size: 0;}
-
-
-
-#info{display: flex;flex-direction:column;min-height: 2vw;padding: 0;margin: 0;}
-#info .el-row{padding: 0;margin: 0;height: auto;display: flex;flex-direction: column;gap:0;}
-#name {
-    padding-left: 20px;
-    text-align: left;
-    font-size: 1rem;
-    padding-bottom: 20px;
+#avatar {
+    font-size: 0;
 }
 
-#desc{font-size: 0.7rem; padding: 5px;}
-.el-divider{padding: 0;margin: 0;}
+
+.el-button {
+    border: 0px;
+}
+
+#info {
+    display: flex;
+    flex-direction: column;
+    min-height: 2vw;
+    padding: 0;
+    margin: 0;
+}
+
+#info .el-row {
+    padding: 0;
+    margin: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+#name {
+    width: auto;
+    justify-content: left;
+}
+
+#name>* {
+    font-size: 1.2rem;
+    line-height: 1.2rem;
+}
+
+
+#desc {
+    font-size: 0.7rem;
+    padding: 5px;
+}
+
+.el-divider {
+    padding: 0;
+    margin: 20px 0;
+}
 </style>
