@@ -2,7 +2,7 @@
 import { ElCol, ElContainer, ElHeader, ElMain, ElRow } from 'element-plus';
 import { RouterView } from 'vue-router';
 import AuthorCard from '@/components/AuthorCard.vue'
-import SkillCard from './components/SkillCard.vue';
+// import SkillCard from './components/SkillCard.vue';
 import NavigationBar from './components/NavigationBar.vue';
 import DevPlan from './components/DevPlan.vue';
 </script>
@@ -13,9 +13,9 @@ import DevPlan from './components/DevPlan.vue';
 			<ElCol class="lcard">
 				<AuthorCard />
 			</ElCol>
-			<ElCol class="lcard">
+			<!-- <ElCol class="lcard">
 				<SkillCard />
-			</ElCol>
+			</ElCol> -->
 
 			<ElCol class="lcard">
 				<DevPlan />
