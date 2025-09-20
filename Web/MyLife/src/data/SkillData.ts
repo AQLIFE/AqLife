@@ -3,7 +3,7 @@
 const Skills:readonly string[] = ['Vue3', 'Vite','TypeScript', 'JavaScript', 'HTML5', 'CSS3', 'Node.js', 'Express','Mysql', 'MongoDB', 'MySQL', 'ASP.NET Core', 'C#', 'Python', 'Django', 'Git', 'Docker', 'Nginx', 'Linux', 'Elemnet-Plus'] as const;
 type SkillType = typeof Skills[number];
 
-const EColors: readonly string[] = ['', 'success', 'warning', 'danger', 'info'] as const;
+const EColors: readonly string[] = ['primary', 'success', 'warning', 'danger', 'info'] as const;
 type EColorType = typeof EColors[number];
 
 

@@ -2,21 +2,21 @@
     <ElCol id="author">
         <ElRow flex="row" wrap="nowrap" justify="start" align="middle">
             <ElCol id="avatar" :span="8">
-                <ElImage src="/src/assets/6584376235e266a00019954e8c2e7d26.jpg" />
+                <ElImage :src="author.userInfo.avatar_url" />
             </ElCol>
             <ElCol id="info" :span="16">
                 <ElRow flex="column" wrap="nowrap">
                     <ElCol id="name" :icon="GithubIcon" title="点击直达作者github主页">
-                        <ElLink href="https://github.com/aqlife" target="_blank">
+                        <ElLink :href="author.userInfo.html_url" target="_blank">
                             <ElIcon>
                                 <GithubIcon />
                             </ElIcon>
-                            AQ
+                            {{ author.userInfo.name }}
                         </ElLink>
 
                     </ElCol>
                     <ElDivider title="个人概述" />
-                    <ElCol id="desc">虽然只是略懂,但也喜欢Web</ElCol>
+                    <ElCol id="desc">{{ author.userInfo.bio }}</ElCol>
                 </ElRow>
             </ElCol>
         </ElRow>
@@ -25,7 +25,17 @@
 
 <script lang="ts" setup>
 import GithubIcon from '@/assets/icons/GithubIcon.vue';
+import { AuthorInfo } from '@/services/storer';
 import { ElImage, ElRow, ElCol, ElDivider, ElIcon, ElLink } from 'element-plus';
+import { onBeforeMount } from 'vue';
+
+const author = AuthorInfo();
+ 
+onBeforeMount(():void=>{
+    author.getUserInfo('aqlife');
+    console.log(author.userInfo.login)
+})
+
 </script>
 
 <style scoped>
