@@ -21,4 +21,11 @@ const AuthorInfo = defineStore("GetUserInfo",()=> {
     return {userInfo,isReady,getUserInfo}
 });
 
-export {AuthorInfo}
+const DevPlan = defineStore("DevPlan",()=>{
+    const isShowDevPlan:Ref<boolean> = ref(false);
+
+    function watchNav(state:boolean):void{isShowDevPlan.value = state;}
+    return {isShowDevPlan,watchNav};
+});
+
+export {AuthorInfo,DevPlan}

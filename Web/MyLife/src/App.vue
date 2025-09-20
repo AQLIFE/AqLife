@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { ElCol, ElContainer, ElHeader, ElMain, ElRow } from 'element-plus';
 import { RouterView } from 'vue-router';
-import AuthorCard from '@/components/AuthorCard.vue'
-// import SkillCard from './components/SkillCard.vue';
 import NavigationBar from './components/NavigationBar.vue';
-import DevPlan from './components/DevPlan.vue';
+import DevPlanCard from './components/DevPlanCard.vue';
+import FAuthorCard from './components/FAuthorCard.vue';
+import { DevPlan } from './services/storer';
 </script>
 
 <template>
 	<ElCol id="left" :span="8">
 		<ElRow wrap="nowrap">
 			<ElCol class="lcard">
-				<AuthorCard />
+				<FAuthorCard />
 			</ElCol>
 			<!-- <ElCol class="lcard">
 				<SkillCard />
 			</ElCol> -->
 
-			<ElCol class="lcard">
-				<DevPlan />
+			<ElCol class="lcard" v-if="DevPlan().isShowDevPlan">
+				<DevPlanCard />
 			</ElCol>
 		</ElRow>
 	</ElCol>
@@ -55,7 +55,9 @@ import DevPlan from './components/DevPlan.vue';
 	background-color: var(--back_color_lv2);
 }
 
-#right>.el-container{height: 100vh;}
+#right>.el-container {
+	height: 100vh;
+}
 
 #navigation {
 	margin-right: 5vw;

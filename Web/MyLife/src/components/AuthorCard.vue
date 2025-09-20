@@ -1,12 +1,12 @@
 <template>
     <ElCol id="author">
-        <ElRow flex="row" wrap="nowrap" justify="start" align="middle">
+        <ElRow align="middle">
             <ElCol id="avatar" :span="8">
                 <ElImage :src="author.userInfo.avatar_url" />
             </ElCol>
             <ElCol id="info" :span="16">
-                <ElRow flex="column" wrap="nowrap">
-                    <ElCol id="name" :icon="GithubIcon" title="点击直达作者github主页">
+                <ElRow>
+                    <ElCol id="name" title="点击直达作者github主页">
                         <ElLink :href="author.userInfo.html_url" target="_blank">
                             <ElIcon>
                                 <GithubIcon />
@@ -27,15 +27,9 @@
 import GithubIcon from '@/assets/icons/GithubIcon.vue';
 import { AuthorInfo } from '@/services/storer';
 import { ElImage, ElRow, ElCol, ElDivider, ElIcon, ElLink } from 'element-plus';
-import { onBeforeMount } from 'vue';
 
 const author = AuthorInfo();
  
-onBeforeMount(():void=>{
-    author.getUserInfo('aqlife');
-    console.log(author.userInfo.login)
-})
-
 </script>
 
 <style scoped>
@@ -45,21 +39,16 @@ onBeforeMount(():void=>{
 }
 
 #author .el-row {
-    height: initial;
+    min-height: 162.13px;
+    height: inherit;
 }
 
 #avatar {
     font-size: 0;
 }
 
-
-.el-button {
-    border: 0px;
-}
-
+.el-icon{margin-right: 10px;}
 #info {
-    display: flex;
-    flex-direction: column;
     min-height: 2vw;
     padding: 0;
     margin: 0;
@@ -69,8 +58,6 @@ onBeforeMount(():void=>{
     padding: 0;
     margin: 0;
     height: auto;
-    display: flex;
-    flex-direction: column;
     gap: 0;
 }
 

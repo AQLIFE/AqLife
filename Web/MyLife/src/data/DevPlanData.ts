@@ -11,6 +11,7 @@ const DevPlan :IDevTask[]= [
     {content:'为开发计划添加自动化序列',State:true},
     {content:'添加动态Author信息',State:true},
     {content:'添加pinia实现',State:true},
+    {content:'添加加载占位-Author',State:true},
 ]
 
 export {DevPlan};
