@@ -5,6 +5,7 @@ import NavigationBar from './components/NavigationBar.vue';
 import DevPlanCard from './components/DevPlanCard.vue';
 import FAuthorCard from './components/FAuthorCard.vue';
 import { DevPlan } from './services/storer';
+import SearchBox from './components/SearchBox.vue';
 </script>
 
 <template>
@@ -13,9 +14,9 @@ import { DevPlan } from './services/storer';
 			<ElCol class="lcard">
 				<FAuthorCard />
 			</ElCol>
-			<!-- <ElCol class="lcard">
-				<SkillCard />
-			</ElCol> -->
+			<ElCol class="lcard">
+				<SearchBox />
+			</ElCol>
 
 			<ElCol class="lcard" v-if="DevPlan().isShowDevPlan">
 				<DevPlanCard />

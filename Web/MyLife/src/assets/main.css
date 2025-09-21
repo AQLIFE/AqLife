@@ -15,7 +15,7 @@ body::-webkit-scrollbar {
     display: none;
 }
 
-
+*{border-radius: 0px !important;}
 /* *:hover{background-color: var(--Focus);} */
 
 

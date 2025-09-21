@@ -1,5 +1,5 @@
 <template>
-    <ElSkeleton id="author" :animated="true" throttle="300" :loading="author.isReady">
+    <ElSkeleton id="author" :animated="true" :throttle="300" :loading="author.isReady">
         <template #template>
             <ElRow  align="middle">
                 <ElCol id="avatar" :span="8">
