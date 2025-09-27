@@ -1,42 +1,105 @@
 <script setup lang="ts">
 import { ElCol, ElRow } from 'element-plus';
-import { ref, onMounted, reactive } from 'vue';
+import { type Ref, ref, onMounted } from 'vue';
 import { marked } from 'marked';
 import mermaid from 'mermaid';
-
+import mdContentRaw from '@/assets/NET Core 开发要点.md?raw'; // Vite 支持 ?raw 导入文本
+import { Blog } from '@/services/storer';
+import type { IAnchor } from '@/data/AnchorData';
 
 const updateTime = '2024-06-20';
 const description = '文章内容仅供参考，如有错误，欢迎指正。';
 
-import mdContentRaw from '@/assets/NET Core 开发要点.md?raw'; // Vite 支持 ?raw 导入文本
+const { title, content } = extractTitleAndContent(mdContentRaw);
+const htmlContent: Ref<string | Promise<string>> = ref(marked(content));
 
+const blog = Blog();
+blog.blogTitle = title;
+blog.anchorList = extractHeadings(content);
 
-onMounted( async() => {
+onMounted(async () => {
     mermaid.initialize({ startOnLoad: false });
     await mermaid.run({
         querySelector: '.language-mermaid',
     });
+    addIdsToHeadings('blogContent', blog.anchorList);
+    addLineNumbersToCodeBlocks();
 });
+
+
+// 收集标题信息,并将其移除渲染内容
+function extractTitleAndContent(md: string) {
+    const lines = md.split(/\r?\n/);
+    let title = '';
+    let startIdx = 0;
+    for (let i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith('# ')) {
+            title = lines[i].replace(/^# /, '').trim();
+            startIdx = i + 1;
+            break;
+        }
+    }
+    return {
+        title,
+        content: lines.slice(startIdx).join('\n')
+    };
+}
+
+// 解析md 文件,并提取所有标题,返回锚点列表
+function extractHeadings(md: string): IAnchor[] {
+    const headingReg = /^(#{1,6})\s(.+)\n$/gm;
+    const headings: IAnchor[] = [];
+    let match;
+    let idx = 0;
+    while ((match = headingReg.exec(md)) !== null) {
+        const level = match[1].length;
+        const title = match[2].trim();
+        const id = `heading-${idx}-${encodeURIComponent(title.replace(/\\s+/g, '-'))}`;
+        headings.push({ title, id, level });
+        idx++;
+    }
+    return headings;
+}
+
+// 为所有标题添加 id 属性,以便锚点链接跳转
+function addIdsToHeadings(containerId: string, headings: IAnchor[]): void {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    let idx = 0;
+    container.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+        el.id = headings[idx]?.id || `heading-${idx}`;
+        idx++;
+    });
+}
+
+// 为代码块添加行号
+function addLineNumbersToCodeBlocks() {
+  document.querySelectorAll('pre code').forEach(codeEl => {
+    if (codeEl.classList.contains('language-mermaid')) return;
+    const code = codeEl.textContent || '';
+    const lines = code.split('\n');
+    const numberedHtml = lines.map((line, idx) =>
+      `<span class="code-line"><span class="line-number">${idx + 1}</span> ${line}</span>`
+    ).join('\n');
+    codeEl.innerHTML = numberedHtml;
+  });
+}
 </script>
 
 <template>
-    <!-- <ElSkeleton>
-        <template #template>
 
-        </template>
-</ElSkeleton> -->
-
-    <ElCol>
-        <ElCol class="blogTitle">Title=></ElCol>
+    <ElCol class="blog">
+        <ElCol class="blogTitle">{{ blog.blogTitle }}</ElCol>
         <ElCol class="description">
             <ElRow>
                 <ElCol>{{ description }}</ElCol>
                 <ElCol>Update:{{ updateTime }}</ElCol>
             </ElRow>
         </ElCol>
-        <ElCol id="blogContent" v-html="marked(mdContentRaw)" />
+        <div id="blogContent" v-html="htmlContent" />
     </ElCol>
 </template>
+
 
 
 <style scoped>
@@ -65,5 +128,19 @@ onMounted( async() => {
     line-height: 2rem;
     font-size: 1.2rem;
     height: 100vh !important;
+}
+
+
+.code-line {
+  display: block;
+  white-space: pre;
+}
+.line-number {
+  display: inline-block;
+  width: 2em;
+  color: #999;
+  text-align: right;
+  margin-right: 1em;
+  user-select: none;
 }
 </style>

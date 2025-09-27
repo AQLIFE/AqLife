@@ -6,6 +6,7 @@ import DevPlanCard from './components/DevPlanCard.vue';
 import FAuthorCard from './components/FAuthorCard.vue';
 import { DevPlan } from './services/storer';
 import SearchBox from './components/SearchBox.vue';
+import BlogNodeTreeCard from './components/BlogNodeTreeCard.vue';
 </script>
 
 <template>
@@ -18,8 +19,9 @@ import SearchBox from './components/SearchBox.vue';
 				<FAuthorCard />
 			</ElCol>
 
-			<ElCol class="lcard" v-if="DevPlan().isShowDevPlan">
-				<DevPlanCard />
+			<ElCol class="lcard" >
+				<DevPlanCard  v-if="DevPlan().isShow"/>
+				<BlogNodeTreeCard v-else/>
 			</ElCol>
 		</ElRow>
 	</ElCol>
@@ -72,5 +74,11 @@ import SearchBox from './components/SearchBox.vue';
 	background-color: var(--back_color_lv1);
 	margin-right: 5vw;
 	padding: 0;
+	scrollbar-width: none; /* Firefox 隐藏滚动条 */
+}
+
+#viewer::-webkit-scrollbar {
+	display: none !important;
+	/* background-color: var(--back_color_lv1); */
 }
 </style>

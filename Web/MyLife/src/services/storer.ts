@@ -2,30 +2,39 @@ import { defineStore } from "pinia";
 import { GithubUser, type IGithubUser } from "@/data/AuthorData";
 import { GithubUsersAPI } from "@/data/APIData";
 import { reactive, ref, type Reactive, type Ref } from "vue";
+import type { IAnchor } from "@/data/AnchorData";
 
 const AuthorInfo = defineStore("GetUserInfo",()=> {
     const userInfo:Reactive<IGithubUser>= reactive<IGithubUser>(new GithubUser());
-    const isReady:Ref<boolean> = ref(false);
+    const isShow:Ref<boolean> = ref(false);
 
     async function getUserInfo(username:string,state:boolean = false){
         const response = await GithubUsersAPI.get(username);
         if(response.status === 200){
             const data = await response.data;
             Object.assign(userInfo,data);
-            if(state) isReady.value = true;
+            if(state) isShow.value = true;
             
         }else{
             throw new Error(`Failed to fetch user info: ${response.status} ${response.statusText}`);
         }
     }
-    return {userInfo,isReady,getUserInfo}
+    return {userInfo,isShow,getUserInfo}
 });
 
 const DevPlan = defineStore("DevPlan",()=>{
-    const isShowDevPlan:Ref<boolean> = ref(false);
+    const isShow:Ref<boolean> = ref(false);
 
-    function watchNav(state:boolean):void{isShowDevPlan.value = state;}
-    return {isShowDevPlan,watchNav};
+    function watchNav(state:boolean):void{isShow.value = state;}
+    return {isShow,watchNav};
 });
 
-export {AuthorInfo,DevPlan}
+const Blog = defineStore("Blog",()=>{
+    const isShow:Ref<boolean> = ref(false);
+    const blogTitle:Ref<string> = ref('');
+    const anchorList:Ref<IAnchor[]> = ref([] as IAnchor[]);
+
+    return {isShow,blogTitle,anchorList};
+});
+
+export {AuthorInfo,DevPlan,Blog}
