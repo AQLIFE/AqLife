@@ -12,10 +12,10 @@ import SearchBox from './components/SearchBox.vue';
 	<ElCol id="left" :span="8">
 		<ElRow wrap="nowrap">
 			<ElCol class="lcard">
-				<FAuthorCard />
+				<SearchBox />
 			</ElCol>
 			<ElCol class="lcard">
-				<SearchBox />
+				<FAuthorCard />
 			</ElCol>
 
 			<ElCol class="lcard" v-if="DevPlan().isShowDevPlan">

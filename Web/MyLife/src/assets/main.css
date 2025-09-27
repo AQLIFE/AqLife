@@ -15,18 +15,17 @@ body::-webkit-scrollbar {
     display: none;
 }
 
-*{border-radius: 0px !important;}
-/* *:hover{background-color: var(--Focus);} */
-
+*{border-radius: 0px !important;font:'Cascadia Code PL';}
 
 
 :root {
     --topColor:rgb(255,255,255);
     --back_color_lv1: rgb(233, 233, 235);
     --back_color_lv2: rgb(222, 223, 224);
+    --back_color_lv3: rgb(200, 201, 202);
+    --back_color_lv4: rgb(180, 181, 182);
     --inlineCenter:100px;
     --Focus: hsla(160, 100%, 37%, 1);
-    --el-font-family: Unifont, "Cascadia Code PL";
 }
 
 
