@@ -33,8 +33,9 @@ const Blog = defineStore("Blog",()=>{
     const isShow:Ref<boolean> = ref(false);
     const blogTitle:Ref<string> = ref('');
     const anchorList:Ref<IAnchor[]> = ref([] as IAnchor[]);
+    const blogCacheList = [{blogTitle:'',blogContent:''}]; 
 
-    return {isShow,blogTitle,anchorList};
+    return {isShow,blogTitle,anchorList,blogCacheList};
 });
 
 export {AuthorInfo,DevPlan,Blog}

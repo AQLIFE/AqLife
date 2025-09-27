@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElCol, ElRow } from 'element-plus';
-import { type Ref, ref, onMounted } from 'vue';
+import { type Ref, ref, onMounted, onBeforeUnmount } from 'vue';
 import { marked } from 'marked';
 import mermaid from 'mermaid';
 import mdContentRaw from '@/assets/NET Core 开发要点.md?raw'; // Vite 支持 ?raw 导入文本
@@ -11,19 +11,27 @@ const updateTime = '2024-06-20';
 const description = '文章内容仅供参考，如有错误，欢迎指正。';
 
 const { title, content } = extractTitleAndContent(mdContentRaw);
-const htmlContent: Ref<string | Promise<string>> = ref(marked(content));
 
 const blog = Blog();
 blog.blogTitle = title;
 blog.anchorList = extractHeadings(content);
+const htmlContent: Ref<string | Promise<string>> | string | undefined = blog.isShow ? blog.blogCacheList.find(i => i.blogTitle == 'NET Core 开发要点')?.blogContent : ref(marked(content));
 
 onMounted(async () => {
     mermaid.initialize({ startOnLoad: false });
     await mermaid.run({
         querySelector: '.language-mermaid',
     });
-    addIdsToHeadings('blogContent', blog.anchorList);
-    addLineNumbersToCodeBlocks();
+
+    if (!blog.isShow) {
+
+        addIdsToHeadings('blogContent', blog.anchorList);
+        addLineNumbersToCodeBlocks();
+    }
+});
+onBeforeUnmount(() => {
+    blog.blogCacheList.push({ blogTitle: blog.blogTitle, blogContent: CacheBlog() as string });
+    blog.isShow = true;
 });
 
 
@@ -74,15 +82,20 @@ function addIdsToHeadings(containerId: string, headings: IAnchor[]): void {
 
 // 为代码块添加行号
 function addLineNumbersToCodeBlocks() {
-  document.querySelectorAll('pre code').forEach(codeEl => {
-    if (codeEl.classList.contains('language-mermaid')) return;
-    const code = codeEl.textContent || '';
-    const lines = code.split('\n');
-    const numberedHtml = lines.map((line, idx) =>
-      `<span class="code-line"><span class="line-number">${idx + 1}</span> ${line}</span>`
-    ).join('\n');
-    codeEl.innerHTML = numberedHtml;
-  });
+    document.querySelectorAll('pre code').forEach(codeEl => {
+        if (codeEl.classList.contains('language-mermaid')) return;
+        const code = codeEl.textContent || '';
+        const lines = code.split('\n');
+        const numberedHtml = lines.map((line, idx) =>
+            `<span class="code-line"><span class="line-number">${idx + 1}</span> ${line}</span>`
+        ).join('\n');
+        codeEl.innerHTML = numberedHtml;
+    });
+}
+
+
+function CacheBlog(): HTMLElement | string | null {
+    return document.getElementById('blogContent')?.innerHTML || '';
 }
 </script>
 
@@ -132,15 +145,16 @@ function addLineNumbersToCodeBlocks() {
 
 
 .code-line {
-  display: block;
-  white-space: pre;
+    display: block;
+    white-space: pre;
 }
+
 .line-number {
-  display: inline-block;
-  width: 2em;
-  color: #999;
-  text-align: right;
-  margin-right: 1em;
-  user-select: none;
+    display: inline-block;
+    width: 2em;
+    color: #999;
+    text-align: right;
+    margin-right: 1em;
+    user-select: none;
 }
 </style>
