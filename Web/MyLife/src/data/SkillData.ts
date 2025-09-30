@@ -1,35 +1,23 @@
+import type { SHA256 } from "./HashData"
 
-
-const Skills:readonly string[] = ['Vue3', 'Vite','TypeScript', 'JavaScript', 'HTML5', 'CSS3', 'Node.js', 'Express','Mysql', 'MongoDB', 'MySQL', 'ASP.NET Core', 'C#', 'Python', 'Django', 'Git', 'Docker', 'Nginx', 'Linux', 'Elemnet-Plus'] as const;
-type SkillType = typeof Skills[number];
-
-const EColors: readonly string[] = ['primary', 'success', 'warning', 'danger', 'info'] as const;
-type EColorType = typeof EColors[number];
-
-
-interface ISkillConfig {
-    skill: SkillType;
-    color: EColorType;
+interface ISkillNode {
+    Id: SHA256               // 节点唯一标识
+    Name: string             // 技能名称
+    Description: string      // 技能描述
+    Prerequisites: number[]  // 前置技能节点的 id 数组
+    UnlockCondition: UnlockConditionGroup // 解锁条件组
+    UnlockedTime?: string    // 解锁时间
 }
 
-class SkillManager {
-    private skillRaw:readonly ISkillConfig[];
+type SkillTree = ISkillNode[]
 
-    constructor() {
-        this.skillRaw = [
-            { skill: 'Vue3', color: EColors[1] },
-            { skill: 'Elemnet-Plus', color: EColors[0] },
-            { skill: 'ASP.NET Core', color: 'RoyalBlue' },
-            { skill: 'Vite', color: EColors[1] },
-            { skill: 'Mysql', color: EColors[0] }
-        ];
-    }
-
-    getSkillColor = (sName: string): string =>{return this.skillRaw.find(e=>e.skill===sName)?.color ?? '';};
-    
-    isEColor = (sColor:string):boolean =>EColors.includes(sColor);
+interface IUnlockCondition{
+    ConditionTitle:string; // 条件标题
+    ConditionDescription:string; // 条件描述
+    Unlocked: boolean        // 是否已经解锁
 }
 
+type UnlockConditionGroup = IUnlockCondition[]
 
-export const skillManager = new SkillManager();
-export { Skills };
+
+export {type ISkillNode, type SkillTree, type UnlockConditionGroup, type IUnlockCondition};

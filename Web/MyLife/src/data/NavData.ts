@@ -11,7 +11,8 @@ const NavData:INavData[]=[
     {NavTitle:'分享',NavObj:routerRaw[3]},
     {NavTitle:'建文',NavObj:routerRaw[4]},
     {NavTitle:'计划',NavObj:routerRaw[5]},
-    {NavTitle:'模板页',NavObj:routerRaw[6]},
+    // {NavTitle:'模板页',NavObj:routerRaw[6]},
+    {NavTitle:'技能&成就',NavObj:routerRaw[6]},
 ]
 
 export {NavData};

@@ -49,6 +49,7 @@ onMounted(() => {
 
 .el-input>>>.el-input__wrapper>* {
     /* background-color: var(--back_color_lv1); */
+    padding-left: 1vw;
 }
 
 .el-input>>>.el-input__wrapper:hover {

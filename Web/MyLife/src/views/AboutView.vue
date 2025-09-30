@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { skillManager,Skills } from '@/data/SkillData';
+import { skillManager,Skills } from '@/data/SkillTagData';
 import { ElCol,ElLink, ElTag, ElDescriptions, ElDescriptionsItem } from 'element-plus';
 const lisce = 'GNU Unifont 是 GNU 项目的一部分。此页面包含最新版本 GNU Unifont，每个可打印代码点都有字形 在 Unicode 基本多语言平面 （BMP） 中。BMP 占据 Unicode 空间的前 65,536 个代码点， 表示为 U+0000..U+FFFF。对 补充多语言平面 （SMP），在 U+010000..U+01FFFF 范围内， 以及 Michael Everson 的 ConScript Unicode Registry （CSUR） 丽贝卡·贝当古 （Rebecca Bettencourt） 的 Under-CSUR 补充。'
 </script>

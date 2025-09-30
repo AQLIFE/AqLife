@@ -24,7 +24,6 @@ onMounted(async () => {
     });
 
     if (!blog.isShow) {
-
         addIdsToHeadings('blogContent', blog.anchorList);
         addLineNumbersToCodeBlocks();
     }
