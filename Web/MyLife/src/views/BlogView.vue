@@ -24,13 +24,15 @@ onMounted(async () => {
     });
 
     if (!blog.isShow) {
+        // 首次加载,添加锚点和行号,并缓存
         addIdsToHeadings('blogContent', blog.anchorList);
         addLineNumbersToCodeBlocks();
+        blog.blogCacheList.push({ blogTitle: blog.blogTitle, blogContent: CacheBlog() as string });
     }
+
 });
 onBeforeUnmount(() => {
-    blog.blogCacheList.push({ blogTitle: blog.blogTitle, blogContent: CacheBlog() as string });
-    blog.isShow = true;
+    blog.isShow = true;// 标记已缓存
 });
 
 

@@ -32,4 +32,4 @@ class SkillManager {
 
 
 const skillManager = new SkillManager();
-export { Skills,skillManager };
+export { Skills,skillManager,EColors };

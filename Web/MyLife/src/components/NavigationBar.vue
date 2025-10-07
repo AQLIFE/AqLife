@@ -1,6 +1,6 @@
 <template>
     <ElRow justify="center" align="middle">
-        <NavigationButton v-for="item,index in NavData" :btitle="item.NavTitle" :routeObj="item.NavObj" @click="jump" v-bind:key="index" :tabindex="index+2"/>
+        <NavigationButton v-for="item,index in NavData" :btitle="item.NavTitle" :routeObj="item.NavObj" @click="jump" :icon="item.NavIcon" v-bind:key="index" :tabindex="index+2"/>
     </ElRow>
 </template>
 
@@ -14,7 +14,6 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const jump = (obj: RouteRecordRaw): void => {
-    console.log(obj.path);
     router.push(obj.path);
 };
 

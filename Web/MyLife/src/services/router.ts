@@ -10,6 +10,7 @@ import SkillTreeView from '@/views/SkillTreeView.vue'
 import PlanView from '@/views/PlanView.vue'
 
 import { DevPlan } from './storer'
+import WishlistView from '@/views/WishlistView.vue'
 
 // 疑似包依赖存在冲突,导致无法正确解析类型
 // - 修改冲突文件命令
@@ -24,6 +25,7 @@ const routerRaw = [
     { path: '/blog', component: BlogView },
     { path: '/plan', component: PlanView },
     { path: '/skilltree', component:SkillTreeView },
+    { path: '/wish', component:WishlistView },
     { path: '/prebuilt', component: PrebuiltView },
     { path: '/:pathMatch(.*)*', component: ErrorView },
 

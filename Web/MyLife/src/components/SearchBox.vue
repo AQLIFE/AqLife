@@ -1,5 +1,5 @@
 <template>
-    <ElCol class="card"  title="按下Ctrl+K快速聚焦到搜索框">
+    <ElCard shadow="hover" class="card"  title="按下Ctrl+K快速聚焦到搜索框">
         <ElInput ref="inputRef" :prefix-icon="Search" type="text" clearable placeholder="你想搜点什么" v-model="demo" tabindex="1">
             <template #append>
                 <ElCol>
@@ -13,11 +13,11 @@
                 </ElCol>
             </template>
         </ElInput>
-    </ElCol>
+    </ElCard>
 </template>
 
 <script lang="ts" setup>
-import { ElCol, ElInput } from 'element-plus';
+import { ElCol,ElCard, ElInput } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, ref } from 'vue';
 import ButtonIcon from '@/assets/icons/ButtonIcon.vue';

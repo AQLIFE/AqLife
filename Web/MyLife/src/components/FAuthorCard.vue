@@ -36,7 +36,6 @@ const author = AuthorInfo();
 
 onBeforeMount((): void => {
     author.getUserInfo('aqlife');
-    console.log(author.userInfo.login)
 })
 
 </script>

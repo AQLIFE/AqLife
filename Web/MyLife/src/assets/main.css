@@ -15,8 +15,9 @@ body::-webkit-scrollbar {
     display: none;
 }
 
-*{border-radius: 0px !important;font:'Cascadia Code PL';}
+*{border-radius: 0px !important;font-family:'Cascadia Code PL','Consolas';}
 
+.el-card__body{margin: 0px;padding: 0px !important;}
 
 :root {
     --topColor:rgb(255,255,255);
