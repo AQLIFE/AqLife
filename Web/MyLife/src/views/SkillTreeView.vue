@@ -15,6 +15,9 @@ function initXY() {
 }
 onMounted(() => {
     rect.value = initXY();
+    demoData.forEach(node => {
+        positions.value[node.Id] = getNodePosition(node.Id)
+    })
     console.log(rect.value)
 })
 
@@ -50,6 +53,63 @@ const connectionPaths = computed(() => {
 })
 
 
+const maxCount = computed(() => {
+    return Math.max(...demoData.map(item =>
+        demoData.filter(s => s.Prerequisites?.includes(item.Id)).length
+    ))
+})
+
+const nodeLevels = computed(() => {
+    const levels: Record<string, number> = {}
+    demoData.forEach(node => {
+        levels[node.Id] = getLevel(node, demoData)
+    })
+    return levels
+})
+
+const nodeIndices = computed(() => {
+    const indices: Record<string, number> = {}
+    Object.entries(groupByLevel()).forEach(([level, nodes]) => {
+        nodes.forEach((node, index) => {
+            indices[node.Id] = index
+        })
+    })
+    return indices
+})
+
+function groupByLevel() {
+    const groups: Record<number, ISkillNode[]> = {}
+    demoData.forEach(node => {
+        const level = nodeLevels.value[node.Id]
+        if (!groups[level]) groups[level] = []
+        groups[level].push(node)
+    })
+    return groups
+}
+
+function getCount(source: SkillTree) {
+    let max = 0;
+    for (const obj of source) {
+        const cnt = getIndex(obj, source)
+        max = cnt > max ? cnt : max
+    }
+    return max
+}
+
+function getNodePosition(nodeId: string) {
+    const node = demoData.find(n => n.Id === nodeId)!
+    const level = nodeLevels.value[nodeId]
+    const index = nodeIndices.value[nodeId]
+
+    return {
+        x: 200 * index + 150,
+        y: 75 * level + 50
+    }
+}
+
+// 使用ref存储位置数据，避免重复计算
+const positions = ref<Record<string, { x: number; y: number }>>({})
+
 
 function getIndex(node: ISkillNode, source: SkillTree): number {
     let cnt = 0;
@@ -81,9 +141,12 @@ function getLevel(node: ISkillNode, source: SkillTree): number {
 
 <template>
     <svg id="tree">
-        <SkillNode :x="rect.x + 200 * getIndex(item, demoData)" :y="rect.y + 75 * getLevel(item, demoData)"
+        <!-- <SkillNode :x="rect.x + 200 * getIndex(item, demoData)" :y="rect.y + 75 * getLevel(item, demoData)"
             :skill-name="item.Name" :title="item.Description" :node-id="item.Id" v-for="item, index in demoData"
-            :key="index" />
+            :key="index" /> -->
+
+        <SkillNode v-for="item, index in demoData"  :x="positions[item.Id].x" :y="positions[item.Id].y" :skill-name="item.Name" :title="item.Description"
+            :node-id="item.Id" :key="index" />
         <path v-for="(path, index) in connectionPaths" :key="'line-' + index" :d="path" stroke="#666" stroke-width="2"
             fill="none" marker-end="url(#arrow)" />
     </svg>

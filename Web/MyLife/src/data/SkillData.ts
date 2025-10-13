@@ -1,4 +1,4 @@
-import {  Hash, HashSHADefault, type HashSHA } from "@/data/HashData"
+import {   HashSHADefault, type HashSHA } from "@/data/HashData"
 
 interface ISkillNode {
     Id: HashSHA       // 节点唯一标识

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElCol, ElRow } from 'element-plus';
-import { type Ref, ref, onMounted, onBeforeUnmount } from 'vue';
+import { type Ref, ref, onMounted, onBeforeUnmount, onBeforeMount } from 'vue';
 import { marked } from 'marked';
 import mermaid from 'mermaid';
 import mdContentRaw from '@/assets/NET Core 开发要点.md?raw'; // Vite 支持 ?raw 导入文本
@@ -15,7 +15,8 @@ const { title, content } = extractTitleAndContent(mdContentRaw);
 const blog = Blog();
 blog.blogTitle = title;
 blog.anchorList = extractHeadings(content);
-const htmlContent: Ref<string | Promise<string>> | string | undefined = blog.isShow ? blog.blogCacheList.find(i => i.blogTitle == 'NET Core 开发要点')?.blogContent : ref(marked(content));
+const htmlContent: Ref<string | Promise<string>> | string | undefined = blog.isCache ? blog.blogCacheList.find(i => i.blogTitle == 'NET Core 开发要点')?.blogContent : ref(marked(content));
+
 
 onMounted(async () => {
     mermaid.initialize({ startOnLoad: false });
@@ -23,7 +24,7 @@ onMounted(async () => {
         querySelector: '.language-mermaid',
     });
 
-    if (!blog.isShow) {
+    if (!blog.isCache) {
         // 首次加载,添加锚点和行号,并缓存
         addIdsToHeadings('blogContent', blog.anchorList);
         addLineNumbersToCodeBlocks();
@@ -32,7 +33,7 @@ onMounted(async () => {
 
 });
 onBeforeUnmount(() => {
-    blog.isShow = true;// 标记已缓存
+    blog.isCache = true;// 标记已缓存
 });
 
 

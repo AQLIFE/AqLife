@@ -4,7 +4,7 @@ import { RouterView } from 'vue-router';
 import NavigationBar from './components/NavigationBar.vue';
 import DevPlanCard from './components/DevPlanCard.vue';
 import FAuthorCard from './components/FAuthorCard.vue';
-import { DevPlan } from './services/storer';
+import { Blog, DevPlan } from './services/storer';
 import SearchBox from './components/SearchBox.vue';
 import BlogNodeTreeCard from './components/BlogNodeTreeCard.vue';
 </script>
@@ -21,7 +21,7 @@ import BlogNodeTreeCard from './components/BlogNodeTreeCard.vue';
 
 			<ElCol class="lcard" >
 				<DevPlanCard  v-if="DevPlan().isShow"/>
-				<BlogNodeTreeCard v-else/>
+				<BlogNodeTreeCard v-else-if="Blog().isShow"/>
 			</ElCol>
 		</ElRow>
 	</ElCol>

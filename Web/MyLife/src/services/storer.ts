@@ -31,11 +31,14 @@ const DevPlan = defineStore("DevPlan",()=>{
 
 const Blog = defineStore("Blog",()=>{
     const isShow:Ref<boolean> = ref(false);
+    const isCache:Ref<boolean> = ref(false);
     const blogTitle:Ref<string> = ref('');
     const anchorList:Ref<IAnchor[]> = ref([] as IAnchor[]);
     const blogCacheList = [{blogTitle:'',blogContent:''}]; 
 
-    return {isShow,blogTitle,anchorList,blogCacheList};
+    function watchNav(state:boolean):void{isShow.value = state;}
+
+    return {isShow,isCache,blogTitle,anchorList,blogCacheList,watchNav};
 });
 
 export {AuthorInfo,DevPlan,Blog}

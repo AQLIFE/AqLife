@@ -41,28 +41,28 @@ onMounted(() => {
     line-height:6vh;
 }
 
-.el-input>>>.el-input__wrapper {
+.el-input :deep(.el-input__wrapper) {
     border: 0px none;
     box-shadow: none !important;
     /* background-color: var(--back_color_lv1) !important; */
 }
 
-.el-input>>>.el-input__wrapper>* {
+.el-input :depp(.el-input__wrapper)>* {
     /* background-color: var(--back_color_lv1); */
     padding-left: 1vw;
 }
 
-.el-input>>>.el-input__wrapper:hover {
+.el-input :deep(.el-input__wrapper:hover) {
     box-shadow: none !important;
     border: none;
 }
 
-.el-input>>>.el-input__wrapper:focus {
+.el-input :deep(.el-input__wrapper:focus) {
     box-shadow: none !important;
     border: none;
 }
 
-.el-input>>>.el-input-group__append {
+.el-input :deep(.el-input-group__append) {
     background-color: white !important;
     box-shadow: none !important;;
 }
@@ -73,7 +73,7 @@ onMounted(() => {
 }
 
 .card:hover,
-.el-input__wrapper>>>.el-input__inner:focus {
+.el-input__wrapper :deep(.el-input__inner:focus) {
     border: 1px solid rgb(78, 142, 47);
     transition: box-shadow 0.2s, border-color 0.2s;
 }
