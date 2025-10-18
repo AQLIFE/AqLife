@@ -33,7 +33,7 @@ onMounted(async () => {
 
 });
 onBeforeUnmount(() => {
-    blog.isCache = true;// 标记已缓存
+    // blog.isCache = true;// 标记已缓存
 });
 
 
@@ -89,7 +89,7 @@ function addLineNumbersToCodeBlocks() {
         const code = codeEl.textContent || '';
         const lines = code.split('\n');
         const numberedHtml = lines.map((line, idx) =>
-            `<span class="code-line"><span class="line-number">${idx + 1}</span> ${line}</span>`
+            `<span class="code-line"><span style="color:var(--back_color_lv5);">${idx + 1}</span> ${line}</span>`
         ).join('\n');
         codeEl.innerHTML = numberedHtml;
     });
@@ -145,18 +145,18 @@ function CacheBlog(): HTMLElement | string | null {
     height: 100vh !important;
 }
 
-
+/* 
 .code-line {
     display: block;
     white-space: pre;
-}
-
+} */
+/* 
 .line-number {
     display: inline-block;
     width: 2em;
-    color: #999;
+    color: var(--back_color_lv1);
     text-align: right;
     margin-right: 1em;
     user-select: none;
-}
+} */
 </style>

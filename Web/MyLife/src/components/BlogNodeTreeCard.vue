@@ -6,7 +6,7 @@ const blog = Blog();
 
 <template>
     <ElCol>
-        <ElCol>
+        <ElCol style="color:lightslategray">
             {{ blog.blogTitle }}
         </ElCol>
         <ElAnchor>
@@ -14,3 +14,9 @@ const blog = Blog();
         </ElAnchor>
     </ElCol>
 </template>
+
+<style>
+.el-anchor__link{
+    color: black;
+}
+</style>
