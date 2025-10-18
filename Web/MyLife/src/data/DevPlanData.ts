@@ -12,7 +12,10 @@ const DevPlan :IDevTask[]= [
     {content:'添加动态Author信息',State:false},
     {content:'添加pinia实现',State:false},
     {content:'添加加载占位-Author',State:false},
-    {content:'开发一个技能树组件-大工程',State:false},
+    {content:'开发一个技能树组件-大工程(延期)',State:false},
+    {content:'增设分享/心愿内容',State:false},
+    {content:'初始实现md文档预览',State:false},
+    {content:'md代码块初始化,实现mermaid的图表',State:false},
 ]
 
 export {DevPlan};

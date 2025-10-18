@@ -20,7 +20,7 @@
 import { ElCol,ElCard, ElInput } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, ref } from 'vue';
-import ButtonIcon from '@/assets/icons/ButtonIcon.vue';
+import ButtonIcon from '@/assets/icons/ButtonIcon.svg';
 
 const demo = ref('');
 const inputRef = ref();

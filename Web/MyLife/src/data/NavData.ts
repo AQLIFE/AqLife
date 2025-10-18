@@ -1,17 +1,17 @@
 import {type RouteRecordRaw} from 'vue-router'
 import { routerRaw } from '@/services/router';
-import AboutIcon from '@/assets/icons/AboutIcon.vue';
-import type { Component } from 'vue';
-import ShareIcon from '@/assets/icons/ShareIcon.vue';
-import BlogIcon from '@/assets/icons/BlogIcon.vue';
-import PlanIcon from '@/assets/icons/PlanIcon.vue';
-import SkillIcon from '@/assets/icons/SkillIcon.vue';
-import WishIcon from '@/assets/icons/WishIcon.vue';
+
+import AboutIcon from '@/assets/icons/AboutIcon.svg';
+import ShareIcon from '@/assets/icons/ShareIcon.svg';
+import BlogIcon from  '@/assets/icons/BlogIcon.svg';
+import PlanIcon from  '@/assets/icons/PlanIcon.svg';
+// import SkillIcon from '@/assets/icons/SkillIcon.svg';
+import WishIcon from  '@/assets/icons/WishIcon.svg';
 
 interface INavData {
     NavTitle:string;
     NavObj:RouteRecordRaw,
-    NavIcon:Component
+    NavIcon:string
 }
 
 const NavData:INavData[]=[

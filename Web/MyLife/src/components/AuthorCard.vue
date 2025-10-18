@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import GithubIcon from '@/assets/icons/GithubIcon.vue';
+import GithubIcon from '@/assets/icons/GithubIcon.svg';
 import { AuthorInfo } from '@/services/storer';
 import { ElImage, ElRow, ElCol, ElDivider, ElIcon, ElLink,ElCard } from 'element-plus';
 
