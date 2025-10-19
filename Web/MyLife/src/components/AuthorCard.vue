@@ -8,9 +8,9 @@
                 <ElRow>
                     <ElCol id="name" title="点击直达作者github主页">
                         <ElLink :href="author.userInfo.html_url" target="_blank">
-                            <ElIcon :icon="GithubIcon"/>
-                                <!-- <GithubIcon />
-                            </ElIcon> -->
+                            <ElIcon>
+                                <GithubIcon />
+                            </ElIcon>
                             {{ author.userInfo.name }}
                         </ElLink>
 
@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import GithubIcon from '@/assets/icons/GithubIcon.svg';
+import GithubIcon from '@/assets/icons/GithubIcon.vue';
 import { AuthorInfo } from '@/services/storer';
 import { ElImage, ElRow, ElCol, ElDivider, ElIcon, ElLink,ElCard } from 'element-plus';
 

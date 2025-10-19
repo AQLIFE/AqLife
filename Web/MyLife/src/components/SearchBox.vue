@@ -5,7 +5,9 @@
                 <ElCol>
 
                     <span class="key">
-                        <ElIcon :icon="ButtonIcon"/>
+                        <ElIcon>
+                            <ButtonIcon/>
+                        </ElIcon>
                         Ctrl+Q
                     </span>
                 </ElCol>
@@ -18,7 +20,7 @@
 import { ElCol,ElCard, ElInput,ElIcon } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, ref } from 'vue';
-import ButtonIcon from '@/assets/icons/ButtonIcon.svg';
+import ButtonIcon from '@/assets/icons/ButtonIcon.vue';
 
 const demo = ref('');
 const inputRef = ref();
