@@ -71,7 +71,6 @@ import BlogNodeTreeCard from './components/BlogNodeTreeCard.vue';
 
 #viewer {
 	height: auto;
-	/* background-color: var(--back_color_lv1); */
 	margin-right: 5vw;
 	padding: 0;
 	scrollbar-width: none; /* Firefox 隐藏滚动条 */

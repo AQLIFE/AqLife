@@ -8,9 +8,9 @@
                 <ElRow>
                     <ElCol id="name" title="点击直达作者github主页">
                         <ElLink :href="author.userInfo.html_url" target="_blank">
-                            <ElIcon>
-                                <GithubIcon />
-                            </ElIcon>
+                            <ElIcon :icon="GithubIcon"/>
+                                <!-- <GithubIcon />
+                            </ElIcon> -->
                             {{ author.userInfo.name }}
                         </ElLink>
 
