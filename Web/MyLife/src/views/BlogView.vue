@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ElCol, ElRow } from 'element-plus';
-import { type Ref, ref, onMounted, onBeforeUnmount, onBeforeMount } from 'vue';
+import { type Ref, ref, onMounted,markRaw, type Component } from 'vue';
 import { marked } from 'marked';
 import mermaid from 'mermaid';
 import mdContentRaw from '@/assets/NET Core 开发要点.md?raw'; // Vite 支持 ?raw 导入文本
 import { Blog } from '@/services/storer';
 import type { IAnchor } from '@/data/AnchorData';
+import CodeRender from '@/components/CodeRender.vue';
 
 const updateTime = '2024-06-20';
 const description = '文章内容仅供参考，如有错误，欢迎指正。';
@@ -27,13 +28,10 @@ onMounted(async () => {
     if (!blog.isCache) {
         // 首次加载,添加锚点和行号,并缓存
         addIdsToHeadings('blogContent', blog.anchorList);
-        addLineNumbersToCodeBlocks();
+        addCodeBlocksRender();
         blog.blogCacheList.push({ blogTitle: blog.blogTitle, blogContent: CacheBlog() as string });
     }
 
-});
-onBeforeUnmount(() => {
-    // blog.isCache = true;// 标记已缓存
 });
 
 
@@ -82,16 +80,30 @@ function addIdsToHeadings(containerId: string, headings: IAnchor[]): void {
     });
 }
 
-// 为代码块添加行号
-function addLineNumbersToCodeBlocks() {
-    document.querySelectorAll('pre code').forEach(codeEl => {
+// 123
+function addCodeBlocksRender() {
+    // console.log(htmlContent)
+    
+    const codeBlock = document.querySelectorAll('pre code')
+
+    codeBlock.forEach(codeEl => {
+        const CodeType: Ref<string> = ref('');
         if (codeEl.classList.contains('language-mermaid')) return;
+
+        codeEl.classList.forEach(element => {
+            CodeType.value = element.match(/language-([\w\S]+)/)?.[1] || 'txt';
+        });
+
         const code = codeEl.textContent || '';
         const lines = code.split('\n');
         const numberedHtml = lines.map((line, idx) =>
             `<span class="code-line"><span style="color:var(--back_color_lv5);">${idx + 1}</span> ${line}</span>`
         ).join('\n');
-        codeEl.innerHTML = numberedHtml;
+        const component:Component = markRaw(CodeRender)
+        
+        
+        codeEl.innerHTML = `<${component} CodeType=${CodeType.value}>${numberedHtml}</${component}>`;
+        
     });
 }
 
@@ -144,19 +156,4 @@ function CacheBlog(): HTMLElement | string | null {
     font-size: 1.2rem;
     height: 100vh !important;
 }
-
-/* 
-.code-line {
-    display: block;
-    white-space: pre;
-} */
-/* 
-.line-number {
-    display: inline-block;
-    width: 2em;
-    color: var(--back_color_lv1);
-    text-align: right;
-    margin-right: 1em;
-    user-select: none;
-} */
 </style>

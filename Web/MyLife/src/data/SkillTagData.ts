@@ -30,6 +30,10 @@ class SkillManager {
     isEColor = (sColor:string):boolean =>EColors.includes(sColor);
 }
 
+interface CodeInfo{
+    CodeType:string;
+    CodeLines:string[];
+}
 
 const skillManager = new SkillManager();
-export { Skills,skillManager,EColors };
+export { Skills,skillManager,EColors,type CodeInfo};

@@ -14,6 +14,7 @@ const props = defineProps<{wishImage:string,wishName:string}>()
     height:30vh;
     background-repeat: no-repeat;
     background-size:cover;
+    background-position: center;
 }
 
 .WishContent{
@@ -22,5 +23,6 @@ const props = defineProps<{wishImage:string,wishName:string}>()
     bottom: 0;left: 0;
     background-color: rgba(255,255,255,0.5);
     text-align: center;
+    padding: 0.5vh 0;
 }
 </style>

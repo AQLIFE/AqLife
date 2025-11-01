@@ -8,6 +8,7 @@ import BlogIcon from  '@/assets/icons/BlogIcon.vue';
 import PlanIcon from  '@/assets/icons/PlanIcon.vue';
 // import SkillIcon from '@/assets/icons/SkillIcon.vue';
 import WishIcon from  '@/assets/icons/WishIcon.vue';
+import RandomIcon from '@/assets/icons/RandomIcon.vue';
 
 interface INavData {
     NavTitle:string;
@@ -22,6 +23,7 @@ const NavData:INavData[]=[
     {NavTitle:'计划',NavObj:routerRaw[5],NavIcon:PlanIcon},
     // {NavTitle:'技能&成就',NavObj:routerRaw[6],NavIcon:SkillIcon},
     {NavTitle:'心愿',NavObj:routerRaw[7],NavIcon:WishIcon},
+    {NavTitle:'测试',NavObj:routerRaw[8],NavIcon:RandomIcon},
 ]
 
 export {NavData};

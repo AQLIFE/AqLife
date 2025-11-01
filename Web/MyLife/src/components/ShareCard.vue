@@ -12,7 +12,7 @@ const props = defineProps<{src:string}>();
 <style scoped>
 .el-button{
     padding:3vh 5vw !important;
-    height: auto;width: auto;
+    height:auto;width: auto;
     background-color: rgba(0,0,0,0);
     border:1px dashed rgba(0,0,0,0);
     overflow: hidden;

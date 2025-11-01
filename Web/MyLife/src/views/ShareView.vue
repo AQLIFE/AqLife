@@ -4,7 +4,8 @@ import { ElRow,ElCol } from 'element-plus';
 
 const links=[
     'https://www.phind.com/assets/images/phind.svg',
-    'https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/copilot-text.png'
+    'https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/copilot-text.png',
+    // 'https://raw.githubusercontent.com/dotnet/brand/refs/heads/main/logo/dotnet-logo.svg'
 ]
 </script>
 
