@@ -11,8 +11,8 @@
     </div>
 </template>
 <script setup lang="ts">
-import type { CodeInfo } from '@/data/SkillTagData';
-import { defineComponent } from 'vue';
+// import type { CodeInfo } from '@/data/SkillTagData';
+// import { defineComponent } from 'vue';
 // import { onMounted,type Ref,ref } from 'vue';
 const props = defineProps<{ CodeType: string}>()
 // const content :Ref<CodeInfo> = ref({CodeType:'',CodeLines:[]})
@@ -25,22 +25,22 @@ const props = defineProps<{ CodeType: string}>()
 
 // })
 
-function getCode(sourceStr:string):CodeInfo {
-    const decodedText = sourceStr.replace(/&gt;/g, '>');
-    // 匹配语言类型（修复后的正则）
-    const RegexCodeType: RegExp = /```([\w]{1,})/;
+// function getCode(sourceStr:string):CodeInfo {
+//     const decodedText = sourceStr.replace(/&gt;/g, '>');
+//     // 匹配语言类型（修复后的正则）
+//     const RegexCodeType: RegExp = /```([\w]{1,})/;
     
-    // 匹配代码块（修复后的正则）
-    const RegexCode: RegExp = /```[\w\S]{1,}([\s\S]*?)```/;
+//     // 匹配代码块（修复后的正则）
+//     const RegexCode: RegExp = /```[\w\S]{1,}([\s\S]*?)```/;
     
     
-    const codeType:string = decodedText.match(RegexCodeType)?.[1]||'txt'
-    // console.log(decodedText,decodedText.match(RegexCode),decodedText.match(RegexCodeType))
+//     const codeType:string = decodedText.match(RegexCodeType)?.[1]||'txt'
+//     // console.log(decodedText,decodedText.match(RegexCode),decodedText.match(RegexCodeType))
 
-    const codeLines:string[] = decodedText.match(RegexCode)?.[1].split('\n')||[]
-    return {CodeType:codeType,CodeLines:codeLines}
+//     const codeLines:string[] = decodedText.match(RegexCode)?.[1].split('\n')||[]
+//     return {CodeType:codeType,CodeLines:codeLines}
     
-}
+// }
 </script>
 
 <style scoped>

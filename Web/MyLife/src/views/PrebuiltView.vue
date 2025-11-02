@@ -5,7 +5,7 @@ import CodeRender from '@/components/CodeRender.vue';
 
 <template>
     <ElCol>Prebuilt</ElCol>
-    <CodeRender title="测试代码">
+    <CodeRender CodeType="csharp">
         ```csharp
         var x = obj switch{
         string => true,
