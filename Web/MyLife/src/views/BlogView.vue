@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // import { useClipboard } from '@vueuse/core'
 import { ElCol, ElRow } from 'element-plus';
-import { type Ref, ref, onMounted, onBeforeMount, render } from 'vue';
+import { type Ref, ref, onMounted } from 'vue';
 import { marked } from 'marked';
 import mermaid from 'mermaid';
 import mdContentRaw from '@/assets/NET Core 开发要点.md?raw'; // Vite 支持 ?raw 导入文本
@@ -10,6 +10,7 @@ import type { IAnchor } from '@/data/AnchorData';
 
 const updateTime = '2024-06-20';
 const description = '文章内容仅供参考，如有错误，欢迎指正。';
+
 
 const { title, content } = extractTitleAndContent(mdContentRaw);
 
@@ -112,18 +113,30 @@ function addCodeBlocksRender() {
         });
 
         const code = codeEl.textContent || '';
+        // console.log('处理代码块:', code);
 
         const lines = code.split('\n');
         const numberedHtml = lines.map((line, idx) =>
             `<div><span class="CodeLine">${idx + 1}</span><span class='txt'>${line}</span></div>`
         ).join('\n');
 
+        const container = codeEl.parentElement;
+        if (container) {
+            container.addEventListener('click', (event) => {
+                const target = event.target as HTMLElement;
+                if (target.classList.contains('copyButton')) {
+                    copyCode(code);
+                }
+            });
+        }
+        // 优雅的魔鬼 : 绝妙的Copy实现
+
 
         codeEl.innerHTML = `<div class="code" >
                 <div class="codeHeader" >
                     <div class="codeType" > ${CodeType.value} </div>
                     <div class= "codeTitle" > </div>
-                    <div class= "copyButton" title = "${copied.value ? '已复制' : '点此复制以下代码'}" onClick = "${copyCode(code)}" > ${copied.value ? 'Copy completed ✓' : 'Copy'} </div></div>
+                    <div class= "copyButton" title="${copied.value ? '已复制' : '点此复制以下代码'}"> ${copied.value ? 'Copy completed ✓' : 'Copy'} </div></div>
                     <div class= "codeContent" > ${numberedHtml} </div>
                 </div>`
 
