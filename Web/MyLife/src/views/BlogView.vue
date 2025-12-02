@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // import { useClipboard } from '@vueuse/core'
-import { ElCol, ElRow } from 'element-plus';
+import { ElCol, ElRow,ElMessage } from 'element-plus';
 import { type Ref, ref, onMounted } from 'vue';
 import { marked } from 'marked';
 import mermaid from 'mermaid';
@@ -24,9 +24,13 @@ const copied = ref(false)
 
 // 复制函数
 const copyCode = async (code: string) => {
-    console.log('复制代码:', code);
     try {
         await navigator.clipboard.writeText(code)
+        ElMessage({
+            showClose: true,
+            message: '代码已复制到剪贴板,若有建议请发信私聊,感谢支持!',
+            type: 'success',
+        })
         copied.value = true
         // 1.5秒后重置状态
         setTimeout(() => {
@@ -73,7 +77,7 @@ function extractTitleAndContent(md: string) {
 
 // 解析md 文件,并提取所有标题,返回锚点列表
 function extractHeadings(md: string): IAnchor[] {
-    const headingReg = /^(#{1,6})\s(.+)\n$/gm;
+    const headingReg = /^(#{1,3})\s(.+)\n$/gm;
     const headings: IAnchor[] = [];
     let match;
     let idx = 0;
@@ -98,7 +102,7 @@ function addIdsToHeadings(containerId: string, headings: IAnchor[]): void {
     });
 }
 
-// 此处为屎山代码,将代码块替换为 CodeRender 组件逻辑去渲染
+// 狗屎里有黄金,将代码块替换为 CodeRender 组件逻辑去渲染
 function addCodeBlocksRender() {
     // console.log(htmlContent)
 
@@ -139,21 +143,6 @@ function addCodeBlocksRender() {
                     <div class= "copyButton" title="${copied.value ? '已复制' : '点此复制以下代码'}"> ${copied.value ? 'Copy completed ✓' : 'Copy'} </div></div>
                     <div class= "codeContent" > ${numberedHtml} </div>
                 </div>`
-
-
-        // for (const el of codeEl) {
-        //     const button = el.querySelector('.codeButton')
-        //     const content = el.querySelector('.codeContent')
-        //     console.log(content?.textContent);
-
-        //     button?.addEventListener('click', () => {
-        //         // 获取代码内容 
-        //         if (content?.textContent) {
-        //             copyCode(content.textContent);
-        //         }
-        //     });
-        // }
-
     });
 }
 

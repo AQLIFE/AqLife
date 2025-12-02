@@ -16,6 +16,7 @@ const DevPlan :IDevTask[]= [
     {content:'增设分享/心愿内容',State:false},
     {content:'初始实现md文档预览',State:false},
     {content:'md代码块初始化,实现mermaid的图表',State:false},
+    {content:'md代码块主要功能完工,可复制代码',State:false},
 ]
 
 export {DevPlan};
