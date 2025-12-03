@@ -13,7 +13,6 @@
      "jsx": "preserve",
     "jsxImportSource": "vue",
     "jsxFactory": "h",
-    "jsxFragmentFactory": "Fragment",
-    "include": [ "vite.config.ts","src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "types/**/*","src/**/*.d.ts"]
+    "jsxFragmentFactory": "Fragment"
   }
 }

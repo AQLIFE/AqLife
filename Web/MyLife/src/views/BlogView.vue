@@ -6,6 +6,7 @@ import { marked } from 'marked';
 import mermaid from 'mermaid';
 import mdContentRaw from '@/assets/NET Core 开发要点.md?raw'; // Vite 支持 ?raw 导入文本
 import { Blog } from '@/services/storer';
+import { CopyDocument,ElIcon } from '@element-plus/icons-vue';
 import type { IAnchor } from '@/data/AnchorData';
 
 const updateTime = '2024-06-20';
@@ -36,8 +37,9 @@ const copyCode = async (code: string) => {
         setTimeout(() => {
             copied.value = false
         }, 1500)
-    } catch {
-        console.error('复制失败:', '用户未授权')
+    } catch{
+        ElMessage.error('复制失败，当前访问暂不支持')
+        // console.error('复制失败:', '用户未授权')
     }
 }
 

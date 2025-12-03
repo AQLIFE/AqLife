@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import { ElRow } from 'element-plus';
-import NavigationButton from './NavigationButton.vue';
+import NavigationButton from '@/components/NavigationButton.vue';
 import { NavData } from '@/data/NavData';
 import type { RouteRecordRaw } from 'vue-router';
 import { useRouter } from 'vue-router';

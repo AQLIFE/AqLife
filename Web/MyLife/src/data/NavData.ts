@@ -13,7 +13,7 @@ import RandomIcon from '@/assets/icons/RandomIcon.vue';
 interface INavData {
     NavTitle:string;
     NavObj:RouteRecordRaw,
-    NavIcon:Comment|HTMLElement|Component
+    NavIcon:HTMLElement|Component|string
 }
 
 const NavData:INavData[]=[
