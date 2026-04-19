@@ -1,0 +1,16 @@
+﻿using MyLife.Core.API;
+
+namespace MyLife.Core.Define
+{
+    public interface IFilePolicy
+    {
+        public int MaxFileSize { get; init; }
+        public string[] AllowedExtensions { get; init; }
+        public string StoragePath { get; init; }
+        public StorageUnit StorageUnit { get; init; }
+        public bool AllowUpload { get; init; }
+        public bool AllowDownload { get; init; }
+        public bool AllowDelete { get; init; }
+    }
+
+}

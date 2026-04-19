@@ -28,3 +28,11 @@ coverage
 *.sw?
 debug.log
 *.tsbuildinfo
+obj
+bin
+.vs
+/API/MyLife/Properties
+/API/MyLife/appsettings.Development.json
+/API/MyLife/appsettings.json
+/API/MyLife/libman.json
+/API/MyLife/MyLife.http

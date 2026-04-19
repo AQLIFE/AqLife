@@ -6,7 +6,7 @@ import { marked } from 'marked';
 import mermaid from 'mermaid';
 import mdContentRaw from '@/assets/NET Core 开发要点.md?raw'; // Vite 支持 ?raw 导入文本
 import { Blog } from '@/services/storer';
-import { CopyDocument,ElIcon } from '@element-plus/icons-vue';
+// import { CopyDocument,ElIcon } from '@element-plus/icons-vue';
 import type { IAnchor } from '@/data/AnchorData';
 
 const updateTime = '2024-06-20';

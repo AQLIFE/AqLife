@@ -1,0 +1,11 @@
+{
+  "MaxFileSize": 100,
+  "AllowedExtensions": [
+    ".md"
+  ],
+  "StoragePath": "http://106.52.32.38",
+  "StorageUnit": "MB",
+  "AllowUpload": false,
+  "AllowDownload": true,
+  "AllowDelete": false
+}
