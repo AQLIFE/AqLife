@@ -1,4 +1,5 @@
 # Logs
+.gitignore
 logs
 *.log
 npm-debug.log*
@@ -16,11 +17,13 @@ coverage
 
 /cypress/videos/
 /cypress/screenshots/
-
+*.json
+*.d.ts
 # Editor directories and files
 .vscode
 !.vscode/extensions.json
 .idea
+*.md
 *.suo
 *.ntvs*
 *.njsproj
@@ -36,3 +39,6 @@ bin
 /API/MyLife/appsettings.json
 /API/MyLife/libman.json
 /API/MyLife/MyLife.http
+/API/MyLife/Migrations
+/API/MyLife/bin/
+/APIFOX

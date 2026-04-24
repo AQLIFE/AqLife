@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MyLife.Entity;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Serilog;
 using Serilog.Formatting.Compact;
@@ -7,20 +8,25 @@ namespace MyLife.Core.Provider
 {
     public enum LogType { DbType, ApiType, FunType, ConfigType }
 
-    //public class StructLogConfig(LogType type,string desc)
-    //{
-    //    public LogType LType { get; init; } = type;
-    //    public string LDesc { get; init; } = desc;
+    public class DBConfig
+    {
+        public string DbType { get; set; }
+        public string DbVersion { get; set; }
+    }
 
-    //}
     public static class StoragePolicyProvider
     {
+        /// <summary>
+        /// 配置并启用 Serilog
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
         public static WebApplicationBuilder BindLogger(this WebApplicationBuilder builder)
         {
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information() // 设置最小记录级别
-                .WriteTo.Console(outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] {Message:lj}{NewLine}{Exception}")          // 输出到控制台
-                .WriteTo.File(new CompactJsonFormatter(), "logs/db_log-.txt", rollingInterval: RollingInterval.Day)// 写入文件，每天一个新文件
+                .MinimumLevel.Information()
+                .WriteTo.Console(outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .WriteTo.File(new CompactJsonFormatter(), "logs/db_log-.txt", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             builder.Host.UseSerilog();
@@ -29,11 +35,18 @@ namespace MyLife.Core.Provider
             return builder;
         }
 
+        /// <summary>
+        /// 配置并添加对应数据库连接
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static WebApplicationBuilder BindStoragePolicy(this WebApplicationBuilder builder)
         {
+            Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", LogType.ConfigType, "正在绑定数据库存储策略...");
             var dbconfig = builder.Configuration.GetSection("DbConfig").Get<DBConfig>() ?? throw new Exception("Not found DBConfig!");
 
-            var version = MySqlServerVersion.Parse(dbconfig?.DbVersion ?? throw new Exception("UnKwon Version!"));
+            var version = MySqlServerVersion.Parse(dbconfig?.DbVersion ?? throw new Exception("UnKwon Version!"));// 暂不支持NET 9以上SDK
 
 
             string connStr = builder.Configuration.GetConnectionString(dbconfig?.DbType is string link ? link : string.Empty) ?? throw new Exception($"Not found Key:{dbconfig?.DbType} ConnectionString!");
@@ -42,6 +55,11 @@ namespace MyLife.Core.Provider
             return builder;
         }
 
+        /// <summary>
+        /// 初始时进行数据库连接检查
+        /// </summary>
+        /// <param name="host"></param>
+        /// <returns></returns>
         public static IHost InitCheckDatabaseConnection(this IHost host)
         {
             // 1. 创建服务作用域 (Scope)
@@ -78,14 +96,12 @@ namespace MyLife.Core.Provider
             return host;
         }
     }
-    public class DBConfig
-    {
-        public string DbType { get; set; }
-        public string DbVersion { get; set; }
-    }
+
+    
 
     public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options)
     {
-
+        public DbSet<DemoEntity> Demo { get; set; }
+        public DbSet<FileIndexEntity> File { get; set; }
     }
 }

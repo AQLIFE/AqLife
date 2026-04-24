@@ -5,10 +5,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-//builder.Services.apu();
-builder.BindLogger().BindStoragePolicy();
+
+builder.BindLogger().BindConfiguration().BindStoragePolicy().BindGlobalExceptionPolicy();
 
 // register file policy using dedicated extension method
 //builder.AddFilePolicyFromEnvironment();
@@ -24,7 +25,7 @@ if (app.Environment.IsDevelopment())
 
 app.InitCheckDatabaseConnection();
 
-app.UseAuthorization();
+app.UseExceptionHandler().UseAuthorization();
 
 app.MapControllers();
 

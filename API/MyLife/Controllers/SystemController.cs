@@ -1,18 +1,23 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyLife.Core.API;
 using MyLife.Core.Define;
+using MyLife.Core.Provider;
+using MyLife.Entity;
 
 namespace MyLife.Controllers
 {
-
-    public class SystemController
+    [ApiController,Route("system")]
+    public class SystemController(AppStorage storage): ControllerBase
     {
-        // private readonly IFilePolicy _filePolicy = filePolicy;
-
-        [HttpGet("system/status")]
-        public ActionResult<bool> Status()
+        [HttpGet("status")]
+        public async Task<DemoEntity?> Status()
         {
-            return true;
+            var searial =await  storage.Demo.CountAsync();
+            var obj = new Entity.DemoEntity {Serial = searial+1, Desc = $"测试数据{searial+1}" };
+            await storage.Demo.AddAsync(obj);
+            await storage.SaveChangesAsync();
+            return await storage.Demo.Where(e => e.Desc == obj.Desc).FirstOrDefaultAsync();
         }
     }
 }

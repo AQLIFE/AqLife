@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import CodeRender from '@/components/CodeRender.vue';
+import UpLoadFileCard from '@/components/UpLoadFileCard.vue';
 
 </script>
 
 <template>
     <ElCol>Prebuilt</ElCol>
-    <CodeRender CodeType="csharp">
+    <!-- <CodeRender CodeType="csharp">
         ```csharp
         var x = obj switch{
         string => true,
@@ -13,5 +14,6 @@ import CodeRender from '@/components/CodeRender.vue';
         double => true
         };
         ```
-    </CodeRender>
+    </CodeRender> -->
+    <UpLoadFileCard />
 </template>

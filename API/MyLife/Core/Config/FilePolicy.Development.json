@@ -3,7 +3,7 @@
   "AllowedExtensions": [
     ".md"
   ],
-  "StoragePath": "../Cache",
+  "StoragePath": "Cache",
   "StorageUnit": 1,
   "AllowUpload": true,
   "AllowDownload": true,

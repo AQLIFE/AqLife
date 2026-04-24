@@ -1,24 +1,37 @@
-using MyLife.Core.API;
-using MyLife.Core.Define;
-
+﻿using Serilog;
 namespace MyLife.Core.Provider
 {
-    public class FilePolicyProvider : IFilePolicyProvider
+    public class FilePolicy
     {
-        private readonly IFilePolicy _config;
+        public int MaxFileSize { set; get; }
+        public string[] AllowedExtensions { set; get; } = Array.Empty<string>();
 
-        public FilePolicyProvider(IFilePolicy config)
-        {
-            _config = config;
-        }
+        public int StorageUnit { set; get; } = 0;
+        public string StoragePath { set; get; } = string.Empty;
 
-        public FileSecurityPolicy GetPolicy()
+        public bool AllowUpload { set; get; } = false;
+        public bool AllowDelete { set; get; } = false;
+        public bool AllowDownload { set; get; } = false;
+
+        public FilePolicy() { }
+    }
+
+    public static class FilePolicyProvider
+    {
+        public static WebApplicationBuilder BindFilePolicy(this WebApplicationBuilder builder)
         {
-            // return domain type constructed from the configured IFilePolicy
-            // MaxFileSize in IFilePolicy is already in bytes (long), but FileSecurityPolicy expects original size and unit.
-            // Here we just return a FileSecurityPolicy constructed with the stored bytes by using Unit and dividing.
-            // Simpler approach: construct domain object using the existing values (may lose original unit/size granularity)
-            return new FileSecurityPolicy(_config.StoragePath, (int)_config.MaxFileSize, _config.StorageUnit, _config.AllowedExtensions, _config.AllowUpload, _config.AllowDownload, _config.AllowDelete);
+            Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", LogType.ConfigType, "正在绑定文件存储策略...");
+            var filePolicy = builder.Configuration.GetSection("FilePolicy").Get<FilePolicy>() ?? throw new Exception("Not found FilePolicy!");
+
+            if (Directory.Exists(Path.Combine(builder.Environment.ContentRootPath, filePolicy.StoragePath)))
+            {
+                builder.Services.Configure<FilePolicy>(builder.Configuration.GetSection("FilePolicy"));
+                Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", LogType.ConfigType, "文件策略初始化完成.");
+            }
+            else
+                Log.Warning(@"[Serilog][{@LogType}]=>{@LogDesc}", LogType.ConfigType, "文件策略初始化失败，存储路径不存在.");
+
+            return builder;
         }
     }
 }
