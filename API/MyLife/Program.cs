@@ -1,4 +1,6 @@
 
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using MyLife.Core.Func;
 using MyLife.Core.Provider;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,10 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
-builder.BindLogger().BindConfiguration().BindStoragePolicy().BindGlobalExceptionPolicy();
+builder.BindLogger().BindConfiguration().BindFilePolicy().BindStoragePolicy().BindGlobalExceptionPolicy();
 
-// register file policy using dedicated extension method
-//builder.AddFilePolicyFromEnvironment();
 
 
 var app = builder.Build();
@@ -28,5 +28,11 @@ app.InitCheckDatabaseConnection();
 app.UseExceptionHandler().UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/quick", new HealthCheckOptions
+{
+    // 只运行标记为 "db" 的轻量检查
+    Predicate = (check) => check.Tags.Contains("db")
+});
 
 app.Run();

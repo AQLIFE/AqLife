@@ -8,16 +8,17 @@
 
   <ItemGroup>
     <Compile Remove="logs\**" />
-    <Compile Remove="Migrations\**" />
+    
     <Content Remove="logs\**" />
-    <Content Remove="Migrations\**" />
+    
     <EmbeddedResource Remove="logs\**" />
-    <EmbeddedResource Remove="Migrations\**" />
+    
     <None Remove="logs\**" />
-    <None Remove="Migrations\**" />
+    
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.MySql" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.26" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.26" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.26">
@@ -33,6 +34,18 @@
 
   <ItemGroup>
     <Folder Include="logs\" />
+    <Folder Include="Cache\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Core\Config\appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Core\Config\FilePolicy.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties core_4config_4appsettings_1development_1json__JsonSchema="https://www.schemastore.org/appsettings.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

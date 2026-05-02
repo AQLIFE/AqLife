@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using MyLife.Entity;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using MyLife.Core.Func;
+using MyLife.Entity;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -17,25 +18,6 @@ namespace MyLife.Core.Provider
     public static class StoragePolicyProvider
     {
         /// <summary>
-        /// 配置并启用 Serilog
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <returns></returns>
-        public static WebApplicationBuilder BindLogger(this WebApplicationBuilder builder)
-        {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
-                .WriteTo.Console(outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] {Message:lj}{NewLine}{Exception}")
-                .WriteTo.File(new CompactJsonFormatter(), "logs/db_log-.txt", rollingInterval: RollingInterval.Day)
-                .CreateLogger();
-
-            builder.Host.UseSerilog();
-
-            Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", LogType.ConfigType, "Serilog 已经开始功能工作了!");
-            return builder;
-        }
-
-        /// <summary>
         /// 配置并添加对应数据库连接
         /// </summary>
         /// <param name="builder"></param>
@@ -44,14 +26,17 @@ namespace MyLife.Core.Provider
         public static WebApplicationBuilder BindStoragePolicy(this WebApplicationBuilder builder)
         {
             Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", LogType.ConfigType, "正在绑定数据库存储策略...");
-            var dbconfig = builder.Configuration.GetSection("DbConfig").Get<DBConfig>() ?? throw new Exception("Not found DBConfig!");
+            //通过配置系统读取特定的配置节，并利用强类型对象绑定将其映射为 Options 实例，同时应用防御式编程确保配置的完整性。
+            var dbconfig = builder.Configuration.GetSection(typeof(DBConfig).Name).Get<DBConfig>() ?? throw new Exception("Not found DBConfig!");
 
             var version = MySqlServerVersion.Parse(dbconfig?.DbVersion ?? throw new Exception("UnKwon Version!"));// 暂不支持NET 9以上SDK
 
 
             string connStr = builder.Configuration.GetConnectionString(dbconfig?.DbType is string link ? link : string.Empty) ?? throw new Exception($"Not found Key:{dbconfig?.DbType} ConnectionString!");
 
-            builder.Services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version));
+            builder.Services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version)).AddScoped<StatusFunc>();
+            builder.Services.AddHealthChecks().AddMySql(connectionString: connStr, name: "mysql-check", tags: ["db", "sql"]).AddCheck<DatabaseSmokeTest>("SmokeTest");
+
             return builder;
         }
 
@@ -102,6 +87,7 @@ namespace MyLife.Core.Provider
     public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options)
     {
         public DbSet<DemoEntity> Demo { get; set; }
-        public DbSet<FileIndexEntity> File { get; set; }
+        public DbSet<FileIndexEntity> File { get; set;  }
+        public DbSet<CorpusEntity> Corpus { set; get; }
     }
 }

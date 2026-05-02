@@ -16,5 +16,7 @@ namespace MyLife.Entity
         public ulong FilSize { set; get; } = 0u;
         [Column]
         public DateTime UploadTime { set; get; } = DateTime.Now;
+
+        public FileIndexEntity() { }
     }
 }

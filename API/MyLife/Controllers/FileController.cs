@@ -4,7 +4,6 @@ using MyLife.Core.Provider;
 using MyLife.Entity;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Entity;
 using System.Data.Entity.Core.Common;
 using System.Net;
 
