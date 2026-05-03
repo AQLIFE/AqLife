@@ -15,10 +15,8 @@ namespace MyLife.Core.Func
         public bool Delete { get; set; }
 
     }
-    public class StatusFunc(AppStorage storage)
+    public class HealthFunc(AppStorage storage)
     {
-
-
         public async Task<List<DemoEntity>?> GetAll()
         => await storage.Demo.AsNoTracking().ToListAsync();
 
@@ -66,7 +64,7 @@ namespace MyLife.Core.Func
         => await Delete((await GetAll())?.Count ?? 0);
     }
 
-    public class DatabaseSmokeTest(StatusFunc statusFunc) : IHealthCheck
+    public class DatabaseSmokeTest(HealthFunc statusFunc) : IHealthCheck
     {
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken ct = default)
         {

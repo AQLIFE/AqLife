@@ -8,6 +8,6 @@
     "StorageUnit": 1,
     "AllowUpload": true,
     "AllowDownload": true,
-    "AllowDelete": true
+    "AllowDelete": false
   }
 }

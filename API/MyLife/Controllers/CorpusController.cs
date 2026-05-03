@@ -24,7 +24,7 @@ namespace MyLife.Controllers
             var count = await storage.Corpus.CountAsync();
             if (count == 0) return "没有任何语料";
             var randomIndex = new Random().Next(count);
-            var corpus = await storage.Corpus.Skip(randomIndex).FirstOrDefaultAsync();
+            var corpus = await storage.Corpus.OrderBy(e => e.Gid).Skip(randomIndex).FirstOrDefaultAsync();
             return corpus?.CorpusContent ?? "不存在语料";
         }
 

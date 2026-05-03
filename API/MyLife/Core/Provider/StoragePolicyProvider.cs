@@ -34,7 +34,7 @@ namespace MyLife.Core.Provider
 
             string connStr = builder.Configuration.GetConnectionString(dbconfig?.DbType is string link ? link : string.Empty) ?? throw new Exception($"Not found Key:{dbconfig?.DbType} ConnectionString!");
 
-            builder.Services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version)).AddScoped<StatusFunc>();
+            builder.Services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version)).AddScoped<HealthFunc>();
             builder.Services.AddHealthChecks().AddMySql(connectionString: connStr, name: "mysql-check", tags: ["db", "sql"]).AddCheck<DatabaseSmokeTest>("SmokeTest");
 
             return builder;

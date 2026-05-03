@@ -1,11 +1,12 @@
 {
   "FilePolicy": {
-    "MaxFileSize": 100,
+    "MaxFileSize": 300,
     "AllowedExtensions": [
-      ".md"
+      ".md",
+      ".xmind"
     ],
     "StoragePath": "Cache",
-    "StorageUnit": 1,
+    "StorageUnit": 10,
     "AllowUpload": true,
     "AllowDownload": true,
     "AllowDelete": true

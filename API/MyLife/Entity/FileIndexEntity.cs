@@ -11,9 +11,11 @@ namespace MyLife.Entity
         [Column]
         public string FileName { get; set; } = "default";
         [Column]
-        public string? Desc { get; set; } = null;
+        public string SavePath { get; set; } = string.Empty;
         [Column]
-        public ulong FilSize { set; get; } = 0u;
+        public ulong FileSize { set; get; } = 0u;
+        [Column]
+        public string FileHash { set; get; } = "default";
         [Column]
         public DateTime UploadTime { set; get; } = DateTime.Now;
 
