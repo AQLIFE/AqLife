@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MyLife.Entity
+namespace MyLife.Data.Entity
 {
     [Table("File")]
     public class FileIndexEntity
     {
-        [Column,Key]
+        [Column, Key]
         public Guid Uuid { get; set; } = Guid.NewGuid();
         [Column]
         public string FileName { get; set; } = "default";

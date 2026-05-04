@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyLife.Core.Provider;
-using MyLife.Entity;
+using MyLife.Data.Entity;
+using MyLife.Data.Repository;
 
-namespace MyLife.Controllers
+namespace MyLife.Web.Controllers
 {
     [Route("Corpus"), ApiController]
     public class CorpusController(AppStorage storage) : ControllerBase
@@ -13,10 +13,10 @@ namespace MyLife.Controllers
             => await storage.Corpus.AsNoTracking().Select(e => e.CorpusContent).ToListAsync();
 
         [HttpGet("{guid:guid}")]
-        public async Task<string> GetCorpus([FromRoute] Guid guid)        
-            => await storage.Corpus.AsNoTracking().Where(e => e.Gid == guid).Select(e=>e.CorpusContent).FirstOrDefaultAsync() ?? "不存在语料";
+        public async Task<string> GetCorpus([FromRoute] Guid guid)
+            => await storage.Corpus.AsNoTracking().Where(e => e.Gid == guid).Select(e => e.CorpusContent).FirstOrDefaultAsync() ?? "不存在语料";
 
-        
+
 
         [HttpGet("Random")]
         public async Task<string> GetRandomCorpus()
@@ -43,7 +43,7 @@ namespace MyLife.Controllers
             var corpus = await storage.Corpus.FirstOrDefaultAsync(e => e.Gid == guid);
             if (corpus == null) return 0;
             storage.Corpus.Remove(corpus);
-            return await storage.SaveChangesAsync();            
+            return await storage.SaveChangesAsync();
         }
     }
 }

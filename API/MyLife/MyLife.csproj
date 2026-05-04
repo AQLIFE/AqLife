@@ -35,17 +35,18 @@
   <ItemGroup>
     <Folder Include="logs\" />
     <Folder Include="Cache\" />
+    <Folder Include="Shared\Utils\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Core\Config\appsettings.json">
+    <Content Update="Web\Configurations\appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="Core\Config\FilePolicy.json">
+    <Content Update="Web\Configurations\FilePolicy.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties core_4config_4appsettings_1development_1json__JsonSchema="https://www.schemastore.org/appsettings.json" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

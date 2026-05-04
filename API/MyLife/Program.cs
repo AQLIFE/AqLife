@@ -1,22 +1,21 @@
 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using MyLife.Core.Func;
-using MyLife.Core.Provider;
+using MyLife.Data;
+using MyLife.Service.Interfaces;
+using MyLife.Service.Strategies;
+using MyLife.Web.Extensions;
+using MyLife.Web.Provision;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
-
-builder.Services.AddControllers(options =>
-{
-    // 统一添加 api 前缀
-    options.Conventions.Add(new ApiPrefixConvention("api"));
-});
+builder.Services.AddCustomApiConventions();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
-builder.BindLogger().BindConfiguration().BindFilePolicy().BindStoragePolicy().BindGlobalExceptionPolicy();
+builder.BindLogger().BindConfiguration().BindFilePolicy().BindGlobalExceptionPolicy();
+builder.Services.AddDataLayer(builder.Configuration);
+
 builder.Services.AddScoped<IFileSearchStrategy, SearchByIdStrategy>();
 builder.Services.AddScoped<IFileSearchStrategy, SearchByTitleStrategy>();
 // 手动注册（或者使用反射批量注册）
@@ -24,12 +23,15 @@ builder.Services.AddScoped<IUploadCheckStrategy, UploadPermissionCheck>();
 builder.Services.AddScoped<IUploadCheckStrategy, ExtensionCheck>();
 builder.Services.AddScoped<IUploadCheckStrategy, SizeCheck>();
 
-//curl -v http://127.0.0.1:5000/api/health
+builder.Services.AddScoped<IFileSearchProvider, FileSearchProvider>();
+builder.Services.AddScoped<FileService>();
+
+
 var app = builder.Build();
 
 app.InitCheckDatabaseConnection();
 
-app.UseExceptionHandler().UseAuthorization();
+app.UseExceptionHandler();
 
 app.MapHealthChecks("/api/health");
 app.MapHealthChecks("/api/health/quick", new HealthCheckOptions

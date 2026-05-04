@@ -1,21 +1,9 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using MyLife.Shared.Config;
 
-namespace MyLife.Core.Provider
+namespace MyLife.Web.Middlewares
 {
-
-    public static class GlobalExceptionPolicyProvider
-    {
-        public static IServiceCollection BindGlobalExceptionPolicy(this WebApplicationBuilder builder)
-        {
-            if (builder.Environment.IsProduction())
-                builder.Services.AddExceptionHandler<ProductionExceptionHandler>();
-            else
-                builder.Services.AddExceptionHandler<DevelopmentExceptionHandler>();
-            return builder.Services.AddProblemDetails();   
-        }
-    }
-
     public class ProductionExceptionHandler(ILogger<ProductionExceptionHandler> logger) : IExceptionHandler
     {
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)

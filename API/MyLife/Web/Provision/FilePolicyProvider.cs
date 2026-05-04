@@ -1,23 +1,8 @@
-﻿using MyLife.Core.Define;
+﻿using MyLife.Shared.Config;
 using Serilog;
-using static System.Collections.Specialized.BitVector32;
-namespace MyLife.Core.Provider
+
+namespace MyLife.Web.Provision
 {
-    public class FilePolicy
-    {
-        public int MaxFileSize { set; get; }
-        public string[] AllowedExtensions { set; get; } = Array.Empty<string>();
-
-        public int StorageUnit { set; get; } = 0;
-        public string StoragePath { set; get; } = string.Empty;
-
-        public bool AllowUpload { set; get; } = false;
-        public bool AllowDelete { set; get; } = false;
-        public bool AllowDownload { set; get; } = false;
-
-        public FilePolicy() { }
-    }
-
     public static class FilePolicyProvider
     {
         /// <summary>
@@ -31,25 +16,36 @@ namespace MyLife.Core.Provider
             Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", LogType.ConfigType, "正在绑定文件存储策略...");
 
             var section = builder.Configuration.GetSection("FilePolicy");
-            var filePolicy = section.Get<FilePolicy>() ?? throw new Exception("Not found FilePolicy!");
-            
             builder.Services.AddOptions<FilePolicy>().Bind(section).ValidateOnStart();
+
+            var filePolicy = section.Get<FilePolicy>() ?? throw new Exception("Not found FilePolicy!");
+
             //builder.Services.Configure<FilePolicy>(section); ## 延迟加载, 不能在启动时触发验证,仅在第一次注入时触发验证
-            EnsureStorageDirectoryCreated(builder.Environment.ContentRootPath,filePolicy.StoragePath);
+            if (filePolicy != null && !string.IsNullOrEmpty(filePolicy.StoragePath))
+            {
+                // 执行 IO 相关的初始化工作
+                EnsureStorageDirectoryCreated(builder.Environment.ContentRootPath, filePolicy.StoragePath);
+            }
+            else
+            {
+                throw new Exception("配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
+            }
             return builder;
         }
+
+
 
         /// <summary>
         /// 安全检查目录,不存在则创建,存在则记录日志
         /// </summary>
         /// <param name="env">环境根路径</param>
         /// <param name="path">目标目录</param>
-        public static void EnsureStorageDirectoryCreated(string env,string path)
+        public static void EnsureStorageDirectoryCreated(string rootPath, string path)
         {
-            var fullPath = Path.Combine(env, path);
+            var fullPath = Path.Combine(rootPath, path);
 
             if (Directory.Exists(fullPath))
-            {                
+            {
                 Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", LogType.ConfigType, "文件策略初始化完成.");
             }
             else
@@ -61,6 +57,4 @@ namespace MyLife.Core.Provider
             }
         }
     }
-
-
 }
