@@ -1,0 +1,7 @@
+
+@MyLife_HostAddress = http://localhost:5110
+
+###
+
+GET {{MyLife_HostAddress}}/api/health
+Accept: application/json

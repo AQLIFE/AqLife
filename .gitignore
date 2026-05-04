@@ -42,3 +42,8 @@ bin
 /API/MyLife/Migrations
 /API/MyLife/bin/
 /APIFOX
+/API/Web/Migrations/20260502024736_InitialCreate.cs
+/API/Web/Migrations/20260502025152_AddCorpus.cs
+/API/Web/Migrations/20260503040904_FixFileIndexEntitySpelling.cs
+/API/Web/Migrations/20260503042159_FixFileIndexEntityAttributeMembers.cs
+/API/Web/Migrations/AppStorageModelSnapshot.cs

@@ -1,0 +1,28 @@
+﻿using Microsoft.EntityFrameworkCore;
+using MyLife.Data.Health;
+using MyLife.Data.Repository;
+using MyLife.Shared.Accident;
+using MyLife.Shared.Config;
+
+namespace MyLife.Web.Provision
+{
+    public static class StorageProvider
+    {
+        public static IServiceCollection AddDataLayer(this IServiceCollection services, IConfiguration configuration)
+        {
+            var dbconfig = configuration.GetSection(typeof(DBConfig).Name).Get<DBConfig>() ?? throw new OptionMappingException("无法映射到DB Config");
+            // ... 解析版本和连接字符串的逻辑 ...
+            var version = MySqlServerVersion.Parse(dbconfig?.DbVersion ?? throw new OptionInvalidException("数据库版本不匹配"));// 暂不支持NET 9以上SDK
+            string connStr = configuration.GetConnectionString(dbconfig?.DbType is string link ? link : string.Empty) ?? throw new OptionMappingException($"无法找到 关键字:{dbconfig?.DbType} 连接字符串!");
+
+            services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version));
+
+            // 注册 HealthCheck 
+            services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version)).AddScoped<HealthFunc>();
+            services.AddHealthChecks().AddMySql(connStr, name: "mysql-check", tags: ["db"]);
+
+            return services;
+        }
+    }
+
+}
