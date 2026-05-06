@@ -9,7 +9,7 @@ namespace MyLife.Data.Entities
         [Column, Key]
         public int Serial { get; set; } = 0;
         [Column]
-        public string Desc { get; set; } = "default";
+        public string Desc { get; set; } = string.Empty;
     }
 
     [Table("Corpus")]
@@ -18,6 +18,6 @@ namespace MyLife.Data.Entities
         [Key]
         public Guid Gid { set; get; } = Guid.NewGuid();
         [Column]
-        public string CorpusContent { set; get; } = "朝生暮死";
+        public string CorpusContent { set; get; } = string.Empty;
     }
 }

@@ -13,7 +13,7 @@ namespace MyLife.Service.Implementations
         IOptions<FilePolicy> _policy,                  // 注入配置
         AppStorage _storage,                           // 注入数据库
         ILogger<FileService> _logger,
-        IFileSearchProvider _fileProvider)
+        IFileSearch _fileProvider)
     {
         // 返回一个包含流、文件名和 MIME 类型的 DTO
         public async Task<(Stream stream, string contentType, string fileName)> GetFileDownloadStreamAsync(string? title, Guid? id)
@@ -21,7 +21,7 @@ namespace MyLife.Service.Implementations
             var fileInfo = await _fileProvider.FindFileAsync(title, id)
                            ?? throw new KeyNotFoundException("数据库无记录");
 
-            var fullPath = Path.Combine(_policy.Value.StoragePath, fileInfo.SavePath);
+            var fullPath = Path.Combine(_policy.Value.StoragePath, fileInfo.DesensitizationName);
 
             if (!System.IO.File.Exists(fullPath))
                 throw new FileNotFoundException("磁盘物理文件丢失", fullPath);
@@ -68,7 +68,7 @@ namespace MyLife.Service.Implementations
                 FileName = untrustedFileName,
                 FileSize = (ulong)file.Length,
                 FileHash = hash,
-                SavePath = storedFileName
+                DesensitizationName = storedFileName
             };
 
             _storage.File.Add(fileMeta);

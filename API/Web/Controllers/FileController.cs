@@ -8,17 +8,16 @@ namespace MyLife.Web.Controllers
 {
 
     [ApiController, Route("[Controller]")]
-    public class FileController(IFileSearchProvider fileProvider, FileService service, AppStorage storage, ILogger<FileController> logger) : ControllerBase
+    public class FileController(IFileSearch fileProvider, FileService service, AppStorage storage, ILogger<FileController> logger) : ControllerBase
     {
         [HttpGet]
         public async Task<List<FileIndexEntity>> GetFileList()
-            => await storage.File.Select(e => new FileIndexEntity { FileName = e.FileName, SavePath = e.SavePath }).ToListAsync();
+            => await storage.File.Select(e => new FileIndexEntity { FileName = e.FileName, DesensitizationName = e.DesensitizationName }).ToListAsync();
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
+        public async Task<FileIndexEntity?> SearchFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
         {
-            var file = await fileProvider.FindFileAsync(title, id);
-            return file == null ? NotFound() : Ok(file);
+            return await fileProvider.FindFileAsync(title, id);
         }
 
         [HttpGet("download")]

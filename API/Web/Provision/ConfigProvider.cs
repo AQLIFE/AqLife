@@ -2,6 +2,7 @@ using MyLife.Shared.Accident;
 using MyLife.Shared.Config;
 using Serilog;
 using Serilog.Formatting.Compact;
+using System.Runtime.Serialization;
 
 namespace MyLife.Web.Provision
 {
@@ -57,6 +58,7 @@ namespace MyLife.Web.Provision
                 .Enrich.FromLogContext()
                 .WriteTo.Console(outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u1}] {Message:lj}{NewLine}{Exception}")
                 .WriteTo.File(new CompactJsonFormatter(), "logs/db_log-.json", rollingInterval: RollingInterval.Day)
+                //.WriteTo.File(new Formatter(), "logs/db_log-.", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             builder.Host.UseSerilog();

@@ -47,3 +47,5 @@ bin
 /API/Web/Migrations/20260503040904_FixFileIndexEntitySpelling.cs
 /API/Web/Migrations/20260503042159_FixFileIndexEntityAttributeMembers.cs
 /API/Web/Migrations/AppStorageModelSnapshot.cs
+/API/Data/Migrations/20260506070312_InitialCreate.cs
+/API/Data/Migrations/AppStorageModelSnapshot.cs

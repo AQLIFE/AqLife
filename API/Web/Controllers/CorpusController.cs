@@ -5,20 +5,23 @@ using MyLife.Data.Repository;
 
 namespace MyLife.Web.Controllers
 {
-    [Route("Corpus"), ApiController]
+    [Route("[controller]"), ApiController]
     public class CorpusController(AppStorage storage) : ControllerBase
     {
         [HttpGet]
         public async Task<List<string>> GetAllCorpus()
             => await storage.Corpus.AsNoTracking().Select(e => e.CorpusContent).ToListAsync();
 
+
+        [HttpGet("search")]
+        public async Task<string> FuzzeSearch(string query)
+            => await storage.Corpus.AsNoTracking().Where(e => e.CorpusContent.Contains(query)).Select(e => e.CorpusContent).FirstOrDefaultAsync() ?? "不存在语料";
+
         [HttpGet("{guid:guid}")]
         public async Task<string> GetCorpus([FromRoute] Guid guid)
             => await storage.Corpus.AsNoTracking().Where(e => e.Gid == guid).Select(e => e.CorpusContent).FirstOrDefaultAsync() ?? "不存在语料";
-
-
-
-        [HttpGet("Random")]
+        
+        [HttpGet("random")]
         public async Task<string> GetRandomCorpus()
         {
             var count = await storage.Corpus.CountAsync();

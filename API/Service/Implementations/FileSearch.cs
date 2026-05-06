@@ -4,11 +4,11 @@ using MyLife.Service.Interfaces;
 
 namespace MyLife.Service.Implementations
 {
-    public interface IFileSearchProvider
+    public interface IFileSearch
     {
         Task<FileIndexEntity?> FindFileAsync(string? title, Guid? id);
     }
-    public class FileSearch(IEnumerable<IFileSearchStrategy> strategies, AppStorage storage) : IFileSearchProvider
+    public class FileSearch(IEnumerable<IFileSearchStrategy> strategies, AppStorage storage) : IFileSearch
     {
         public async Task<FileIndexEntity?> FindFileAsync(string? title, Guid? id)
         {

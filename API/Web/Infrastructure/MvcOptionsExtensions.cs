@@ -4,7 +4,7 @@ namespace MyLife.Web.Infrastructure
 {
     public static class MvcExtensions
     {
-        public static IServiceCollection AddCustomApiConventions(this IServiceCollection services)
+        public static IServiceCollection AddRouteAdapter(this IServiceCollection services)
         {
             services.AddControllers(options =>
             {
