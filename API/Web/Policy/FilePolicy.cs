@@ -1,10 +1,10 @@
-﻿using MyLife.Shared.Config;
+﻿using MyLife.Shared.Accident;
+using MyLife.Shared.Config;
 using Serilog;
-using MyLife.Shared.Accident;
 
-namespace MyLife.Web.Provision
+namespace MyLife.Web.Policy
 {
-    public static class FilePolicyProvider
+    public static class FilePolicy
     {
         /// <summary>
         /// 添加 文件存储策略配置,并在启动时验证配置的有效性,如果配置无效则抛出异常阻止应用启动
@@ -18,14 +18,12 @@ namespace MyLife.Web.Provision
             Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.ConfigType, "正在绑定文件存储策略...");
 
             var section = builder.Configuration.GetSection("FilePolicy");
-            builder.Services.AddOptions<FilePolicy>().Bind(section).ValidateOnStart();
 
-            var filePolicy = section.Get<FilePolicy>() ?? throw new OptionMappingException("配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
+            var filePolicy = section.Get<FileOption>() ?? throw new OptionMappingException("配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
 
             EnsureStorageDirectoryCreated(builder.Environment.ContentRootPath, filePolicy.StoragePath);
+            builder.Services.AddOptions<FileOption>().Bind(section).ValidateOnStart();
             return builder;
-
-            //builder.Services.Configure<FilePolicy>(section); ## 延迟加载, 不能在启动时触发验证,仅在第一次注入时触发验证
         }
 
 
@@ -37,7 +35,7 @@ namespace MyLife.Web.Provision
         /// <param name="path"></param>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="OptionSelfRecoveryMeasuresException"></exception>
-        public static void EnsureStorageDirectoryCreated(string rootPath,string path)
+        public static void EnsureStorageDirectoryCreated(string rootPath, string path)
         {
             // 1. 基础验证：防止传入空路径导致崩溃
             if (string.IsNullOrWhiteSpace(rootPath) || string.IsNullOrWhiteSpace(path))

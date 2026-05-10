@@ -1,13 +1,8 @@
 ﻿using MyLife.Shared.Config;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyLife.Shared.Accident
 {
-    public abstract class DataBaseException(string message):BusinessException(message),IBusinessException
+    public abstract class DataBaseException(string message) : BusinessException(message), IBusinessException
     {
         public new BehavioralLevel Level { get; set; } = BehavioralLevel.DbType;
     }

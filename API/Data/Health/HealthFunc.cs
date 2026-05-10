@@ -27,7 +27,7 @@ namespace MyLife.Data.Health
 
             if (obj is DemoEntity demo)
             {
-                demo.Desc = $"测试数据{serial} - {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}";
+                demo.Desc = $"测试数据{serial} - {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")}";
                 await storage.SaveChangesAsync();
                 return demo;
             }

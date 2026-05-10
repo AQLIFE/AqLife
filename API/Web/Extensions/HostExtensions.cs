@@ -26,7 +26,7 @@ namespace MyLife.Web.Extensions
 
             logger.LogInformation(@"[Serilog][{@BehavioralLevel}]=>{@LogDesc}", BehavioralLevel.DbType, "正在进行数据库连通性自检...");
 
-            
+
 
             // 3. 执行检查
             if (!context.Database.CanConnect())

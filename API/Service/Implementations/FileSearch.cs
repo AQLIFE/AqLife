@@ -6,11 +6,11 @@ namespace MyLife.Service.Implementations
 {
     public interface IFileSearch
     {
-        Task<FileIndexEntity?> FindFileAsync(string? title, Guid? id);
+        Task<FileMetaEntity?> FindFileAsync(string? title, Guid? id);
     }
     public class FileSearch(IEnumerable<IFileSearchStrategy> strategies, AppStorage storage) : IFileSearch
     {
-        public async Task<FileIndexEntity?> FindFileAsync(string? title, Guid? id)
+        public async Task<FileMetaEntity?> FindFileAsync(string? title, Guid? id)
         {
             var strategy = strategies.FirstOrDefault(s => s.IsMatch(title, id));
             if (strategy == null) return null;

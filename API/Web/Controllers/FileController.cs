@@ -1,26 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyLife.Data.Entities;
 using MyLife.Data.Repository;
 using MyLife.Service.Implementations;
+using MyLife.Service.Interfaces;
+using MyLife.Shared.DTOs;
 
 namespace MyLife.Web.Controllers
 {
 
-    [ApiController, Route("[Controller]")]
-    public class FileController(IFileSearch fileProvider, FileService service, AppStorage storage, ILogger<FileController> logger) : ControllerBase
+    [ApiController, Route("[Controller]"),AllowAnonymous]
+    public class FileController(IGenericsMapper<FileMetaEntity, FileDto> mapper, IFileSearch fileProvider, FileService service, AppStorage storage, ILogger<FileController> logger) : ControllerBase
     {
         [HttpGet]
-        public async Task<List<FileIndexEntity>> GetFileList()
-            => await storage.File.Select(e => new FileIndexEntity { FileName = e.FileName, DesensitizationName = e.DesensitizationName }).ToListAsync();
+        public async Task<List<FileDto>> GetFileList()
+        => await storage.File.AsNoTracking().Select(e => mapper.Desensitization(e)).ToListAsync();
 
         [HttpGet("search")]
-        public async Task<FileIndexEntity?> SearchFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
-        {
-            return await fileProvider.FindFileAsync(title, id);
-        }
+        public async Task<FileMetaEntity?> SearchFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
+        => await fileProvider.FindFileAsync(title, id);
 
-        [HttpGet("download")]
+
+        [HttpGet("download"),Authorize]
         public async Task<IActionResult?> DownloadFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
         {
             try
@@ -36,7 +38,7 @@ namespace MyLife.Web.Controllers
             }
         }
 
-        [HttpPost("receive")]
+        [HttpPost("receive"),Authorize]
         public async Task<IActionResult> ReceiveFile(IFormFile file)
         {
             var innerFile = await service.HandleUploadAsync(file);

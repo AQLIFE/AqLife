@@ -2,11 +2,10 @@ using MyLife.Shared.Accident;
 using MyLife.Shared.Config;
 using Serilog;
 using Serilog.Formatting.Compact;
-using System.Runtime.Serialization;
 
-namespace MyLife.Web.Provision
+namespace MyLife.Web.Policy
 {
-    public static class ConfigProvider
+    public static class OptionPolicy
     {
         /// <summary>
         /// 为程序添加私有配置文件，优先级：核心配置 > 环境特定配置
@@ -27,7 +26,7 @@ namespace MyLife.Web.Provision
                 if (!File.Exists(basePath))
                 {
                     Log.Error(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.ConfigType, $"核心配置文件不存在{baseConfig}");
-                    
+
                     throw new OptionNotFoundException($"核心配置文件不存在: {baseConfig}");
                 }
                 builder.Configuration.AddJsonFile(basePath, optional: false, reloadOnChange: true);
@@ -53,12 +52,12 @@ namespace MyLife.Web.Provision
         /// <returns></returns>
         public static WebApplicationBuilder AddSerilog(this WebApplicationBuilder builder)
         {
+            string gex = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u1}] {Message:lj}{NewLine}";
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(builder.Configuration)
                 .Enrich.FromLogContext()
-                .WriteTo.Console(outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u1}] {Message:lj}{NewLine}{Exception}")
+                .WriteTo.Console(outputTemplate: gex)
+                .WriteTo.File("logs/db_log-.txt", rollingInterval: RollingInterval.Day, outputTemplate: gex)
                 .WriteTo.File(new CompactJsonFormatter(), "logs/db_log-.json", rollingInterval: RollingInterval.Day)
-                //.WriteTo.File(new Formatter(), "logs/db_log-.", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             builder.Host.UseSerilog();

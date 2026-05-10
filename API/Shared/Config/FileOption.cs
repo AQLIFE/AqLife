@@ -1,6 +1,6 @@
 ﻿namespace MyLife.Shared.Config
 {
-    public class FilePolicy
+    public class FileOption
     {
         public int MaxFileSize { set; get; }
         public string[] AllowedExtensions { set; get; } = Array.Empty<string>();
@@ -12,6 +12,6 @@
         public bool AllowDelete { set; get; } = false;
         public bool AllowDownload { set; get; } = false;
 
-        public FilePolicy() { }
+        public FileOption() { }
     }
 }

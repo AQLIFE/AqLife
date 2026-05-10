@@ -1,24 +1,57 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using MyLife.Data.Entities;
+using MyLife.Data.Repository;
+using MyLife.Service.Implementations;
+using MyLife.Service.Interfaces;
+using MyLife.Shared.Accident;
+using MyLife.Shared.Config;
 using MyLife.Shared.DTOs;
 
 namespace MyLife.Web.Controllers
 {
-    [ApiController, Route("[Controller]")]
-    public class AccountController : ControllerBase
+    [ApiController, Route("[controller]")]
+    public class AccountController(
+        AppStorage storage,
+        AccountService service,
+        IGenericsMapper<AccountEntity, AccountDto> accountMapper,
+        IOptions<JwtOption> option,
+        IJwtProvider<AccountEntity> jwtProvider
+        //IGenericsMapper<SubscriptionEntity, SubscriptionDto> subscriptionMapper
+        ) : ControllerBase
     {
-        //public async Task<IActionResult> GetAccount()
-        //{
-        //    return Ok();
+        [HttpGet,Authorize]
+        public async Task<AccountDto?> GetAll()
+        => storage.Account.AsNoTracking().OrderBy(e => e.Name).Where(e => e.IsValid == true).FirstOrDefault() is AccountEntity account
+                ? accountMapper.Desensitization(account)
+                : null;
 
-        //}
+        [HttpPost,AllowAnonymous]
+        public async Task<string> AddAccount(AccountDto account,string? SecretKey = null)
+            => SecretKey is string str && str == option.Value.SecretKey
+                ? await service.AddAccountAsync(account)
+                : throw new OperateAuthorizationException("不允许的操作");
 
+        [HttpPost("subscription"), Authorize]
+        public async Task<int> AddSubscription(params SubscriptionDto[] subscriptionDtos)
+            => await service.AddSubscriptionAsync(subscriptionDtos);
 
-        //public async Task<string> AddAccount(AccountDto account)
-        //{
+        [HttpPost("login"),AllowAnonymous]
+        public async Task<string> Login(LoginDto dto)
+        {
+            if (dto.Password == option.Value.SecretKey && storage.Account.Where(e => e.Name == dto.Name).FirstOrDefault() is AccountEntity account)
+            {
+                HttpContext.Response.Headers.Append("Authorization", jwtProvider.CreateToken(account));
+                return "登录成功";
+            }
+            else
+            {
+                return "登录失败";
+            }
+        }
 
-        //}
-        
 
     }
 }

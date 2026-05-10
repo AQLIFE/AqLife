@@ -4,18 +4,28 @@ using Microsoft.Extensions.Options;
 using MyLife.Data.Entities;
 using MyLife.Data.Repository;
 using MyLife.Service.Interfaces;
+using MyLife.Service.Strategies;
+using MyLife.Shared.Accident;
 using MyLife.Shared.Config;
 
 namespace MyLife.Service.Implementations
 {
     public class FileService(
-        IEnumerable<IUploadCheckStrategy> _strategies, // 注入我们之前写的校验策略
-        IOptions<FilePolicy> _policy,                  // 注入配置
-        AppStorage _storage,                           // 注入数据库
+        IEnumerable<IUploadCheckStrategyAsync> _strategiesAsync, // 注入我们之前写的校验策略
+        IOptions<FileOption> _policy,                  // 注入配置
+        AppStorage _storage,
+        UploadContext _upContext,
         ILogger<FileService> _logger,
         IFileSearch _fileProvider)
     {
-        // 返回一个包含流、文件名和 MIME 类型的 DTO
+        /// <summary>
+        /// 生成文件流,提供给 Controller 层直接返回给客户端, 这样可以解耦 IO 逻辑和 Web 层的细节
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
+        /// <exception cref="FileNotFoundException"></exception>
         public async Task<(Stream stream, string contentType, string fileName)> GetFileDownloadStreamAsync(string? title, Guid? id)
         {
             var fileInfo = await _fileProvider.FindFileAsync(title, id)
@@ -30,51 +40,35 @@ namespace MyLife.Service.Implementations
             return (stream, "application/octet-stream", fileInfo.FileName);
         }
 
-        public async Task<FileIndexEntity> HandleUploadAsync(IFormFile file)
+        public async Task<FileMetaEntity> HandleUploadAsync(IFormFile file)
         {
-            // 1. 运行校验策略 (解构了复杂的校验逻辑)
-            foreach (var strategy in _strategies)
+            foreach(var item in _strategiesAsync)
             {
-                var (isValid, msg) = strategy.Check(file, _policy.Value);
-                if (!isValid) throw new Exception(msg); // 抛出自定义异常，由全局异常处理器捕获
-            }
-
-            // 2. 处理物理存储 (解构了 IO 逻辑)
-
-            var untrustedFileName = Path.GetFileName(file.FileName);
-            var storedFileName = $"{Guid.NewGuid()}{Path.GetExtension(untrustedFileName)}";
-            var filePath = Path.Combine(_policy.Value.StoragePath, storedFileName);
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                // 2. 创建加密流，将 fileStream 包装起来
-                // CryptoStreamMode.Write 表示我们要向里面写数据，同时计算哈希
-                using var cryptoStream = new System.Security.Cryptography.CryptoStream(
-                    fileStream, sha256, System.Security.Cryptography.CryptoStreamMode.Write);
-
-                // 3. 将上传的文件流直接拷贝到 cryptoStream
-                // 这一步会同时触发：写入硬盘 + 哈希计算
-                await file.CopyToAsync(cryptoStream);
-
-                // 4. 必须手动刷新，确保所有数据都已处理完成并写入底层流
-                await cryptoStream.FlushFinalBlockAsync();
-            }
-            var hash = BitConverter.ToString(sha256.Hash!).Replace("-", "").ToLowerInvariant();
-
-            // 4. 存储元数据到数据库
-            var fileMeta = new FileIndexEntity
-            {
-                FileName = untrustedFileName,
-                FileSize = (ulong)file.Length,
-                FileHash = hash,
-                DesensitizationName = storedFileName
+                (bool IsValid, string Message) = await item.CheckAsync(file, _policy.Value);
+                if (!IsValid) throw new OperateBusinessLogicCheckException(Message);
             };
+            var fileMeta = new FileMetaEntity(file, _upContext.FileHash ?? throw new OperateTransactionFailedException("读取hash失败"));
+
+            var targetPath = Path.Combine(_policy.Value.StoragePath, fileMeta.DesensitizationName);
+            await SaveFile(file, targetPath);
+
 
             _storage.File.Add(fileMeta);
             await _storage.SaveChangesAsync();
             _logger.LogInformation("文件上传成功: {Id}", file.FileName);
             return fileMeta;
+        }
+
+        /// <summary>
+        /// 保存文件到本地,并在保存过程中计算文件的哈希值, 避免重复读取文件两次 (一次计算哈希, 一次保存), 提高性能
+        /// </summary>
+        /// <param name="file">源文件</param>
+        /// <param name="targetPath">目标路径</param>
+        /// <returns>文件的哈希值</returns>
+        private static async Task SaveFile(IFormFile file, string targetPath)
+        {
+            using var fs = new FileStream(targetPath, FileMode.Create);
+            await file.CopyToAsync(fs);
         }
     }
 }

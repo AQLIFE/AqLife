@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MyLife.Shared;
 
 namespace MyLife.Data.Entities
 {
@@ -12,8 +8,8 @@ namespace MyLife.Data.Entities
     public class SubscriptionEntity
     {
         [Key]
-        public Guid SID { get; set; }= Guid.NewGuid();
-        
+        public Guid SID { get; set; } = Guid.NewGuid();
+
         [ForeignKey("UID")]
         public Guid UID { get; set; }
         [StringLength(16)]
@@ -27,11 +23,11 @@ namespace MyLife.Data.Entities
     }
 
     [Table("Accounts")]
-    public class AccountEntity
+    public class AccountEntity: IBaseUser
     {
         [Key]
         public Guid UID { get; set; } = Guid.NewGuid();
-        [StringLength(10),Column]
+        [StringLength(10), Column]
         public string Name { get; set; } = "Demo";
         public bool IsValid { get; set; } = false;
         public virtual ICollection<SubscriptionEntity> Subscriptions { get; set; } = [];

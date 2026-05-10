@@ -34,6 +34,7 @@ debug.log
 obj
 bin
 .vs
+Migrations
 /API/MyLife/Properties
 /API/MyLife/appsettings.Development.json
 /API/MyLife/appsettings.json
