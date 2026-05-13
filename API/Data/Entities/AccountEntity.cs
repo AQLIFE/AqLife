@@ -29,6 +29,8 @@ namespace MyLife.Data.Entities
         public Guid UID { get; set; } = Guid.NewGuid();
         [StringLength(10), Column]
         public string Name { get; set; } = "Demo";
+        [Column]
+        public string? Desc { get; set; }
         public bool IsValid { get; set; } = false;
         public virtual ICollection<SubscriptionEntity> Subscriptions { get; set; } = [];
     }

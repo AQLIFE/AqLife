@@ -20,6 +20,23 @@ namespace MyLife.Service.Implementations
                 : (true, string.Empty);
         }
 
+        public async Task<string> Init(string name, string? desc)
+        {
+            var existingAccount = await storage.Account.Where(e => e.IsValid == true).FirstOrDefaultAsync();
+            if (existingAccount != null)
+            {
+                existingAccount.IsValid = false;
+            }
+            var account = new AccountEntity
+            {
+                Name = name,
+                Desc = desc,
+                IsValid = true
+            };
+            storage.Account.Add(account);
+            await storage.SaveChangesAsync();
+            return account.Name;
+        }
         public async Task<string> AddAccountAsync(AccountDto account)
         {
             var (isValid, message) = CompoundCheck(account);
@@ -47,7 +64,7 @@ namespace MyLife.Service.Implementations
 
         public async Task<int> AddSubscriptionAsync(params SubscriptionDto[] subscriptionDtos)
         {
-            if( subscriptionDtos == null || subscriptionDtos.Length == 0)
+            if (subscriptionDtos == null || subscriptionDtos.Length == 0)
                 return 0;
             var list = subscriptionDtos.Select(e => subscriptionMapper.Assembly(e)).ToList();
             var existingAccount = await storage.Account.Where(e => e.IsValid == true).FirstOrDefaultAsync();

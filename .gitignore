@@ -1,5 +1,6 @@
 # Logs
 .gitignore
+.editorconfig
 logs
 *.log
 npm-debug.log*
@@ -9,6 +10,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+run
 .DS_Store
 dist
 dist-ssr
@@ -19,6 +21,7 @@ coverage
 /cypress/screenshots/
 *.json
 *.d.ts
+*.config.ts
 # Editor directories and files
 .vscode
 !.vscode/extensions.json
@@ -35,18 +38,7 @@ obj
 bin
 .vs
 Migrations
-/API/MyLife/Properties
-/API/MyLife/appsettings.Development.json
-/API/MyLife/appsettings.json
-/API/MyLife/libman.json
-/API/MyLife/MyLife.http
-/API/MyLife/Migrations
-/API/MyLife/bin/
+
 /APIFOX
-/API/Web/Migrations/20260502024736_InitialCreate.cs
-/API/Web/Migrations/20260502025152_AddCorpus.cs
-/API/Web/Migrations/20260503040904_FixFileIndexEntitySpelling.cs
-/API/Web/Migrations/20260503042159_FixFileIndexEntityAttributeMembers.cs
-/API/Web/Migrations/AppStorageModelSnapshot.cs
 /API/Data/Migrations/20260506070312_InitialCreate.cs
 /API/Data/Migrations/AppStorageModelSnapshot.cs

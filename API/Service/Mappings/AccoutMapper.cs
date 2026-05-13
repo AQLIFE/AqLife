@@ -20,12 +20,9 @@ namespace MyLife.Service.Mappings
 
     }
 
-
-
-
     [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)] // 添加这一行
 
-    public partial class AccountMapper : IGenericsMapper<AccountEntity, AccountDto>
+    public partial class AccountMapper(IGenericsMapper<SubscriptionEntity,SubscriptionDto> mapper) : IGenericsMapper<AccountEntity, AccountDto>
     {
         [MapperIgnoreSource(nameof(AccountEntity.UID))]
         [MapperIgnoreSource(nameof(AccountEntity.IsValid))]
@@ -35,5 +32,10 @@ namespace MyLife.Service.Mappings
         [MapperIgnoreTarget(nameof(AccountEntity.UID))]
         [MapperIgnoreTarget(nameof(AccountEntity.IsValid))]
         public partial AccountEntity Assembly(AccountDto dto);
+
+
+        public SubscriptionDto Convert(SubscriptionEntity entity)=>mapper.Desensitization(entity);
+
+        public SubscriptionEntity Convert(SubscriptionDto dto)=>mapper.Assembly(dto);
     }
 }

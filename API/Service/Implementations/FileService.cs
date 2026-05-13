@@ -40,6 +40,21 @@ namespace MyLife.Service.Implementations
             return (stream, "application/octet-stream", fileInfo.FileName);
         }
 
+        public async Task<(Stream stream, string contentType, string fileName)> PreviewFileAsync(string? title, Guid? id)
+        {
+            // if()
+            var fileInfo = await _fileProvider.FindFileAsync(title, id)
+                           ?? throw new KeyNotFoundException("数据库无记录");
+
+            var fullPath = Path.Combine(_policy.Value.StoragePath, fileInfo.DesensitizationName);
+
+            if (!System.IO.File.Exists(fullPath))
+                throw new FileNotFoundException("磁盘物理文件丢失", fullPath);
+
+            var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+            return (stream, "image/svg+xml", fileInfo.FileName);
+        }
+
         public async Task<FileMetaEntity> HandleUploadAsync(IFormFile file)
         {
             foreach(var item in _strategiesAsync)

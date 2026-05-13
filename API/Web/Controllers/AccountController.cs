@@ -6,6 +6,7 @@ using MyLife.Data.Entities;
 using MyLife.Data.Repository;
 using MyLife.Service.Implementations;
 using MyLife.Service.Interfaces;
+using MyLife.Service.Mappings;
 using MyLife.Shared.Accident;
 using MyLife.Shared.Config;
 using MyLife.Shared.DTOs;
@@ -16,22 +17,22 @@ namespace MyLife.Web.Controllers
     public class AccountController(
         AppStorage storage,
         AccountService service,
-        IGenericsMapper<AccountEntity, AccountDto> accountMapper,
+        IGenericsMapper<AccountEntity,AccountDto> accountMapper,
         IOptions<JwtOption> option,
         IJwtProvider<AccountEntity> jwtProvider
         //IGenericsMapper<SubscriptionEntity, SubscriptionDto> subscriptionMapper
         ) : ControllerBase
     {
-        [HttpGet,Authorize]
-        public async Task<AccountDto?> GetAll()
-        => storage.Account.AsNoTracking().OrderBy(e => e.Name).Where(e => e.IsValid == true).FirstOrDefault() is AccountEntity account
+        [HttpGet,AllowAnonymous]
+        public async Task<AccountDto?> GetValid()
+        => storage.Account.Include(e=>e.Subscriptions).AsNoTracking().OrderBy(e => e.Name).Where(e => e.IsValid == true).FirstOrDefault() is AccountEntity account
                 ? accountMapper.Desensitization(account)
                 : null;
 
         [HttpPost,AllowAnonymous]
-        public async Task<string> AddAccount(AccountDto account,string? SecretKey = null)
+        public async Task<string> AddAccount(string name,string? desc=null,string? SecretKey = null)
             => SecretKey is string str && str == option.Value.SecretKey
-                ? await service.AddAccountAsync(account)
+                ? await service.Init(name,desc)
                 : throw new OperateAuthorizationException("不允许的操作");
 
         [HttpPost("subscription"), Authorize]

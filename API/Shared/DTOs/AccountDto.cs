@@ -6,6 +6,7 @@ namespace MyLife.Shared.DTOs
         [ Required(ErrorMessage = "用户名不能为空")]
         [ StringLength(20, MinimumLength = 3, ErrorMessage = "用户名长度需在3-20之间")]
         string Name,
+        string? Desc,
         [ Required(ErrorMessage = "个人主页不能存在空订阅")]
         IEnumerable<SubscriptionDto> Subscriptions
         );
