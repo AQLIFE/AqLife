@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MyLife.Data.Entities;
-using MyLife.Shared.Config;
+using MyLife.Shared.Options;
 
 namespace MyLife.Service.Interfaces
 {

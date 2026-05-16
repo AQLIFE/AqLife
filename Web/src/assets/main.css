@@ -9,6 +9,8 @@ div#app {
     -ms-user-select: none;
     user-select: none;
     height: 100vh;
+    overscroll-behavior:none;
+    -webkit-user-drag: none;
 }
 
 body::-webkit-scrollbar {
@@ -18,6 +20,9 @@ body::-webkit-scrollbar {
 *{border-radius: 0px !important;font-family:'Cascadia Code PL','Consolas';}
 
 .el-card__body{margin: 0px;padding: 0px !important;}
+.template {
+	padding: 20px;
+}
 
 :root {
     --topColor:rgb(255,255,255);

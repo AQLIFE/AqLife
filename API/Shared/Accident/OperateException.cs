@@ -1,4 +1,4 @@
-﻿using MyLife.Shared.Config;
+﻿using MyLife.Shared.Options;
 
 namespace MyLife.Shared.Accident
 {

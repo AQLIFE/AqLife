@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MyLife.Data.Entities;
 using MyLife.Data.Repository;
 using MyLife.Service.Interfaces;
-using MyLife.Shared.Config;
+using MyLife.Shared.Options;
 
 namespace MyLife.Service.Strategies
 {

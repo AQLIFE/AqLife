@@ -1,85 +1,85 @@
 <script setup lang="ts">
-import { ElCol, ElContainer, ElHeader, ElMain, ElRow } from 'element-plus';
+// import { ElCol, ElContainer, ElHeader, ElMain, ElRow } from 'element-plus';
 import { RouterView, useRoute } from 'vue-router';
-import NavigationBar from './components/NavigationBar.vue';
+import NavigationBar from '@/components/NavigationBar.vue';
 import DevPlanCard from './components/DevPlanCard.vue';
-import FAuthorCard from './components/FAuthorCard.vue';
+import FAuthorCard from '@/Skeletons/FAuthorCard.vue';
 import SearchBox from './components/SearchBox.vue';
-import BlogNodeTreeCard from './components/BlogNodeTreeCard.vue';
+// import BlogNodeTreeCard from './components/BlogNodeTreeCard.vue';
 import { SidebarType } from './types/define';
+import CalendarSelector from '@/components/CalendarSelector.vue';
 const route = useRoute();
 </script>
 
 <template>
-	<ElCol id="left" :span="8">
-		<ElRow wrap="nowrap">
-			<ElCol class="lcard">
+	<div id="baseLayout">
+		<div id="tools">
+			<div class="template">
 				<SearchBox />
-			</ElCol>
-			<ElCol class="lcard">
+			</div>
+			<div class="template">
+				<CalendarSelector/>
+			</div>
+			<div class="template">3</div>
+		</div>
+		<div id="content">
+			<div class="template"><NavigationBar /></div>
+			<div class="template"><RouterView /></div>
+		</div>
+		<div id="account">
+			<div class="template">
 				<FAuthorCard />
-			</ElCol>
-
-			<ElCol class="lcard">
+			</div>
+			<div class="template">
 				<DevPlanCard v-if="route.meta.sidebarType === SidebarType.About" />
-				<BlogNodeTreeCard v-else-if="route.meta.sidebarType === SidebarType.Blog" />
-			</ElCol>
-		</ElRow>
-	</ElCol>
-
-
-	<ElCol id="right" :span="16">
-		<ElContainer>
-			<ElHeader id="navigation">
-				<NavigationBar />
-			</ElHeader>
-			<ElMain id="viewer">
-				<RouterView />
-			</ElMain>
-		</ElContainer>
-	</ElCol>
+			</div>
+		</div>
+	</div>
 </template>
 
 <style scoped>
-#left {
+#baseLayout {
 	background-color: var(--back_color_lv2);
+	width: inherit;
+	height: 100vh;
+	display: grid;
+	grid-template-columns: 20vw 1fr 20vw;
+	overflow: hidden;
+	-webkit-user-drag: none;
+	overscroll-behavior:none;
 }
 
-#left>.el-row {
+/*---------------------tools------------------------ */
+#tools {
+	display: grid;
+	grid-template-rows: 1fr 2fr 3fr;
+	/* 设置 三行独立高度*/
+}
+
+#tools>.el-row {
 	align-content: flex-start;
 }
 
+/*---------------------tools------------------------ */
+/*---------------------content------------------------ */
 
-.lcard {
-	padding: 2vh 4vw;
+#content {
+	display: grid;
+    grid-template-rows: auto 1fr; /* 第一行导航栏自适应，第二行占满剩余空间 */
+    height: 100vh; /* 确保和父级等高 */
+    overflow: hidden;
 }
 
-#right {
-	flex-grow: 2;
-	background-color: var(--back_color_lv2);
+#content > .template:nth-child(2) {
+    height: 100%;
+    overflow: hidden; /* 让内部的 BlogView 自己处理滚动 */
 }
 
-#right>.el-container {
-	height: 100vh;
+/*---------------------content------------------------ */
+/*---------------------account------------------------ */
+#account {
+	grid-template-rows: 1fr 2fr;
 }
 
-#navigation {
-	margin-right: 5vw;
-	padding: 0;
-	height: 10vh;
-	line-height: 10vh;
-}
-
-#viewer {
-	height: auto;
-	margin-right: 5vw;
-	padding: 0;
-	scrollbar-width: none;
-	/* Firefox 隐藏滚动条 */
-}
-
-#viewer::-webkit-scrollbar {
-	display: none !important;
-	/* background-color: var(--back_color_lv1); */
-}
+/*---------------------account------------------------ */
 </style>

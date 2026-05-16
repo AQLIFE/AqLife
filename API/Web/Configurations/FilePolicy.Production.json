@@ -1,0 +1,13 @@
+{
+  "FilePolicy": {
+    "MaxFileSize": 100,
+    "AllowedExtensions": [
+      ".md"
+    ],
+    "StoragePath": "Cache",
+    "StorageUnit": 1,
+    "AllowUpload": true,
+    "AllowDownload": true,
+    "AllowDelete": false
+  }
+}

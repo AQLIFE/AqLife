@@ -8,7 +8,7 @@ using MyLife.Service.Implementations;
 using MyLife.Service.Interfaces;
 using MyLife.Service.Mappings;
 using MyLife.Shared.Accident;
-using MyLife.Shared.Config;
+using MyLife.Shared.Options;
 using MyLife.Shared.DTOs;
 
 namespace MyLife.Web.Controllers

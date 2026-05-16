@@ -1,0 +1,18 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["element-plus/global","node"],
+     "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
+  }
+}

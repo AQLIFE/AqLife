@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MyLife.Data.Health;
-using MyLife.Shared.Config;
+using MyLife.Shared.Options;
 using Serilog;
 
 namespace MyLife.Web.Infrastructure

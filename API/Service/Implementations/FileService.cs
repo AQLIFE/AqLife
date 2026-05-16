@@ -6,7 +6,8 @@ using MyLife.Data.Repository;
 using MyLife.Service.Interfaces;
 using MyLife.Service.Strategies;
 using MyLife.Shared.Accident;
-using MyLife.Shared.Config;
+using MyLife.Shared.Options;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace MyLife.Service.Implementations
 {
@@ -16,6 +17,7 @@ namespace MyLife.Service.Implementations
         AppStorage _storage,
         UploadContext _upContext,
         ILogger<FileService> _logger,
+        FileExtensionContentTypeProvider extProvider,
         IFileSearch _fileProvider)
     {
         /// <summary>
@@ -24,44 +26,29 @@ namespace MyLife.Service.Implementations
         /// <param name="title"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        /// <exception cref="KeyNotFoundException"></exception>
         /// <exception cref="FileNotFoundException"></exception>
-        public async Task<(Stream stream, string contentType, string fileName)> GetFileDownloadStreamAsync(string? title, Guid? id)
+        public async Task<(Stream stream, string contentType, string fileName)> GetFileInternalAsync(string? title, Guid? id)
         {
-            var fileInfo = await _fileProvider.FindFileAsync(title, id)
-                           ?? throw new KeyNotFoundException("数据库无记录");
+            var fileInfo = await _fileProvider.FindFileAsync(title, id) ?? throw new OperateTransactionFailedException("数据库无记录");
 
+            var ext = GetFileMimeType(fileInfo.FileName);
             var fullPath = Path.Combine(_policy.Value.StoragePath, fileInfo.DesensitizationName);
 
             if (!System.IO.File.Exists(fullPath))
-                throw new FileNotFoundException("磁盘物理文件丢失", fullPath);
+                throw new FileNotFoundException("源文件丢失,请联系管理员", fullPath);
 
             var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
-            return (stream, "application/octet-stream", fileInfo.FileName);
-        }
-
-        public async Task<(Stream stream, string contentType, string fileName)> PreviewFileAsync(string? title, Guid? id)
-        {
-            // if()
-            var fileInfo = await _fileProvider.FindFileAsync(title, id)
-                           ?? throw new KeyNotFoundException("数据库无记录");
-
-            var fullPath = Path.Combine(_policy.Value.StoragePath, fileInfo.DesensitizationName);
-
-            if (!System.IO.File.Exists(fullPath))
-                throw new FileNotFoundException("磁盘物理文件丢失", fullPath);
-
-            var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
-            return (stream, "image/svg+xml", fileInfo.FileName);
+            return (stream, ext, fileInfo.FileName);
         }
 
         public async Task<FileMetaEntity> HandleUploadAsync(IFormFile file)
         {
-            foreach(var item in _strategiesAsync)
+            foreach (var item in _strategiesAsync)
             {
                 (bool IsValid, string Message) = await item.CheckAsync(file, _policy.Value);
                 if (!IsValid) throw new OperateBusinessLogicCheckException(Message);
-            };
+            }
+            ;
             var fileMeta = new FileMetaEntity(file, _upContext.FileHash ?? throw new OperateTransactionFailedException("读取hash失败"));
 
             var targetPath = Path.Combine(_policy.Value.StoragePath, fileMeta.DesensitizationName);
@@ -72,6 +59,15 @@ namespace MyLife.Service.Implementations
             await _storage.SaveChangesAsync();
             _logger.LogInformation("文件上传成功: {Id}", file.FileName);
             return fileMeta;
+        }
+
+
+        private string GetFileMimeType(string filename)
+        {
+            var ext = Path.GetExtension(filename).ToLowerInvariant();
+            if (_policy.Value.AllowedExtensions.Contains(ext) && extProvider.TryGetContentType(filename, out var contentType))
+                return contentType;
+            throw new OperateTransactionFailedException("您请求的数据存在异常,已被拦截,若有疑问,请联系管理员");
         }
 
         /// <summary>

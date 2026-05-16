@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.StaticFiles;
 using MyLife.Data.Entities;
 using MyLife.Service.Implementations;
 using MyLife.Service.Interfaces;
@@ -40,6 +41,7 @@ builder.Services.AddScoped<IUploadCheckStrategyAsync, SizeCheck>();
 builder.Services.AddScoped<IUploadCheckStrategyAsync, UploadFileEffectivenessCheck>();
 
 
+builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 
 builder.Services.AddScoped<IFileSearch, FileSearch>();
 builder.Services.AddScoped<FileService>();

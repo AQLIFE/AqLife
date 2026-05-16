@@ -24,16 +24,15 @@ namespace MyLife.Web.Controllers
         [HttpGet("preview")]
         public async Task<IActionResult?> Preview([FromQuery] string? title = null, [FromQuery] Guid? id = null)
         {
-            var (stream, contentType, fileName) = await service.PreviewFileAsync(title, id);
-            return File(stream, contentType, fileName);
+            var (stream, contentType, _) = await service.GetFileInternalAsync(title, id);
+            return File(stream, contentType);
         }
 
 
         [HttpGet("download"), Authorize]
         public async Task<IActionResult?> DownloadFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
         {
-            var (stream, contentType, fileName) = await service.GetFileDownloadStreamAsync(title, id);
-            // 使用 FileStreamResult 自动处理流的关闭
+            var (stream, contentType, fileName) = await service.GetFileInternalAsync(title, id);
             return File(stream, contentType, fileName);
         }
 

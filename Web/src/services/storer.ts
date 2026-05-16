@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { reactive, ref, type Reactive, type Ref } from "vue";
-import type { IAnchor } from "@/data/AnchorData";
+
 import { Configuration, type AccountDto } from "@/api/generated";
 
 const ApiOption = new Configuration({
@@ -12,11 +12,11 @@ const ApiOption = new Configuration({
 
 const AuthorInfo = defineStore("GetUserInfo",()=> {
     const userInfo:Reactive<AccountDto>= reactive<AccountDto>({
-        name:"尚未配置博客账户名称",
+        name:"",
         subscriptions:[]
     });
     // 控制骨架屏的显示
-    const isShow:Ref<boolean> = ref(false);
+    const isShow:Ref<boolean> = ref(true);
 
     return {userInfo,isShow}
 });
@@ -30,14 +30,13 @@ const DevPlan = defineStore("DevPlan",()=>{
 
 const Blog = defineStore("Blog",()=>{
     const isShow:Ref<boolean> = ref(false);
-    const isCache:Ref<boolean> = ref(false);
-    const blogTitle:Ref<string> = ref('');
-    const anchorList:Ref<IAnchor[]> = ref([] as IAnchor[]);
-    const blogCacheList = [{blogTitle:'',blogContent:''}]; 
+    // const isCache:Ref<boolean> = ref(false);
+    // const blogTitle:Ref<string> = ref('');
+    // const blogCacheList = [{blogTitle:'',blogContent:''}]; 
 
-    function watchNav(state:boolean):void{isShow.value = state;}
+    // function watchNav(state:boolean):void{isShow.value = state;}
 
-    return {isShow,isCache,blogTitle,anchorList,blogCacheList,watchNav};
+    return {isShow};
 });
 
 export {AuthorInfo,DevPlan,Blog,ApiOption}

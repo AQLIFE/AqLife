@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MyLife.Shared.Config;
+using MyLife.Shared.Options;
 
 namespace MyLife.Web.Middlewares
 {

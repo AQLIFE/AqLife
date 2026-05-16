@@ -1,5 +1,5 @@
 using MyLife.Shared.Accident;
-using MyLife.Shared.Config;
+using MyLife.Shared.Options;
 using Serilog;
 using Serilog.Formatting.Compact;
 

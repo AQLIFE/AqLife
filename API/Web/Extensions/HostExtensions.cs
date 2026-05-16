@@ -1,6 +1,6 @@
 using MyLife.Data.Repository;
 using MyLife.Shared.Accident;
-using MyLife.Shared.Config;
+using MyLife.Shared.Options;
 
 namespace MyLife.Web.Extensions
 {

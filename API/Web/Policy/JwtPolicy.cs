@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using MyLife.Data.Entities;
 using MyLife.Service.Interfaces;
 using MyLife.Shared.Accident;
-using MyLife.Shared.Config;
+using MyLife.Shared.Options;
 using System.Security.Claims;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
