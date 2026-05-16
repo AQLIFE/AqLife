@@ -1,15 +1,17 @@
-import '@/assets/main.css'
-
-import {  createSSRApp } from 'vue'
-import { createPinia } from 'pinia'
-import App from './App.vue'
-import { router } from '@/services/router'
-import ElementPlus from 'element-plus'
+import '@/assets/styles/main.css'
 import 'element-plus/dist/index.css'
 
-const app = createSSRApp(App)
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import ElementPlus from 'element-plus'
 
-app.use(createPinia()).use(ElementPlus).use(router)
+import App from '@/App.vue'
+import { router } from '@/services/router/routerBuild'
 
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+app.use(ElementPlus)
 
 app.mount('#app')

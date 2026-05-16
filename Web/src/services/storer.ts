@@ -30,13 +30,9 @@ const DevPlan = defineStore("DevPlan",()=>{
 
 const Blog = defineStore("Blog",()=>{
     const isShow:Ref<boolean> = ref(false);
-    // const isCache:Ref<boolean> = ref(false);
-    // const blogTitle:Ref<string> = ref('');
-    // const blogCacheList = [{blogTitle:'',blogContent:''}]; 
+    const blogTitle: Ref<string> = ref('');
 
-    // function watchNav(state:boolean):void{isShow.value = state;}
-
-    return {isShow};
+    return { isShow, blogTitle };
 });
 
 export {AuthorInfo,DevPlan,Blog,ApiOption}

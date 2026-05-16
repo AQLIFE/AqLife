@@ -1,14 +1,16 @@
 <script setup lang="ts">
-
-
-const props = defineProps<File>();
-
+defineProps<{
+    blogTitle: string
+    description?: string
+    updateTime?: string
+    htmlContent: string
+}>()
 </script>
 
 <template>
     <KeepAlive>
         <ElCol class="blog">
-            <ElCol class="viewTitle">{{ blog.blogTitle }}</ElCol>
+            <ElCol class="viewTitle">{{ blogTitle }}</ElCol>
             <ElCol class="description">
                 <ElRow>
                     <ElCol>{{ description }}</ElCol>
