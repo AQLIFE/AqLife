@@ -28,9 +28,6 @@ Web/src/
 ├── utils/
 ├── views/               # 路由页面
 ├── App.vue
-├── app.ts               # ⚠ SSR 试验残留，与 SPA 入口冲突
-├── entry-client.ts      # ⚠ 无效片段，应清理
-├── entry-server.ts      # ⚠ SSR 残留，应删除
 └── shims-vue.d.ts
 ```
 
@@ -46,9 +43,9 @@ Web/src/
 
 ### 建议调整（待办）
 
-- [+] **恢复 SPA 唯一入口 `main.ts`**：`index.html` 已引用 `/src/main.ts`，但文件缺失；`entry-client.ts` / `app.ts` 内容不完整，无法启动
-- [ ] **清理 SSR 残留文件**：删除 `entry-server.ts`；删除或合并 `app.ts`、`entry-client.ts`
-- [ ] **路由仅保留 SPA 模式**：`routerBuild.ts` 去掉 `createMemoryHistory` / `import.meta.env.SSR` 分支，固定 `createWebHistory()`
+- [X] **恢复 SPA 唯一入口 `main.ts`**：`index.html` 已引用 `/src/main.ts`，但文件缺失；`entry-client.ts` / `app.ts` 内容不完整，无法启动
+- [X] **清理 SSR 残留文件**：删除 `entry-server.ts`；删除或合并 `app.ts`、`entry-client.ts`
+- [X] **路由仅保留 SPA 模式**：`routerBuild.ts` 去掉 `createMemoryHistory` / `import.meta.env.SSR` 分支，固定 `createWebHistory()`
 - [ ] **收敛 `services/storer.ts` 职责**：Pinia 与 `ApiOption` 可拆为 `stores/` + `api/client.ts`（可选，降低单文件臃肿）
 - [ ] **`MarkdownViewer.vue` 命名与职责**：当前是「文章壳 + `v-html`」，并非解析器；重命名或拆为 `BlogArticleLayout.vue` + 真正的 `MarkdownRenderer`
 - [ ] **`api/generated/docs/`**：生成器文档目录可不进仓库或加入 ignore（减小体积）
@@ -71,8 +68,8 @@ src/features/blog/
 
 ## SPA 收尾待办
 
-- [+] 新建 `src/main.ts`：`createApp(App)` + Pinia + Router + Element Plus + `mount('#app')`（使用 `createApp`，非 `createSSRApp`）
-- [+] 删除 `entry-server.ts`、`entry-client.ts`、`app.ts`（或仅保留已被 `main.ts` 替代后的空引用清理）
+- [X] 新建 `src/main.ts`：`createApp(App)` + Pinia + Router + Element Plus + `mount('#app')`（使用 `createApp`，非 `createSSRApp`）
+- [X] 删除 `entry-server.ts`、`entry-client.ts`、`app.ts`（或仅保留已被 `main.ts` 替代后的空引用清理）
 - [ ] 确认 `vite dev` / `vite build` 可正常运行
 - [ ] `storer.ts`：`VITE_API_BASE_URL` 替代硬编码 `http://localhost:5110`
 - [ ] `utils/request.ts`：统一错误提示；后续接入 JWT 时在此注入 `Authorization`
@@ -200,8 +197,8 @@ src/features/blog/
 - [x] 修正 `.gitignore`：避免误忽略 `package.json`、`README.md` 等
 - [x] 敏感配置：`appsettings*.json` 不提交，使用 `*.example.json` 模板
 - [ ] 添加 `MyLife.sln`，便于 VS / Rider / CI
-- [ ] EF `Migrations` 是否入库及协作流程文档化
-- [ ] 配置本地开发：复制 `appsettings.Development.example.json` → `appsettings.Development.json` 并填入本地数据库（勿提交）
+- [x] EF `Migrations` 是否入库及协作流程文档化
+- [x] 配置本地开发：复制 `appsettings.Development.example.json` → `appsettings.Development.json` 并填入本地数据库（勿提交）
 
 ---
 
@@ -221,12 +218,12 @@ src/features/blog/
 
 ### 策略注册与上传路径
 
-- [ ] **`FileService.HandleUploadAsync` 对 `IEnumerable<IFileExtStrategy>` 全量 `foreach`**：当前同时注册了 `UploadPermissionCheck` 与 `DownloadPermissionCheck`，上传时会对同一扩展名执行**两套**校验；若 `AllowedUpload` 与 `AllowedDownload` 不一致，会出现「允许上传的类型却上传失败」等非预期行为。建议上传只跑「上传相关」策略（拆分接口或分组注册）。
-- [ ] **`IFileMetaStrategy`（`UploadSizeCheck`）已注入但未调用**：`FileService` 构造函数接收 `_fileMetaStrategy`，`HandleUploadAsync` 中未执行 `_fileMetaStrategy.Check(file)`，文件大小限制**未生效**。应在保存前显式调用，或改为 `IEnumerable<IFileMetaStrategy>` 与其它 meta 策略统一遍历。
+- [x] **`FileService.HandleUploadAsync` 对 `IEnumerable<IFileExtStrategy>` 全量 `foreach`**：当前同时注册了 `UploadPermissionCheck` 与 `DownloadPermissionCheck`，上传时会对同一扩展名执行**两套**校验；若 `AllowedUpload` 与 `AllowedDownload` 不一致，会出现「允许上传的类型却上传失败」等非预期行为。建议上传只跑「上传相关」策略（拆分接口或分组注册）。
+- [x] **`IFileMetaStrategy`（`UploadSizeCheck`）已注入但未调用**：`FileService` 构造函数接收 `_fileMetaStrategy`，`HandleUploadAsync` 中未执行 `_fileMetaStrategy.Check(file)`，文件大小限制**未生效**。应在保存前显式调用，或改为 `IEnumerable<IFileMetaStrategy>` 与其它 meta 策略统一遍历。
 
 ### `FileSearch` 与扩展名校验
 
-- [ ] **匿名列表/单条查询中的 `_uploadCheck.Check(e.DesensitizationName)`**：`UploadPermissionCheck.Check(string ext)` 语义为**扩展名**（如 `.md`），传入整段 `DesensitizationName` 易与配置不匹配。应改为 `Path.GetExtension(e.DesensitizationName)`（或与存储命名规则一致的字段），并核对 `AllowedUpload` / 匿名可见策略是否应用「上传白名单」语义。
+- [x] **匿名列表/单条查询中的 `_uploadCheck.Check(e.DesensitizationName)`**：`UploadPermissionCheck.Check(string ext)` 语义为**扩展名**（如 `.md`），传入整段 `DesensitizationName` 易与配置不匹配。应改为 `Path.GetExtension(e.DesensitizationName)`（或与存储命名规则一致的字段），并核对 `AllowedUpload` / 匿名可见策略是否应用「上传白名单」语义。
 
 ### 搜索策略优先级
 
@@ -234,14 +231,14 @@ src/features/blog/
 
 ### `FilePolicyFilter` 与配置解析
 
-- [ ] **`GetRequiredService<FilePolicyOption>()`**：通常仅 `AddOptions<FilePolicyOption>().Bind(...)` 时，**不会**将 `FilePolicyOption` 注册为可直接 `GetRequiredService<T>()` 的具体类型；更稳妥为 `GetRequiredService<IOptions<FilePolicyOption>>().Value` 或注入 `IOptionsSnapshot<FilePolicyOption>`。需在实际上传接口上验证过滤器是否稳定解析配置。
+- [x] **`GetRequiredService<FilePolicyOption>()`**：通常仅 `AddOptions<FilePolicyOption>().Bind(...)` 时，**不会**将 `FilePolicyOption` 注册为可直接 `GetRequiredService<T>()` 的具体类型；更稳妥为 `GetRequiredService<IOptions<FilePolicyOption>>().Value` 或注入 `IOptionsSnapshot<FilePolicyOption>`。需在实际上传接口上验证过滤器是否稳定解析配置。
 
 ### 实体与重复检测
 
-- [ ] **`FileMetaEntity` 构造函数中 `DesensitizationName`**：`FileName` 已使用 `GetFileNameWithoutExtension`，随后 `Path.GetExtension(FileName)` 几乎恒为空，导致磁盘文件名**丢失真实扩展名**。应使用 `Path.GetExtension(file.FileName)`（或与 `FileName` 设计一致的后缀来源）。
-- [ ] **`UploadFileEffectivenessCheck` 中 `e.FileName == file.FileName`**：实体侧 `FileName` 为无扩展名存储，上传侧 `IFormFile.FileName` 常含扩展名，**重复检测易失效**。应对齐比较字段（例如统一比较「无扩展名」或统一「全名」），并明确「重复」定义（同哈希 / 同名 / 二者组合）。
+- [x] **`FileMetaEntity` 构造函数中 `DesensitizationName`**：`FileName` 已使用 `GetFileNameWithoutExtension`，随后 `Path.GetExtension(FileName)` 几乎恒为空，导致磁盘文件名**丢失真实扩展名**。应使用 `Path.GetExtension(file.FileName)`（或与 `FileName` 设计一致的后缀来源）。
+- [x] **`UploadFileEffectivenessCheck` 中 `e.FileName == file.FileName`**：实体侧 `FileName` 为无扩展名存储，上传侧 `IFormFile.FileName` 常含扩展名，**重复检测易失效**。应对齐比较字段（例如统一比较「无扩展名」或统一「全名」），并明确「重复」定义（同哈希 / 同名 / 二者组合）。
 
 ### 下载与其它
 
-- [ ] **`GetFileInternalAsync` 中下载扩展名校验**：通过 LINQ 在 `_strategies` 中筛 `DownloadPermissionCheck`，可读性一般；可改为直接依赖 `DownloadPermissionCheck` 或单独抽象，避免与上传策略混在同一集合的误用。
-- [ ] **修复前注意**：若调整 `FileName` / `DesensitizationName` 规则，需评估 **已有库表与磁盘文件** 的迁移或兼容策略。
+- [x] **`GetFileInternalAsync` 中下载扩展名校验**：通过 LINQ 在 `_strategies` 中筛 `DownloadPermissionCheck`，可读性一般；可改为直接依赖 `DownloadPermissionCheck` 或单独抽象，避免与上传策略混在同一集合的误用。
+- [x] **修复前注意**：若调整 `FileName` / `DesensitizationName` 规则，需评估 **已有库表与磁盘文件** 的迁移或兼容策略。
