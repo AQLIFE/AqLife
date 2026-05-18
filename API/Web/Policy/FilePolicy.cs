@@ -19,10 +19,10 @@ namespace MyLife.Web.Policy
 
             var section = builder.Configuration.GetSection("FilePolicy");
 
-            var filePolicy = section.Get<FileOption>() ?? throw new OptionMappingException("配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
+            var filePolicy = section.Get<FilePolicyOption>() ?? throw new OptionMappingException("配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
 
             EnsureStorageDirectoryCreated(builder.Environment.ContentRootPath, filePolicy.StoragePath);
-            builder.Services.AddOptions<FileOption>().Bind(section).ValidateOnStart();
+            builder.Services.AddOptions<FilePolicyOption>().Bind(section).ValidateOnStart();
             return builder;
         }
 

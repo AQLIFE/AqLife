@@ -12,13 +12,13 @@ namespace MyLife.Service.Mappings
         [MapperIgnoreSource(nameof(FileMetaEntity.DesensitizationName))]
         public partial FileDto Desensitization(FileMetaEntity obj);
 
-        //public partial List<FileDto> Desensitization(List<FileMetaEntity> objList);
+        
 
         [MapperIgnoreTarget(nameof(FileMetaEntity.Uuid))]
         [MapperIgnoreTarget(nameof(FileMetaEntity.DesensitizationName))]
         public partial FileMetaEntity Assembly(FileDto dto);
 
-        //public partial List<FileMetaEntity> Assembly(List<FileDto> dtoList);
+        
         private string MapDateTime(DateTime dateTime)
         => dateTime.ToString("yyyy-MM-dd");
     }

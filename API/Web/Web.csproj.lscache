@@ -61,6 +61,7 @@ Controllers/
 Extensions/
  ExceptionServiceExtensions.cs
  HostExtensions.cs
+Filters/FilePolicyFilter.cs
 Infrastructure/
  HealthChecks.cs
  MvcOptionsExtensions.cs

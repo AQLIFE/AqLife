@@ -72,8 +72,8 @@ obj/Debug/net8.0/
  Service.GlobalUsings.g.cs
 Strategies/
  AccountSearch.cs
+ FileCheckStrategy.cs
  FileSearch.cs
- FileUpload.cs
 
 [metadataReferences]
 ../

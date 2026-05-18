@@ -71,8 +71,8 @@ src/features/blog/
 
 ## SPA 收尾待办
 
-- [ ] 新建 `src/main.ts`：`createApp(App)` + Pinia + Router + Element Plus + `mount('#app')`（使用 `createApp`，非 `createSSRApp`）
-- [ ] 删除 `entry-server.ts`、`entry-client.ts`、`app.ts`（或仅保留已被 `main.ts` 替代后的空引用清理）
+- [+] 新建 `src/main.ts`：`createApp(App)` + Pinia + Router + Element Plus + `mount('#app')`（使用 `createApp`，非 `createSSRApp`）
+- [+] 删除 `entry-server.ts`、`entry-client.ts`、`app.ts`（或仅保留已被 `main.ts` 替代后的空引用清理）
 - [ ] 确认 `vite dev` / `vite build` 可正常运行
 - [ ] `storer.ts`：`VITE_API_BASE_URL` 替代硬编码 `http://localhost:5110`
 - [ ] `utils/request.ts`：统一错误提示；后续接入 JWT 时在此注入 `Authorization`
@@ -212,3 +212,36 @@ src/features/blog/
 3. Markdown 阶段 A → B（能渲染一篇本地 md 或接口 md）
 4. 博客路由 + FileApi + 上传
 5. Mermaid 与缓存优化
+
+---
+
+## 后端 File 与 FileStrategy 问题清单（待修复 / 待确认）
+
+> 以下为代码评审结论，**追加**记录；修复前请确认 `FileName` 等字段的**业务语义**（是否含扩展名）及对已有数据的影响。
+
+### 策略注册与上传路径
+
+- [ ] **`FileService.HandleUploadAsync` 对 `IEnumerable<IFileExtStrategy>` 全量 `foreach`**：当前同时注册了 `UploadPermissionCheck` 与 `DownloadPermissionCheck`，上传时会对同一扩展名执行**两套**校验；若 `AllowedUpload` 与 `AllowedDownload` 不一致，会出现「允许上传的类型却上传失败」等非预期行为。建议上传只跑「上传相关」策略（拆分接口或分组注册）。
+- [ ] **`IFileMetaStrategy`（`UploadSizeCheck`）已注入但未调用**：`FileService` 构造函数接收 `_fileMetaStrategy`，`HandleUploadAsync` 中未执行 `_fileMetaStrategy.Check(file)`，文件大小限制**未生效**。应在保存前显式调用，或改为 `IEnumerable<IFileMetaStrategy>` 与其它 meta 策略统一遍历。
+
+### `FileSearch` 与扩展名校验
+
+- [ ] **匿名列表/单条查询中的 `_uploadCheck.Check(e.DesensitizationName)`**：`UploadPermissionCheck.Check(string ext)` 语义为**扩展名**（如 `.md`），传入整段 `DesensitizationName` 易与配置不匹配。应改为 `Path.GetExtension(e.DesensitizationName)`（或与存储命名规则一致的字段），并核对 `AllowedUpload` / 匿名可见策略是否应用「上传白名单」语义。
+
+### 搜索策略优先级
+
+- [ ] **`FindFileAsync` 使用 `FirstOrDefault(s => s.IsMatch(...))`**：若调用方同时提供 `title` 与 `id`，命中策略取决于 DI 注册顺序，**不确定**。建议约定优先级（通常 **id 优先于 title**），或在 `IsMatch` 中互斥。
+
+### `FilePolicyFilter` 与配置解析
+
+- [ ] **`GetRequiredService<FilePolicyOption>()`**：通常仅 `AddOptions<FilePolicyOption>().Bind(...)` 时，**不会**将 `FilePolicyOption` 注册为可直接 `GetRequiredService<T>()` 的具体类型；更稳妥为 `GetRequiredService<IOptions<FilePolicyOption>>().Value` 或注入 `IOptionsSnapshot<FilePolicyOption>`。需在实际上传接口上验证过滤器是否稳定解析配置。
+
+### 实体与重复检测
+
+- [ ] **`FileMetaEntity` 构造函数中 `DesensitizationName`**：`FileName` 已使用 `GetFileNameWithoutExtension`，随后 `Path.GetExtension(FileName)` 几乎恒为空，导致磁盘文件名**丢失真实扩展名**。应使用 `Path.GetExtension(file.FileName)`（或与 `FileName` 设计一致的后缀来源）。
+- [ ] **`UploadFileEffectivenessCheck` 中 `e.FileName == file.FileName`**：实体侧 `FileName` 为无扩展名存储，上传侧 `IFormFile.FileName` 常含扩展名，**重复检测易失效**。应对齐比较字段（例如统一比较「无扩展名」或统一「全名」），并明确「重复」定义（同哈希 / 同名 / 二者组合）。
+
+### 下载与其它
+
+- [ ] **`GetFileInternalAsync` 中下载扩展名校验**：通过 LINQ 在 `_strategies` 中筛 `DownloadPermissionCheck`，可读性一般；可改为直接依赖 `DownloadPermissionCheck` 或单独抽象，避免与上传策略混在同一集合的误用。
+- [ ] **修复前注意**：若调整 `FileName` / `DesensitizationName` 规则，需评估 **已有库表与磁盘文件** 的迁移或兼容策略。

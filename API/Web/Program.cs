@@ -8,6 +8,7 @@ using MyLife.Service.Mappings;
 using MyLife.Service.Strategies;
 using MyLife.Shared.DTOs;
 using MyLife.Web.Extensions;
+using MyLife.Web.Filters;
 using MyLife.Web.Infrastructure;
 using MyLife.Web.Policy;
 
@@ -30,18 +31,21 @@ builder.AddSerilog().AddConfiguration().AddFilePolicy().AddJwtPolicy();
 
 builder.Services.AddGlobalExceptionPolicy(builder.Environment).AddDataLayer(builder.Configuration).AddRouteAdapter();
 
+builder.Services.AddScoped<FileUploadFilter>();
+
 builder.Services.AddScoped<IFileSearchStrategy, SearchByIdStrategy>();
 builder.Services.AddScoped<IFileSearchStrategy, SearchByTitleStrategy>();
 
 builder.Services.AddScoped<IAccountStrategy, AccountNameStrategy>();
 
-builder.Services.AddScoped<IUploadCheckStrategyAsync, UploadPermissionCheck>();
-builder.Services.AddScoped<IUploadCheckStrategyAsync, ExtensionCheck>();
-builder.Services.AddScoped<IUploadCheckStrategyAsync, SizeCheck>();
-builder.Services.AddScoped<IUploadCheckStrategyAsync, UploadFileEffectivenessCheck>();
+builder.Services.AddScoped<IUploadStrategy,UploadPermissionCheck>();
+builder.Services.AddScoped<IUploadStrategy,UploadSizeCheck>();
+builder.Services.AddScoped<IUploadStrategyAsync,UploadFileEffectivenessCheck>();
+builder.Services.AddScoped<IDownloadStrategy,DownloadPermissionCheck>();
 
 
-builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
+builder.Services.AddSingleton<FileExtensionContentTypeProvider>();// 框架内置服务
+builder.Services.AddHttpContextAccessor();// 框架内置服务
 
 builder.Services.AddScoped<IFileSearch, FileSearch>();
 builder.Services.AddScoped<FileService>();
@@ -50,11 +54,11 @@ builder.Services.AddScoped<AccountService>();
 
 
 
+
 builder.Services.AddSingleton<IGenericsMapper<SubscriptionEntity, SubscriptionDto>, SubscriptionMapper>();
 builder.Services.AddSingleton<IGenericsMapper<AccountEntity, AccountDto>, AccountMapper>();  
 builder.Services.AddSingleton<IGenericsMapper<FileMetaEntity, FileDto>, FileMapper>();
 builder.Services.AddSingleton<TodoMapper>();
-// builder.Services.AddSingleton<AccountMapper>();
 builder.Services.AddSingleton<IJwtProvider<AccountEntity>, JwtProvider>();
 
 

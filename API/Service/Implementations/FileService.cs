@@ -12,43 +12,65 @@ using Microsoft.AspNetCore.StaticFiles;
 namespace MyLife.Service.Implementations
 {
     public class FileService(
-        IEnumerable<IUploadCheckStrategyAsync> _strategiesAsync, // 注入我们之前写的校验策略
-        IOptions<FileOption> _policy,                  // 注入配置
+        IUploadStrategyAsync effectivenessCheck,
+
+        IOptions<FilePolicyOption> _policy,
         AppStorage _storage,
         UploadContext _upContext,
-        ILogger<FileService> _logger,
-        FileExtensionContentTypeProvider extProvider,
+        FileExtensionContentTypeProvider _extProvider,//使用框架内置服务
         IFileSearch _fileProvider)
     {
+
         /// <summary>
-        /// 生成文件流,提供给 Controller 层直接返回给客户端, 这样可以解耦 IO 逻辑和 Web 层的细节
+        /// 预览&下载 API 服务方法 : 生成文件流,提供给 Controller 层直接返回给客户端, 解耦 IO 逻辑和 Web 层的细节
         /// </summary>
         /// <param name="title"></param>
         /// <param name="id"></param>
         /// <returns></returns>
+        /// <exception cref="OperateTransactionFailedException"></exception>
         /// <exception cref="FileNotFoundException"></exception>
         public async Task<(Stream stream, string contentType, string fileName)> GetFileInternalAsync(string? title, Guid? id)
         {
-            var fileInfo = await _fileProvider.FindFileAsync(title, id) ?? throw new OperateTransactionFailedException("数据库无记录");
+            #region 初步检查: 是否返回全文件列表 
+            var fileInfo = await _fileProvider.FindFileAsync(title, id,true) is IEnumerable<FileMetaEntity> files ?files.FirstOrDefault() : throw new OperateTransactionFailedException("数据库无记录");
+            // 此处若得到授权则返回全文见列表,包含图像资源;后续步骤检查资源扩展名是否有效,若有效则允许下载?
+            #endregion
 
-            var ext = GetFileMimeType(fileInfo.FileName);
+            #region 检查下载权限：仅允许 AllowedDownload 中的扩展名
+            //fileInfo.Select(e=> downloadPermissionCheck.Check(Path.GetExtension(e.DesensitizationName)) is (false,string msg) )
+            //var fileExt = Path.GetExtension(fileInfo.FileName).ToLowerInvariant();
+
+            //if (fileExt is null || !downloadPermissionCheck.Check(fileExt).IsValid)
+            //{
+            //    throw new OperateTransactionFailedException($"文件类型 {fileExt} 不允许下载");
+            //}
+            #endregion
+
+            #region 允许下载后检查文件是否存在
+            if (fileInfo is null) throw new OperateTransactionFailedException("不存在文件记录");
             var fullPath = Path.Combine(_policy.Value.StoragePath, fileInfo.DesensitizationName);
+            if (!File.Exists(fullPath))throw new FileNotFoundException("源文件丢失,请联系管理员", fullPath);
+            #endregion
 
-            if (!System.IO.File.Exists(fullPath))
-                throw new FileNotFoundException("源文件丢失,请联系管理员", fullPath);
-
+            #region 释放下载或预览资源
             var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+            var ext = GetFileMimeType(fileInfo.DesensitizationName);
             return (stream, ext, fileInfo.FileName);
+            #endregion
         }
 
         public async Task<FileMetaEntity> HandleUploadAsync(IFormFile file)
         {
-            foreach (var item in _strategiesAsync)
-            {
-                (bool IsValid, string Message) = await item.CheckAsync(file, _policy.Value);
-                if (!IsValid) throw new OperateBusinessLogicCheckException(Message);
-            }
-            ;
+            #region 上传事务的前置检查                  
+            //foreach (var strategy in uploadStrategies)
+            //    if( strategy.Check(file) is (false, string message))
+            //        throw new OperateTransactionFailedException(message);
+            
+            if (await effectivenessCheck.CheckAsync(file) is (false,string msg))
+                throw new OperateTransactionFailedException(msg);
+            #endregion
+
+            #region 上传&保存文件
             var fileMeta = new FileMetaEntity(file, _upContext.FileHash ?? throw new OperateTransactionFailedException("读取hash失败"));
 
             var targetPath = Path.Combine(_policy.Value.StoragePath, fileMeta.DesensitizationName);
@@ -57,15 +79,15 @@ namespace MyLife.Service.Implementations
 
             _storage.File.Add(fileMeta);
             await _storage.SaveChangesAsync();
-            _logger.LogInformation("文件上传成功: {Id}", file.FileName);
             return fileMeta;
+            #endregion
         }
 
 
         private string GetFileMimeType(string filename)
         {
             var ext = Path.GetExtension(filename).ToLowerInvariant();
-            if (_policy.Value.AllowedExtensions.Contains(ext) && extProvider.TryGetContentType(filename, out var contentType))
+            if ( _extProvider.TryGetContentType(filename, out var contentType))
                 return contentType;
             throw new OperateTransactionFailedException("您请求的数据存在异常,已被拦截,若有疑问,请联系管理员");
         }

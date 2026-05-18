@@ -23,7 +23,6 @@ import { ElRow, ElCol, ElCard, ElTree } from 'element-plus';
 interface TreeData {
     id: number;
     label: string;
-    // 使用数组包裹自身，并设为可选属性（因为叶子节点可能没有 children）
     children?: TreeData[];
 }
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,7 +10,7 @@ namespace MyLife.Data.Entities
     {
         [Key]
         public Guid Uuid { get; set; } = Guid.NewGuid();
-        [Column]
+        [Column,Description("仅存储文件名,不含后缀")]
         public string FileName { get; set; } = string.Empty;
         [Column]
         public string DesensitizationName { get; set; } = string.Empty;
@@ -30,8 +31,8 @@ namespace MyLife.Data.Entities
         /// <param name="file">源文件</param>
         public FileMetaEntity(IFormFile file, string hash)
         {
-            FileName = Path.GetFileName(file.FileName) ?? string.Empty;
-            DesensitizationName = $"{Guid.NewGuid()}{Path.GetExtension(FileName)}";
+            FileName = Path.GetFileNameWithoutExtension(file.FileName) ?? string.Empty;
+            DesensitizationName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
             FileSize = (ulong)file.Length;
             FileHash = hash;
         }

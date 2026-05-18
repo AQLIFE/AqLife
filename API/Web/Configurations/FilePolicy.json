@@ -7,7 +7,7 @@
     "StoragePath": "Cache",
     "StorageUnit": 1,
     "AllowUpload": false,
-    "AllowDownload":false,
+    "AllowedDownload":[],
     "AllowDelete": false
   }
 }

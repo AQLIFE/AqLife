@@ -1,46 +1,43 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Options;
 using MyLife.Data.Entities;
 using MyLife.Data.Repository;
 using MyLife.Service.Implementations;
 using MyLife.Service.Interfaces;
+using MyLife.Service.Mappings;
+using MyLife.Service.Strategies;
 using MyLife.Shared.DTOs;
+using MyLife.Shared.Options;
+using MyLife.Web.Filters;
 
 namespace MyLife.Web.Controllers
 {
 
     [ApiController, Route("[Controller]"), AllowAnonymous]
-    public class FileController(IGenericsMapper<FileMetaEntity, FileDto> mapper, IFileSearch fileProvider, FileService service, AppStorage storage, ILogger<FileController> logger) : ControllerBase
+    public class FileController(
+        IFileSearch fileSearch,
+        IGenericsMapper<FileMetaEntity, FileDto> mapper,
+        FileService fileService) : ControllerBase
     {
         [HttpGet]
-        public async Task<List<FileDto>> GetFileList()
-        => await storage.File.AsNoTracking().Select(e => mapper.Desensitization(e)).ToListAsync();
+        public async Task<IEnumerable<FileDto>?> SearchFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
+        => (title is null && id is null? await fileSearch.FindAllAsync() : await fileSearch.FindFileAsync(title, id))
+            is IEnumerable<FileMetaEntity> target ? target.Select(e => mapper.Desensitization(e)) : null;
 
-        [HttpGet("search")]
-        public async Task<FileMetaEntity?> SearchFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
-        => await fileProvider.FindFileAsync(title, id);
-
-        [HttpGet("preview")]
-        public async Task<IActionResult?> Preview([FromQuery] string? title = null, [FromQuery] Guid? id = null)
-        {
-            var (stream, contentType, _) = await service.GetFileInternalAsync(title, id);
-            return File(stream, contentType);
-        }
-
-
-        [HttpGet("download"), Authorize]
+        [HttpGet("download")]
         public async Task<IActionResult?> DownloadFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
         {
-            var (stream, contentType, fileName) = await service.GetFileInternalAsync(title, id);
-            return File(stream, contentType, fileName);
+            var (stream, contentType, fileName) = await fileService.GetFileInternalAsync(title, id);
+            return User.Identity is not null && User.Identity.IsAuthenticated ? File(stream, contentType, fileName) : File(stream, contentType);
         }
 
-        [HttpPost("receive"), Authorize]
+        [HttpPost("receive"), Authorize, ServiceFilter(typeof(FileUploadFilter))]
         public async Task<FileDto> ReceiveFile(IFormFile file)
         {
-            var innerFile = await service.HandleUploadAsync(file);
-
+            var innerFile = await fileService.HandleUploadAsync(file);
             return mapper.Desensitization(innerFile);
         }
     }

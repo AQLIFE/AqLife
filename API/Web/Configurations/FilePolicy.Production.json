@@ -7,7 +7,9 @@
     "StoragePath": "Cache",
     "StorageUnit": 1,
     "AllowUpload": true,
-    "AllowDownload": true,
+    "AllowedDownload":[
+      ".md"
+    ],
     "AllowDelete": false
   }
 }

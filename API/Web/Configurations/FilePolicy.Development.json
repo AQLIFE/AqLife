@@ -1,17 +1,18 @@
 {
   "FilePolicy": {
-    "MaxFileSize": 300,
-    "AllowedExtensions": [
+    "MaxFileSize": 100,
+    "StoragePath": "Cache",
+    "StorageUnit": 10,
+    "AllowedUpload":  [
       ".md",
       ".svg",
       ".jpeg",
       ".jpg",
       ".png"
     ],
-    "StoragePath": "Cache",
-    "StorageUnit": 10,
-    "AllowUpload": true,
-    "AllowDownload": true,
+    "AllowedDownload":[
+      ".md"
+    ],
     "AllowDelete": true
   }
 }
