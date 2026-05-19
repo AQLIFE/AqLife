@@ -18,29 +18,19 @@ import {
     FileDtoFromJSON,
     FileDtoToJSON,
 } from '../models/FileDto';
-import {
-    type FileMetaEntity,
-    FileMetaEntityFromJSON,
-    FileMetaEntityToJSON,
-} from '../models/FileMetaEntity';
 
 export interface ApiFileDownloadGetRequest {
     title?: string;
     id?: string;
 }
 
-export interface ApiFilePreviewGetRequest {
+export interface ApiFileGetRequest {
     title?: string;
     id?: string;
 }
 
 export interface ApiFileReceivePostRequest {
     file?: Blob;
-}
-
-export interface ApiFileSearchGetRequest {
-    title?: string;
-    id?: string;
 }
 
 /**
@@ -93,8 +83,16 @@ export class FileApi extends runtime.BaseAPI {
     /**
      * Creates request options for apiFileGet without sending the request
      */
-    async apiFileGetRequestOpts(): Promise<runtime.RequestOpts> {
+    async apiFileGetRequestOpts(requestParameters: ApiFileGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
+
+        if (requestParameters['title'] != null) {
+            queryParameters['title'] = requestParameters['title'];
+        }
+
+        if (requestParameters['id'] != null) {
+            queryParameters['id'] = requestParameters['id'];
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
@@ -111,8 +109,8 @@ export class FileApi extends runtime.BaseAPI {
 
     /**
      */
-    async apiFileGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<FileDto>>> {
-        const requestOptions = await this.apiFileGetRequestOpts();
+    async apiFileGetRaw(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<FileDto>>> {
+        const requestOptions = await this.apiFileGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(FileDtoFromJSON));
@@ -120,51 +118,9 @@ export class FileApi extends runtime.BaseAPI {
 
     /**
      */
-    async apiFileGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<FileDto>> {
-        const response = await this.apiFileGetRaw(initOverrides);
+    async apiFileGet(requestParameters: ApiFileGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<FileDto>> {
+        const response = await this.apiFileGetRaw(requestParameters, initOverrides);
         return await response.value();
-    }
-
-    /**
-     * Creates request options for apiFilePreviewGet without sending the request
-     */
-    async apiFilePreviewGetRequestOpts(requestParameters: ApiFilePreviewGetRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        if (requestParameters['title'] != null) {
-            queryParameters['title'] = requestParameters['title'];
-        }
-
-        if (requestParameters['id'] != null) {
-            queryParameters['id'] = requestParameters['id'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/api/File/preview`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    async apiFilePreviewGetRaw(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        const requestOptions = await this.apiFilePreviewGetRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    async apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiFilePreviewGetRaw(requestParameters, initOverrides);
     }
 
     /**
@@ -220,49 +176,6 @@ export class FileApi extends runtime.BaseAPI {
      */
     async apiFileReceivePost(requestParameters: ApiFileReceivePostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileDto> {
         const response = await this.apiFileReceivePostRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for apiFileSearchGet without sending the request
-     */
-    async apiFileSearchGetRequestOpts(requestParameters: ApiFileSearchGetRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        if (requestParameters['title'] != null) {
-            queryParameters['title'] = requestParameters['title'];
-        }
-
-        if (requestParameters['id'] != null) {
-            queryParameters['id'] = requestParameters['id'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/api/File/search`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    async apiFileSearchGetRaw(requestParameters: ApiFileSearchGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FileMetaEntity>> {
-        const requestOptions = await this.apiFileSearchGetRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => FileMetaEntityFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async apiFileSearchGet(requestParameters: ApiFileSearchGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileMetaEntity> {
-        const response = await this.apiFileSearchGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

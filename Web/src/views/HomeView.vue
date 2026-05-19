@@ -6,7 +6,7 @@
 import { onBeforeMount,ref,type Ref} from 'vue'
 import { CorpusApi } from '@/api/generated';
 import { ElRow } from 'element-plus';
-import { ApiOption } from '@/services/storer';
+import { ApiOption } from '@/services/storage/BaseOptions';
 
 // const Quotes = [
 // 	'距离产生美,保持距离',

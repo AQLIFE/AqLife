@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElCol,ElAnchorLink,ElAnchor } from 'element-plus';
-import { Blog } from '@/services/storer';
+import { Blog } from '@/services/storage/BaseOptions';
 const blog = Blog();
 </script>
 

@@ -12,13 +12,13 @@
                 <ElIcon style="position: relative;top:6px;">
                     <User />
                 </ElIcon>
-                {{ author.name }}
+                {{ AuthorInfo().userInfo.name }}
             </ElCol>
-            <ElCol class="authorInfo">{{ author.desc }}</ElCol>
+            <ElCol class="authorInfo">{{ AuthorInfo().userInfo.desc }}</ElCol>
         </div>
         <div class="template">
-            <ElLink target="_blank" :href="item.subscriptionLink??'' "
-                v-for="(item, index) in author.subscriptions ?? []" :key="index">
+            <ElLink target="_blank" underline="never" :href="item.subscriptionLink??'' "
+                v-for="(item, index) in AuthorInfo().userInfo.subscriptions ?? []" :key="index">
                 <ElImage :src="item.subscriptionIcon!=null? previewUrl(item.subscriptionIcon!):''" class="demoIcon">
                     <template #error>
                         <ElIcon><Picture/></ElIcon>
@@ -34,16 +34,14 @@
 
 <script lang="ts" setup>
 import { Picture, User } from '@element-plus/icons-vue'
-import { AuthorInfo } from '@/services/storer';
-import { onBeforeMount,ref} from 'vue'
+import { AuthorInfo } from '@/services/storage/AuthorInfo';
+import { onBeforeMount} from 'vue'
 import { ElImage, ElCol, ElIcon, ElLink, ElCard } from 'element-plus';
-import {type AccountDto } from '@/api/generated';
 
-const author = ref<AccountDto>({});
-const previewUrl = (title: string) => `http://localhost:5110/api/file/preview?title=${title}&id`
+const previewUrl = (title: string) => `${import.meta.env.VITE_API}/api/file/download?title=${title}&id`
 
 onBeforeMount(()=>{
-    author.value = AuthorInfo().userInfo;
+    // console.log(import.meta.env.VITE_API)
 })
 </script>
 

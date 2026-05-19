@@ -8,6 +8,7 @@ Name | Type
 ------------ | -------------
 `name` | string
 `desc` | string
+`avatar` | string
 `subscriptions` | [Array&lt;SubscriptionDto&gt;](SubscriptionDto.md)
 
 ## Example
@@ -19,6 +20,7 @@ import type { AccountDto } from ''
 const example = {
   "name": null,
   "desc": null,
+  "avatar": null,
   "subscriptions": null,
 } satisfies AccountDto
 

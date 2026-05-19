@@ -1,5 +1,5 @@
 <template>
-    <ElSkeleton id="author" :animated="true" :throttle="300" :loading="author.isShow">
+    <ElSkeleton id="author" :animated="true" :throttle="300" :loading="AuthorInfo().isShow">
         <template #template>
             <div class="template">
                 <ElSkeletonItem variant="image" class="avatar" />
@@ -25,22 +25,13 @@
 </template>
 
 <script lang="ts" setup>
-import { AuthorInfo, ApiOption } from '@/services/storer';
+
+import { AuthorInfo } from '@/services/storage/AuthorInfo';
 import { onBeforeMount } from 'vue';
 import AuthorCard from '@/components/AuthorCard.vue';
-import { AccountApi } from '@/api/generated';
-import { handle } from '@/utils/request';
-
-const author = AuthorInfo();
-
-const accountapi = new AccountApi(ApiOption);
 
 onBeforeMount(async () => {
-    const [response, status] = await handle(accountapi.apiAccountGet());
-    if (status) {
-        author.userInfo = response!;
-        author.isShow = false; 
-    }
+    await AuthorInfo().getUser()
 })
 
 </script>

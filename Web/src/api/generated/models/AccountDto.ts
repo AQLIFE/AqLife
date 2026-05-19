@@ -41,6 +41,12 @@ export interface AccountDto {
     desc?: string | null;
     /**
      * 
+     * @type {string}
+     * @memberof AccountDto
+     */
+    avatar?: string | null;
+    /**
+     * 
      * @type {Array<SubscriptionDto>}
      * @memberof AccountDto
      */
@@ -66,6 +72,7 @@ export function AccountDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         
         'name': json['name'] == null ? undefined : json['name'],
         'desc': json['desc'] == null ? undefined : json['desc'],
+        'avatar': json['avatar'] == null ? undefined : json['avatar'],
         'subscriptions': json['subscriptions'] == null ? undefined : ((json['subscriptions'] as Array<any>).map(SubscriptionDtoFromJSON)),
     };
 }
@@ -83,6 +90,7 @@ export function AccountDtoToJSONTyped(value?: AccountDto | null, ignoreDiscrimin
         
         'name': value['name'],
         'desc': value['desc'],
+        'avatar': value['avatar'],
         'subscriptions': value['subscriptions'] == null ? undefined : ((value['subscriptions'] as Array<any>).map(SubscriptionDtoToJSON)),
     };
 }
