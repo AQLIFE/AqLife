@@ -13,10 +13,10 @@ namespace MyLife.Data.Entities
     }
 
     [Table("Corpus")]
-    public class CorpusEntity
+    public class CorpusEntity: IStorageEntity
     {
         [Key]
-        public Guid Gid { set; get; } = Guid.NewGuid();
+        public Guid UID { set; get; } = Guid.NewGuid();
         [Column]
         public string CorpusContent { set; get; } = string.Empty;
     }

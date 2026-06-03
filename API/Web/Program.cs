@@ -2,19 +2,20 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.StaticFiles;
 using MyLife.Data.Entities;
-using MyLife.Service.Implementations;
-using MyLife.Service.Interfaces;
+using MyLife.Service.EntityService;
 using MyLife.Service.Mappings;
-using MyLife.Service.Strategies;
+using MyLife.Service.ServiceInterfaces;
+using MyLife.Service.ServiceInterfaces.IStrategy;
+using MyLife.Service.StrategiesService;
 using MyLife.Shared.DTOs;
-using MyLife.Web.Extensions;
-using MyLife.Web.Filters;
-using MyLife.Web.Infrastructure;
-using MyLife.Web.Policy;
+using MyLife.Web.BusinessInitialization;
+using MyLife.Web.BusinessInitialization.Policy;
+using MyLife.Web.BusinessSecurity.RuntimeCheck;
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyLifeAllowSpecificOrigins", policy =>
@@ -31,36 +32,40 @@ builder.AddSerilog().AddConfiguration().AddFilePolicy().AddJwtPolicy();
 
 builder.Services.AddGlobalExceptionPolicy(builder.Environment).AddDataLayer(builder.Configuration).AddRouteAdapter();
 
-builder.Services.AddScoped<FileUploadFilter>();
-
-builder.Services.AddScoped<IFileSearchStrategy, SearchByIdStrategy>();
-builder.Services.AddScoped<IFileSearchStrategy, SearchByTitleStrategy>();
-
-builder.Services.AddScoped<IAccountStrategy, AccountNameStrategy>();
-
-builder.Services.AddScoped<IUploadStrategy,UploadPermissionCheck>();
-builder.Services.AddScoped<IUploadStrategy,UploadSizeCheck>();
-builder.Services.AddScoped<IUploadStrategyAsync,UploadFileEffectivenessCheck>();
-builder.Services.AddScoped<IDownloadStrategy,DownloadPermissionCheck>();
-
-
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();// 框架内置服务
 builder.Services.AddHttpContextAccessor();// 框架内置服务
 
-builder.Services.AddScoped<IFileSearch, FileSearch>();
+#region 文件相关服务注册
+builder.Services.AddSingleton<IJwtProvider<AccountEntity>, JwtProvider>();
+builder.Services.AddScoped<FileUploadFilter>();
+
+builder.Services.AddScoped<IUploadStrategy, UploadPermissionCheck>();
+builder.Services.AddScoped<IUploadStrategy, UploadSizeCheck>();
+builder.Services.AddScoped<IUploadStrategyAsync, UploadFileEffectivenessCheck>();
+builder.Services.AddScoped<IDownloadStrategy, DownloadPermissionCheck>();
+
 builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<UploadContext>();
+builder.Services.AddSingleton<FileMapper>();
+#endregion
+
+#region 账户相关服务注册
+builder.Services.AddScoped<ISubscriptionUploadStrategy, ValidityStrategy>();
+builder.Services.AddScoped<ISubscriptionUpdateStrategy, ValidityIndexStrategy>();
+
+builder.Services.AddScoped<IAccountUploadStrategy, DuplicateNameCheckStrategy>();
+builder.Services.AddScoped<IAccountUploadStrategy, AccountSubscriptionCheckStrategy>();
+
+builder.Services.AddScoped<IAccountUpdateStrategy,AccountAvatarValidCheckStrategy>();
+builder.Services.AddScoped<IAccountUpdateStrategy, AccountSubscriptionAvatarValidCheckStrategy>();
+
+builder.Services.AddSingleton<SubscriptionMapper>();
+builder.Services.AddScoped<SubscriptionService>(); 
+builder.Services.AddSingleton<AccountMapper>();
 builder.Services.AddScoped<AccountService>();
 
-
-
-
-builder.Services.AddSingleton<IGenericsMapper<SubscriptionEntity, SubscriptionDto>, SubscriptionMapper>();
-builder.Services.AddSingleton<IGenericsMapper<AccountEntity, AccountDto>, AccountMapper>();  
-builder.Services.AddSingleton<IGenericsMapper<FileMetaEntity, FileDto>, FileMapper>();
+#endregion
 builder.Services.AddSingleton<TodoMapper>();
-builder.Services.AddSingleton<IJwtProvider<AccountEntity>, JwtProvider>();
-
 
 var app = builder.Build();
 
@@ -75,7 +80,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseStaticFiles();
+//app.UseStaticFiles();
 app.MapControllers(); app.UseExceptionHandler();
 
 

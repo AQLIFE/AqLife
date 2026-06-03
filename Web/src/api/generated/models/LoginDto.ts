@@ -24,21 +24,19 @@ export interface LoginDto {
      * @type {string}
      * @memberof LoginDto
      */
-    name: string | null;
+    name?: string | null;
     /**
      * 
      * @type {string}
      * @memberof LoginDto
      */
-    password: string | null;
+    password?: string | null;
 }
 
 /**
  * Check if a given object implements the LoginDto interface.
  */
 export function instanceOfLoginDto(value: object): value is LoginDto {
-    if (!('name' in value) || value['name'] === undefined) return false;
-    if (!('password' in value) || value['password'] === undefined) return false;
     return true;
 }
 
@@ -52,8 +50,8 @@ export function LoginDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     }
     return {
         
-        'name': json['name'],
-        'password': json['password'],
+        'name': json['name'] == null ? undefined : json['name'],
+        'password': json['password'] == null ? undefined : json['password'],
     };
 }
 

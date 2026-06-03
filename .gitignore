@@ -30,6 +30,7 @@ project.fragment.lock.json
 artifacts/
 *.nuget.props
 *.nuget.targets
+API\API.mermaid
 
 # =============================================================================
 # Node / Frontend (Web/)
@@ -94,5 +95,10 @@ run/
 
 # EF 迁移：若需纳入版本管理，删除下一行并在 README 中说明流程
 # API/Data/Migrations/
+<<<<<<< HEAD
 
 *.csproj.lscache
+=======
+API/API.mermaid
+项目结构.md
+>>>>>>> 34c1ccb (review project:Optimize backend business code)

@@ -24,12 +24,6 @@ export interface SubscriptionDto {
      * @type {string}
      * @memberof SubscriptionDto
      */
-    sid?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof SubscriptionDto
-     */
     aliasName?: string | null;
     /**
      * 
@@ -68,7 +62,6 @@ export function SubscriptionDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'sid': json['sid'] == null ? undefined : json['sid'],
         'aliasName': json['aliasName'] == null ? undefined : json['aliasName'],
         'subscriptionLink': json['subscriptionLink'] == null ? undefined : json['subscriptionLink'],
         'subscriptionPlatform': json['subscriptionPlatform'] == null ? undefined : json['subscriptionPlatform'],
@@ -87,7 +80,6 @@ export function SubscriptionDtoToJSONTyped(value?: SubscriptionDto | null, ignor
 
     return {
         
-        'sid': value['sid'],
         'aliasName': value['aliasName'],
         'subscriptionLink': value['subscriptionLink'],
         'subscriptionPlatform': value['subscriptionPlatform'],

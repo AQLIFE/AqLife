@@ -148,7 +148,7 @@ No authorization required
 
 ## apiFileReceivePost
 
-> FileDto apiFileReceivePost(file)
+> Array&lt;FileDto&gt; apiFileReceivePost(file)
 
 
 
@@ -166,8 +166,8 @@ async function example() {
   const api = new FileApi();
 
   const body = {
-    // Blob (optional)
-    file: BINARY_DATA_HERE,
+    // Array<Blob> (optional)
+    file: /path/to/file.txt,
   } satisfies ApiFileReceivePostRequest;
 
   try {
@@ -187,11 +187,11 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **file** | `Blob` |  | [Optional] [Defaults to `undefined`] |
+| **file** | `Array<Blob>` |  | [Optional] |
 
 ### Return type
 
-[**FileDto**](FileDto.md)
+[**Array&lt;FileDto&gt;**](FileDto.md)
 
 ### Authorization
 

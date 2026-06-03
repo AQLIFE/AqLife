@@ -196,7 +196,7 @@ src/features/blog/
 
 - [x] 修正 `.gitignore`：避免误忽略 `package.json`、`README.md` 等
 - [x] 敏感配置：`appsettings*.json` 不提交，使用 `*.example.json` 模板
-- [ ] 添加 `MyLife.sln`，便于 VS / Rider / CI
+- [X] 添加 `MyLife.sln`，便于 VS / Rider / CI
 - [x] EF `Migrations` 是否入库及协作流程文档化
 - [x] 配置本地开发：复制 `appsettings.Development.example.json` → `appsettings.Development.json` 并填入本地数据库（勿提交）
 
@@ -242,3 +242,71 @@ src/features/blog/
 
 - [x] **`GetFileInternalAsync` 中下载扩展名校验**：通过 LINQ 在 `_strategies` 中筛 `DownloadPermissionCheck`，可读性一般；可改为直接依赖 `DownloadPermissionCheck` 或单独抽象，避免与上传策略混在同一集合的误用。
 - [x] **修复前注意**：若调整 `FileName` / `DesensitizationName` 规则，需评估 **已有库表与磁盘文件** 的迁移或兼容策略。
+
+## 需求分析
+
+后端需求拆分视图
+
+```mermaid
+requirementDiagram
+
+direction TB
+
+designConstraint API{
+   id:6
+   text:"所有 WEB API 的需求约束"
+}
+
+designConstraint API_Service{
+   id:4
+   text:"所有 WEB API 的底层服务实现"
+}
+
+designConstraint App_Service{
+   id:2
+}
+
+functionalRequirement Safe{
+   id:1
+   text:"业务安全"
+}
+
+designConstraint Data_Design{
+   id:3
+}
+
+
+element Account{
+   type:Entity
+}
+
+element FileMeta{
+   type:Entity
+}
+
+element Todo{
+   type:Entity
+}
+
+element "Initialization check"{
+   type:App_Service
+}
+
+element "Runtime check"{
+   type:App_Service
+}
+
+
+Account - satisfies -> Data_Design
+FileMeta - satisfies -> Data_Design
+Todo - satisfies -> Data_Design
+
+"Initialization check" - refines -> Safe
+"Runtime check" - refines -> Safe
+API_Service - refines -> API
+
+Safe - verifies -> API
+Safe - verifies -> App_Service
+Safe - verifies -> Data_Design
+```
+

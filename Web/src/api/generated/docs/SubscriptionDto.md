@@ -6,7 +6,6 @@
 
 Name | Type
 ------------ | -------------
-`sid` | string
 `aliasName` | string
 `subscriptionLink` | string
 `subscriptionPlatform` | string
@@ -19,7 +18,6 @@ import type { SubscriptionDto } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "sid": null,
   "aliasName": null,
   "subscriptionLink": null,
   "subscriptionPlatform": null,

@@ -28,6 +28,9 @@ namespace MyLife.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("Avatar")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("Desc")
                         .HasColumnType("longtext");
 
@@ -41,12 +44,14 @@ namespace MyLife.Data.Migrations
 
                     b.HasKey("UID");
 
+                    b.HasIndex("Name");
+
                     b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("MyLife.Data.Entities.CorpusEntity", b =>
                 {
-                    b.Property<Guid>("Gid")
+                    b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
@@ -54,7 +59,7 @@ namespace MyLife.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("Gid");
+                    b.HasKey("UID");
 
                     b.ToTable("Corpus");
                 });
@@ -78,11 +83,15 @@ namespace MyLife.Data.Migrations
 
             modelBuilder.Entity("MyLife.Data.Entities.FileMetaEntity", b =>
                 {
-                    b.Property<Guid>("Uuid")
+                    b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("DesensitizationName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Extension")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -100,7 +109,7 @@ namespace MyLife.Data.Migrations
                     b.Property<DateTime>("UploadTime")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("Uuid");
+                    b.HasKey("UID");
 
                     b.ToTable("FileMeta");
                 });
@@ -116,9 +125,8 @@ namespace MyLife.Data.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("varchar(16)");
 
-                    b.Property<string>("SubscriptionIcon")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<Guid?>("SubscriptionIcon")
+                        .HasColumnType("char(36)");
 
                     b.Property<string>("SubscriptionLink")
                         .IsRequired()
@@ -133,6 +141,8 @@ namespace MyLife.Data.Migrations
 
                     b.HasKey("SID");
 
+                    b.HasIndex("AliasName");
+
                     b.HasIndex("UID");
 
                     b.ToTable("Subscriptions");
@@ -140,7 +150,7 @@ namespace MyLife.Data.Migrations
 
             modelBuilder.Entity("MyLife.Data.Entities.TodoEntity", b =>
                 {
-                    b.Property<Guid>("TID")
+                    b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
@@ -163,7 +173,7 @@ namespace MyLife.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.HasKey("TID");
+                    b.HasKey("UID");
 
                     b.HasIndex("FTID");
 

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MyLife.Shared.DTOs
+﻿namespace MyLife.Shared.DTOs
 {
-    public class LoginDto
-    {
-        public required string Name { get; set; }
-        public required string Password { get; set; }
-    }
+    public record LoginDto
+    (
+        string Name,
+        string Password
+    ):IEntityDto;
 }

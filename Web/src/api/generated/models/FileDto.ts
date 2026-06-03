@@ -24,6 +24,12 @@ export interface FileDto {
      * @type {string}
      * @memberof FileDto
      */
+    uid?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileDto
+     */
     fileName?: string | null;
     /**
      * 
@@ -62,6 +68,7 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
     }
     return {
         
+        'uid': json['uid'] == null ? undefined : json['uid'],
         'fileName': json['fileName'] == null ? undefined : json['fileName'],
         'fileSize': json['fileSize'] == null ? undefined : json['fileSize'],
         'fileHash': json['fileHash'] == null ? undefined : json['fileHash'],
@@ -80,6 +87,7 @@ export function FileDtoToJSONTyped(value?: FileDto | null, ignoreDiscriminator: 
 
     return {
         
+        'uid': value['uid'],
         'fileName': value['fileName'],
         'fileSize': value['fileSize'],
         'fileHash': value['fileHash'],
