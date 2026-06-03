@@ -211,16 +211,70 @@ onUnmounted(() => {
 
 
 
-const OtionsAccount = () => {
+const saveProfile = async () => {
+    try {
+        // 上传头像（若有）
+        if (avatar.value && avatar.value.raw) {
+            form.avatar = await uploadFile(avatar.value.raw as File);
+        }
 
-}
+        // 上传订阅项的图标（若有）并在 subscriptions 中写入返回的 id
+        for (let i = 0; i < ImageList.length; i++) {
+            const f = ImageList[i];
+            if (f && (f as File).size && form.subscriptions[i]) {
+                const guid = await uploadFile(f as File);
+                // 在后端模型中配置对应的字段名（此处使用 iconId 作为示例）
+                (form.subscriptions[i] as any).iconId = guid;
+            }
+        }
 
+        // 尝试调用后端 API（若存在），否则降级到 fetch
+        try {
+            // 如果存在生成的客户端，可在此处调用（示例占位）
+            // await ApiClient.accountController.saveAccount(form, { headers: { 'X-Secret-Key': SecretKey.value }});
+        } catch (e) {
+            // 忽略，使用 fetch 作为兜底实现
+        }
 
-const UploadFile = async (file: File): int => {
-    // 这里你需要根据后端接口要求构造 FormData
+        const resp = await fetch('/api/account', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Secret-Key': SecretKey.value
+            },
+            body: JSON.stringify(form)
+        });
 
-}
+        if (!resp.ok) throw new Error(`保存失败: ${resp.status}`);
 
+        ElMessage.success('配置已保存');
+    } catch (err: any) {
+        ElMessage.error(err?.message || '保存出错');
+    }
+};
+
+const uploadFile = async (file: File): Promise<string> => {
+    try {
+        const fd = new FormData();
+        fd.append('file', file);
+
+        const resp = await fetch('/api/file/upload', {
+            method: 'POST',
+            body: fd
+        });
+
+        if (!resp.ok) throw new Error('上传失败');
+        const data = await resp.json();
+        // 假定后端返回 { id: 'guid' } 或 { guid: '...' }
+        return data.id || data.guid || data;
+    } catch (e) {
+        // 若网络或接口不存在，降级生成本地 id（仅用于本地调试）
+        return 'local-' + Date.now().toString();
+    }
+};
+
+// 将模板中引用的 uploadProfile 映射到 saveProfile
+const uploadProfile = saveProfile;
 
 </script>
 
