@@ -1,31 +1,27 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Google.Protobuf.WellKnownTypes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 using MyLife.Data.Entities;
-using MyLife.Data.Repository;
-using MyLife.Service.Implementations;
-using MyLife.Service.Interfaces;
+using MyLife.Service.EntityService;
 using MyLife.Service.Mappings;
-using MyLife.Service.Strategies;
+using MyLife.Service.ServiceInterfaces;
 using MyLife.Shared.DTOs;
 using MyLife.Shared.Options;
-using MyLife.Web.Filters;
+using MyLife.Web.BusinessSecurity.RuntimeCheck;
 
 namespace MyLife.Web.Controllers
 {
 
     [ApiController, Route("[Controller]"), AllowAnonymous]
     public class FileController(
-        IFileSearch fileSearch,
-        IGenericsMapper<FileMetaEntity, FileDto> mapper,
+        FileMapper mapper,
         FileService fileService) : ControllerBase
     {
         [HttpGet]
         public async Task<IEnumerable<FileDto>?> SearchFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
-        => (title is null && id is null? await fileSearch.FindAllAsync() : await fileSearch.FindFileAsync(title, id))
-            is IEnumerable<FileMetaEntity> target ? target.Select(e => mapper.Desensitization(e)) : null;
+        => (title is null && id is null ? await fileService.TryReadListAsync() : await fileService.TryReadAsync(id, title))
+            is IEnumerable<FileMetaEntity> target && target.Any() ? target.Select(e => mapper.ToDto(e!)) : null;
 
         [HttpGet("download")]
         public async Task<IActionResult?> DownloadFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
@@ -35,10 +31,11 @@ namespace MyLife.Web.Controllers
         }
 
         [HttpPost("receive"), Authorize, ServiceFilter(typeof(FileUploadFilter))]
-        public async Task<FileDto> ReceiveFile(IFormFile file)
+        public async Task<IEnumerable<FileDto>> ReceiveFile(params IFormFile[] file)
         {
-            var innerFile = await fileService.HandleUploadAsync(file);
-            return mapper.Desensitization(innerFile);
+            var innerFile = await fileService.TryCreateAsync(file);
+            
+            return innerFile.Select(e=>mapper.ToDto(e));
         }
     }
 }

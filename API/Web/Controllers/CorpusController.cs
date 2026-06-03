@@ -20,7 +20,7 @@ namespace MyLife.Web.Controllers
 
         [HttpGet("{guid:guid}")]
         public async Task<string> GetCorpus([FromRoute] Guid guid)
-            => await storage.Corpus.AsNoTracking().Where(e => e.Gid == guid).Select(e => e.CorpusContent).FirstOrDefaultAsync() ?? "不存在语料";
+            => await storage.Corpus.AsNoTracking().Where(e => e.UID == guid).Select(e => e.CorpusContent).FirstOrDefaultAsync() ?? "不存在语料";
 
         [HttpGet("random"), AllowAnonymous]
         public async Task<string> GetRandomCorpus()
@@ -28,23 +28,23 @@ namespace MyLife.Web.Controllers
             var count = await storage.Corpus.CountAsync();
             if (count == 0) return "没有任何语料";
             var randomIndex = new Random().Next(count);
-            var corpus = await storage.Corpus.OrderBy(e => e.Gid).Skip(randomIndex).FirstOrDefaultAsync();
+            var corpus = await storage.Corpus.OrderBy(e => e.UID).Skip(randomIndex).FirstOrDefaultAsync();
             return corpus?.CorpusContent ?? "不存在语料";
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public async Task<string> AddCorpus(string content)
         {
             var corpus = new CorpusEntity { CorpusContent = content };
             await storage.Corpus.AddAsync(corpus);
             await storage.SaveChangesAsync();
-            return corpus.Gid.ToString();
+            return corpus.UID.ToString();
         }
 
-        [HttpDelete,Authorize]
+        [HttpDelete, Authorize]
         public async Task<int> DeleteCorpus(Guid guid)
         {
-            var corpus = await storage.Corpus.FirstOrDefaultAsync(e => e.Gid == guid);
+            var corpus = await storage.Corpus.FirstOrDefaultAsync(e => e.UID == guid);
             if (corpus == null) return 0;
             storage.Corpus.Remove(corpus);
             return await storage.SaveChangesAsync();

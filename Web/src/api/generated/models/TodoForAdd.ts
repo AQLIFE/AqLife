@@ -30,7 +30,7 @@ export interface TodoForAdd {
      * @type {string}
      * @memberof TodoForAdd
      */
-    desc: string;
+    desc?: string | null;
     /**
      * 
      * @type {number}
@@ -43,7 +43,6 @@ export interface TodoForAdd {
  * Check if a given object implements the TodoForAdd interface.
  */
 export function instanceOfTodoForAdd(value: object): value is TodoForAdd {
-    if (!('desc' in value) || value['desc'] === undefined) return false;
     return true;
 }
 
@@ -58,7 +57,7 @@ export function TodoForAddFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     return {
         
         'ftid': json['ftid'] == null ? undefined : json['ftid'],
-        'desc': json['desc'],
+        'desc': json['desc'] == null ? undefined : json['desc'],
         'priority': json['priority'] == null ? undefined : json['priority'],
     };
 }

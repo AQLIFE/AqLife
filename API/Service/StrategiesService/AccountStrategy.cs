@@ -1,0 +1,64 @@
+﻿using Microsoft.EntityFrameworkCore;
+using MyLife.Data.Entities;
+using MyLife.Data.Repository;
+using MyLife.Service.ServiceInterfaces.IStrategy;
+using MyLife.Shared.DTOs;
+using MyLife.Shared.Options;
+
+namespace MyLife.Service.StrategiesService
+{
+    public class SileAccountCheckStrategy(AppStorage storage) : IAccountUploadStrategy
+    {
+        public ServiceStatus Check(AccountDto account)
+        => storage.Account.AsNoTracking().Any(a => a.IsValid)
+            ? new ServiceStatus("已存在有效账户，不允许注册", false)
+            : new ServiceStatus(string.Empty);
+    }
+    public class DuplicateNameCheckStrategy(AppStorage storage): IAccountUploadStrategy
+    {
+        public ServiceStatus Check(AccountDto account)
+        => storage.Account.AsNoTracking().Any(a => a.Name == account.Name)
+            ? new ServiceStatus("账户名称已存在", false)
+            : new ServiceStatus(string.Empty);
+    }
+
+    public class AccountSubscriptionCheckStrategy : IAccountUploadStrategy
+    {
+        public ServiceStatus Check(AccountDto account)
+        => account.Subscriptions != null && account.Subscriptions.Any()
+            ? new ServiceStatus(string.Empty)
+            : new ServiceStatus("至少需要一个订阅", false);
+    }
+
+    
+    public class AccountAvatarValidCheckStrategy(AppStorage storage): IAccountUpdateStrategy
+    {
+        public ServiceStatus Check(AccountEntity account)
+        => storage.File.AsNoTracking().Any(e=>e.UID == account.Avatar)
+           ? new ServiceStatus(string.Empty)
+            : new ServiceStatus("头像不存在", false);
+    }
+
+    public class AccountSubscriptionAvatarValidCheckStrategy(AppStorage storage) : IAccountUpdateStrategy
+    {
+        /// <summary>
+        /// 实现检查账户的订阅中是否存在无效头像的策略
+        /// </summary>
+        /// <param name="account"></param>
+        /// <returns></returns>
+        public ServiceStatus Check(AccountEntity account)
+        {
+            var icons = account.Subscriptions.Select(s => s.SubscriptionIcon).Distinct().ToList();
+            if (icons == null || icons.Count == 0)
+                return new ServiceStatus(string.Empty);
+            
+            if(account.Avatar is Guid avatar) icons.Add(avatar);
+
+            var existCount = storage.File.AsNoTracking().Count(f => icons.Contains(f.UID));
+
+            return existCount == icons.Count()
+                ? new ServiceStatus(string.Empty)
+                : new ServiceStatus("订阅头像不存在", false);
+        }
+    }
+}

@@ -6,6 +6,7 @@
 
 Name | Type
 ------------ | -------------
+`uid` | string
 `fileName` | string
 `fileSize` | number
 `fileHash` | string
@@ -18,6 +19,7 @@ import type { FileDto } from ''
 
 // TODO: Update the object below with actual values
 const example = {
+  "uid": null,
   "fileName": null,
   "fileSize": null,
   "fileHash": null,

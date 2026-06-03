@@ -23,30 +23,63 @@ import {
     LoginDtoFromJSON,
     LoginDtoToJSON,
 } from '../models/LoginDto';
-import {
-    type SubscriptionDto,
-    SubscriptionDtoFromJSON,
-    SubscriptionDtoToJSON,
-} from '../models/SubscriptionDto';
 
 export interface ApiAccountLoginPostRequest {
     loginDto?: LoginDto;
 }
 
-export interface ApiAccountPostRequest {
-    name?: string;
-    desc?: string;
-    secretKey?: string;
+export interface ApiAccountPatchRequest {
+    accountDto?: AccountDto;
 }
 
-export interface ApiAccountSubscriptionPostRequest {
-    subscriptionDto?: Array<SubscriptionDto>;
+export interface ApiAccountPostRequest {
+    secretKey?: string;
+    accountDto?: AccountDto;
 }
 
 /**
  * 
  */
 export class AccountApi extends runtime.BaseAPI {
+
+    /**
+     * Creates request options for apiAccountDelete without sending the request
+     */
+    async apiAccountDeleteRequestOpts(): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/Account`;
+
+        return {
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiAccountDeleteRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<number>> {
+        const requestOptions = await this.apiAccountDeleteRequestOpts();
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<number>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiAccountDelete(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<number> {
+        const response = await this.apiAccountDeleteRaw(initOverrides);
+        return await response.value();
+    }
 
     /**
      * Creates request options for apiAccountGet without sending the request
@@ -126,24 +159,60 @@ export class AccountApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for apiAccountPatch without sending the request
+     */
+    async apiAccountPatchRequestOpts(requestParameters: ApiAccountPatchRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/Account`;
+
+        return {
+            path: urlPath,
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: AccountDtoToJSON(requestParameters['accountDto']),
+        };
+    }
+
+    /**
+     */
+    async apiAccountPatchRaw(requestParameters: ApiAccountPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiAccountPatchRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiAccountPatch(requestParameters: ApiAccountPatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiAccountPatchRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for apiAccountPost without sending the request
      */
     async apiAccountPostRequestOpts(requestParameters: ApiAccountPostRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
-
-        if (requestParameters['name'] != null) {
-            queryParameters['name'] = requestParameters['name'];
-        }
-
-        if (requestParameters['desc'] != null) {
-            queryParameters['desc'] = requestParameters['desc'];
-        }
 
         if (requestParameters['secretKey'] != null) {
             queryParameters['SecretKey'] = requestParameters['secretKey'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
 
 
         let urlPath = `/api/Account`;
@@ -153,6 +222,7 @@ export class AccountApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
+            body: AccountDtoToJSON(requestParameters['accountDto']),
         };
     }
 
@@ -173,48 +243,6 @@ export class AccountApi extends runtime.BaseAPI {
      */
     async apiAccountPost(requestParameters: ApiAccountPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiAccountPostRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for apiAccountSubscriptionPost without sending the request
-     */
-    async apiAccountSubscriptionPostRequestOpts(requestParameters: ApiAccountSubscriptionPostRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-
-        let urlPath = `/api/Account/subscription`;
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: requestParameters['subscriptionDto']!.map(SubscriptionDtoToJSON),
-        };
-    }
-
-    /**
-     */
-    async apiAccountSubscriptionPostRaw(requestParameters: ApiAccountSubscriptionPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<number>> {
-        const requestOptions = await this.apiAccountSubscriptionPostRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<number>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
-    }
-
-    /**
-     */
-    async apiAccountSubscriptionPost(requestParameters: ApiAccountSubscriptionPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<number> {
-        const response = await this.apiAccountSubscriptionPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

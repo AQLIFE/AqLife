@@ -8,4 +8,7 @@
         public bool Delete { get; set; }
 
     }
+
+
+    public record ServiceStatus(string Message, bool IsValid = true);
 }

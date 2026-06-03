@@ -5,7 +5,8 @@
                 <ElFormItem label="博客主页配置">
                     <ElCol :span="2" style="text-align: center;">
                         <ElTooltip content="请上传对应博客头像">
-                            <ElUpload :auto-upload="false" :limit="1" :show-file-list="false" action="#" :on-change="(file: UploadFile) => avatar = file">
+                            <ElUpload :auto-upload="false" :limit="1" :show-file-list="false" action="#"
+                                :on-change="(file: UploadFile) => avatar = file">
                                 <ElImage :src="TryConvert()" fit="cover"
                                     style="width: 30px; height: 30px; display: block; border-radius: 4px; border: 1px dashed #d9d9d9;">
                                     <template #error>
@@ -33,8 +34,9 @@
 
                     <ElCol :span="10">
                         <ElTooltip content="请填写对应系统密钥">
-                            <ElInput type="url" clearable placeholder="系统配置密钥" v-model="SecretKey" aria-required="true">
-                                <template #prepend>system key</template>
+                            <ElInput type="password" clearable placeholder="系统配置密钥" v-model="SecretKey"
+                                aria-required="true" show-password>
+                                <template #prepend>key</template>
                             </ElInput>
                         </ElTooltip>
                     </ElCol>
@@ -98,7 +100,7 @@
                     </ElCol>
                     <ElCol :span="2" style="padding:0px 30px;">
                         <ElTooltip content="点击保存配置到服务器">
-                            <ElButton :icon="Upload" @click="uploadProfile()" type="success"/>
+                            <ElButton :icon="Upload" @click="uploadProfile()" type="success" :disabled="!isActive"/>
                         </ElTooltip>
                     </ElCol>
                 </ElFormItem>
@@ -108,21 +110,32 @@
 </template>
 
 <script lang="ts" setup>
-import { AuthorInfo } from '@/services/storage/AuthorInfo';
+// import { AuthorInfo } from '@/services/storage/AuthorInfo';
 import { CirclePlus, Plus, Delete, Upload } from '@element-plus/icons-vue';
 import { type AccountDto, type SubscriptionDto } from '@/api/generated';
 import { ElMessage, ElRow, ElImage, ElCol, ElForm, ElFormItem, ElUpload, ElInput, ElButton, ElIcon, ElTooltip, type UploadFile } from 'element-plus'
-import { reactive, onUnmounted, type Ref, ref } from 'vue';
+import { reactive, onUnmounted, type Ref, ref, computed } from 'vue';
 
 const avatar = ref<null | UploadFile>(null);
+const isActive = computed(() => {
+    const val = SecretKey.value;
+    return val.length > 0 && !/\s/.test(val);
+});
+
 const form = reactive<AccountDto & { subscriptions: SubscriptionDto[] }>({
     name: '',
     desc: '',
-    avatar: '',
-    // 默认可以给一个空数组，或者初始带一个空项
+    avatar: '',// GUID字符串，后端会根据这个字符串找到对应的文件并返回URL
     subscriptions: []
 });
 
+const ImageList = reactive<File[]>([])
+const PreviewUrls = reactive<string[]>([]);
+const SecretKey: Ref<string> = ref<string>('');
+
+/**
+ * 添加订阅项：在数据结构中添加新项，并为其预留文件和预览URL位置
+ */
 const addSubscription = () => {
     form.subscriptions.push({
         aliasName: '',
@@ -132,9 +145,11 @@ const addSubscription = () => {
     PreviewUrls.push('')
 };
 
-const ImageList = reactive<File[]>([])
-const PreviewUrls = reactive<string[]>([]);
-
+/**
+ * 处理文件变化：验证格式、存储文件、生成预览URL
+ * @param uploadFile 
+ * @param index 
+ */
 const handleFileChange = (uploadFile: UploadFile, index: number) => {
     const file = uploadFile.raw;
     if (!file) return;
@@ -160,7 +175,10 @@ const handleFileChange = (uploadFile: UploadFile, index: number) => {
     PreviewUrls[index] = URL.createObjectURL(file);
 };
 
-// 删除项：必须同步 splice 所有数组，DOM 才会正确刷新
+/**
+ * 移除订阅项：删除数据、释放预览URL内存、清理文件记录
+ * @param index 
+ */
 const removeSubscription = (index: number) => {
     form.subscriptions.splice(index, 1);
 
@@ -172,70 +190,37 @@ const removeSubscription = (index: number) => {
     ImageList.splice(index, 1);
 };
 
+/**
+ * 尝试转换头像文件为预览URL，如果没有文件则返回空字符串
+ * @returns 头像预览URL或空字符串
+ */
 const TryConvert = () => {
     if (avatar.value != null && avatar.value.raw != undefined)
         return URL.createObjectURL(avatar.value.raw);
     return '';
 }
 
+/**
+ * 组件卸载时清理所有预览URL的内存，防止内存泄漏
+ */
 onUnmounted(() => {
     PreviewUrls.forEach(url => {
         if (url) URL.revokeObjectURL(url);
     });
 });
 
-const SecretKey: Ref<string> = ref<string>('');
 
-const uploadProfile = async () => {
-    console.log('正在执行', import.meta.env.VITE_API)
 
-    if (form.name == null) { ElMessage.error('账户名不允许为空'); return; }
-    // 必须登录
-    // const [data, valid] = await handle(accountAPI.apiAccountPost({ secretKey: SecretKey.value, name: form.name, desc: form.desc! }))
-    AuthorInfo()
+const OtionsAccount = () => {
 
-    // if (valid == false || data == null) return;
-    // 请求登录成功后, token会被写入Response Header
-    // const loginSession = await accountAPI.apiAccountLoginPostRaw({ loginDto: { name: form.name!, password: SecretKey.value } })
-
-    // const token = loginSession.raw.headers.get('Authorization')
-
-    // if (token) {
-    //     console.log(token)
-    //     const ValidConfig = new Configuration({
-    //         basePath: ApiOption.basePath,
-    //         headers: {
-    //             'Authorization': 'Bearer ' + token
-    //         }
-    //     })
-    //     const fileAPI = new FileApi(ValidConfig)
-    //     const list = []
-    //     for (const e of ImageList) {
-    //         if (e && e.size > 0) {
-    //             const [data, status] = await handle(fileAPI.apiFileReceivePost({ file: e }));
-
-    //             if (status) {
-    //                 console.log("上传成功:", data);
-    //                 list.push(data)
-    //             } else {
-    //                 console.error("上传失败!");
-    //             }
-    //         }
-    //     }
-    //     for (let i = 0; i < form.subscriptions.length; i++) {
-    //         console.log(list[i], form.subscriptions[i].subscriptionIcon)
-    //         form.subscriptions[i].subscriptionIcon = list[i]!.fileName;
-    //     }
-    //     accountAPI = new AccountApi(ValidConfig)// 增加token
-
-    //     const count = await accountAPI.apiAccountSubscriptionPost({ subscriptionDto: form.subscriptions })
-    //     ElMessage.success('配置成功')
-    //     ElMessage.info(`上传结果:${count},${count == form.subscriptions.length}`)
-
-    //     const user = AuthorInfo();
-    //     user.userInfo = await accountAPI.apiAccountGet()
 }
-// };
+
+
+const UploadFile = async (file: File): int => {
+    // 这里你需要根据后端接口要求构造 FormData
+
+}
+
 
 </script>
 

@@ -30,13 +30,13 @@ export interface TodoDto {
      * @type {string}
      * @memberof TodoDto
      */
-    desc: string;
+    desc?: string | null;
     /**
      * 
      * @type {string}
      * @memberof TodoDto
      */
-    status: string;
+    status?: string | null;
     /**
      * 
      * @type {Date}
@@ -61,8 +61,6 @@ export interface TodoDto {
  * Check if a given object implements the TodoDto interface.
  */
 export function instanceOfTodoDto(value: object): value is TodoDto {
-    if (!('desc' in value) || value['desc'] === undefined) return false;
-    if (!('status' in value) || value['status'] === undefined) return false;
     return true;
 }
 
@@ -77,8 +75,8 @@ export function TodoDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): T
     return {
         
         'ftid': json['ftid'] == null ? undefined : json['ftid'],
-        'desc': json['desc'],
-        'status': json['status'],
+        'desc': json['desc'] == null ? undefined : json['desc'],
+        'status': json['status'] == null ? undefined : json['status'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'completedAt': json['completedAt'] == null ? undefined : (new Date(json['completedAt'])),
         'priority': json['priority'] == null ? undefined : json['priority'],

@@ -53,28 +53,28 @@ TemporaryDependencyNodeTargetIdentifier=net8.0
 /warnaserror+:NU1605,SYSLIB0011
 
 [sourceFiles]
+BusinessInitialization/
+ HostExtensions.cs
+ MvcOptionsExtensions.cs
+ Policy/
+  FilePolicy.cs
+  JwtPolicy.cs
+  OptionPolicy.cs
+  StoragePolicy.cs
+BusinessSecurity/RuntimeCheck/
+ ExceptionHandler.cs
+ ExceptionServiceExtensions.cs
+ FilePolicyFilter.cs
+ HealthChecks.cs
 Controllers/
  AccountController.cs
  CorpusController.cs
  FileController.cs
  TodoController.cs
-Extensions/
- ExceptionServiceExtensions.cs
- HostExtensions.cs
-Filters/FilePolicyFilter.cs
-Infrastructure/
- HealthChecks.cs
- MvcOptionsExtensions.cs
-Middlewares/ExceptionHandler.cs
 obj/Debug/net8.0/
  .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
  Web.AssemblyInfo.cs
  Web.GlobalUsings.g.cs
-Policy/
- FilePolicy.cs
- JwtPolicy.cs
- OptionPolicy.cs
- StoragePolicy.cs
 Program.cs
 
 [metadataReferences]

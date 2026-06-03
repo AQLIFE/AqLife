@@ -6,14 +6,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MyLife.Data.Entities
 {
     [Table("FileMeta")]
-    public class FileMetaEntity
+    public class FileMetaEntity: IStorageEntity
     {
         [Key]
-        public Guid Uuid { get; set; } = Guid.NewGuid();
-        [Column,Description("仅存储文件名,不含后缀")]
+        public Guid UID { get; set; } = Guid.NewGuid();
+        [Column, Description("仅存储文件名,不含后缀")]
         public string FileName { get; set; } = string.Empty;
         [Column]
         public string DesensitizationName { get; set; } = string.Empty;
+        [Column]
+        public string Extension { get; set; } = string.Empty;
         [Column]
         public ulong FileSize { set; get; } = 0u;
 
@@ -32,7 +34,8 @@ namespace MyLife.Data.Entities
         public FileMetaEntity(IFormFile file, string hash)
         {
             FileName = Path.GetFileNameWithoutExtension(file.FileName) ?? string.Empty;
-            DesensitizationName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            DesensitizationName = Guid.NewGuid().ToString();
+            Extension = Path.GetExtension(file.FileName).ToLowerInvariant() ?? string.Empty;
             FileSize = (ulong)file.Length;
             FileHash = hash;
         }

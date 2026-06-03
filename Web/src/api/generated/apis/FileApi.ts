@@ -30,7 +30,7 @@ export interface ApiFileGetRequest {
 }
 
 export interface ApiFileReceivePostRequest {
-    file?: Blob;
+    file?: Array<Blob>;
 }
 
 /**
@@ -148,7 +148,9 @@ export class FileApi extends runtime.BaseAPI {
         }
 
         if (requestParameters['file'] != null) {
-            formParams.append('file', requestParameters['file'] as any);
+            requestParameters['file'].forEach((element) => {
+                formParams.append('file', element as any);
+            })
         }
 
 
@@ -165,16 +167,16 @@ export class FileApi extends runtime.BaseAPI {
 
     /**
      */
-    async apiFileReceivePostRaw(requestParameters: ApiFileReceivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FileDto>> {
+    async apiFileReceivePostRaw(requestParameters: ApiFileReceivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<FileDto>>> {
         const requestOptions = await this.apiFileReceivePostRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => FileDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(FileDtoFromJSON));
     }
 
     /**
      */
-    async apiFileReceivePost(requestParameters: ApiFileReceivePostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileDto> {
+    async apiFileReceivePost(requestParameters: ApiFileReceivePostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<FileDto>> {
         const response = await this.apiFileReceivePostRaw(requestParameters, initOverrides);
         return await response.value();
     }
