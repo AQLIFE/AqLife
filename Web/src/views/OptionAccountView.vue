@@ -6,8 +6,8 @@
                     <ElCol :span="2" style="text-align: center;">
                         <ElTooltip content="请上传对应博客头像">
                             <ElUpload :auto-upload="false" :limit="1" :show-file-list="false" action="#"
-                                :on-change="(file: UploadFile) => avatar = file">
-                                <ElImage :src="TryConvert()" fit="cover"
+                                :on-change="handleAvatarChange">
+                                <ElImage :src="avatarPreview" fit="cover"
                                     style="width: 30px; height: 30px; display: block; border-radius: 4px; border: 1px dashed #d9d9d9;">
                                     <template #error>
                                         <ElIcon style="position: relative;top:2px;">
@@ -100,7 +100,7 @@
                     </ElCol>
                     <ElCol :span="2" style="padding:0px 30px;">
                         <ElTooltip content="点击保存配置到服务器">
-                            <ElButton :icon="Upload" @click="uploadProfile()" type="success" :disabled="!isActive"/>
+                            <ElButton :icon="Upload" @click="saveProfile" type="success" :disabled="!isActive" />
                         </ElTooltip>
                     </ElCol>
                 </ElFormItem>
@@ -110,13 +110,16 @@
 </template>
 
 <script lang="ts" setup>
-// import { AuthorInfo } from '@/services/storage/AuthorInfo';
+import { AuthorInfo } from '@/services/storage/AuthorInfo';
 import { CirclePlus, Plus, Delete, Upload } from '@element-plus/icons-vue';
-import { type AccountDto, type SubscriptionDto } from '@/api/generated';
+import { Configuration, type AccountDto, type SubscriptionDto } from '@/api/generated';
+import { AccountApi, FileApi } from '@/api/generated/apis';
 import { ElMessage, ElRow, ElImage, ElCol, ElForm, ElFormItem, ElUpload, ElInput, ElButton, ElIcon, ElTooltip, type UploadFile } from 'element-plus'
-import { reactive, onUnmounted, type Ref, ref, computed } from 'vue';
+import { reactive, onMounted, onUnmounted, type Ref, ref, computed } from 'vue';
+import { ApiOption } from '@/services/storage/BaseOptions';
 
-const avatar = ref<null | UploadFile>(null);
+const avatar = ref<null | File>(null);
+const avatarPreview = ref<string>('');
 const isActive = computed(() => {
     const val = SecretKey.value;
     return val.length > 0 && !/\s/.test(val);
@@ -125,7 +128,7 @@ const isActive = computed(() => {
 const form = reactive<AccountDto & { subscriptions: SubscriptionDto[] }>({
     name: '',
     desc: '',
-    avatar: '',// GUID字符串，后端会根据这个字符串找到对应的文件并返回URL
+    avatar: null,// GUID字符串，后端会根据这个字符串找到对应的文件并返回URL
     subscriptions: []
 });
 
@@ -139,7 +142,9 @@ const SecretKey: Ref<string> = ref<string>('');
 const addSubscription = () => {
     form.subscriptions.push({
         aliasName: '',
-        subscriptionLink: ''
+        subscriptionLink: '',
+        subscriptionIcon: null,
+        subscriptionPlatform: ''
     });
     ImageList.push(new File([], ''))
     PreviewUrls.push('')
@@ -190,15 +195,25 @@ const removeSubscription = (index: number) => {
     ImageList.splice(index, 1);
 };
 
+
 /**
  * 尝试转换头像文件为预览URL，如果没有文件则返回空字符串
  * @returns 头像预览URL或空字符串
  */
-const TryConvert = () => {
-    if (avatar.value != null && avatar.value.raw != undefined)
-        return URL.createObjectURL(avatar.value.raw);
-    return '';
-}
+const handleAvatarChange = (uploadFile: UploadFile) => {
+    const file = uploadFile.raw;
+    if (!file) return;
+
+    // 存储真正的二进制 File 对象
+    avatar.value = file;
+
+    // 清理旧的预览链接释放内存
+    if (avatarPreview.value) {
+        URL.revokeObjectURL(avatarPreview.value);
+    }
+    // 生成新的预览链接
+    avatarPreview.value = URL.createObjectURL(file);
+};
 
 /**
  * 组件卸载时清理所有预览URL的内存，防止内存泄漏
@@ -207,74 +222,105 @@ onUnmounted(() => {
     PreviewUrls.forEach(url => {
         if (url) URL.revokeObjectURL(url);
     });
+    if (avatarPreview.value) {
+        URL.revokeObjectURL(avatarPreview.value);
+    }
 });
 
 
 
+onMounted(async () => {
+    try {
+        await AuthorInfo().getUser();
+        const acc = AuthorInfo().userInfo;
+        if (acc) {
+            form.name = acc.name || '';
+            form.desc = acc.desc || '';
+            form.avatar = acc.avatar || null;
+            form.subscriptions = acc.subscriptions || [];
+            if (acc.avatar) {
+                // 注意：如果后端返回的是 GUID，需要拼接上后端的图片查看 API 地址
+                // 如果后端直接返回完整 URL，则直接赋值：
+                avatarPreview.value = `${import.meta.env.VITE_API}/api/file/download?title=&id=${acc.avatar}`;
+            }
+        }
+    } catch (e) { }
+});
+
 const saveProfile = async () => {
     try {
-        // 上传头像（若有）
-        if (avatar.value && avatar.value.raw) {
-            form.avatar = await uploadFile(avatar.value.raw as File);
+        // 1. 初始化请求 API
+        let accountReq = new AccountApi(new Configuration(ApiOption));
+
+        // 2. 注册基础信息
+        await accountReq.apiAccountPost({ secretKey: SecretKey.value, accountDto: form });
+
+        // 3. 登录获取 Token
+        // 修复原 then(result, response) 的参数错位问题
+        const loginRawResponse = await accountReq.apiAccountLoginPostRaw({
+            loginDto: { name: form.name, password: SecretKey.value }
+        });
+
+        console.log('登录成功返回:', loginRawResponse);
+
+        // 注意：根据你后端框架的不同，token 可能在 headers 里，也可能在 loginResponse.data 里
+        // 如果是从 headers 获取，确保大小写与后端一致（有时是小写 'authorization'）
+        const headers = loginRawResponse.raw.headers;
+        const token = headers.get('Authorization') || headers.get('authorization');
+        if (!token) {
+            ElMessage.error('登录成功，但未获取到有效的 Authorization Token');
+            return;
         }
 
-        // 上传订阅项的图标（若有）并在 subscriptions 中写入返回的 id
-        for (let i = 0; i < ImageList.length; i++) {
-            const f = ImageList[i];
-            if (f && (f as File).size && form.subscriptions[i]) {
-                const guid = await uploadFile(f as File);
-                // 在后端模型中配置对应的字段名（此处使用 iconId 作为示例）
-                (form.subscriptions[i] as any).iconId = guid;
+        // 4. 保存 Token 并初始化文件 API
+        ApiOption.headers['Authorization'] = 'Bearer '+token;
+        const fileApi = new FileApi(new Configuration(ApiOption));
+
+        // 5. 上传头像
+        if (avatar.value) {
+            try {
+                const guid = await uploadFile(avatar.value as File, fileApi);
+                form.avatar = guid;
+                console.log('头像上传成功，GUID:', guid);
+            } catch (err: any) {
+                ElMessage.error('头像上传出错');
+                return; // 如果头像必须上传成功，这里拦截；若非必需，可去掉 return
             }
         }
 
-        // 尝试调用后端 API（若存在），否则降级到 fetch
-        try {
-            // 如果存在生成的客户端，可在此处调用（示例占位）
-            // await ApiClient.accountController.saveAccount(form, { headers: { 'X-Secret-Key': SecretKey.value }});
-        } catch (e) {
-            // 忽略，使用 fetch 作为兜底实现
+        // 6. 循环上传订阅图标（严格按顺序等待）
+        for (let i = 0; i < ImageList.length; i++) {
+            const f = ImageList[i];
+            if (f && (f as File).size && form.subscriptions?.[i]) {
+                try {
+                    const uid = await uploadFile(f as File, fileApi);
+                    form.subscriptions[i].subscriptionIcon = uid;
+                    console.log(`第 ${i + 1} 张订阅图片上传成功，GUID:`, uid);
+                } catch (err: any) {
+                    ElMessage.error(`第 ${i + 1} 张订阅图片上传出错: ${err?.message || ''}`);
+                    // 决定是否终止：如果要终止，写 return; 如果跳过继续，写 continue;
+                }
+            }
         }
-
-        const resp = await fetch('/api/account', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Secret-Key': SecretKey.value
-            },
-            body: JSON.stringify(form)
-        });
-
-        if (!resp.ok) throw new Error(`保存失败: ${resp.status}`);
+        console.log(form)
+        // 7. 更新 account 完成最终配置
+        accountReq = new AccountApi(new Configuration(ApiOption));
+        await accountReq.apiAccountPatch({ accountDto: form });
 
         ElMessage.success('配置已保存');
+
     } catch (err: any) {
-        ElMessage.error(err?.message || '保存出错');
+        // 统一捕获上述链条中所有未被内部 try-catch 拦截的请求错误
+        console.error('保存配置流程出错:', err);
+        ElMessage.error(err?.message || '操作失败，请检查网络或输入');
     }
 };
 
-const uploadFile = async (file: File): Promise<string> => {
-    try {
-        const fd = new FormData();
-        fd.append('file', file);
-
-        const resp = await fetch('/api/file/upload', {
-            method: 'POST',
-            body: fd
-        });
-
-        if (!resp.ok) throw new Error('上传失败');
-        const data = await resp.json();
-        // 假定后端返回 { id: 'guid' } 或 { guid: '...' }
-        return data.id || data.guid || data;
-    } catch (e) {
-        // 若网络或接口不存在，降级生成本地 id（仅用于本地调试）
-        return 'local-' + Date.now().toString();
-    }
+const uploadFile = async (file: File, fileApi: FileApi): Promise<string | undefined> => {
+    const res = await fileApi.apiFileReceivePost({ file: [file] });
+    if (res && res.length > 0) return res[0].uid;
+    throw new Error('上传失败');
 };
-
-// 将模板中引用的 uploadProfile 映射到 saveProfile
-const uploadProfile = saveProfile;
 
 </script>
 

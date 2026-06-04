@@ -14,6 +14,7 @@ namespace MyLife.Service.EntityService
     public class AccountService(
         AppStorage storage,
         SubscriptionService subscriptionService,
+        FileService fileService,
         IEnumerable<IAccountUploadStrategy> uploadStrategies,
         IEnumerable<IAccountUpdateStrategy> updateStrategies,
         AccountMapper accountMapper,
@@ -68,13 +69,13 @@ namespace MyLife.Service.EntityService
             {
                 AccountEntity account = await TryReadAsync(guid) ?? throw new OperateTransactionFailedException("账户不存在"); ;// 此处不可能为null，因为前面已经检查过了
 
+                var entites = await subscriptionService.TryUpdateAsync(account.UID, dto.Subscriptions);
                 accountMapper.UpdateEntity(dto, account);
                 UpdateCheck(account);
-
-                var entites = await subscriptionService.TryUpdateAsync(account.UID, dto.Subscriptions);
-                account.Subscriptions = (ICollection<SubscriptionEntity>)entites;
+                storage.Entry(account).State = EntityState.Modified;
+                // account.Subscriptions = (ICollection<SubscriptionEntity>)entites;
                 //subscriptionMapper.UpdateEntity(, account.Subscriptions); 未经安全检查的风险方法
-                storage.Account.Update(account);// 因为 TryReadAsync 中使用了 AsNoTracking，所以这里需要显式调用 Update 来告诉 EF Core 这个实体需要被更新。
+                // storage.Account.Update(account);// 因为 TryReadAsync 中使用了 AsNoTracking，所以这里需要显式调用 Update 来告诉 EF Core 这个实体需要被更新。
                 await storage.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -87,12 +88,18 @@ namespace MyLife.Service.EntityService
             }
         }
 
-        public async Task<int> TryDeleteAsync(Guid id)
+        public async Task<int> TryDeleteAsync(Guid guid)
         {
-            AccountEntity account = await TryReadAsync(id) ?? throw new OperateTransactionFailedException("账户不存在");
-            account.IsValid = false;
-            //storage.Account.Update(account);// 同样的，这行代码可以省略，但为了清晰和一致性，保留了它。
-            return await storage.SaveChangesAsync();
+            int removedCount = 0;
+            var account = await TryReadAsync(guid) ?? throw new OperateTransactionFailedException("账户不存在");
+
+            if (account.Avatar is Guid avatar)
+                removedCount += await fileService.TryDeleteAsync(avatar);// 删除头像
+            var subs = account.Subscriptions.Select(s => s.SubscriptionIcon).ToList();
+            subs.ForEach(async e => removedCount += await fileService.TryDeleteAsync(e));
+            // 删除订阅
+            storage.Account.Remove(account);// 按照设计 删除账户会级联删除订阅，因为 SubscriptionEntity 中的 Account 导航属性被配置为 Cascade Delete。
+            return (removedCount += await storage.SaveChangesAsync());
         }
 
         public async Task<bool> TryLogin(LoginDto dto)
@@ -169,7 +176,8 @@ namespace MyLife.Service.EntityService
         /// <returns></returns>
         public async Task<IEnumerable<ICollection<SubscriptionEntity>>> TryUpdateAsync(Guid guid, IEnumerable<SubscriptionDto> dtos)
         {
-            await using var transaction = await storage.Database.BeginTransactionAsync();
+            var isNestedTransaction = storage.Database.CurrentTransaction != null;
+            var transaction = isNestedTransaction ? null : await storage.Database.BeginTransactionAsync();
             try
             {
                 var account = await storage.Account
@@ -189,27 +197,36 @@ namespace MyLife.Service.EntityService
 
                 // 预分类，避免边遍历边修改集合导致的识别错误
                 var toAdd = dtos.Where(d => !existingLinks.ContainsKey(d.SubscriptionLink)).ToList();
-                var toUpdate = dtos.Where(d => existingLinks.ContainsKey(d.SubscriptionLink)).AsEnumerable();
+                var toUpdate = dtos.Where(d => existingLinks.ContainsKey(d.SubscriptionLink)).ToList();
 
                 // 新增
-                UploadCheck(toAdd);
-                toAdd.ForEach(d => account.Subscriptions.Add(subscriptionMapper.ToEntity(d)));
-
-
-                // 更新 :  需要添加更新前置安全策略
-                UpdateCheck(toUpdate);
-                foreach (var d in toUpdate)
+                if (toAdd.Count > 0)
                 {
-                    subscriptionMapper.UpdateEntity(d, existingLinks[d.SubscriptionLink]);
+                    UploadCheck(toAdd);
+                    toAdd.ForEach(d => account.Subscriptions.Add(subscriptionMapper.ToEntity(d)));
                 }
 
+                // 更新 :  需要添加更新前置安全策略
+                if (toUpdate.Count > 0)
+                {
+                    // 此处check需要检查的是用于更新的内容,而非更新前的原本
+                    UpdateCheck(toUpdate);
+                    toUpdate.ForEach(d => subscriptionMapper.UpdateEntity(d, existingLinks[d.SubscriptionLink]));
+                    //foreach (var d in toUpdate)
+                    //{
+                    //    subscriptionMapper.UpdateEntity(d, existingLinks[d.SubscriptionLink]);
+                    //}
+                }
                 await storage.SaveChangesAsync();
-                await transaction.CommitAsync();
+                if (transaction is not null)
+                {
+                    await transaction.CommitAsync();
+                }
                 return storage.Account.Select(e => e.Subscriptions).AsEnumerable();
             }
             catch
             {
-                await transaction.RollbackAsync();
+                if (transaction is not null) await transaction.RollbackAsync();
                 throw;
             }
         }

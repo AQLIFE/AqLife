@@ -27,18 +27,19 @@ namespace MyLife.Service.EntityService
         public async Task<IEnumerable<FileMetaEntity?>> TryReadAsync(Guid? guid, string? title)
         {
             var query = storage.File.AsQueryable();
-            if (!IsValid)
-            {
-                var allowedExtensions = policy.Value.AllowedDownload.Select(ext => ext.ToLowerInvariant()).ToList();
-                query = query.Where(e => allowedExtensions.Any(ext => e.DesensitizationName.EndsWith(ext)));
-            }
+
+            //if (!IsValid)
+            //{ 过滤导致仅有mD文件可被检索
+            //    var allowedExtensions = policy.Value.AllowedDownload.Select(ext => ext.ToLowerInvariant()).ToList();
+            //    query = query.Where(e => allowedExtensions.Contains(e.Extension));
+            //}
 
             if (guid.HasValue)
                 query = query.Where(e => e.UID == guid.Value);
             else if (title is not null && !string.IsNullOrEmpty(title))
                 query = query.Where(e => e.FileName.Contains(title));
-            else return [];
-            return await query.ToListAsync();
+            else return null;
+            return query.AsEnumerable();
         }
 
         private async Task<IEnumerable<FileMetaEntity?>> PublicListAsync()
@@ -48,7 +49,7 @@ namespace MyLife.Service.EntityService
         }
 
         private async Task<IEnumerable<FileMetaEntity?>> PrivateListAsync()
-        => await storage.File.AsNoTracking().OrderBy(e => e.FileName).ToListAsync();
+        => storage.File.AsNoTracking().OrderBy(e => e.FileName).AsEnumerable();
 
         public async Task<IEnumerable<FileMetaEntity?>> TryReadListAsync() => IsValid ? await PrivateListAsync() : await PublicListAsync();
 
@@ -64,7 +65,7 @@ namespace MyLife.Service.EntityService
         {
             #region 初步检查: 是否返回全文件列表 
 
-            var fileInfo = await TryReadAsync(id, title) is IEnumerable<FileMetaEntity?> list && list.Any() ? list.First() : null;
+            var fileInfo = await TryReadAsync(id, title) is IEnumerable<FileMetaEntity> files && files.Any() ? files.First() : throw new OperateTransactionFailedException("不存在文件记录");
             // 此处若得到授权则返回全文见列表,包含图像资源;后续步骤检查资源扩展名是否有效,若有效则允许下载?
             #endregion
 
@@ -79,14 +80,13 @@ namespace MyLife.Service.EntityService
             #endregion
 
             #region 允许下载后检查文件是否存在
-            if (fileInfo is null) throw new OperateTransactionFailedException("不存在文件记录");
-            var fullPath = Path.Combine(policy.Value.StoragePath, fileInfo.DesensitizationName);
+            var fullPath = Path.Combine(policy.Value.StoragePath, fileInfo!.DesensitizationName+fileInfo.Extension);
             if (!File.Exists(fullPath)) throw new FileNotFoundException("源文件丢失,请联系管理员", fullPath);
             #endregion
 
             #region 释放下载或预览资源
             var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
-            var ext = GetFileMimeType(fileInfo.DesensitizationName);
+            var ext = GetFileMimeType(fileInfo.DesensitizationName+fileInfo.Extension);
             return (stream, ext, fileInfo.FileName);
             #endregion
         }
@@ -131,9 +131,30 @@ namespace MyLife.Service.EntityService
             }
         }
 
+        public async Task<int> TryDeleteAsync(Guid? id)
+        {
+            if (id is null) return 0;
+            var file = await storage.File.FindAsync(id) ?? throw new FileNotFoundException("文件不存在");
+            var fullPath = Path.Combine(policy.Value.StoragePath, file.DesensitizationName + file.Extension);
+            if (File.Exists(fullPath)) File.Delete(fullPath);
+            storage.File.Remove(file);
+            return await storage.SaveChangesAsync();
+        }
+
+        public async Task<int> RemoveUnownedFile()
+        {
+            // 从 指定目录获取所有文件名称,并对数据库记录进行比对, 删除数据库中没有记录的文件, 避免垃圾文件占用存储空间
+            var groupFile = Directory.GetFiles(policy.Value.StoragePath);
+            var ownedFiles = await storage.File.Select(f => f.DesensitizationName + f.Extension).ToListAsync();
+            var unownedFiles = groupFile.Where(f => !ownedFiles.Contains(Path.GetFileName(f)));
+
+            foreach (var file in unownedFiles)
+                File.Delete(file);
+
+            return unownedFiles.Count();
+        }
         private string GetFileMimeType(string filename)
         {
-            //var ext = Path.GetExtension(filename).ToLowerInvariant();
             if (_extProvider.TryGetContentType(filename, out var contentType))
                 return contentType;
             throw new OperateTransactionFailedException("您请求的数据存在异常,已被拦截,若有疑问,请联系管理员");
@@ -151,4 +172,4 @@ namespace MyLife.Service.EntityService
             await file.CopyToAsync(fs);
         }
     }
-}
+} 

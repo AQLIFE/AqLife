@@ -1,7 +1,7 @@
 <template>
     <ElCard id="author" shadow="hover">
         <div class="template">
-            <ElImage src="" class="avatar">
+            <ElImage :src="previewUrl(AuthorInfo().userInfo.avatar??'')" class="avatar">
                 <template #error>
                     <el-icon>
                         <Picture />
@@ -38,7 +38,7 @@ import { AuthorInfo } from '@/services/storage/AuthorInfo';
 import { onBeforeMount} from 'vue'
 import { ElImage, ElCol, ElIcon, ElLink, ElCard } from 'element-plus';
 
-const previewUrl = (title: string) => `${import.meta.env.VITE_API}/api/file/download?title=${title}&id`
+const previewUrl = (guid: string) => `${import.meta.env.VITE_API}/api/file/download?title=&id=${guid}`
 
 onBeforeMount(()=>{
     // console.log(import.meta.env.VITE_API)
