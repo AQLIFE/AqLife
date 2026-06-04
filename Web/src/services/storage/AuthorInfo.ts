@@ -1,4 +1,4 @@
-import { AccountApi, type AccountDto } from "@/api/generated";
+import { AccountApi, Configuration, type AccountDto } from "@/api/generated";
 import { handle } from "@/utils/request";
 import { defineStore } from "pinia";
 import { ref, type Ref } from "vue";
@@ -8,12 +8,13 @@ export const AuthorInfo = defineStore("GetUserInfo", () => {
     const userInfo = ref<AccountDto>({
         name: "",
         desc: "",
+        avatar: null,
         subscriptions: []
     });
     // 控制骨架屏的显示
     const isShow: Ref<boolean> = ref(true);
 
-    const api = new AccountApi(ApiOption)
+    const api = new AccountApi(new Configuration(ApiOption))
     const getUser = async () => {
         const [response, status] = await handle(api.apiAccountGet());
         if (status) {
@@ -21,9 +22,6 @@ export const AuthorInfo = defineStore("GetUserInfo", () => {
             isShow.value = false;
         }
     }
-    // const register = async(account:AccountDto,key:string)=>{
-    //     // const [data, valid] = await handle(accountAPI.apiAccountPost({ secretKey: key, name: account.name, desc: account.desc }))
-    // }
 
     return { userInfo, isShow, getUser}
 });

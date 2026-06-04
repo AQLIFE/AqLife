@@ -13,17 +13,17 @@ using MyLife.Web.BusinessSecurity.RuntimeCheck;
 namespace MyLife.Web.Controllers
 {
 
-    [ApiController, Route("[Controller]"), AllowAnonymous]
+    [ApiController, Route("[Controller]"),Authorize]
     public class FileController(
         FileMapper mapper,
         FileService fileService) : ControllerBase
     {
-        [HttpGet]
+        [HttpGet, AllowAnonymous]
         public async Task<IEnumerable<FileDto>?> SearchFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
         => (title is null && id is null ? await fileService.TryReadListAsync() : await fileService.TryReadAsync(id, title))
             is IEnumerable<FileMetaEntity> target && target.Any() ? target.Select(e => mapper.ToDto(e!)) : null;
 
-        [HttpGet("download")]
+        [HttpGet("download"), AllowAnonymous]
         public async Task<IActionResult?> DownloadFile([FromQuery] string? title = null, [FromQuery] Guid? id = null)
         {
             var (stream, contentType, fileName) = await fileService.GetFileInternalAsync(title, id);

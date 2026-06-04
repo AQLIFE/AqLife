@@ -20,7 +20,7 @@ namespace MyLife.Web.Controllers
         AccountMapper accountMapper,
         IOptions<JwtOption> option,
         AppStorage storage,
-        IJwtProvider<AccountEntity> jwtProvider
+        IJwtProvider<AccountEntity> jwtProvider 
         ) : ControllerBase
     {
         [HttpGet, AllowAnonymous]
@@ -42,7 +42,7 @@ namespace MyLife.Web.Controllers
         [HttpPost("login"), AllowAnonymous]
         public async Task<string> Login(LoginDto dto)
         {
-            if (await service.TryLogin(dto) && await service.TryReadAsync() is AccountEntity account && account.Name == dto.Name)
+            if (await service.TryLogin(dto) && await service.TryReadAsync() is AccountEntity account && account.Name == dto.Name && account.IsValid)
             {
                 HttpContext.Response.Headers.Append("Authorization", jwtProvider.CreateToken(account));
                 return "登录成功";

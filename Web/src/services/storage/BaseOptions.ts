@@ -1,8 +1,8 @@
-import { Configuration } from "@/api/generated";
 
-export const ApiOption = new Configuration({
+const Token = '';
+export const ApiOption = {
     basePath: import.meta.env.VITE_API ?? 'http://localhost:5110',
     headers: {
-        'Authorization': ''
+        'Authorization': Token
     }
-})
+}
