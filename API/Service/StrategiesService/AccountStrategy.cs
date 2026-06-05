@@ -64,10 +64,11 @@ namespace MyLife.Service.StrategiesService
                 else if (icon is Guid guid)
                 {
                     var isExist= storage.File.AsNoTracking().Any(e => e.UID == guid);
-                    if(!isExist)
+                    if (!isExist)
                     {
                         return new ServiceStatus("订阅头像不存在", false);
                     }
+                    else continue;
                 }else return new ServiceStatus("订阅头像ID无效", false);
             return new ServiceStatus(string.Empty);
         }

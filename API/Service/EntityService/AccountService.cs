@@ -42,7 +42,7 @@ namespace MyLife.Service.EntityService
             => await storage.Account.Include(e => e.Subscriptions).AsNoTracking().Where(a => a.IsValid).ToListAsync();
 
         public async Task<AccountEntity?> TryReadAsync(Guid? id = null)
-            => await storage.Account.Include(e => e.Subscriptions).AsNoTracking().FirstOrDefaultAsync(a => id == null ? a.IsValid : a.UID == id);
+            => await storage.Account.Include(e => e.Subscriptions).FirstOrDefaultAsync(a => id == null ? a.IsValid : a.UID == id);
 
         public async Task<AccountEntity> TryCreateAsync(AccountDto account)
         {
@@ -69,10 +69,11 @@ namespace MyLife.Service.EntityService
             {
                 AccountEntity account = await TryReadAsync(guid) ?? throw new OperateTransactionFailedException("账户不存在"); ;// 此处不可能为null，因为前面已经检查过了
 
-                var entites = await subscriptionService.TryUpdateAsync(account.UID, dto.Subscriptions);
+                await subscriptionService.TryUpdateAsync(account, dto.Subscriptions);
                 accountMapper.UpdateEntity(dto, account);
                 UpdateCheck(account);
-                storage.Entry(account).State = EntityState.Modified;
+                // account 是受跟踪的实体（通过 TryReadAsync 使用了 Include 获取），不需要显式 Attach/Update
+                //storage.Entry(account).State = EntityState.Modified;
                 // account.Subscriptions = (ICollection<SubscriptionEntity>)entites;
                 //subscriptionMapper.UpdateEntity(, account.Subscriptions); 未经安全检查的风险方法
                 // storage.Account.Update(account);// 因为 TryReadAsync 中使用了 AsNoTracking，所以这里需要显式调用 Update 来告诉 EF Core 这个实体需要被更新。
@@ -96,7 +97,9 @@ namespace MyLife.Service.EntityService
             if (account.Avatar is Guid avatar)
                 removedCount += await fileService.TryDeleteAsync(avatar);// 删除头像
             var subs = account.Subscriptions.Select(s => s.SubscriptionIcon).ToList();
-            subs.ForEach(async e => removedCount += await fileService.TryDeleteAsync(e));
+            //subs.ForEach(async e => );
+            foreach (var subscription in subs)
+                removedCount += await fileService.TryDeleteAsync(subscription);
             // 删除订阅
             storage.Account.Remove(account);// 按照设计 删除账户会级联删除订阅，因为 SubscriptionEntity 中的 Account 导航属性被配置为 Cascade Delete。
             return (removedCount += await storage.SaveChangesAsync());
@@ -154,7 +157,7 @@ namespace MyLife.Service.EntityService
 
                 foreach (var entity in entites)
                 {
-                    entity.Account = await storage.Account.AsNoTracking().FirstOrDefaultAsync(a => a.IsValid) ?? throw new OperateTransactionFailedException("没有有效账户");
+                    entity.Account = await storage.Account.FirstOrDefaultAsync(a => a.IsValid) ?? throw new OperateTransactionFailedException("没有有效账户");
                     storage.Subscription.Add(entity);
                 }
                 await storage.SaveChangesAsync();
@@ -174,16 +177,16 @@ namespace MyLife.Service.EntityService
         /// <param name="guid"></param>
         /// <param name="dtos"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<ICollection<SubscriptionEntity>>> TryUpdateAsync(Guid guid, IEnumerable<SubscriptionDto> dtos)
+        public async Task<IEnumerable<ICollection<SubscriptionEntity>>> TryUpdateAsync(AccountEntity account, IEnumerable<SubscriptionDto> dtos)
         {
             var isNestedTransaction = storage.Database.CurrentTransaction != null;
             var transaction = isNestedTransaction ? null : await storage.Database.BeginTransactionAsync();
             try
             {
-                var account = await storage.Account
-                    .Include(e => e.Subscriptions)
-                    .FirstOrDefaultAsync(e => e.UID == guid)
-                    ?? throw new OperateTransactionFailedException("账户不存在");
+                //var account = await storage.Account
+                //    .Include(e => e.Subscriptions)
+                //    .FirstOrDefaultAsync(e => e.UID == guid)
+                //    ?? throw new OperateTransactionFailedException("账户不存在");
 
                 var existingLinks = account.Subscriptions.ToDictionary(s => s.SubscriptionLink); // 用字典，查找 O(1)
 
@@ -200,10 +203,19 @@ namespace MyLife.Service.EntityService
                 var toUpdate = dtos.Where(d => existingLinks.ContainsKey(d.SubscriptionLink)).ToList();
 
                 // 新增
+                // csharp
                 if (toAdd.Count > 0)
                 {
                     UploadCheck(toAdd);
-                    toAdd.ForEach(d => account.Subscriptions.Add(subscriptionMapper.ToEntity(d)));
+                    foreach (var d in toAdd)
+                    {
+                        var entity = subscriptionMapper.ToEntity(d);
+                        // 显式绑定到父实体，避免因映射/注解问题导致关系丢失
+                        entity.UID = account.UID;
+                        entity.Account = account;
+                        storage.Subscription.Add(entity);
+                        //storage.Subscription.Entry(entity).State = EntityState.Added;
+                    }
                 }
 
                 // 更新 :  需要添加更新前置安全策略
@@ -217,12 +229,22 @@ namespace MyLife.Service.EntityService
                     //    subscriptionMapper.UpdateEntity(d, existingLinks[d.SubscriptionLink]);
                     //}
                 }
-                await storage.SaveChangesAsync();
+                var entries = storage.ChangeTracker.Entries()
+                    .Select(e => new
+                    {
+                        Type = e.Entity.GetType().FullName,
+                        State = e.State.ToString(),
+                        Keys = e.Properties.Where(p => p.Metadata.IsPrimaryKey()).Select(p => p.CurrentValue).ToList(),
+                        Original = e.Properties.ToDictionary(p => p.Metadata.Name, p => p.OriginalValue),
+                        Current = e.Properties.ToDictionary(p => p.Metadata.Name, p => p.CurrentValue)
+                    }).ToList();
+                // 把 entries 输出到日志或调试窗口
+                await storage.SaveChangesAsync();// csharp
                 if (transaction is not null)
                 {
                     await transaction.CommitAsync();
                 }
-                return storage.Account.Select(e => e.Subscriptions).AsEnumerable();
+                return await storage.Account.Select(e => e.Subscriptions).ToListAsync();
             }
             catch
             {
