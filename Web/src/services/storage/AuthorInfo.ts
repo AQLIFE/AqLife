@@ -16,11 +16,15 @@ export const AuthorInfo = defineStore("GetUserInfo", () => {
 
     const api = new AccountApi(new Configuration(ApiOption))
     const getUser = async () => {
-        const [response, status] = await handle(api.apiAccountGet());
-        if (status) {
-            userInfo.value = response!;
-            isShow.value = false;
-        }
+        const [response, status] = await handle(api.apiAccountGetRaw());
+        // console.log(response,response)
+        try{
+            const data = await response?.value()
+            if (status && data != null) {
+                userInfo.value = data;
+                isShow.value = false;
+            }
+        }catch{}
     }
 
     return { userInfo, isShow, getUser}

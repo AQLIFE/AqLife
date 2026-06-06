@@ -1,82 +1,83 @@
 body,
 div#app {
-    padding: 0;
-    border: 0;
-    margin: 0;
-    --webbkit-user-drag: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    height: 100vh;
-    overscroll-behavior:none;
-    -webkit-user-drag: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  --webbkit-user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  height: 100vh;
+  overscroll-behavior: none;
+  -webkit-user-drag: none;
 }
 
 body::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
-*{border-radius: 0px !important;font-family:'Cascadia Code PL','Consolas';}
+* {
+  border-radius: 0px !important;
+  font-family: 'Cascadia Code PL', 'Consolas';
+}
 
-.el-card__body{margin: 0px;padding: 0px !important;}
+.el-card__body {
+  margin: 0px;
+  padding: 0px !important;
+}
 .template {
-	padding: 20px;
+  padding: 20px;
 }
 
 :root {
-    --topColor:rgb(255,255,255);
-    --back_color_lv1: rgb(233, 233, 235);
-    --back_color_lv2: rgb(222, 223, 224);
-    --back_color_lv3: rgb(200, 201, 202);
-    --back_color_lv4: rgb(180, 181, 182);
-    --back_color_lv5: rgb(150,151,152);
-    --inlineCenter:100px;
-    --Focus: hsla(160, 100%, 37%, 1);
+  --topColor: rgb(255, 255, 255);
+  --back_color_lv1: rgb(233, 233, 235);
+  --back_color_lv2: rgb(222, 223, 224);
+  --back_color_lv3: rgb(200, 201, 202);
+  --back_color_lv4: rgb(180, 181, 182);
+  --back_color_lv5: rgb(150, 151, 152);
+  --inlineCenter: 100px;
+  --Focus: hsla(160, 100%, 37%, 1);
 }
-
 
 a,
 .green {
-    text-decoration: none;
-    color: hsla(160, 100%, 37%, 1);
-    transition: 0.4s;
-    padding: 3px;
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
 }
 
 @media (hover: hover) {
-    a:hover {
-        background-color: hsla(160, 100%, 37%, 0.2);
-    }
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
 }
 
 @media (min-width: 1024px) {
+  body,
+  #app {
+    width: 100%;
+  }
 
-    body,
-    #app {
-        width: 100%;
-    }
-
-    #app {
-        display: flex;
-    }
+  #app {
+    display: flex;
+  }
 }
 
+@media (min-width: 1900px) {
+  body,
+  #app {
+    width: 100%;
+  }
 
-@media (min-width:1900px) {
-
-    body,
-    #app {
-        width: 100%;
-    }
-
-    #app {
-        display: flex;
-    }
+  #app {
+    display: flex;
+  }
 }
-
 
 .common-view {
-    background-color: var(--back_color_lv1);
-    flex-grow: 1;
+  background-color: var(--back_color_lv1);
+  flex-grow: 1;
 }
