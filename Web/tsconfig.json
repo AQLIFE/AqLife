@@ -9,8 +9,12 @@
     }
   ],
   "compilerOptions": {
-    "types": ["element-plus/global","node"],
-     "jsx": "preserve",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "types": ["element-plus/global", "node"],
+    "jsx": "preserve",
     "jsxImportSource": "vue",
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment"
