@@ -1,12 +1,12 @@
 <template>
-    <ElRow id="Home">{{ corpus }}</ElRow>
+  <ElRow id="Home">{{ corpus }}</ElRow>
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount,ref,type Ref} from 'vue'
-import { CorpusApi } from '@/api/generated';
-import { ElRow } from 'element-plus';
-import { ApiOption } from '@/services/storage/BaseOptions';
+import { onBeforeMount, ref, type Ref } from 'vue'
+import { Configuration, CorpusApi } from '@/api/generated'
+import { ElRow } from 'element-plus'
+import { ApiOption } from '@/services/storage/BaseOptions'
 
 // const Quotes = [
 // 	'距离产生美,保持距离',
@@ -19,16 +19,12 @@ import { ApiOption } from '@/services/storage/BaseOptions';
 //     '下班了,就别看工作上的事了,看不完滴'
 // ]
 
-const corpusAPI = new CorpusApi(ApiOption)
-const corpus:Ref<string> = ref('')
+const corpusAPI = new CorpusApi(new Configuration(ApiOption))
+const corpus: Ref<string> = ref('正在构思... ')
 
-onBeforeMount(async ()=>{
-    corpus.value = await corpusAPI.apiCorpusRandomGet()
+onBeforeMount(async () => {
+  corpus.value = await corpusAPI.apiCorpusRandomGet()
 })
-
-// 随机显示一句话
-// const idx = Math.floor(Math.random() * Quotes.length);
-
 </script>
 
 <style scoped>
