@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+// import { Copy } from '@element-plus/icons-vue'
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import hljs from 'highlight.js'

@@ -3,7 +3,12 @@
     <div class="codeHeader">
       <div class="codeType">{{ props.infoType || 'text' }}</div>
       <div class="codeTitle"></div>
-      <div class="copyButton" title="点此复制以下代码">Full</div>
+      <ElButton
+        class="copyButton"
+        title="点此全屏预览"
+        :icon="FullScreen"
+        @click="isFullscreen = true"
+      />
     </div>
 
     <div class="codeContent">
@@ -18,25 +23,38 @@
         <div v-else class="mermaid-loading">
           <span>正在绘制图表...</span>
         </div>
+        <ElDialog
+          v-model="isFullscreen"
+          fullscreen
+          destroy-on-close
+          title="图表详情预览"
+          custom-class="mermaid-fullscreen-dialog"
+        >
+          <div class="fullscreen-content" v-html="svgHtml"></div>
+        </ElDialog>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
+import { FullScreen } from '@element-plus/icons-vue'
 import mermaid from 'mermaid'
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { ElButton, ElDialog } from 'element-plus'
+import { nextTick, onMounted, ref } from 'vue'
 const props = defineProps<{
   info: string
   infoType: string
 }>()
-
+const isFullscreen = ref(false)
 const svgHtml = ref('')
+// const svgCode = ref(''); // 存储生成的 SVG 代码
+
 const hasError = ref(false)
 const uniqueChartId = `mermaid-svg-${Math.floor(Math.random() * 10000000)}`
 mermaid.initialize({
   startOnLoad: false, // 🔒 必须关闭：禁止全局扫描，改由我们手动精准控制
   securityLevel: 'loose', // 允许一些交互或相对宽松的标签渲染
-  theme: 'dark', // 主题配置：'default' | 'dark' | 'forest' | 'neutral'
+  theme: 'default', // 主题配置：'default' | 'dark' | 'forest' | 'neutral'
 })
 
 const drawDiagram = async () => {
@@ -80,14 +98,6 @@ const drawDiagram = async () => {
 onMounted(() => {
   drawDiagram()
 })
-
-// 监听数据源变化（支持动态预览修改）
-watch(
-  () => props.info,
-  () => {
-    drawDiagram()
-  },
-)
 </script>
 <style scoped>
 /* 你的原有样式保持不变 */
@@ -102,8 +112,8 @@ watch(
   display: flex;
   flex-direction: row;
   line-height: 40px;
-  background-color: #2d2d2d; /* 稍微深一点的头部颜色 */
-  color: #ccc;
+  background-color: var(--back_color_lv5); /*微深一点的头部颜色 */
+  color: rgb(255, 255, 255);
   font-size: 0.9rem;
 }
 
@@ -120,6 +130,9 @@ watch(
   padding: 0 1vw;
   cursor: pointer;
   transition: color 0.2s;
+  background-color: rgba(0, 0, 0, 0);
+  border: 0px;
+  height: initial;
 }
 
 .codeHeader .copyButton:hover {
@@ -127,7 +140,7 @@ watch(
 }
 
 .codeContent {
-  background-color: var(--back_color_lv3);
+  background-color: var(--topColor);
   margin: 0;
 }
 
