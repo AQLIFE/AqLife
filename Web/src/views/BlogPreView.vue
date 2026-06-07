@@ -16,7 +16,7 @@
           :info="node.content"
           :info-type="node.info"
         />
-
+        <TipPreview v-else-if="node.type == 'blockquote'" :quoteTokens="node.tokens" />
         <!-- 渲染表格：由于 TablePreview 拿到了属于自己的完整 tokens，不会被外部 div 拆散 -->
         <TablePreview v-else-if="node.type === 'table'" :tableTokens="node.tokens" />
 
@@ -37,6 +37,7 @@ import { mdRenderOption } from '@/data/MdRenderOption'
 import CodeBlock from '@/components/CodeBlock.vue'
 import MerimaidPreview from '@/components/MerimaidPreview.vue'
 import TablePreview from '@/components/TablePreview.vue'
+import TipPreview from '@/components/TipPreview.vue'
 import type Token from 'markdown-it\\lib\\token.d.mts'
 
 const route = useRoute()
@@ -58,6 +59,7 @@ const renderNodes = computed(() => {
 
   for (let i = 0; i < allTokens.length; i++) {
     const token = allTokens[i]
+    console.log(token)
 
     // 1. 处理代码块或 Mermaid [cite: 5]
     if (token.type === 'fence') {
@@ -67,6 +69,17 @@ const renderNodes = computed(() => {
         content: token.content,
         info: token.info,
       })
+    } else if (token.type === 'blockquote_open') {
+      const quoteGroup = []
+      let j = i
+      // 寻找对应的闭合标签 blockquote_close
+      while (j < allTokens.length && allTokens[j].type !== 'blockquote_close') {
+        quoteGroup.push(allTokens[j])
+        j++
+      }
+      quoteGroup.push(allTokens[j]) // 压入 blockquote_close
+      nodes.push({ type: 'blockquote', tokens: quoteGroup })
+      i = j // 跳过已聚合的 Token
     }
     // 2. 识别表格：从 table_open 抓到 table_close
     else if (token.type === 'table_open') {
