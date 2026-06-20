@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using MyLife.Shared;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,14 +7,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MyLife.Data.Entities
 {
     [Table("FileMeta")]
-    public class FileMetaEntity: IStorageEntity
+    public class FileMetaEntity: IEntity
     {
         [Key]
         public Guid UID { get; set; } = Guid.NewGuid();
         [Column, Description("仅存储文件名,不含后缀")]
         public string FileName { get; set; } = string.Empty;
-        [Column]
-        public string DesensitizationName { get; set; } = string.Empty;
+        //[Column]
+        //public string DesensitizationName { get; set; } = string.Empty;
         [Column]
         public string Extension { get; set; } = string.Empty;
         [Column]
@@ -23,6 +24,8 @@ namespace MyLife.Data.Entities
         public string FileHash { set; get; }
         [Column]
         public DateTime UploadTime { set; get; } = DateTime.UtcNow;
+
+        public virtual ICollection<FileTagEntity> FileTags {  get; set; }
 
         public FileMetaEntity() { }
 
@@ -34,7 +37,7 @@ namespace MyLife.Data.Entities
         public FileMetaEntity(IFormFile file, string hash)
         {
             FileName = Path.GetFileNameWithoutExtension(file.FileName) ?? string.Empty;
-            DesensitizationName = Guid.NewGuid().ToString();
+            //DesensitizationName = Guid.NewGuid().ToString();
             Extension = Path.GetExtension(file.FileName).ToLowerInvariant() ?? string.Empty;
             FileSize = (ulong)file.Length;
             FileHash = hash;

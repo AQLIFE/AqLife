@@ -1,5 +1,4 @@
-﻿using Duende.IdentityModel;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MyLife.Data.Entities;
@@ -43,41 +42,7 @@ namespace MyLife.Web.BusinessInitialization.Policy
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(option => option.TokenValidationParameters = JwtValidationParameters);
 
-
-
             return builder;
         }
     }
-
-    /// <summary>
-    /// 负责 Token 的生成和校验
-    /// </summary>
-    public class JwtProvider(IOptions<JwtOption> options) : IJwtProvider<AccountEntity>
-    {
-        public string CreateToken(AccountEntity account)
-        {
-            var claims = new[]
-            {
-                new Claim(JwtClaimTypes.Id, account.UID.ToString())
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.SecretKey));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var sourceToken = new JwtSecurityToken(
-                issuer: options.Value.Issuer,
-                audience: options.Value.Audience,
-                claims: claims,
-                notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: creds);
-
-            return new JwtSecurityTokenHandler().WriteToken(sourceToken);
-        }
-
-        public bool ValidateToken(string token)
-        {
-            throw new Exception("JwtProvider.ValidateToken 方法尚未实现，请根据实际需求进行实现");
-        }
-    }
-
 }

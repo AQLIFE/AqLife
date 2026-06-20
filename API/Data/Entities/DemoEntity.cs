@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MyLife.Shared;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyLife.Data.Entities
@@ -13,7 +14,7 @@ namespace MyLife.Data.Entities
     }
 
     [Table("Corpus")]
-    public class CorpusEntity: IStorageEntity
+    public class CorpusEntity: IEntity
     {
         [Key]
         public Guid UID { set; get; } = Guid.NewGuid();

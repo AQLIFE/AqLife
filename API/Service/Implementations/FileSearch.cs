@@ -1,42 +1,39 @@
-﻿//using Microsoft.AspNetCore.Http;
-//using Microsoft.EntityFrameworkCore;
-//using Microsoft.Extensions.Options;
-//using MyLife.Data.Entities;
-//using MyLife.Data.Repository;
-//using MyLife.Service.Interfaces.IStrategy;
-//using MyLife.Shared.Options;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using MyLife.Data.Entities;
+using MyLife.Data.Repository;
+using MyLife.Service.ServiceInterfaces.IStrategy;
+using MyLife.Shared.Options;
 
-//namespace MyLife.Service.Implementations
-//{
-//    [Obsolete]
-//    public class FileSearch(AppStorage storage, IHttpContextAccessor httpContext, IOptions<FilePolicyOption> options)
-//    {
-//        //private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
+namespace MyLife.Service.Implementations
+{
+    public class FileSearch(AppStorage storage, IHttpContextAccessor httpContext, IOptions<FilePolicyOption> options, IEnumerable<ISearchStrategy> searchStrategies)
+    {
+        private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
+        public async Task<IEnumerable<FileMetaEntity>> SearchAsync(Guid? UID = null, string? Title = null, bool isDown = false)
+        {
+            // 1. 寻找匹配的组策略
+            var strategy = searchStrategies.FirstOrDefault(s => s.IsMatch(UID,Title));
+            if (strategy == null) return [];
 
-//        /// <summary>
-//        /// 已做特殊处理, 若存在授权,则返回全部文件列表,反之仅博客文件
-//        /// </summary>
-//        /// <param name="title"></param>
-//        /// <param name="id"></param>
-//        /// <returns></returns>
-//        public async Task<IEnumerable<FileMetaEntity?>> FindFileAsync(string? title, Guid? id, bool isDown = false)
-//        {
-//            var strategy = searchStrategies.FirstOrDefault(s => s.IsMatch(title, id));// 获取第一个有效规则
-//            if (strategy == null) return [];
+            // 2. 统一收拢数据源的安全切面权限过滤（无跟踪查询）
+            IQueryable<FileMetaEntity> queryable = storage.File.AsNoTracking();
 
-//            IQueryable<FileMetaEntity> queryable = isDown || IsValid ? storage.File.AsQueryable() : storage.File.Where(e => options.Value.AllowedDownload.Contains(e.DesensitizationName)).AsQueryable();
-//            return await strategy.ExecuteAsync(queryable, title, id);
-//        }
+            // 策略判定：只有已登录（IsValid）或处于下载模式（isDown），才能看全量，否则只看 AllowedDownload
+            // 改为 : 只有已登录（IsValid）/下载模式（isDown）/系统不存在有效账户时，才能看全量
+            if (!isDown && !IsValid)
+            {
+                var author =await storage.Account.FirstOrDefaultAsync(e => e.IsValid);
+                var result = author?.Subscriptions.Select(e => e.SubscriptionIcon);
+                if(result !=null)
+                queryable = queryable.Where(e => options.Value.AllowedDownload.Contains(e.Extension)|| result.Contains(e.UID));
 
+            }
 
-//        /// <summary>
-//        /// 异步从存储检索 FileMetaEntity 列表。若 IsValid 为 true 则返回全部记录；否则仅返回经 _uploadCheck 对 DesensitizationName 验证为有效的记录。以无跟踪查询
-//        /// (AsNoTracking) 获取结果。
-//        /// </summary>
-//        /// <remarks>查询在数据库端执行，使用 EF Core 的 ToListAsync 且结果不由 DbContext 跟踪（AsNoTracking）。</remarks>
-//        /// <returns>表示异步操作的任务；任务结果为 FileMetaEntity 列表，或 null。</returns>
-//        public async Task<IEnumerable<FileMetaEntity?>> FindAllAsync()
-//        => IsValid ? await storage.File.AsNoTracking().ToListAsync()
-//        : await storage.File.AsNoTracking().Where(e => options.Value.AllowedDownload.Contains(e.DesensitizationName)).ToListAsync();
-//    }
-//}
+            // 3. 将过滤后的安全数据源与 Query 交给策略类执行最终编译查询
+            return await strategy.ExecuteAsync(queryable, UID,Title);
+        }
+        //public async Task<IEnumerable<FileMetaEntity>> SearchAsync(IResourceExistenceQuery query, bool isDown = false)
+    }
+}

@@ -6,12 +6,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MyLife.Data.Entities
 {
     [Table("Subscriptions"), Index(nameof(SubscriptionPlatform),nameof(SubscriptionLink))]
-    public class SubscriptionEntity: IStorageEntity
+    public class SubscriptionEntity: IEntity
     {
         [Key]
         public Guid SID { get; set; } = Guid.NewGuid();
 
-        [ForeignKey("UID")]
+        //[ForeignKey("UID")]
         public Guid UID { get; set; }
         [StringLength(16)]
         public string AliasName { get; set; } = String.Empty;
@@ -24,7 +24,7 @@ namespace MyLife.Data.Entities
     }
 
     [Table("Accounts"),Index(nameof(Name))]
-    public class AccountEntity : IBaseUser,IStorageEntity
+    public class AccountEntity : IBaseUser,IEntity
     {
         [Key]
         public Guid UID { get; set; } = Guid.NewGuid();
