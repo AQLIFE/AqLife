@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MyLife.Shared;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyLife.Data.Entities
@@ -6,7 +7,7 @@ namespace MyLife.Data.Entities
     public enum TodoStatus { Initial, Wait, Execute, Completed }
 
     [Table("TodoList")]
-    public class TodoEntity: IStorageEntity
+    public class TodoEntity: IEntity
     {
         [Key]
         public Guid UID { get; set; } = Guid.NewGuid();

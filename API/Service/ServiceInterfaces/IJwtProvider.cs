@@ -5,7 +5,8 @@ namespace MyLife.Service.ServiceInterfaces
     public interface IJwtProvider<T> where T : IBaseUser
     {
         string CreateToken(T account);
-        bool ValidateToken(string token);
+        bool IsUserExistsInStorage();
+        bool Validate(string name,string pwd);
     }
 
     public interface IJwtAsyncProvider<T> where T : IBaseUser

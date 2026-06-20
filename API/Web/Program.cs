@@ -1,12 +1,22 @@
 
+using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.StaticFiles;
 using MyLife.Data.Entities;
+using MyLife.Service.Behaviors;
+using MyLife.Service.Command;
 using MyLife.Service.EntityService;
+using MyLife.Service.Features;
+using MyLife.Service.Handlers.Account;
+using MyLife.Service.Handlers.File;
+using MyLife.Service.Implementations;
 using MyLife.Service.Mappings;
 using MyLife.Service.ServiceInterfaces;
 using MyLife.Service.ServiceInterfaces.IStrategy;
-using MyLife.Service.StrategiesService;
+using MyLife.Service.ServiceInterfaces.IStrategy.Strategy.FileSearch;
+using MyLife.Service.Validators;
+using MyLife.Service.Validators.BusinessValidator;
+using MyLife.Shared;
 using MyLife.Shared.DTOs;
 using MyLife.Web.BusinessInitialization;
 using MyLife.Web.BusinessInitialization.Policy;
@@ -28,6 +38,22 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(CreateAccountHandler).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(LoginHandler).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(GetAccountHandler).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(CreateFileHandler).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(GetFileMetadataHandler).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(PreviewFileHandler).Assembly);
+
+    // 💡 注意顺序：验证管道排在最前面，确保报错时不会浪费数据库资源
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+
+    // 💡 接着是事务管道
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+});
+
+
 builder.AddSerilog().AddConfiguration().AddFilePolicy().AddJwtPolicy();
 
 builder.Services.AddGlobalExceptionPolicy(builder.Environment).AddDataLayer(builder.Configuration).AddRouteAdapter();
@@ -35,29 +61,40 @@ builder.Services.AddGlobalExceptionPolicy(builder.Environment).AddDataLayer(buil
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();// 框架内置服务
 builder.Services.AddHttpContextAccessor();// 框架内置服务
 
+builder.Services.AddScoped(typeof(IValidator<>), typeof(ExistenceValidator<>));// 通用资源验证器
+
 #region 文件相关服务注册
-builder.Services.AddSingleton<IJwtProvider<AccountEntity>, JwtProvider>();
+builder.Services.AddScoped<IJwtProvider<AccountEntity>,AuthService>();
+
 builder.Services.AddScoped<FileUploadFilter>();
 
-builder.Services.AddScoped<IUploadStrategy, UploadPermissionCheck>();
-builder.Services.AddScoped<IUploadStrategy, UploadSizeCheck>();
-builder.Services.AddScoped<IUploadStrategyAsync, UploadFileEffectivenessCheck>();
-builder.Services.AddScoped<IDownloadStrategy, DownloadPermissionCheck>();
+builder.Services.AddScoped(typeof(IValidator<>), typeof(FileTypeValidator<>));
+builder.Services.AddScoped(typeof(IValidator<>), typeof(FileSizeValidator<>));
+builder.Services.AddScoped(typeof(IValidator<>), typeof(FileDuplicateValidator<>));
+
+
+
+//builder.Services.AddScoped<DownloadPermissionCheck>();
 
 builder.Services.AddScoped<FileService>();
+//builder.Services.AddScoped<ISearchStrategy, AllFilesSearchStrategy>();
+builder.Services.AddScoped<ISearchStrategy, FilteredFilesSearchStrategy>();
+builder.Services.AddScoped<FileSearch>();
 builder.Services.AddScoped<UploadContext>();
 builder.Services.AddSingleton<FileMapper>();
 #endregion
 
 #region 账户相关服务注册
-builder.Services.AddScoped<ISubscriptionUploadStrategy, ValidityStrategy>();
-builder.Services.AddScoped<ISubscriptionUpdateStrategy, ValidityIndexStrategy>();
+builder.Services.AddScoped<AbstractValidator<CreateAccountCommand>, AccountNameValidator>();
+builder.Services.AddScoped<AbstractValidator<CreateAccountCommand>, SubscriptionAvatarValidator>();
+builder.Services.AddScoped<AbstractValidator<CreateAccountCommand>, SubscriptionContentValidator>();
+builder.Services.AddScoped<AbstractValidator<CreateAccountCommand>, SubscriptionCountValidator>();
 
-builder.Services.AddScoped<IAccountUploadStrategy, DuplicateNameCheckStrategy>();
-builder.Services.AddScoped<IAccountUploadStrategy, AccountSubscriptionCheckStrategy>();
+builder.Services.AddScoped<AbstractValidator<UpdateAccountAvatarCommand>, ProfilePictureValidator>();
 
-builder.Services.AddScoped<IAccountUpdateStrategy,AccountAvatarValidCheckStrategy>();
-builder.Services.AddScoped<IAccountUpdateStrategy, AccountSubscriptionAvatarValidCheckStrategy>();
+
+//builder.Services.AddScoped<AccountAvatarValidCheckStrategy>();
+//builder.Services.AddScoped<AccountSubscriptionAvatarValidCheckStrategy>();
 
 builder.Services.AddSingleton<SubscriptionMapper>();
 builder.Services.AddScoped<SubscriptionService>(); 
@@ -85,12 +122,12 @@ app.MapControllers(); app.UseExceptionHandler();
 
 
 
-app.MapHealthChecks("/api/health");
-app.MapHealthChecks("/api/health/quick", new HealthCheckOptions
-{
-    // 只运行标记为 "db" 的轻量检查
-    Predicate = (check) => check.Tags.Contains("db")
-});
+//app.MapHealthChecks("/api/health");
+//app.MapHealthChecks("/api/health/quick", new HealthCheckOptions
+//{
+//    // 只运行标记为 "db" 的轻量检查
+//    Predicate = (check) => check.Tags.Contains("db")
+//});
 
 
 app.Run();

@@ -4,18 +4,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MyLife.Data.Entities;
 using MyLife.Data.Repository;
+using MyLife.Service.Implementations;
 using MyLife.Service.ServiceInterfaces.IStrategy;
-using MyLife.Service.StrategiesService;
+using MyLife.Service.Validators.BusinessValidator;
 using MyLife.Shared.Accident;
 using MyLife.Shared.DTOs;
 using MyLife.Shared.Options;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MyLife.Service.EntityService
 {
     public class FileService(
-        IEnumerable<IUploadStrategy> uploadStrategies,
-        IUploadStrategyAsync effectivenessCheck,
+        FileSearch fileSearch,
         IOptions<FilePolicyOption> policy,
         AppStorage storage,
         UploadContext upContext,
@@ -24,23 +23,8 @@ namespace MyLife.Service.EntityService
     {
         private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
 
-        public async Task<IEnumerable<FileMetaEntity?>> TryReadAsync(Guid? guid, string? title)
-        {
-            var query = storage.File.AsQueryable();
-
-            //if (!IsValid)
-            //{ 过滤导致仅有mD文件可被检索
-            //    var allowedExtensions = policy.Value.AllowedDownload.Select(ext => ext.ToLowerInvariant()).ToList();
-            //    query = query.Where(e => allowedExtensions.Contains(e.Extension));
-            //}
-
-            if (guid.HasValue)
-                query = query.Where(e => e.UID == guid.Value);
-            else if (title is not null && !string.IsNullOrEmpty(title))
-                query = query.Where(e => e.FileName.Contains(title));
-            else return null;
-            return query.AsEnumerable();
-        }
+        public async Task<IEnumerable<FileMetaEntity>?> TryReadAsync(CancellationToken ct,Guid? UID = null, string? Title = null)
+        => await fileSearch.SearchAsync(UID,Title);
 
         private async Task<IEnumerable<FileMetaEntity?>> PublicListAsync()
         {
@@ -61,67 +45,40 @@ namespace MyLife.Service.EntityService
         /// <returns></returns>
         /// <exception cref="OperateTransactionFailedException"></exception>
         /// <exception cref="FileNotFoundException"></exception>
-        public async Task<(Stream stream, string contentType, string fileName)> GetFileInternalAsync(string? title, Guid? id)
+        public async Task<FileDownloadModel> GetFileInternalAsync(Guid? id,CancellationToken ct)
         {
-            #region 初步检查: 是否返回全文件列表 
-
-            var fileInfo = await TryReadAsync(id, title) is IEnumerable<FileMetaEntity> files && files.Any() ? files.First() : throw new OperateTransactionFailedException("不存在文件记录");
-            // 此处若得到授权则返回全文见列表,包含图像资源;后续步骤检查资源扩展名是否有效,若有效则允许下载?
-            #endregion
-
-            #region 检查下载权限：仅允许 AllowedDownload 中的扩展名
-            //fileInfo.Select(e=> downloadPermissionCheck.Check(Path.GetExtension(e.DesensitizationName)) is (false,string msg) )
-            //var fileExt = Path.GetExtension(fileInfo.FileName).ToLowerInvariant();
-
-            //if (fileExt is null || !downloadPermissionCheck.Check(fileExt).IsValid)
-            //{
-            //    throw new OperateTransactionFailedException($"文件类型 {fileExt} 不允许下载");
-            //}
-            #endregion
-
+            var fileInfo = await TryReadAsync(ct,id) is IEnumerable<FileMetaEntity> files && files.Any() ? files.First() : throw new OperateTransactionFailedException("不存在文件记录");
+            
             #region 允许下载后检查文件是否存在
-            var fullPath = Path.Combine(policy.Value.StoragePath, fileInfo!.DesensitizationName+fileInfo.Extension);
+            var fullPath = Path.Combine(policy.Value.StoragePath, fileInfo!.UID +fileInfo.Extension);
             if (!File.Exists(fullPath)) throw new FileNotFoundException("源文件丢失,请联系管理员", fullPath);
             #endregion
 
             #region 释放下载或预览资源
             var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
-            var ext = GetFileMimeType(fileInfo.DesensitizationName+fileInfo.Extension);
-            return (stream, ext, fileInfo.FileName);
+            var ext = GetFileMimeType(fileInfo.UID +fileInfo.Extension);
+            return new FileDownloadModel(stream, ext, fileInfo.FileName);
             #endregion
         }
 
-        private async Task ValidateFileAsync(IFormFile file)
+        public async Task<IEnumerable<Guid>> TryCreateAsync(IEnumerable<IFormFile> files,CancellationToken ct)
         {
-            foreach (var strategy in uploadStrategies)
-                if (strategy.Check(file) is (false, string message))
-                    throw new OperateTransactionFailedException(message);
-
-            if (await effectivenessCheck.CheckAsync(file) is (false, string msg))
-                throw new OperateTransactionFailedException(msg);
-        }
-        public async Task<IEnumerable<FileMetaEntity>> TryCreateAsync(params IFormFile[] files)
-        {
-            ArgumentNullException.ThrowIfNull(files);
-            if (files is not { Length: > 0 })
-                throw new ArgumentException("至少需要上传一个文件", nameof(files));
-
             var fileMetas = new List<FileMetaEntity>();
             var savedPaths = new List<string>();
 
-            try{
+            try
+            {
                 foreach (var file in files)
                 {
-                    await ValidateFileAsync(file);
-                    var meta = new FileMetaEntity(file, upContext.FileHash ?? throw new OperateTransactionFailedException("读取hash失败"));
-                    var targetPath = Path.Combine(policy.Value.StoragePath, meta.DesensitizationName + meta.Extension);
+                    var meta = new FileMetaEntity(file, upContext.FileHashes.FirstOrDefault(e=>e.Key==file).Value ?? throw new OperateTransactionFailedException("读取hash失败"));
+                    var targetPath = Path.Combine(policy.Value.StoragePath, meta.UID + meta.Extension);
                     await SaveFile(file, targetPath);
                     fileMetas.Add(meta);
                     savedPaths.Add(targetPath);
                 }
                 await storage.File.AddRangeAsync(fileMetas);
-                await storage.SaveChangesAsync();
-                return fileMetas;
+                //await storage.SaveChangesAsync();
+                return fileMetas.Select(e=>e.UID);
             }
             catch
             {
@@ -131,11 +88,21 @@ namespace MyLife.Service.EntityService
             }
         }
 
+        //public async Task<Guid> TryUpdateAsync(Guid guid,IFormFile file)
+        //{
+        //    var entity = await TryReadAsync(guid,null);
+        //    if (entity?.First() is null) throw new OperateTransactionFailedException("不存在的文件,无法更新");
+
+
+
+        //}
+
+
         public async Task<int> TryDeleteAsync(Guid? id)
         {
             if (id is null) return 0;
             var file = await storage.File.FindAsync(id) ?? throw new FileNotFoundException("文件不存在");
-            var fullPath = Path.Combine(policy.Value.StoragePath, file.DesensitizationName + file.Extension);
+            var fullPath = Path.Combine(policy.Value.StoragePath, file.UID + file.Extension);
             if (File.Exists(fullPath)) File.Delete(fullPath);
             storage.File.Remove(file);
             return await storage.SaveChangesAsync();
@@ -145,9 +112,9 @@ namespace MyLife.Service.EntityService
         {
             // 从 指定目录获取所有文件名称,并对数据库记录进行比对, 删除数据库中没有记录的文件, 避免垃圾文件占用存储空间
             var groupFile = Directory.GetFiles(policy.Value.StoragePath);
-            var ownedFiles = await storage.File.Select(f => f.DesensitizationName + f.Extension).ToListAsync();
+            var ownedFiles = await storage.File.Select(f => f.UID + f.Extension).ToListAsync();
             var unownedFiles = groupFile.Where(f => !ownedFiles.Contains(Path.GetFileName(f)));
-
+            ;
             foreach (var file in unownedFiles)
                 File.Delete(file);
 

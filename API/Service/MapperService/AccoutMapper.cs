@@ -35,9 +35,14 @@ namespace MyLife.Service.Mappings
         public partial AccountDto ToDto(AccountEntity obj);
 
 
+
+
         [MapperIgnoreTarget(nameof(AccountEntity.UID))]
         [MapperIgnoreTarget(nameof(AccountEntity.IsValid))]
         public partial AccountEntity ToEntity(AccountDto dto);
+
+        [MapperIgnoreTarget(nameof(AccountFullDto.Avatar))]
+        public partial AccountEntity ToEntity(AccountFullDto dto);
 
         [MapperIgnoreTarget(nameof(AccountEntity.UID))]
         [MapperIgnoreTarget(nameof(AccountEntity.IsValid))]
@@ -49,4 +54,6 @@ namespace MyLife.Service.Mappings
         private string Convert(Guid id) => id.ToString();
         private Guid Convert(string id) => Guid.TryParse(id, out var guid) ? guid : Guid.Empty; // string -> Guid
     }
+
+
 }

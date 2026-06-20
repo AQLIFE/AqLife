@@ -7,14 +7,14 @@ using MyLife.Shared.Options;
 namespace MyLife.Web.BusinessSecurity.RuntimeCheck
 {
     public enum PolicyKey { Upload, Download, Unkown }
-    public class FileUploadFilter(IOptions<FilePolicyOption> options, IEnumerable<IUploadStrategy> Checks) : IAuthorizationFilter
+    public class FileUploadFilter(IOptions<FilePolicyOption> options) : IAuthorizationFilter
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             bool validStatus = true;
 
             string errorMsg = "Upload功能检查未通过";
-            if (Checks is not null && options is not null)
+            if ( options is not null)
             {
                 if (options.Value.AllowedUpload == null || options.Value.AllowedUpload.Length == 0)
                 {

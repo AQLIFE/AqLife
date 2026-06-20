@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyLife.Data.Repository;
 
@@ -11,9 +12,11 @@ using MyLife.Data.Repository;
 namespace MyLife.Data.Migrations
 {
     [DbContext(typeof(AppStorage))]
-    partial class AppStorageModelSnapshot : ModelSnapshot
+    [Migration("20260609031208_addTags")]
+    partial class addTags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -168,10 +171,6 @@ namespace MyLife.Data.Migrations
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<string>("AliasName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsCategory")
                         .HasColumnType("tinyint(1)");

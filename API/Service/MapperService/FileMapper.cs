@@ -6,22 +6,19 @@ using Riok.Mapperly.Abstractions;
 namespace MyLife.Service.Mappings
 {
     [Mapper]
-    public partial class FileMapper : IGenMapper<FileMetaEntity, FileDto>
+    public partial class FileMapper : IGenMapper<FileMetaEntity, FileMetadataDto>
     {
         //[MapperIgnoreSource(nameof(FileMetaEntity.UID))]
-        [MapperIgnoreSource(nameof(FileMetaEntity.DesensitizationName))]
         [MapperIgnoreSource(nameof(FileMetaEntity.Extension))]
-        public partial FileDto ToDto(FileMetaEntity obj);
-
-        //[MapperIgnoreTarget(nameof(FileMetaEntity.UID))]
-        [MapperIgnoreTarget(nameof(FileMetaEntity.DesensitizationName))]
-        [MapperIgnoreTarget(nameof(FileMetaEntity.Extension))]
-        public partial FileMetaEntity ToEntity(FileDto dto);
+        public partial FileMetadataDto ToDto(FileMetaEntity obj);
 
         //[MapperIgnoreTarget(nameof(FileMetaEntity.UID))]
         [MapperIgnoreTarget(nameof(FileMetaEntity.Extension))]
-        [MapperIgnoreTarget(nameof(FileMetaEntity.DesensitizationName))]
-        public partial void UpdateEntity(FileDto dto,FileMetaEntity entity);
+        public partial FileMetaEntity ToEntity(FileMetadataDto dto);
+
+        //[MapperIgnoreTarget(nameof(FileMetaEntity.UID))]
+        [MapperIgnoreTarget(nameof(FileMetaEntity.Extension))]
+        public partial void UpdateEntity(FileMetadataDto dto,FileMetaEntity entity);
         private string Convert(DateTime dateTime)=> dateTime.ToString("yyyy-MM-dd");
     }
 

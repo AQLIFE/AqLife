@@ -4,10 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyLife.Data
+namespace MyLife.Shared.DTOs
 {
-    public interface IStorageEntity
-    {
-        public Guid UID { get; set; }
-    }
+    public record TagDto(string Name, string? AliasName=null,bool IsCategory=false);
 }
