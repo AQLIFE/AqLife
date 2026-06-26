@@ -1,25 +1,21 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using MyLife.Data.Entities;
 using MyLife.Shared;
+using MyLife.Shared.Command;
 using MyLife.Shared.DTOs;
-using System;
-using System.Collections.Generic;
+using MyLife.Shared.Tools;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace MyLife.Service.Command
 {
-    //public record AccountData
-    public record GetAccountQuery : IQuery<AccountDto>;
+    public record GetAccountQuery : IQuery<AccountDto?>;
     public record LoginCommand(
-    [Required] string AccountName,
-    [Required] string SecretKey
+    [Required(ErrorMessage="必填项:name")] string AccountName,
+    [Required(ErrorMessage="必填项:key")] string SecretKey
 ) : ICommand<string>;
 
-    public record DeleteAccountCommand(Guid UID) : IDeleteCommand, IMustCheckExistence<AccountEntity>;
+    public record DeleteAccountCommand(Guid UID) : IDeleteCommand, IRequireValidEntity<AccountEntity>;
 
     /// <summary>
     /// 创建账户
@@ -28,18 +24,10 @@ namespace MyLife.Service.Command
     /// <param name="Avatar"></param>
     /// <param name="SubAccountAvatar"></param>
     public record CreateAccountCommand(
-       AccountFullDto Dto
-    ) : ICreateCommand<Guid>, IRequireTransaction, IUploadRequest
-    {
-        public IEnumerable<IFormFile> GetFiles()
-        {
-            var files = new List<IFormFile>();
-            if (Dto.Avatar != null) files.Add(Dto.Avatar);
-
-            if (Dto.Subscriptions != null) files.AddRange(Dto.Subscriptions.Where(e => e.NewIconFile is not null).Select(x => x.NewIconFile!));
-            return files;
-        }
-    }
+        string Name,
+        string? Desc
+    ) : ICreateCommand, ISimpleAccountInfo{ }
+   
     /// <summary>
     /// 更新账户基础信息
     /// </summary>
@@ -48,11 +36,10 @@ namespace MyLife.Service.Command
     /// <param name="Desc"></param>
     public record UpdateAccountProfileCommand(
     Guid UID,
-    [Required, StringLength(20, MinimumLength = 3)]
+    [Required, StringLength(20, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-20之间")]
     string Name,
-    string? Desc,
-    string SecretKey
-    ) : IUpdateCommand<Guid>, IMustCheckExistence<AccountEntity>;
+    string? Desc
+    ) : IUpdateCommand, IRequireValidEntity<AccountEntity>;
 
     /// <summary>
     /// 更新账户订阅列表
@@ -62,9 +49,9 @@ namespace MyLife.Service.Command
     public record UpdateAccountSubscriptionsCommand(
         Guid UID,
         IEnumerable<SubscriptionFullDto> Subscriptions
-    ) : IUpdateCommand<Guid>,IUploadRequest, IMustCheckExistence<AccountEntity>
+    ) : IUpdateCommand, IHasFormFiles, IRequireValidEntity<AccountEntity>
     {
-        public IEnumerable<IFormFile> GetFiles() => Subscriptions.Where(x => x.NewIconFile != null).Select(e => e.NewIconFile).AsEnumerable()!;
+        public IEnumerable<IFormFile> GetFiles() => Subscriptions.GetIEnumerableFiles();
     }
 
     /// <summary>
@@ -74,8 +61,8 @@ namespace MyLife.Service.Command
     /// <param name="Avatar"></param>
     public record UpdateAccountAvatarCommand(
         Guid UID,
-        IFormFile Avatar
-    ) : IUpdateCommand<Guid>, IUploadRequest , IMustCheckExistence<AccountEntity>
+        [Required(ErrorMessage ="必须上传头像文件")]IFormFile Avatar
+    ) : IUpdateCommand, IHasFormFiles, IRequireValidEntity<AccountEntity>
     {
         public IEnumerable<IFormFile> GetFiles() => [Avatar];
     }

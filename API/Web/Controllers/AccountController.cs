@@ -1,40 +1,22 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using MyLife.Data.Entities;
-using MyLife.Data.Repository;
 using MyLife.Service.Command;
-using MyLife.Service.EntityService;
-using MyLife.Service.Mappings;
-using MyLife.Service.ServiceInterfaces;
-using MyLife.Shared.Accident;
+using MyLife.Shared;
 using MyLife.Shared.DTOs;
-using MyLife.Shared.Options;
 using MyLife.Shared.Tools;
 
 namespace MyLife.Web.Controllers
 {
-    [ApiController, Route("[controller]")]
-    public class AccountController(
-        //AccountService service,
-        //AccountMapper accountMapper,
-        //IOptions<JwtOption> option,
-        //IJwtProvider<AccountEntity> jwtProvider 
-        IMediator mediator
-        ) : ControllerBase
+    [ApiController, Route("[controller]"), Authorize]
+    public class AccountController(IMediator mediator) : ControllerBase
     {
-        //[HttpGet, AllowAnonymous]
-        //public async Task<AccountDto?> GetValid()
-        //=> await service.TryReadAsync() is AccountEntity account ? accountMapper.ToDto(account) : null;
-
         [HttpGet, AllowAnonymous]
-        public async Task<AccountDto?> GetValid()
-        => await mediator.Send(new GetAccountQuery());
+        public async Task<AccountDto?> GetValid(CancellationToken ct)
+        => await mediator.Send(new GetAccountQuery(),ct);
 
         [HttpPost, AllowAnonymous]
-        public async Task<Guid?> AddAccount([FromForm] CreateAccountCommand command, CancellationToken ct)
+        public async Task<Guid?> AddAccount(CreateAccountCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);
 
         [HttpPost("login"), AllowAnonymous]
@@ -42,12 +24,18 @@ namespace MyLife.Web.Controllers
         => await mediator.Send(command, ct);
 
 
-        [HttpPatch, Authorize]
-        public async Task<Guid> UpdateAccount([FromForm] UpdateAccountAvatarCommand command, CancellationToken ct)
-            => await mediator.Send(command, ct);
+        [HttpPatch("avatar")]
+        public async Task<Guid> UpdateAccount(/*[FromForm]*/IFormFile avatar, CancellationToken ct)
+            => await mediator.Send(new UpdateAccountAvatarCommand(User.TryGetAccountId()??throw new ArgumentNullException("无法识别的ID"),avatar), ct);
+        [HttpPatch("profile")]
+        public async Task<Guid> UpdateAccount(ISimpleAccountInfo info, CancellationToken ct)
+            => await mediator.Send(new UpdateAccountProfileCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), info.Name,info.Desc), ct);
+        [HttpPatch("subscriptions")]
+        public async Task<Guid> UpdateAccount([FromForm]IEnumerable<SubscriptionFullDto> dtos, CancellationToken ct)
+            => await mediator.Send(new UpdateAccountSubscriptionsCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), dtos), ct);
 
-        [HttpDelete, Authorize]
+        [HttpDelete]
         public async Task DeleteAccount(CancellationToken ct)
-            => await mediator.Send(new DeleteAccountCommand(User.GetAccountId()), ct);
+            => await mediator.Send(new DeleteAccountCommand(User.TryGetAccountId()!.Value ), ct);
     }
 }

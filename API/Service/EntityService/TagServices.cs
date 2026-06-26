@@ -4,11 +4,6 @@ using MyLife.Data.Repository;
 using MyLife.Service.MapperService;
 using MyLife.Shared.Accident;
 using MyLife.Shared.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyLife.Service.EntityService
 {
@@ -59,7 +54,7 @@ namespace MyLife.Service.EntityService
 
         public async Task<int> TryDeleteAsync(Guid guid)
         {
-            if(storage.Tags.Find(guid) is TagEntity entity) storage.Tags.Remove(entity);
+            if (storage.Tags.Find(guid) is TagEntity entity) storage.Tags.Remove(entity);
             return await storage.SaveChangesAsync();
         }
     }

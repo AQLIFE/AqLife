@@ -1,20 +1,19 @@
-﻿using MyLife.Data;
-using MyLife.Data.Entities;
-using MyLife.Data.Repository;
-using MyLife.Shared;
+﻿
+using MediatR;
+using MyLife.Shared.Command;
+using MyLife.Shared.Validator;
 
-namespace MyLife.Service.Validators
+namespace MyLife.Service.Validators;
+
+public abstract class AbstractValidator<TResponse> : IValidator<TResponse>
 {
-    public abstract class AbstractValidator<T>:IValidator<T> where T : IAQRequest
-    {
-        private protected abstract string ErrorMessage { init; get; }
-        /// <summary>
-        /// return 返回为 false 时,意为触发验证策略拦截,不允许继续往下执行
-        /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        private protected abstract Task<bool> IsValidAsync(T source, CancellationToken ct);
-        public async Task VerifyAsync(T source, CancellationToken ct = default) { if (!await this.IsValidAsync(source,ct)) throw new Exception(this.ErrorMessage); }// 初始逻辑占位
+    private protected abstract string ErrorMessage { init; get; }
+    /// <summary>
+    /// return 返回为 false 时,意为触发验证策略拦截,不允许继续往下执行
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    private protected abstract Task<bool> IsValidAsync(TResponse source, CancellationToken ct);
+    public async Task VerifyAsync(TResponse source, CancellationToken ct = default) { if (!await this.IsValidAsync(source, ct)) throw new Exception(this.ErrorMessage); }// 初始逻辑占位
 
-    }
 }

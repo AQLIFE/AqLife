@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MyLife.Data.Entities
 {
     [Table("FileMeta")]
-    public class FileMetaEntity: IEntity
+    public class FileMetaEntity : IEntity
     {
         [Key]
         public Guid UID { get; set; } = Guid.NewGuid();
@@ -25,7 +25,7 @@ namespace MyLife.Data.Entities
         [Column]
         public DateTime UploadTime { set; get; } = DateTime.UtcNow;
 
-        public virtual ICollection<FileTagEntity> FileTags {  get; set; }
+        public virtual ICollection<FileTagEntity> FileTags { get; set; }
 
         public FileMetaEntity() { }
 

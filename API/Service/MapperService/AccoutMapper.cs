@@ -1,5 +1,6 @@
 ﻿using MyLife.Data.Entities;
 using MyLife.Service.ServiceInterfaces;
+using MyLife.Shared;
 using MyLife.Shared.DTOs;
 using Riok.Mapperly.Abstractions;
 
@@ -41,8 +42,8 @@ namespace MyLife.Service.Mappings
         [MapperIgnoreTarget(nameof(AccountEntity.IsValid))]
         public partial AccountEntity ToEntity(AccountDto dto);
 
-        [MapperIgnoreTarget(nameof(AccountFullDto.Avatar))]
-        public partial AccountEntity ToEntity(AccountFullDto dto);
+        
+        public partial AccountEntity ToEntity(ISimpleAccountInfo dto);
 
         [MapperIgnoreTarget(nameof(AccountEntity.UID))]
         [MapperIgnoreTarget(nameof(AccountEntity.IsValid))]

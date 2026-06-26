@@ -6,15 +6,15 @@ using MyLife.Data.Repository;
 
 namespace MyLife.Web.Controllers
 {
-    [Route("[controller]"), ApiController]
+    [Route("[controller]"), ApiController, Authorize]
     public class CorpusController(AppStorage storage) : ControllerBase
     {
-        [HttpGet, AllowAnonymous]
+        [HttpGet]
         public async Task<List<string>> GetAllCorpus()
             => await storage.Corpus.AsNoTracking().Select(e => e.CorpusContent).ToListAsync();
 
 
-        [HttpGet("search"), AllowAnonymous]
+        [HttpGet("search")]
         public async Task<string> FuzzeSearch(string query)
             => await storage.Corpus.AsNoTracking().Where(e => e.CorpusContent.Contains(query)).Select(e => e.CorpusContent).FirstOrDefaultAsync() ?? "不存在语料";
 
@@ -32,7 +32,7 @@ namespace MyLife.Web.Controllers
             return corpus?.CorpusContent ?? "不存在语料";
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public async Task<string> AddCorpus(string content)
         {
             var corpus = new CorpusEntity { CorpusContent = content };
@@ -41,7 +41,7 @@ namespace MyLife.Web.Controllers
             return corpus.UID.ToString();
         }
 
-        [HttpDelete, Authorize]
+        [HttpDelete]
         public async Task<int> DeleteCorpus(Guid guid)
         {
             var corpus = await storage.Corpus.FirstOrDefaultAsync(e => e.UID == guid);
