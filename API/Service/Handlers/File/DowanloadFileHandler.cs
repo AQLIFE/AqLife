@@ -5,9 +5,9 @@ using MyLife.Shared.DTOs;
 
 namespace MyLife.Service.Handlers.File
 {
-    public class PreviewFileHandler(FileService service) : IRequestHandler<PreviewFileQuery, FilePreviewModel>
+    public class DownloadFileHandler(FileService service) : IRequestHandler<DownloadFileQuery, FileDownloadModel>
     {
-        public async Task<FilePreviewModel> Handle(PreviewFileQuery query, CancellationToken ct)
+        public async Task<FileDownloadModel> Handle(DownloadFileQuery query, CancellationToken ct)
         => await service.GetFileInternalAsync(query.UID, ct);
     }
 }

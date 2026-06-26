@@ -7,7 +7,7 @@ namespace MyLife.Data.Entities
     public enum TodoStatus { Initial, Wait, Execute, Completed }
 
     [Table("TodoList")]
-    public class TodoEntity: IEntity
+    public class TodoEntity : IEntity
     {
         [Key]
         public Guid UID { get; set; } = Guid.NewGuid();

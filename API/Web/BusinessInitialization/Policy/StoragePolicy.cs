@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Data.Health;
 using MyLife.Data.Repository;
 using MyLife.Shared.Accident;
 using MyLife.Shared.Options;
@@ -18,7 +17,7 @@ namespace MyLife.Web.BusinessInitialization.Policy
             services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version));
 
             // 注册 HealthCheck 
-            services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version)).AddScoped<HealthFunc>();
+            services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version));
             services.AddHealthChecks().AddMySql(connStr, name: "mysql-check", tags: ["db"]);
 
             return services;

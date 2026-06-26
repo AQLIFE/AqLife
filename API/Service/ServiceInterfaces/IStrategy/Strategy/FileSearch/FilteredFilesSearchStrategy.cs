@@ -7,7 +7,7 @@ namespace MyLife.Service.ServiceInterfaces.IStrategy.Strategy.FileSearch
     {
         // 只要有一个有值，就应用此策略
         public bool IsMatch(Guid? UID = null, string? Title = null)
-            =>UID != null || !string.IsNullOrWhiteSpace(Title);
+            => UID != null || !string.IsNullOrWhiteSpace(Title);
 
         public async Task<IEnumerable<FileMetaEntity>> ExecuteAsync(
             IQueryable<FileMetaEntity> queryable,
@@ -19,7 +19,7 @@ namespace MyLife.Service.ServiceInterfaces.IStrategy.Strategy.FileSearch
                 queryable = queryable.Where(e => e.UID == UID);
             }
 
-            if (!string.IsNullOrWhiteSpace(Title))
+            else if (!string.IsNullOrWhiteSpace(Title))
             {
                 queryable = queryable.Where(e => e.FileName.Contains(Title));
             }

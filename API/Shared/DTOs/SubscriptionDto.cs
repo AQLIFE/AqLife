@@ -1,10 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyLife.Shared.DTOs
 {
@@ -15,9 +10,8 @@ namespace MyLife.Shared.DTOs
     string SubscriptionLink,
     [Required(ErrorMessage ="订阅平台名不能为空")]
     string SubscriptionPlatform,
-    Guid? SubscriptionIcon,
     IFormFile? NewIconFile
-    ) : SubscriptionDto(AliasName,SubscriptionLink,SubscriptionPlatform,SubscriptionIcon), IEntityDto;
+    ) : SubscriptionDto(AliasName, SubscriptionLink, SubscriptionPlatform, null), IEntityDto;
 
     public record SubscriptionDto(
     [Required(ErrorMessage ="订阅账户名不能为空")]
@@ -28,5 +22,4 @@ namespace MyLife.Shared.DTOs
     string SubscriptionPlatform,
     Guid? SubscriptionIcon
     ) : IEntityDto;
-
 }

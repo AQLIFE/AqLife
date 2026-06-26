@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
-using MyLife.Service.ServiceInterfaces.IStrategy;
 using MyLife.Shared.Options;
 
 namespace MyLife.Web.BusinessSecurity.RuntimeCheck
@@ -14,7 +13,7 @@ namespace MyLife.Web.BusinessSecurity.RuntimeCheck
             bool validStatus = true;
 
             string errorMsg = "Upload功能检查未通过";
-            if ( options is not null)
+            if (options is not null)
             {
                 if (options.Value.AllowedUpload == null || options.Value.AllowedUpload.Length == 0)
                 {

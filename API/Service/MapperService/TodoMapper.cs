@@ -19,7 +19,7 @@ namespace MyLife.Service.Mappings
 
         [MapperIgnoreTarget(nameof(TodoEntity.UID))]
         [MapperIgnoreTarget(nameof(TodoEntity.Parent))]
-        public partial void UpdateEntity(TodoDto dto,TodoEntity entity);
+        public partial void UpdateEntity(TodoDto dto, TodoEntity entity);
 
         private TodoStatus Convert(string status)
         => status switch

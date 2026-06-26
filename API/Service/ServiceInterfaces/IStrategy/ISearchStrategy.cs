@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using MyLife.Data;
-using MyLife.Data.Entities;
+﻿using MyLife.Data.Entities;
 
 namespace MyLife.Service.ServiceInterfaces.IStrategy
 {

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using MyLife.Data.Repository;
-using MyLife.Shared;
+using MyLife.Shared.Command;
 
 namespace MyLife.Service.Behaviors
 {
@@ -12,26 +12,16 @@ namespace MyLife.Service.Behaviors
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             // 💡 核心强制逻辑：判断当前的请求是否继承了 IRequireTransaction 标签
-            if (request is IRequireTransaction)
-            {
-                // 如果是新增/更新，强制开启事务
-                using var transaction = await storage.Database.BeginTransactionAsync(cancellationToken);
-                try
-                {
-                    var response = await next(); // 执行真正的业务
-                    await storage.SaveChangesAsync(cancellationToken);
-                    await transaction.CommitAsync(cancellationToken); // 提交
-                    return response;
-                }
-                catch
-                {
-                    await transaction.RollbackAsync(cancellationToken); // 异常回滚
-                    throw; // 抛出给你的全局错误捕获器
-                }
-            }
+            if (request is not IRequireTransaction)
+                return await next();
 
-            // 如果是查询/删除（没有标签），直接执行，不开启事务
-            return await next();
+
+            using var transaction = await storage.Database.BeginTransactionAsync(cancellationToken);
+            var response = await next(); // 执行真正的业务
+            await storage.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken); // 提交 : 隐式事务回滚机制,若在Commit之前触发异常,则会自动回滚
+            return response;
+
         }
     }
 }

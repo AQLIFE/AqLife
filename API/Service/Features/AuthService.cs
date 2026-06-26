@@ -7,17 +7,13 @@ using MyLife.Data.Repository;
 using MyLife.Service.ServiceInterfaces;
 using MyLife.Shared.Options;
 using MyLife.Shared.Tools;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MyLife.Service.Features
 {
-    public class AuthService(IOptions<JwtOption> options,AppStorage storage, IHttpContextAccessor httpContextAccessor) : IJwtProvider<AccountEntity>
+    public class AuthService(IOptions<JwtOption> options, AppStorage storage, IHttpContextAccessor httpContextAccessor) : IJwtProvider<AccountEntity>
     {
         public string CreateToken(AccountEntity account)
         {
@@ -39,7 +35,7 @@ namespace MyLife.Service.Features
             return new JwtSecurityTokenHandler().WriteToken(sourceToken);
         }
 
-        public bool Validate(string name,string pwd)
+        public bool Validate(string name, string pwd)
         {
             var isValid = storage.Account.Any(e => e.Name == name);
             var isAuth = options.Value.SecretKey == pwd;
@@ -55,7 +51,7 @@ namespace MyLife.Service.Features
             }
 
             // 从合法的 ClaimsPrincipal 中提取 UID
-            var uid = context.User.GetAccountId();
+            var uid = context.User.TryGetAccountId();
 
             // 检查数据库中该用户是否依然合法存在（比如防止用户被中途注销或删除）
             return storage.Account.Any(e => e.UID == uid);

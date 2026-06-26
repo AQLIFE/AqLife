@@ -18,7 +18,6 @@ namespace MyLife.Shared.Accident
     public class OperateRequestException(string message) : OperateException(message) { }
 
     /// <summary>
-    /// The transaction could not be completed.
     /// API 对应事务无法完成异常,用于表示在API层对应的事务无法完成,例如数据库操作失败、外部服务调用失败等情况
     /// </summary>
     public class OperateTransactionFailedException(string message) : OperateException(message) { }

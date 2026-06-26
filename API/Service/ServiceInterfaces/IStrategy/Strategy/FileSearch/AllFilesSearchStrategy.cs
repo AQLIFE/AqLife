@@ -1,11 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyLife.Data.Entities;
-using MyLife.Service.Command;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyLife.Service.ServiceInterfaces.IStrategy.Strategy.FileSearch
 {
@@ -13,7 +7,7 @@ namespace MyLife.Service.ServiceInterfaces.IStrategy.Strategy.FileSearch
     public class AllFilesSearchStrategy : ISearchStrategy
     {
         // 只有当 Uid 和 Title 全为空时，才应用此策略
-        public bool IsMatch(Guid? guid=null,string? title=null)
+        public bool IsMatch(Guid? guid = null, string? title = null)
             => guid == null && string.IsNullOrWhiteSpace(title);
 
         public async Task<IEnumerable<FileMetaEntity>> ExecuteAsync(

@@ -2,16 +2,11 @@
 using MyLife.Service.ServiceInterfaces;
 using MyLife.Shared.DTOs;
 using Riok.Mapperly.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyLife.Service.MapperService
 {
     [Mapper]
-    public partial class TagMapper: IGenMapper<TagEntity, TagDto>
+    public partial class TagMapper : IGenMapper<TagEntity, TagDto>
     {
         [MapperIgnoreSource(nameof(TagEntity.UID))]
         [MapperIgnoreSource(nameof(TagEntity.FileTags))]

@@ -4,17 +4,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyLife.Data.Entities
 {
-    [Table("Demo")]
-    public class DemoEntity
-    {
-        [Column, Key]
-        public int Serial { get; set; } = 0;
-        [Column]
-        public string Desc { get; set; } = string.Empty;
-    }
+    //[Table("Demo")]
+    //public class DemoEntity
+    //{
+    //    [Column, Key]
+    //    public int Serial { get; set; } = 0;
+    //    [Column]
+    //    public string Desc { get; set; } = string.Empty;
+    //}
 
     [Table("Corpus")]
-    public class CorpusEntity: IEntity
+    public class CorpusEntity : IEntity
     {
         [Key]
         public Guid UID { set; get; } = Guid.NewGuid();

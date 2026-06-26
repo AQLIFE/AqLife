@@ -1,16 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyLife.Shared;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyLife.Data.Entities
 {
-    [Table("Tags"),Index(nameof(Name))]
+    [Table("Tags"), Index(nameof(Name))]
     public class TagEntity : IEntity
     {
         [Key]
@@ -26,7 +21,7 @@ namespace MyLife.Data.Entities
         public virtual ICollection<FileTagEntity> FileTags { get; set; } = [];
 
         public TagEntity() { }
-        public TagEntity(string name,bool isCategory =false,string? aliasName= null)
+        public TagEntity(string name, bool isCategory = false, string? aliasName = null)
         {
             this.Name = name;
             this.AliasName = aliasName ?? name;

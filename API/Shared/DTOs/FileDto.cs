@@ -7,13 +7,13 @@
         ulong FileSize = 0u,
         string FileHash = "",
         string UploadTime = ""
-    ):IEntityDto;
+    ) : IEntityDto;
 
     public record FileDownloadModel(
     Stream FileStream,
     string ContentType,
     string FileName
-    ): FilePreviewModel(FileStream,ContentType);
+    ) : FilePreviewModel(FileStream, ContentType);
 
     public record FilePreviewModel(
     Stream FileStream,
