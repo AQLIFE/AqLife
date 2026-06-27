@@ -1,38 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MyLife.Service.EntityService;
-using MyLife.Service.MapperService;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MyLife.Application.Command;
 using MyLife.Shared.DTOs;
 
 namespace MyLife.Web.Controllers
 {
     [Route("[controller]")]
-    [ApiController]
-    public class TagController(TagServices tagServices, TagMapper tagMapper) : ControllerBase
+    [ApiController,Authorize]
+    public class TagController(IMediator mediator) : ControllerBase
     {
-        [HttpGet]
-        public async Task<IEnumerable<TagDto?>> GetAll(Guid? guid = null, string? tag = null)
-        {
-            if (guid == null && tag == null)
-            {
-                var obj = await tagServices.TryReadListAsync();
-                return obj.Select(e => tagMapper.ToDto(e));
-            }
-            else
-            {
-                var obj = await tagServices.TryReadAsync(guid, tag);
-                return [obj != null ? tagMapper.ToDto(obj) : null];
-            }
-        }
+        [HttpGet,AllowAnonymous]
+        public async Task<IEnumerable<TagDto>?> Search([FromQuery]TagQuery query, CancellationToken ct)
+        => await mediator.Send(query, ct);
         [HttpPost]
-        public async Task<Guid> AddTag(TagDto dto)
-            => await tagServices.TryCreateAsync(dto);
+        public async Task<Guid> AddTag(CreateTagCommand command, CancellationToken ct)
+            => await mediator.Send(command, ct);
 
-        [HttpPut]
-        public async Task<Guid> UpdateTag(Guid guid, TagDto dto)
-            => await tagServices.TryUpdateAsync(guid, dto);
+        [HttpPatch]
+        public async Task<Guid> UpdateTag(UpdateTagCommand command, CancellationToken ct)
+            => await mediator.Send(command, ct);
 
         [HttpDelete]
-        public async Task<int> DeleteTag(Guid guid)
-            => await tagServices.TryDeleteAsync(guid);
+        public async Task DeleteTag(DeleteTagCommand command, CancellationToken ct)
+            => await mediator.Send(command, ct);
     }
 }

@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MyLife.Data.Entities;
-using MyLife.Service.EntityService;
-using MyLife.Service.Mappings;
-using MyLife.Shared.DTOs;
-
-namespace MyLife.Web.Controllers
+﻿namespace MyLife.Web.Controllers
 {
     //[ApiController, Route("[controller]")]
     //public class BlogController(FileService fileService, FileMapper fileMapper) : ControllerBase

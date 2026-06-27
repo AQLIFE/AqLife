@@ -110,8 +110,11 @@ namespace MyLife.Data.Migrations
 
             modelBuilder.Entity("MyLife.Data.Entities.SubscriptionEntity", b =>
                 {
-                    b.Property<Guid>("SID")
+                    b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AID")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("AliasName")
@@ -130,14 +133,12 @@ namespace MyLife.Data.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<Guid>("UID")
-                        .HasColumnType("char(36)");
+                    b.HasKey("UID");
 
-                    b.HasKey("SID");
+                    b.HasIndex("AID");
 
-                    b.HasIndex("UID");
-
-                    b.HasIndex("SubscriptionPlatform", "SubscriptionLink");
+                    b.HasIndex("SubscriptionPlatform", "SubscriptionLink")
+                        .IsUnique();
 
                     b.ToTable("Subscriptions");
                 });
@@ -149,7 +150,6 @@ namespace MyLife.Data.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("AliasName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<bool>("IsCategory")
@@ -162,7 +162,8 @@ namespace MyLife.Data.Migrations
 
                     b.HasKey("UID");
 
-                    b.HasIndex("Name");
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Tags");
                 });
@@ -222,7 +223,7 @@ namespace MyLife.Data.Migrations
                 {
                     b.HasOne("MyLife.Data.Entities.AccountEntity", "Account")
                         .WithMany("Subscriptions")
-                        .HasForeignKey("UID")
+                        .HasForeignKey("AID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

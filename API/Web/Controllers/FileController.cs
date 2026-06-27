@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyLife.Service.Command;
+using MyLife.Application.Command;
 using MyLife.Shared.DTOs;
-using MyLife.Web.BusinessSecurity.RuntimeCheck;
+using MyLife.Web.Middlewares;
 
 namespace MyLife.Web.Controllers
 {
@@ -22,22 +22,25 @@ namespace MyLife.Web.Controllers
             return File(result.FileStream, result.ContentType);
         }
 
-        [HttpGet("download"), Authorize]
+        [HttpGet("download")]
         public async Task<IActionResult> DownloadFile([FromQuery] DownloadFileQuery query, CancellationToken ct)
         {
             var result = await mediator.Send(query, ct);// 已实现
             return File(result.FileStream, result.ContentType, result.FileName);
         }
 
-        [HttpPost("Upload"), Authorize, ServiceFilter(typeof(FileUploadFilter))]
+        [HttpPost("Upload"), ServiceFilter(typeof(FileUploadFilter))]
         public async Task<IEnumerable<Guid>> UploadFile(CreateFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
 
 
-        [HttpPut, Authorize, ServiceFilter(typeof(FileUploadFilter))]
+        [HttpPatch, ServiceFilter(typeof(FileUploadFilter))]
         public async Task<Guid> UpdateFile(UpdateFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
 
+        [HttpPatch("tag")]
+        public async Task<Guid> UpdateFileTag(UpdateFileTagCommand command, CancellationToken ct)
+            => await mediator.Send(command, ct);
 
         [HttpDelete]
         public async Task DeleteFile(DeleteFileCommand command, CancellationToken ct)

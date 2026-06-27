@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using MyLife.Shared;
+using MyLife.Shared.Contracts;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -25,7 +25,7 @@ namespace MyLife.Data.Entities
         [Column]
         public DateTime UploadTime { set; get; } = DateTime.UtcNow;
 
-        public virtual ICollection<FileTagEntity> FileTags { get; set; }
+        public virtual ICollection<FileTagEntity>? FileTags { get; set; }
 
         public FileMetaEntity() { }
 

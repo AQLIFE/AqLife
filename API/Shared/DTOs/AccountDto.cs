@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using MyLife.Shared.Contracts;
 
 namespace MyLife.Shared.DTOs
 {
@@ -15,5 +14,5 @@ namespace MyLife.Shared.DTOs
         string? Desc,
         Guid? Avatar,
         IEnumerable<SubscriptionDto> Subscriptions
-        ) : IEntityDto,ISimpleAccountInfo;
+        ) : IEntityDto, ISimpleAccountInfo;
 }

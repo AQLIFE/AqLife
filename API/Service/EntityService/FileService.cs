@@ -5,10 +5,10 @@ using Microsoft.Extensions.Options;
 using MyLife.Data.Entities;
 using MyLife.Data.Repository;
 using MyLife.Service.Implementations;
-using MyLife.Service.Validators.BusinessValidator;
-using MyLife.Shared.Accident;
 using MyLife.Shared.DTOs;
+using MyLife.Shared.Exceptions;
 using MyLife.Shared.Options;
+using MyLife.Shared.Tools;
 
 namespace MyLife.Service.EntityService
 {
@@ -34,7 +34,7 @@ namespace MyLife.Service.EntityService
         /// <exception cref="FileNotFoundException"></exception>
         public async Task<FileDownloadModel> GetFileInternalAsync(Guid? id, CancellationToken ct)
         {
-            var fileInfo = await TryReadAsync(ct, id) is IEnumerable<FileMetaEntity> files && files.Any() ? files.First() : throw new OperateTransactionFailedException("不存在文件记录");
+            var fileInfo = await TryReadAsync(ct, id) is IEnumerable<FileMetaEntity> files && files.Any() ? files.First() : throw new RequestTransactionFailedException("不存在文件记录");
 
             #region 允许下载后检查文件是否存在
             var fullPath = Path.Combine(policy.Value.StoragePath, fileInfo!.UID + fileInfo.Extension);
@@ -57,7 +57,7 @@ namespace MyLife.Service.EntityService
 
             // 2. 一次性查出数据库中已存在的 Hash（1次 SQL 请求，解决 N+1 痛点）
             var existingFilesDict = await storage.File
-                .Where(e => upContext.FileHashes.Select(e=>e.Value).Contains(e.FileHash))
+                .Where(e => upContext.FileHashes.Select(e => e.Value).Contains(e.FileHash))
                 .ToDictionaryAsync(e => e.FileHash, e => e.UID, ct);
 
             try
@@ -116,7 +116,7 @@ namespace MyLife.Service.EntityService
                 return guid;
             }
             else
-                throw new OperateTransactionFailedException("不存在的文件,无法更新");//重复逻辑,以防万一  
+                throw new FileNotFoundException("不存在的文件,无法更新");//重复逻辑,以防万一  
         }
 
 
@@ -149,7 +149,7 @@ namespace MyLife.Service.EntityService
         {
             if (extProvider.TryGetContentType(filename, out var contentType))
                 return contentType;
-            throw new OperateTransactionFailedException("您请求的数据存在异常,已被拦截,若有疑问,请联系管理员");
+            throw new RequestTransactionFailedException("您请求的数据存在异常,已被拦截,若有疑问,请联系管理员");
         }
 
         /// <summary>

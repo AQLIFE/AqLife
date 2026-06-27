@@ -1,6 +1,6 @@
 ﻿using MyLife.Data.Entities;
 using MyLife.Service.ServiceInterfaces;
-using MyLife.Shared;
+using MyLife.Shared.Contracts;
 using MyLife.Shared.DTOs;
 using Riok.Mapperly.Abstractions;
 
@@ -10,18 +10,18 @@ namespace MyLife.Service.Mappings
     public partial class SubscriptionMapper : IGenMapper<SubscriptionEntity, SubscriptionDto>
     {
         [MapperIgnoreSource(nameof(SubscriptionEntity.UID))]
-        [MapperIgnoreSource(nameof(SubscriptionEntity.SID))]
+        [MapperIgnoreSource(nameof(SubscriptionEntity.AID))]
         [MapperIgnoreSource(nameof(SubscriptionEntity.Account))]
         public partial SubscriptionDto ToDto(SubscriptionEntity obj);
 
         //[MapperIgnoreSource(nameof(SubscriptionDto.SID))]
-        [MapperIgnoreTarget(nameof(SubscriptionEntity.SID))]
+        [MapperIgnoreTarget(nameof(SubscriptionEntity.AID))]
         [MapperIgnoreTarget(nameof(SubscriptionEntity.UID))]
         [MapperIgnoreTarget(nameof(SubscriptionEntity.Account))]
         public partial SubscriptionEntity ToEntity(SubscriptionDto dto);
 
         //[MapperIgnoreSource(nameof(SubscriptionDto.SID))]
-        [MapperIgnoreTarget(nameof(SubscriptionEntity.SID))]
+        [MapperIgnoreTarget(nameof(SubscriptionEntity.AID))]
         [MapperIgnoreTarget(nameof(SubscriptionEntity.Account))]
         [MapperIgnoreTarget(nameof(SubscriptionEntity.UID))]
         public partial void UpdateEntity(SubscriptionDto dto, SubscriptionEntity entity);
@@ -42,7 +42,7 @@ namespace MyLife.Service.Mappings
         [MapperIgnoreTarget(nameof(AccountEntity.IsValid))]
         public partial AccountEntity ToEntity(AccountDto dto);
 
-        
+
         public partial AccountEntity ToEntity(ISimpleAccountInfo dto);
 
         [MapperIgnoreTarget(nameof(AccountEntity.UID))]

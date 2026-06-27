@@ -1,26 +1,13 @@
-
-using MediatR;
 using Microsoft.AspNetCore.StaticFiles;
+using MyLife.Application;
+using MyLife.Application.Command;
+using MyLife.Data;
 using MyLife.Data.Entities;
-using MyLife.Service.Behaviors;
-using MyLife.Service.Command;
-using MyLife.Service.EntityService;
 using MyLife.Service.Features;
-using MyLife.Service.Handlers.Account;
-using MyLife.Service.Handlers.File;
-using MyLife.Service.Implementations;
-using MyLife.Service.Mappings;
 using MyLife.Service.ServiceInterfaces;
-using MyLife.Service.ServiceInterfaces.IStrategy;
-using MyLife.Service.ServiceInterfaces.IStrategy.Strategy.FileSearch;
-using MyLife.Service.Validators;
-using MyLife.Service.Validators.BusinessValidator;
-using MyLife.Shared;
-using MyLife.Shared.Command;
-using MyLife.Shared.Validator;
-using MyLife.Web.BusinessInitialization;
-using MyLife.Web.BusinessInitialization.Policy;
-using MyLife.Web.BusinessSecurity.RuntimeCheck;
+using MyLife.Shared.Contracts;
+using MyLife.Web.Extensions;
+using MyLife.Web.Middlewares;
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 var builder = WebApplication.CreateBuilder(args);
@@ -38,70 +25,28 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(typeof(CreateAccountHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(LoginHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(GetAccountHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(DeleteAccountHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(UpdateAccountProfileHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(UpdateAccountAvatarHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(UpdateAccountSubscriptionsHandler).Assembly);
-
-    cfg.RegisterServicesFromAssembly(typeof(CreateFileHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(GetFileMetadataHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(PreviewFileHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(DownloadFileHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(DeleteFileHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(UpdateFileHandler).Assembly);
-
-    // 💡 注意顺序：验证管道排在最前面，确保报错时不会浪费数据库资源
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
-    // 💡 接着是事务管道
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
-});
-
-
 builder.AddSerilog().AddConfiguration().AddFilePolicy().AddJwtPolicy();
-
+builder.Services.AddApplicationLayer();
 builder.Services.AddGlobalExceptionPolicy(builder.Environment).AddDataLayer(builder.Configuration).AddRouteAdapter();
 builder.Services.AddScoped<IJwtProvider<AccountEntity>, AuthService>();
 
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();// 框架内置服务
 builder.Services.AddHttpContextAccessor();// 框架内置服务
-builder.Services.AddScoped<FileService>();
-builder.Services.AddScoped<AccountService>();
 
-
-builder.Services.AddSingleton<TodoMapper>();
-builder.Services.AddSingleton<FileMapper>();
-builder.Services.AddSingleton<SubscriptionMapper>();
-builder.Services.AddSingleton<AccountMapper>();
-
-
-#region 文件相关服务注册
 builder.Services.AddScoped<FileUploadFilter>();
-builder.Services.AddScoped<UploadContext>();
-builder.Services.AddScoped<ISearchStrategy, FilteredFilesSearchStrategy>();
-builder.Services.AddScoped<FileSearch>();
-
-builder.Services.AddScoped(typeof(IValidator<>), typeof(ExistenceValidator<>));// 通用资源验证器
-builder.Services.AddScoped(typeof(IValidator<>),typeof(FileTypeValidator<>));
-builder.Services.AddScoped(typeof(IValidator<>),typeof(FileSizeValidator<>));
-builder.Services.AddScoped(typeof(IValidator<>),typeof(FileDuplicateValidator<>));
-#endregion
-
-#region 账户相关服务注册
-builder.Services.AddScoped<IValidator<LoginCommand>, LoginValidator>();
-builder.Services.AddScoped<IValidator<CreateAccountCommand>, AccountNameValidator>();
-builder.Services.AddScoped<IValidator<UpdateAccountSubscriptionsCommand>, SubscriptionImageValidator>();
-builder.Services.AddScoped<IValidator<UpdateAccountSubscriptionsCommand>, SubscriptionContentValidator>();
-#endregion
 
 
 var app = builder.Build();
-
+//using (var scope = app.Services.CreateScope())
+//{
+//    var validators = scope.ServiceProvider.GetServices<IValidator<CreateAccountCommand>>();
+//    Console.WriteLine($"--- 共找到 {validators.Count()} 个 CreateAccountCommand 验证器 ---");
+//    foreach (var v in validators)
+//    {
+//        Console.WriteLine($"已成功加载验证器: {v.GetType().Name}");
+//    }
+//}
+app.UseExceptionHandler();
 app.InitCheckDatabaseConnection();
 
 app.UseCors("MyLifeAllowSpecificOrigins");
@@ -114,7 +59,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 //app.UseStaticFiles();
-app.MapControllers(); app.UseExceptionHandler();
+app.MapControllers();
 
 
 
