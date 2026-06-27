@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Shared;
+using MyLife.Shared.Contracts;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyLife.Data.Entities
 {
-    [Table("Tags"), Index(nameof(Name))]
+    [Table("Tags"), Index(nameof(Name), IsUnique=true)]
     public class TagEntity : IEntity
     {
         [Key]
@@ -13,7 +13,7 @@ namespace MyLife.Data.Entities
 
         [Required, StringLength(32)]
         public string Name { get; set; } = string.Empty; // 标签名称，如 "C#"、".NET 8"
-        public string AliasName { get; set; } = string.Empty;// 存储名词的翻译
+        public string? AliasName { get; set; } // 存储名词的翻译
 
         public bool IsCategory { get; set; } = false; // 标记是否属于分类`
 

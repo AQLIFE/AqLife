@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Application/Application.csproj" Id="76b01ac3-25c8-4585-b864-cb3b2ce96471" />
   <Project Path="Data/Data.csproj" />
   <Project Path="Service/Service.csproj" />
   <Project Path="Shared/Shared.csproj" />

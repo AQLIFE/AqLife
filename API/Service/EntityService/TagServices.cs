@@ -1,61 +1,49 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyLife.Data.Entities;
 using MyLife.Data.Repository;
-using MyLife.Service.MapperService;
-using MyLife.Shared.Accident;
-using MyLife.Shared.DTOs;
 
 namespace MyLife.Service.EntityService
 {
-    public class TagServices(AppStorage storage, TagMapper tagMapper)
+    public class TagServices(AppStorage storage)
     {
-        public async Task<IEnumerable<TagEntity>> TryReadListAsync()
-             => storage.Tags.ToList();
 
-        public async Task<TagEntity?> TryReadAsync(Guid? guid = null, string? tag = null)
+        public async Task<IEnumerable<TagEntity?>> Search(CancellationToken ct, Guid? guid = null, string? tag = null)
         {
             if (guid != null)
-                return await storage.Tags.FindAsync(guid);
+                return [await storage.Tags.FindAsync(guid)];
 
             else if (tag != null)
-                return await storage.Tags.Where(e => e.Name == tag).FirstOrDefaultAsync();
-            return null;
+                return await storage.Tags.Where(e => e.Name.Contains(tag)).ToListAsync();
+            return await storage.Tags.ToListAsync();
         }
 
 
-        public async Task<Guid> TryCreateAsync(TagDto dto)
+        public async Task<Guid> TryCreateAsync(CancellationToken ct, string Name, string? AliasName = null, bool IsCategory = false)
         {
-            if (dto == null) throw new OperateTransactionFailedException("数据无效");
-            var entity = tagMapper.ToEntity(dto);
-            if (storage.Tags.Any(e => e.Name == entity.Name)) throw new OperateTransactionFailedException("tag 已重复");
+            var entity = new TagEntity(Name, IsCategory, AliasName);
             await storage.Tags.AddAsync(entity);
-            await storage.SaveChangesAsync();
             return entity.UID;
         }
 
 
-        public async Task<Guid> TryUpdateAsync(Guid guid, TagDto dto)
+        public async Task<Guid> TryUpdateAsync(CancellationToken ct, Guid guid, string Name, string? AliasName = null, bool IsCategory = false)
         {
-            if (dto == null || guid == Guid.Empty) throw new OperateTransactionFailedException("数据无效");
-            if (storage.Tags.Any(e => e.UID == guid))
+            var entity = await Search(ct, guid);
+            if (entity.FirstOrDefault() is TagEntity tag)
             {
-                var entity = await TryReadAsync(guid);
-                if (storage.Tags.Any(e => e.Name == dto.Name && e.UID != guid)) throw new OperateTransactionFailedException("tag 已重复");
-
-                tagMapper.UpdateEntity(dto, entity!);
-                //await storage.Tags.Update(entity);
-                await storage.SaveChangesAsync();
+                tag.AliasName = AliasName;
+                tag.Name = Name;
+                tag.IsCategory = IsCategory;
                 return guid;
             }
-            throw new OperateTransactionFailedException("guid 不存在");
-
+            return Guid.Empty;
         }
 
 
-        public async Task<int> TryDeleteAsync(Guid guid)
+        public async Task TryDeleteAsync(Guid guid, CancellationToken ct)
         {
-            if (storage.Tags.Find(guid) is TagEntity entity) storage.Tags.Remove(entity);
-            return await storage.SaveChangesAsync();
+            var entity = await Search(ct, guid);
+            if (entity.FirstOrDefault() is TagEntity tag) storage.Tags.Remove(tag);
         }
     }
 }

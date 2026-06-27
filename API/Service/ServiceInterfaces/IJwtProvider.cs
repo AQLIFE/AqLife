@@ -1,4 +1,4 @@
-﻿using MyLife.Shared;
+﻿using MyLife.Shared.Contracts;
 
 namespace MyLife.Service.ServiceInterfaces
 {

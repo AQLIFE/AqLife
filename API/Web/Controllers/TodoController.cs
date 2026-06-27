@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using MyLife.Data.Entities;
 using MyLife.Data.Repository;
 using MyLife.Service.Mappings;
-using MyLife.Shared.Accident;
 using MyLife.Shared.DTOs;
+using MyLife.Shared.Exceptions;
 
 namespace MyLife.Web.Controllers
 {
     [Route("[controller]")]
-    [ApiController]
+    [ApiController,Authorize]
     public class TodoController(AppStorage storage, TodoMapper mapper) : ControllerBase
     {
         [HttpGet, AllowAnonymous]
@@ -21,7 +21,7 @@ namespace MyLife.Web.Controllers
         public async Task<TodoDto?> GetById(Guid id)
             => await storage.Todo.Where(e => e.UID == id).Select(e => mapper.ToDto(e)).FirstOrDefaultAsync();
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public async Task<string> Create(TodoForAdd todo)
         {
             var entity = mapper.Assembly(todo);
@@ -32,10 +32,10 @@ namespace MyLife.Web.Controllers
                 await storage.SaveChangesAsync();
                 return entity.UID.ToString();
             }
-            throw new OperateTransactionFailedException("不存在父级任务");
+            throw new RequestTransactionFailedException("不存在父级任务");
         }
 
-        [HttpPatch, Authorize]
+        [HttpPatch]
         public async Task<string> UpdateTodo(Guid guid, string status)
         {
             var todo = await storage.Todo.Where(e => e.UID == guid).FirstOrDefaultAsync();
@@ -46,11 +46,11 @@ namespace MyLife.Web.Controllers
                 await storage.SaveChangesAsync();
                 return entity.Status.ToString();
             }
-            throw new OperateTransactionFailedException("不存在的todo ID");
+            throw new RequestTransactionFailedException("不存在的todo ID");
 
         }
 
-        [HttpDelete, Authorize]
+        [HttpDelete]
         public async Task<bool> DeleteTodo(Guid guid)
         {
             var todo = await storage.Todo.Where(e => e.UID == guid).FirstOrDefaultAsync();
@@ -59,7 +59,7 @@ namespace MyLife.Web.Controllers
                 storage.Todo.Remove(obj);
                 await storage.SaveChangesAsync();
             }
-            throw new OperateTransactionFailedException("不存在的todo ID");
+            throw new RequestTransactionFailedException("不存在的todo ID");
         }
     }
 }

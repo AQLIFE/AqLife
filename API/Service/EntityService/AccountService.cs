@@ -2,11 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using MyLife.Data.Entities;
 using MyLife.Data.Repository;
-using MyLife.Service.Command;
 using MyLife.Service.Mappings;
-using MyLife.Shared;
-using MyLife.Shared.Accident;
+using MyLife.Shared.Contracts;
 using MyLife.Shared.DTOs;
+using MyLife.Shared.Exceptions;
 using MyLife.Shared.Tools;
 
 namespace MyLife.Service.EntityService
@@ -21,12 +20,12 @@ namespace MyLife.Service.EntityService
         public async Task<IEnumerable<AccountEntity>> TryReadListAsync()
             => await storage.Account.Include(e => e.Subscriptions).AsNoTracking().Where(a => a.IsValid).ToListAsync();
 
-        public async Task<AccountEntity?> TryReadAsync(Guid? id)
+        public async Task<AccountEntity?> TryReadAsync(Guid? id=null)
             => await storage.Account.Include(e => e.Subscriptions).FirstOrDefaultAsync(a => id == null ? a.IsValid : a.UID == id);
 
-        public async Task<Guid> TryCreateAccountAsync(CreateAccountCommand command,CancellationToken ct)
+        public async Task<Guid> TryCreateAccountAsync(string name, string? desc, CancellationToken ct)
         {
-            AccountEntity entity = new AccountEntity() { Name = command.Name, Desc = command.Desc };
+            AccountEntity entity = new AccountEntity() { Name = name, Desc = desc };
             storage.Account.Add(entity);
             return entity.UID;
         }
@@ -121,7 +120,7 @@ namespace MyLife.Service.EntityService
         public async Task TryDeleteAsync(Guid guid, CancellationToken ct)
         {
             //int removedCount = 0;
-            var account = await TryReadAsync(guid) ?? throw new OperateTransactionFailedException("账户不存在");
+            var account = await TryReadAsync(guid) ?? throw new RequestTransactionFailedException("账户不存在");
 
             if (account.Avatar is Guid avatar)
                 await fileService.TryDeleteAsync([avatar], ct);// 删除头像
