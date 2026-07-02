@@ -10,13 +10,14 @@
       <ElInput clearable type="textarea" placeholder="请输入用于初始化博客系统的密钥" />
     </ElFormItem>
     <ElFormItem>
-      <ElButton type="primary" @click="$emit('next')">Next</ElButton>
+      <ElButton type="primary" @click="$emit('next')" :icon="ArrowRight"/>
     </ElFormItem>
   </ElForm>
 </template>
 
 <script setup lang="ts">
-import { ElForm,ElFormItem,ElInput,ElButton } from 'element-Plus';
+import { ElForm,ElFormItem,ElInput,ElButton } from 'element-plus';
+import {Delete,Plus,ArrowLeft,ArrowRight} from '@element-plus/icons-vue'
 defineEmits(['next'])
 </script>
 <style lang="css" scoped>

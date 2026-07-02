@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElCol, ElRow } from 'element-Plus'
+import { ElCol, ElRow } from 'element-plus'
 import { RouterView, useRoute } from 'vue-router'
 import NavMenu from '@/components/NavMenu.vue'
 import SystemSetting from '@/components/SystemSetting.vue'
@@ -43,11 +43,11 @@ const currentComponent = computed(() => {
 .aside {
   border-right: 1px dotted gainsboro;
   align-content: center;
+  height: 100vh;
 }
 .container {
   display: flex;
-  height: 100vh;
-
+  flex-direction: row;
   flex-wrap: wrap;
 }
 .container .el-col:nth-child(1){
@@ -55,7 +55,8 @@ const currentComponent = computed(() => {
 }
 .container .el-col:nth-child(2) {
   display: inline-flex;
-  height: 100%;
   align-items: center;
+  height: fit-content;
+  flex-grow: 1;
 }
 </style>

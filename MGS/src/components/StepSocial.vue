@@ -38,21 +38,51 @@
     </ElFormItem>
 
     <ElFormItem>
-      <ElTooltip content="点击返回上一页">
-        <ElButton :icon="CirclePlus" class="Virtual" @click="addSubscription" />
+      <ElTooltip content="点击返回上一步骤">
+        <ElButton :icon="ArrowLeft" @click="$emit('prev')" type="info"/>
       </ElTooltip>
       <ElTooltip content="点击添加其他社交平台配置">
-        <ElButton :icon="CirclePlus" class="Virtual" @click="addSubscription" />
+        <ElButton :icon="Plus" @click="addSubscription" />
       </ElTooltip>
 
-      <ElTooltip content="点击保存配置到服务器">
-        <ElButton :icon="Upload" @click="saveProfile" type="success" :disabled="!isActive" />
+      <ElTooltip content="最后确认">
+        <ElButton :icon="ArrowRight" @click="$emit('next')" type="success" />
       </ElTooltip>
     </ElFormItem>
   </ElForm>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
-import { ElCol, ElForm, ElFormItem, ElButton, ElInput, ElImage, ElTooltip, ElIcon, ElUpload,} from 'element-plus'
+import { ref,type Ref } from 'vue';
+import { ElForm, ElFormItem, ElButton, ElInput, ElImage, ElTooltip, ElIcon, ElUpload,} from 'element-plus'
+import {Delete,Plus,ArrowLeft,ArrowRight} from '@element-plus/icons-vue'
+import type { SubscriptionFullDto } from '@/api';
 const PreviewUrls =ref([])
+const source:Ref<SubscriptionFullDto[]> = ref([
+  {newIconFile:null,aliasName:'',subscriptionLink:'',subscriptionPlatform:''}
+])
+defineEmits(['prev', 'next'])
+
+function removeSubscription(index:number){
+  source.value.splice(index,index+1)
+}
+
+function addSubscription(){
+  source.value.push({newIconFile:null,aliasName:'',subscriptionLink:'',subscriptionPlatform:''})
+}
 </script>
+<style lang="css" scoped>
+.el-form{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 100% !important;
+}
+
+.el-form .el-form-item__content{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  flex-grow: 1;
+}
+.el-input{width: fit-content;display: flexbox;}
+</style>

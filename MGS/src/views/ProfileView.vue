@@ -38,7 +38,7 @@
   </ElForm>
 </template>
 <script setup lang="ts">
-import { ElForm, ElFormItem,ElImage,ElIcon,ElUpload,ElTooltip,ElInput,ElButton } from 'element-Plus'
+import { ElForm, ElFormItem,ElImage,ElIcon,ElUpload,ElTooltip,ElInput,ElButton } from 'element-plus'
 import { Plus,Lock,Unlock } from '@element-plus/icons-vue';
 import { ref } from 'vue';
 
