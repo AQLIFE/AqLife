@@ -12,18 +12,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRegisterStore } from '@/stores/stepData'
-import { ElCol } from 'element-Plus'
+import { ElCol } from 'element-plus'
 
 // 引入拆分后的子组件
 import StepAccount from '@/components/StepAccount.vue'
 import StepAvatar from '@/components/StepAvatar.vue'
 import StepSocial from '@/components/StepSocial.vue'
+import StepCommit from '@/components/stepCommit.vue'
 
 const registerStore = useRegisterStore()
 const currentStep = ref(0)
 
 // 步骤组件映射表
-const stepComponents = [StepAccount, StepAvatar, StepSocial]
+const stepComponents = [StepAccount, StepAvatar, StepSocial,StepCommit]
 
 function handleNext(): void {
   registerStore.$patch((state) => {

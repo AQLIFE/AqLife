@@ -1,7 +1,7 @@
 <template>
   <ElRow>
     <ElCol>
-      <ElText>个人博客</ElText>
+      <ElText>个人博客后台管理系统</ElText>
     </ElCol>
     <ElCol>
       <ElButton round @click="router.push('/login')">Login</ElButton>
@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import router from '@/router';
-import { ElCol, ElButton, ElDivider, ElRow,ElLink,ElText } from 'element-Plus'
+import { ElCol, ElButton, ElDivider, ElRow,ElLink,ElText } from 'element-plus'
 
 </script>
 
