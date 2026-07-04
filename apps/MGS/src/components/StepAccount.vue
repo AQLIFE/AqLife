@@ -1,0 +1,29 @@
+<template>
+  <ElForm label-width="120px">
+    <ElFormItem label="账户名">
+      <ElInput clearable placeholder="请输入账户名" />
+    </ElFormItem>
+    <ElFormItem label="说说">
+      <ElInput clearable placeholder="请输入简介" />
+    </ElFormItem>
+    <ElFormItem label="系统密钥">
+      <ElInput clearable type="textarea" placeholder="请输入用于初始化博客系统的密钥" />
+    </ElFormItem>
+    <ElFormItem>
+      <ElButton type="primary" @click="$emit('next')" :icon="ArrowRight"/>
+    </ElFormItem>
+  </ElForm>
+</template>
+
+<script setup lang="ts">
+import { ElForm,ElFormItem,ElInput,ElButton } from 'element-plus';
+import {ArrowRight} from '@element-plus/icons-vue'
+defineEmits(['next'])
+</script>
+<style lang="css" scoped>
+.el-form :deep(.el-form-item__label) {
+  text-align: justify;
+  text-align-last: justify;
+  padding-right: 12px;
+}
+</style>

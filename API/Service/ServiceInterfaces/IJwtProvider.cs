@@ -1,11 +1,12 @@
 ﻿using MyLife.Shared.Contracts;
+using System.Security.Claims;
 
 namespace MyLife.Service.ServiceInterfaces
 {
     public interface IJwtProvider<T> where T : IUserEntity
     {
         string CreateToken(T account);
-        bool IsUserExistsInStorage();
+        bool IsUserExistsInStorage(ClaimsPrincipal principal);
         bool Validate(string name, string pwd);
     }
 

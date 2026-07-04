@@ -1,0 +1,12 @@
+{
+  "name": "@aqlife/openapi-generator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "generate": "wait-on -t 30000 http-get://localhost:5110/swagger/v1/swagger.json && openapi-generator-cli generate -c ./config.json"
+  },
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.13.0",
+    "wait-on": "^7.2.0"
+  }
+}

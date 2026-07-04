@@ -1,0 +1,15 @@
+{
+  // 继承两个配置：一个是 Node 环境预设，一个是你的业务基准
+  "extends": [
+    "../../config/tsconfig/base.json" 
+  ],
+  "include": [
+    "vite.config.*",
+    "eslint.config.*",
+    "vitest.config.*"
+  ],
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
+  }
+}

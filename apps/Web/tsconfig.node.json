@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "../../config/tsconfig/base.json" 
+  ],
+  "include": [
+    "vite.config.*",
+    "vitest.config.*",
+    "cypress.config.*",
+    "nightwatch.conf.*",
+    "playwright.config.*",
+    "eslint.config.*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    
+    /* 针对工具链的特定配置 */
+    "types": ["node"],
+    "allowJs": true,
+    "checkJs": true
+  }
+}

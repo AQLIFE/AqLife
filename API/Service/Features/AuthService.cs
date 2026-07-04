@@ -42,16 +42,16 @@ namespace MyLife.Service.Features
             return isAuth && isValid;
         }
 
-        public bool IsUserExistsInStorage()
+        public bool IsUserExistsInStorage(ClaimsPrincipal principal)
         {
             var context = httpContextAccessor.HttpContext;
-            if (context?.User?.Identity?.IsAuthenticated != true)
+            if (principal?.Identity?.IsAuthenticated != true)
             {
                 return false; // 用户根本没登录/Token无效
             }
 
             // 从合法的 ClaimsPrincipal 中提取 UID
-            var uid = context.User.TryGetAccountId();
+            var uid = principal.TryGetAccountId();
 
             // 检查数据库中该用户是否依然合法存在（比如防止用户被中途注销或删除）
             return storage.Account.Any(e => e.UID == uid);
