@@ -1,0 +1,7 @@
+{
+  "name": "@aqlife/domain",
+  "version": "1.0.0",
+  "private": true,
+  "description": "前端共享业务模型与逻辑校验",
+  "main": "index.ts"
+}

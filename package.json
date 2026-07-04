@@ -1,0 +1,21 @@
+{
+  "name": "aqlife-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AqLife 工业级个人博客 Monorepo 仓储",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tools/*"
+  ],
+  "devDependencies": {
+    "@iconify/utils": "^3.1.3",
+    "@tsconfig/node24": "^24.0.4",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.9.0",
+    "@vue/tsconfig": "^0.9.1",
+    "eslint": "^10.6.0",
+    "eslint-plugin-vue": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}

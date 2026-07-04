@@ -15,8 +15,6 @@ namespace MyLife.Web.Extensions
     /// </summary>
     public static class JwtSetup
     {
-        //private static TokenValidationParameters JwtValidationParameters { get; set; }
-
         public static WebApplicationBuilder AddJwtPolicy(this WebApplicationBuilder builder)
         {
             var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -52,7 +50,7 @@ namespace MyLife.Web.Extensions
             OnTokenValidated = async context =>
             {
                 var authService = context.HttpContext.RequestServices.GetRequiredService<IJwtProvider<AccountEntity>>();
-                if (authService is AuthService concreteService && !concreteService.IsUserExistsInStorage())
+                if (authService is AuthService concreteService && !concreteService.IsUserExistsInStorage(context.Principal))
                 {
                     context.Fail("该账户已被注销或删除。");
                     throw new RequestAuthorizationException("身份已失效，请重新登录。");

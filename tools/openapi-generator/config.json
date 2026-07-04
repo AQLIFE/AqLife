@@ -1,0 +1,16 @@
+{
+  "generatorName": "typescript-fetch",
+  "inputSpec": "http://localhost:5110/swagger/v1/swagger.json",
+  "outputDir": "../../packages/api-contract",
+  "additionalProperties": {
+    "npmName": "@aqlife/api-contract",
+    "supportsES6": true,
+    "withInterfaces": true,
+    "modelPropertyNaming": "camelCase",
+    "apiPackage": "api",
+    "modelPackage": "models"
+  },
+  "typeMappings": {
+    "DateTime": "string"
+  }
+}

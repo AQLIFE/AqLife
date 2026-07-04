@@ -1,0 +1,139 @@
+<template>
+  <ElRow class="layout" :gutter="10">
+    <ElCol v-for="item in blogList" :key="item.uid" :span="8">
+      <ElCard shadow="hover" @click="() => $router.push(`/preview/${item.uid}`)">
+        <template #header>
+          <div class="header">
+            <div>{{ item.fileName }}</div>
+            <ElTag type="info">BlogType</ElTag>
+          </div>
+        </template>
+        <ElTree :data="demoTreeData" :props="defaultProps" empty-text="加载中,请稍后" />
+        <template #footer>
+          <div>Published on {{ item.uploadTime }}</div>
+        </template>
+      </ElCard>
+    </ElCol>
+  </ElRow>
+</template>
+
+<script setup lang="ts">
+import { Configuration, FileApi,type FileMetadataDto } from '@/api/generated'
+import { ApiOption } from '@/services/storage/BaseOptions'
+import { ElRow, ElCol, ElCard, ElTree } from 'element-plus'
+import { onMounted, ref, type Ref } from 'vue'
+
+interface TreeData {
+  id: number
+  label: string
+  children?: TreeData[]
+}
+
+const blogList: Ref<Array<FileMetadataDto>> = ref<Array<FileMetadataDto>>([])
+const demoTreeData: TreeData[] = [
+  {
+    id: 1,
+    label: 'Level one 1',
+    children: [
+      {
+        id: 4,
+        label: 'Level two 1-1',
+        children: [
+          {
+            id: 9,
+            label: 'Level three 1-1-1',
+          },
+          {
+            id: 10,
+            label: 'Level three 1-1-2',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 2,
+    label: 'Level one 2',
+    children: [
+      {
+        id: 5,
+        label: 'Level two 1-1',
+        children: [
+          {
+            id: 11,
+            label: 'Level three 1-1-1',
+          },
+          {
+            id: 12,
+            label: 'Level three 1-1-2',
+          },
+        ],
+      },
+    ],
+  },
+]
+
+const defaultProps = {
+  children: 'children', // 告诉组件：子节点在 subFiles 字段里
+  label: 'label', // 告诉组件：标题在 fileName 字段里
+}
+
+// const UploadTime = new Date().toDateString()
+
+onMounted(async () => {
+  const fileApi = new FileApi(new Configuration(ApiOption))
+  const response = await fileApi.apiFileGetRaw({ title: '', uID: '' })
+  // let result = null
+  //   console.log(result)
+
+  const contentLength = response.raw.headers.get('content-length')
+
+  if (response.raw.status === 204 || contentLength === '0') {
+    blogList.value = [] // 如果后端是空响应，直接给空数组，不走 json()
+  } else {
+    try {
+      // 只有当确保有内容时，才调用框架的 value() 或自己转 json
+      blogList.value = await response.value()
+    } catch {
+      // 兜底：万一还是因为空字符串报错，直接捕获并给空数组
+      // result = []
+    }
+  }
+})
+</script>
+
+<style lang="css" scoped>
+.layout {
+  height: 100%;
+  /* 自动填满 #content 分配给它的 1fr 空间 */
+  overflow-y: auto;
+  /* 开启内部滚动 */
+  align-content: start;
+  /*避免头部遮挡*/
+  justify-content: flex-start;
+}
+
+.layout::-webkit-scrollbar {
+  display: none;
+}
+
+.el-card {
+  margin-bottom: 10px;
+}
+
+.el-card .header {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  text-align: start;
+}
+
+.el-card .el-tree {
+  padding-left: 10px;
+}
+
+.el-card__footer > div {
+  font-size: 12px;
+  text-align: right;
+  color: var(--back_color_lv2);
+}
+</style>
