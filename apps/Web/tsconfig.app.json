@@ -3,10 +3,19 @@
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "utils"],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "baseUrl": ".",
+    "tsBuildInfoFile": "node_modules/.tmp/tsconfig.app.tsbuildinfo",
 
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"],
+      "@/api": ["../../packages/api-contract/src/index.ts"],
+      "@/api/*": ["../../packages/api-contract/src/*"],
+      "@/api/generated": ["../../packages/api-contract/src/index.ts"],
+      "@/api/generated/*": ["../../packages/api-contract/src/*"],
+      "@aqlife/api-contract": ["../../packages/api-contract/src/index.ts"],
+      "@aqlife/api-client": ["../../packages/api-client/src/index.ts"],
+      "@aqlife/domain": ["../../packages/domain/src/index.ts"],
+      "@aqlife/icons": ["../../packages/icons/src/index.ts"]
     }
   }
 }

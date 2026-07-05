@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
 import { ElRow, ElTag, ElDivider, ElIcon } from 'element-plus';
-import SkillIcon from '@/assets/icons/SkillIcon.vue';
+import SkillIcon from '~icons/aqlife/skill-icon'
 </script>
 
 

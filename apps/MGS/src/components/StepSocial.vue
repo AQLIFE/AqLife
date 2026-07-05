@@ -55,8 +55,9 @@
 import { ref,type Ref } from 'vue';
 import { ElForm, ElFormItem, ElButton, ElInput, ElImage, ElTooltip, ElIcon, ElUpload,} from 'element-plus'
 import {Delete,Plus,ArrowLeft,ArrowRight} from '@element-plus/icons-vue'
+import type { UploadFile } from 'element-plus'
 import type { SubscriptionFullDto } from '@/api';
-const PreviewUrls =ref([])
+const PreviewUrls = ref<string[]>([])
 const source:Ref<SubscriptionFullDto[]> = ref([
   {newIconFile:null,aliasName:'',subscriptionLink:'',subscriptionPlatform:''}
 ])
@@ -68,6 +69,12 @@ function removeSubscription(index:number){
 
 function addSubscription(){
   source.value.push({newIconFile:null,aliasName:'',subscriptionLink:'',subscriptionPlatform:''})
+}
+
+function handleFileChange(file: UploadFile, index: number) {
+  if (file.raw) {
+    PreviewUrls.value[index] = URL.createObjectURL(file.raw)
+  }
 }
 </script>
 <style lang="css" scoped>

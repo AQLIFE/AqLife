@@ -1,23 +1,17 @@
 {
-  "extends": [
-    "../../config/tsconfig/base.json" 
-  ],
+  "extends": "@tsconfig/node22/tsconfig.json",
   "include": [
     "vite.config.*",
-    "vitest.config.*",
-    "cypress.config.*",
-    "nightwatch.conf.*",
-    "playwright.config.*",
-    "eslint.config.*"
+    "eslint.config.*",
+    "../../config/vite/**/*.ts",
+    "../../config/eslint/**/*.ts"
   ],
   "compilerOptions": {
     "composite": true,
     "noEmit": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    
-    /* 针对工具链的特定配置 */
     "types": ["node"],
-    "allowJs": true,
-    "checkJs": true
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   }
 }

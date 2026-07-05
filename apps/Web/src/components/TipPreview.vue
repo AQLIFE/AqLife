@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import MarkdownIt from 'markdown-it'
-import type Token from 'markdown-it/lib/token.d.mts'
+import type Token from 'markdown-it/lib/token.mjs'
 
 const props = defineProps<{
   quoteTokens: Token[]

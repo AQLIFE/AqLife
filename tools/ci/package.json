@@ -1,0 +1,12 @@
+{
+  "name": "@aqlife/ci",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo CI 检查脚本",
+  "type": "module",
+  "scripts": {
+    "check": "node ./run.mjs",
+    "check:frontend": "node ./check-frontend.mjs",
+    "check:api": "node ./check-api.mjs"
+  }
+}

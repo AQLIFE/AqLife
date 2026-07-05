@@ -1,16 +1,16 @@
 <template>
   <ElRow class="layout" :gutter="10">
-    <ElCol v-for="item in blogList" :key="item.uid" :span="8">
-      <ElCard shadow="hover" @click="() => $router.push(`/preview/${item.uid}`)">
+    <ElCol v-for="item in blogList" :key="item.id ?? item.title" :span="8">
+      <ElCard shadow="hover" @click="() => $router.push(`/preview/${item.id}`)">
         <template #header>
           <div class="header">
-            <div>{{ item.fileName }}</div>
+            <div>{{ item.title }}</div>
             <ElTag type="info">BlogType</ElTag>
           </div>
         </template>
         <ElTree :data="demoTreeData" :props="defaultProps" empty-text="加载中,请稍后" />
         <template #footer>
-          <div>Published on {{ item.uploadTime }}</div>
+          <div>Published on {{ item.uploadedAt }}</div>
         </template>
       </ElCard>
     </ElCol>
@@ -18,8 +18,9 @@
 </template>
 
 <script setup lang="ts">
-import { Configuration, FileApi,type FileMetadataDto } from '@/api/generated'
-import { ApiOption } from '@/services/storage/BaseOptions'
+import { FileApi } from '@/api'
+import { apiConfiguration } from '@/services/api'
+import { toFileListViewModel, type FileListItemViewModel } from '@aqlife/domain'
 import { ElRow, ElCol, ElCard, ElTree } from 'element-plus'
 import { onMounted, ref, type Ref } from 'vue'
 
@@ -29,7 +30,7 @@ interface TreeData {
   children?: TreeData[]
 }
 
-const blogList: Ref<Array<FileMetadataDto>> = ref<Array<FileMetadataDto>>([])
+const blogList: Ref<FileListItemViewModel[]> = ref([])
 const demoTreeData: TreeData[] = [
   {
     id: 1,
@@ -81,7 +82,7 @@ const defaultProps = {
 // const UploadTime = new Date().toDateString()
 
 onMounted(async () => {
-  const fileApi = new FileApi(new Configuration(ApiOption))
+  const fileApi = new FileApi(apiConfiguration)
   const response = await fileApi.apiFileGetRaw({ title: '', uID: '' })
   // let result = null
   //   console.log(result)
@@ -89,11 +90,10 @@ onMounted(async () => {
   const contentLength = response.raw.headers.get('content-length')
 
   if (response.raw.status === 204 || contentLength === '0') {
-    blogList.value = [] // 如果后端是空响应，直接给空数组，不走 json()
+    blogList.value = []
   } else {
     try {
-      // 只有当确保有内容时，才调用框架的 value() 或自己转 json
-      blogList.value = await response.value()
+      blogList.value = toFileListViewModel(await response.value())
     } catch {
       // 兜底：万一还是因为空字符串报错，直接捕获并给空数组
       // result = []

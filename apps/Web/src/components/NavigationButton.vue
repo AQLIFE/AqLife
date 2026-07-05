@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import { ElButton } from 'element-plus';
 import { type Component,type PropType } from 'vue';
-import {type NavItemDto} from '@/types/navigation.ts'
+import {type NavItemDto} from '@/types/navigation'
 
 const props = defineProps({
     btitle: {type:String,required:true}, 

@@ -1,20 +1,20 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { routerRaw } from './RouteRaw'
-import type { SidebarType } from '@/types/SiderBarType'
-import type { IconName } from '@/datas/IconName'
+import type { Component } from 'vue'
+import { MgsIconName } from '@aqlife/icons'
+import { SidebarType } from '@/types/sidebarType'
+import { routes } from './routes'
 
 declare module 'vue-router' {
   interface RouteMeta {
     navTitle: string
-    navIcon: IconName
+    navIcon: MgsIconName | Component
     showInNav: boolean
     order?: number
     sidebarType?: SidebarType
   }
 }
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: routerRaw,
-})
 
-export default router
+export const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+})

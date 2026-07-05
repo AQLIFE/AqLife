@@ -1,0 +1,14 @@
+{
+  "name": "@aqlife/scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo 开发与维护脚本",
+  "type": "module",
+  "scripts": {
+    "bootstrap": "node ./bootstrap.mjs",
+    "generate:contract": "node ./generate-contract.mjs",
+    "dev:api": "node ./dev-api.mjs",
+    "dev:web": "node ./dev-web.mjs",
+    "dev:mgs": "node ./dev-mgs.mjs"
+  }
+}
