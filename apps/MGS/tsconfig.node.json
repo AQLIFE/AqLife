@@ -1,15 +1,17 @@
 {
-  // 继承两个配置：一个是 Node 环境预设，一个是你的业务基准
-  "extends": [
-    "../../config/tsconfig/base.json" 
-  ],
+  "extends": "@tsconfig/node22/tsconfig.json",
   "include": [
     "vite.config.*",
     "eslint.config.*",
-    "vitest.config.*"
+    "../../config/vite/**/*.ts",
+    "../../config/eslint/**/*.ts"
   ],
   "compilerOptions": {
+    "composite": true,
     "noEmit": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "types": ["node"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   }
 }

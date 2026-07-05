@@ -3,10 +3,9 @@
 import { RouterView, useRoute } from 'vue-router'
 import NavigationBar from '@/components/NavigationBar.vue'
 import DevPlanCard from './components/DevPlanCard.vue'
-import FAuthorCard from '@/Skeletons/FAuthorCard.vue'
-import SearchBox from './components/SearchBox.vue'
-// import BlogNodeTreeCard from './components/BlogNodeTreeCard.vue';
-import { SidebarType } from './types/define'
+import FAuthorCard from '@/components/skeletons/FAuthorCard.vue'
+import SearchBox from '@/components/SearchBox.vue'
+import { SidebarType } from '@/types/sidebarType'
 import CalendarSelector from '@/components/CalendarSelector.vue'
 const route = useRoute()
 </script>

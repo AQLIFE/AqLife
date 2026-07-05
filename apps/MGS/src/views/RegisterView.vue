@@ -11,14 +11,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRegisterStore } from '@/stores/stepData'
+import { useRegisterStore } from '@/stores/useRegisterStore'
 import { ElCol } from 'element-plus'
 
 // 引入拆分后的子组件
 import StepAccount from '@/components/StepAccount.vue'
 import StepAvatar from '@/components/StepAvatar.vue'
 import StepSocial from '@/components/StepSocial.vue'
-import StepCommit from '@/components/stepCommit.vue'
+import StepCommit from '@/components/StepCommit.vue'
 
 const registerStore = useRegisterStore()
 const currentStep = ref(0)

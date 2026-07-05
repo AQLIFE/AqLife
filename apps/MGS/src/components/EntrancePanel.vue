@@ -22,9 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import router from '@/router';
-import { ElCol, ElButton, ElDivider, ElRow,ElLink,ElText } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { ElCol, ElButton, ElDivider, ElRow, ElLink, ElText } from 'element-plus'
 
+const router = useRouter()
 </script>
 
 <style lang="css" scoped>

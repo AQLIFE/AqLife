@@ -6,7 +6,7 @@
 
                     <span class="key">
                         <ElIcon>
-                            <ButtonIcon/>
+                            <KeyIcon/>
                         </ElIcon>
                         Ctrl+Q
                     </span>
@@ -20,7 +20,7 @@
 import { ElCol,ElCard, ElInput,ElIcon } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, ref } from 'vue';
-import ButtonIcon from '@/assets/icons/ButtonIcon.vue';
+import KeyIcon from '~icons/aqlife/key'
 
 const demo = ref('');
 const inputRef = ref();

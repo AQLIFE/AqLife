@@ -1,5 +1,5 @@
 <template>
-  <ElMenu mode="vertical" router collapse-transition v-for="item,index in routerRaw" :key="index">
+  <ElMenu mode="vertical" router collapse-transition v-for="item,index in routes" :key="index">
     <el-sub-menu :index="item.path" v-if="item.children && item.meta.showInNav">
       <template #title>
         <el-icon><component :is="item.meta?.navIcon" /></el-icon>
@@ -17,6 +17,6 @@
 </template>
 <script setup lang="ts">
 import { ElMenu, ElMenuItem, ElIcon, ElSubMenu } from 'element-plus'
-import { routerRaw } from '@/router/RouteRaw';
+import { routes } from '@/router/routes'
 </script>
 <style lang="css" scoped></style>

@@ -1,0 +1,1 @@
+export { iconsDirectory } from './paths'

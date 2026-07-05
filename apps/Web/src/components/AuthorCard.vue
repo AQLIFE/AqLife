@@ -1,7 +1,7 @@
 <template>
     <ElCard id="author" shadow="hover">
         <div class="template">
-            <ElImage  v-if="AuthorInfo().userInfo.avatar" :src="previewRequest(AuthorInfo().userInfo.avatar!)" class="avatar">
+            <ElImage v-if="userInfo.avatar" :src="previewRequest(userInfo.avatar)" class="avatar">
                 <template #error>
                     <el-icon>
                         <Picture />
@@ -12,16 +12,24 @@
                 <ElIcon style="position: relative;top:6px;">
                     <User />
                 </ElIcon>
-                {{ AuthorInfo().userInfo.name }}
+                {{ userInfo.name }}
             </ElCol>
-            <ElCol class="authorInfo">{{ AuthorInfo().userInfo.desc }}</ElCol>
+            <ElCol class="authorInfo">{{ userInfo.desc }}</ElCol>
         </div>
         <div class="template">
-            <ElLink target="_blank" underline="never" :href="item.subscriptionLink??'' "
-                v-for="(item, index) in AuthorInfo().userInfo.subscriptions ?? []" :key="index">
-                <ElImage :src="item.subscriptionIcon!=null? previewRequest(item.subscriptionIcon!):''" class="demoIcon">
+            <ElLink
+                target="_blank"
+                underline="never"
+                :href="item.subscriptionLink ?? ''"
+                v-for="(item, index) in userInfo.subscriptions ?? []"
+                :key="index"
+            >
+                <ElImage
+                    :src="item.subscriptionIcon != null ? previewRequest(item.subscriptionIcon) : ''"
+                    class="demoIcon"
+                >
                     <template #error>
-                        <ElIcon><Picture/></ElIcon>
+                        <ElIcon><Picture /></ElIcon>
                     </template>
                 </ElImage>
             </ElLink>
@@ -34,15 +42,15 @@
 
 <script lang="ts" setup>
 import { Picture, User } from '@element-plus/icons-vue'
-import { AuthorInfo } from '@/services/storage/AuthorInfo';
-import { onBeforeMount} from 'vue'
-import { ElImage, ElCol, ElIcon, ElLink, ElCard } from 'element-plus';
+import { storeToRefs } from 'pinia'
+import { useAuthorInfoStore } from '@/stores/useAuthorInfoStore'
+import { ElImage, ElCol, ElIcon, ElLink, ElCard } from 'element-plus'
 
-const previewRequest = (guid: string) => `${import.meta.env.VITE_API}/api/file/preview?title=&uid=${guid}`
+const authorInfoStore = useAuthorInfoStore()
+const { userInfo } = storeToRefs(authorInfoStore)
 
-onBeforeMount(()=>{
-    // console.log(import.meta.env.VITE_API)
-})
+const previewRequest = (guid: string) =>
+  `${import.meta.env.VITE_API}/api/file/preview?title=&uid=${guid}`
 </script>
 
 <style scoped>

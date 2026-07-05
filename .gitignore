@@ -1,8 +1,18 @@
 # =============================================================================
-# OS / Editor
+# AqLife Monorepo — 单一 .gitignore（全仓库生效）
 # =============================================================================
+
+# --- OS ---
 .DS_Store
 Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# --- Editor / IDE ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
 *.sw?
 *.suo
 *.user
@@ -10,36 +20,29 @@ Thumbs.db
 *.sln.docstates
 *.ntvs*
 *.njsproj
+*.rsuser
 
-.vscode/*
-!.vscode/extensions.json
-.idea/
-.vs/
-
-# =============================================================================
-# .NET
-# =============================================================================
+# --- .NET / API ---
 [Bb]in/
 [Oo]bj/
 [Dd]ebug/
 [Rr]elease/
-*.user
-*.rsuser
+artifacts/
 project.lock.json
 project.fragment.lock.json
-artifacts/
 *.nuget.props
 *.nuget.targets
+*.DotSettings.user
 
-# =============================================================================
-# Node / Frontend (Web/)
-# =============================================================================
+# --- Node / Monorepo (apps/*, packages/*, tools/*) ---
 node_modules/
 dist/
 dist-ssr/
 coverage/
 *.local
-.npm
+
+.npm/
+.pnpm-store/
 .pnpm-debug.log*
 npm-debug.log*
 yarn-debug.log*
@@ -47,52 +50,43 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Vite / Vue tooling
+**/.vite/
+**/.cache/
+**/node_modules/.tmp/
+
+# OpenAPI Generator 本地缓存
+.openapitools/
+
+# --- 测试 / E2E ---
 /cypress/videos/
 /cypress/screenshots/
+/playwright-report/
+/test-results/
 
-# =============================================================================
-# Logs & runtime output
-# =============================================================================
+# --- 日志与运行时输出 ---
 logs/
 **/logs/
 *.log
 debug.log
 
-# API 运行日志（Serilog 滚动文件，可能含环境信息）
 API/Web/logs/
-
-# 上传缓存目录
 API/Web/Cache/
 
-# =============================================================================
-# Secrets & environment configuration (DO NOT commit)
-# ASP.NET 使用 appsettings.json（非 application.json）及环境覆盖文件
-# =============================================================================
+# --- 密钥与环境配置（切勿提交）---
+# ASP.NET 使用 appsettings.json 及环境覆盖文件
 API/Web/Configurations/appsettings.json
 API/Web/Configurations/appsettings.*.json
 !API/Web/Configurations/appsettings.*.example.json
 
-# 用户机密 / 环境变量
 **/secrets.json
 .env
 .env.*
 !.env.example
+!.env.*.example
 
-# =============================================================================
-# Tooling / local-only
-# =============================================================================
+# --- 本地工具 / 个人草稿（不入库）---
 /APIFOX/
 run/
-
-# 可选：本地 OpenAPI 生成缓存（若存在）
-.openapitools/
-
-# =============================================================================
-# 其他（保留原仓库意图）
-# =============================================================================
-.editorconfig
-
-# EF 迁移：若需纳入版本管理，删除下一行并在 README 中说明流程
-# API/Data/Migrations/
 API/API.mermaid
 项目结构.md

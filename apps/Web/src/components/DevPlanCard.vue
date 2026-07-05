@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { DevPlan } from '@/data/DevPlanData';
-import { ElRow } from 'element-plus';
-const DevPlanTitle :string = "开发计划";
+import { devPlanTasks } from '@/data/devPlanTasks'
+import { ElRow } from 'element-plus'
+
+const devPlanTitle = '开发计划'
 
 
 </script>
 
 <template>
-    <ElCol id="title">{{ DevPlanTitle }}</ElCol>
+    <ElCol id="title">{{ devPlanTitle }}</ElCol>
     <ElCol id="contents">
         <ElRow flex="column">
-            <ElCol v-for="item,index in DevPlan" v-bind:key="index" class="content-item">
+            <ElCol v-for="item,index in devPlanTasks" v-bind:key="index" class="content-item">
                 <span>{{ index+1 }}</span>
                 <span>{{ item.content }}</span>
             </ElCol>

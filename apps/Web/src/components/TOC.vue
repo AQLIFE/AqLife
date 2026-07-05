@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ElCol,ElAnchorLink,ElAnchor } from 'element-plus';
-import { Blog } from '@/services/storage/BaseOptions';
-const blog = Blog();
+import { useBlogStore } from '@/stores/useBlogStore'
+
+const blogStore = useBlogStore()
 </script>
 
 <template>
     <ElCol>
         <ElCol style="color:lightslategray">
-            {{ blog.blogTitle }}
+            {{ blogStore.blogTitle }}
         </ElCol>
         <ElAnchor>
             <!-- <ElAnchorLink v-for="item in blog..filter(i=>i.level<=3)" :key="item.id" :href="'#' + item.id" :title="item.title" /> -->
