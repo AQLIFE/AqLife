@@ -17,7 +17,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("MyLifeAllowSpecificOrigins", policy =>
     {
-        policy.WithOrigins("http://192.168.0.100:5173", "http://localhost:5173","http://localhost:5200", "http://127.0.0.1:5173") // 允许你的 Vue 开发服务器地址
+        policy.WithOrigins("http://localhost:5173","http://localhost:5200", "http://192.168.0.100:5200") // 允许你的 Vue 开发服务器地址
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials() // 如果后续涉及 Cookie/Auth，建议开启

@@ -5,11 +5,12 @@ import { useAccountStore } from '@/stores/useAccountStore'
 import { tokenStore } from '@aqlife/api-client'
 import { validateLoginCommand } from '@aqlife/domain'
 import { ElCol, ElForm, ElFormItem, ElInput, ElButton, ElMessage } from 'element-plus'
+import { reactive ,type Reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 const accountStore = useAccountStore()
 const router = useRouter()
-const login: LoginCommand = { accountName: '', secretKey: '' }
+const login: Reactive<LoginCommand> = reactive({ accountName: '', secretKey: '' })
 
 const request = new AccountApi(apiConfiguration)
 
