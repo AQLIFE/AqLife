@@ -101,7 +101,7 @@ Repository/AppStorage.cs
 
 [metadataReferences]
 ../Shared/obj/Debug/net8.0/ref/Shared.dll
-C:/Users/aqlif/AppData/Local/Temp/cursor-sandbox-cache/3c15b10574893dff073c4556740b1bc7/nuget/
+<NUGET>/
  duende.identitymodel/8.1.0/lib/net8.0/Duende.IdentityModel.dll
  mediatr.contracts/2.0.1/lib/netstandard2.0/MediatR.Contracts.dll
  mediatr/14.1.0/lib/net8.0/MediatR.dll
@@ -423,11 +423,11 @@ C:/Users/aqlif/AppData/Local/Temp/cursor-sandbox-cache/3c15b10574893dff073c45567
 <DOTNET>/sdk/10.0.300/Sdks/Microsoft.NET.Sdk/analyzers/
  Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
  Microsoft.CodeAnalysis.NetAnalyzers.dll
-C:/Users/aqlif/AppData/Local/Temp/cursor-sandbox-cache/3c15b10574893dff073c4556740b1bc7/nuget/microsoft.aspnetcore.app.ref/8.0.27/analyzers/dotnet/cs/
+<NUGET>/microsoft.aspnetcore.app.ref/8.0.27/analyzers/dotnet/cs/
  Microsoft.AspNetCore.App.Analyzers.dll
  Microsoft.AspNetCore.App.CodeFixes.dll
  Microsoft.AspNetCore.Components.Analyzers.dll
-C:/Users/aqlif/AppData/Local/Temp/cursor-sandbox-cache/3c15b10574893dff073c4556740b1bc7/nuget/
+<NUGET>/
  microsoft.aspnetcore.app.ref/8.0.27/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Options.SourceGeneration.dll
  microsoft.entityframeworkcore.analyzers/8.0.26/analyzers/dotnet/cs/Microsoft.EntityFrameworkCore.Analyzers.dll
  microsoft.extensions.logging.abstractions/10.0.0/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Logging.Generators.dll
