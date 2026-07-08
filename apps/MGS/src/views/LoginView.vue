@@ -4,9 +4,10 @@ import { apiConfiguration } from '@/services/api'
 import { useAccountStore } from '@/stores/useAccountStore'
 import { tokenStore } from '@aqlife/api-client'
 import { validateLoginCommand } from '@aqlife/domain'
-import { ElCol, ElForm, ElFormItem, ElInput, ElButton, ElMessage } from 'element-plus'
+import { ElCol, ElForm, ElFormItem, ElInput, ElButton, ElMessage,ElIcon } from 'element-plus'
 import { reactive ,type Reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { Lock, User } from '@element-plus/icons-vue'
 
 const accountStore = useAccountStore()
 const router = useRouter()
@@ -36,12 +37,12 @@ async function submitLogin() {
 
 <template>
   <ElCol style="display: flex;flex-direction: row;justify-content: center;">
-    <ElForm style="width:30vw;">
+    <ElForm style="width:30vw;" label-width="55px">
     <ElFormItem label="账户名">
-      <ElInput v-model="login.accountName" clearable placeholder="请输入账户名" />
+      <ElInput v-model="login.accountName" clearable placeholder="请输入账户名" :prefix-icon="User" />
     </ElFormItem>
     <ElFormItem label="密码">
-      <ElInput v-model="login.secretKey" clearable placeholder="请输入密码" show-password />
+      <ElInput v-model="login.secretKey" clearable placeholder="请输入密码" show-password :prefix-icon="Lock"/>
     </ElFormItem>
     <ElFormItem>
       <ElButton type="info">Forget</ElButton>

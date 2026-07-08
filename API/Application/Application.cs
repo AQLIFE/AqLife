@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MyLife.Application.Behaviors;
 using MyLife.Application.Validators;
+using MyLife.Application.Validators.BusinessValidator;
 using MyLife.Service.EntityService;
 using MyLife.Service.Implementations;
 using MyLife.Service.MapperService;
@@ -32,6 +33,10 @@ namespace MyLife.Application
                 .Where(t => !t.IsAbstract && !t.IsInterface && !t.IsGenericTypeDefinition && t.GetInterfaces().Any(i => i.IsGenericType
                 && i.GetGenericTypeDefinition() == typeof(IValidator<>)));
             services.AddScoped(typeof(IValidator<>), typeof(ExistenceValidator<>));
+            // 泛型验证器需要手动注册，因为它们是 open generic types，不能通过扫描程序集自动注册
+            services.AddScoped(typeof(IValidator<>), typeof(FileTypeValidator<>));
+            services.AddScoped(typeof(IValidator<>), typeof(FileSizeValidator<>));
+            services.AddScoped(typeof(IValidator<>), typeof(FileDuplicateValidator<>));
             foreach (var type in validatorTypes)
             {
                 foreach (var item in type.GetInterfaces())
