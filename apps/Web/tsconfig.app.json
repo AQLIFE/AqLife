@@ -3,11 +3,10 @@
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "utils"],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
-    "baseUrl": ".",
     "tsBuildInfoFile": "node_modules/.tmp/tsconfig.app.tsbuildinfo",
 
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "@/api": ["../../packages/api-contract/src/index.ts"],
       "@/api/*": ["../../packages/api-contract/src/*"],
       "@/api/generated": ["../../packages/api-contract/src/index.ts"],

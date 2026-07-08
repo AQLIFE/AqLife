@@ -1,7 +1,7 @@
 {
   "extends": "@tsconfig/node24/tsconfig.json",
   "compilerOptions": {
-    "types": ["unplugin-icons/types/vue"],
+    "types": ["unplugin-icons/types/vue","node"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",

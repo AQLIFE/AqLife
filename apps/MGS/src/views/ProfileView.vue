@@ -45,7 +45,7 @@ import ImageUpload  from '@/components/ImageUpload.vue'
 import { AccountApi, type ISimpleAccountInfo } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import {type ApiAccountAvatarPatchRequest} from '@aqlife/api-contract'
-import type { File } from 'node:buffer'
+// import type { File } from 'node:buffer'
 // import {router } from '@/router'
 
 const isActive = ref(true)
