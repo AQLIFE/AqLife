@@ -90,7 +90,7 @@ namespace MyLife.Service.EntityService
             if (account is AccountEntity entity)
             {
                 var aid = await fileService.TryCreateAsync([avatar], ct);
-                if (entity.Avatar is Guid id) await fileService.TryDeleteAsync([id], ct);// 先删除旧有头像,避免无效文件留存
+                if (entity.Avatar is Guid id && id != Guid.Empty) await fileService.TryDeleteAsync([id], ct);// 先删除旧有头像,避免无效文件留存
                 entity.Avatar = aid.FirstOrDefault();//再替换ID
                 return guid;
             }

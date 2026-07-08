@@ -37,15 +37,6 @@ builder.Services.AddScoped<FileUploadFilter>();
 
 
 var app = builder.Build();
-//using (var scope = app.Services.CreateScope())
-//{
-//    var validators = scope.ServiceProvider.GetServices<IValidator<CreateAccountCommand>>();
-//    Console.WriteLine($"--- 共找到 {validators.Count()} 个 CreateAccountCommand 验证器 ---");
-//    foreach (var v in validators)
-//    {
-//        Console.WriteLine($"已成功加载验证器: {v.GetType().Name}");
-//    }
-//}
 app.UseExceptionHandler();
 app.InitCheckDatabaseConnection();
 

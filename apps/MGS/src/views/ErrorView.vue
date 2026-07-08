@@ -10,7 +10,6 @@ import {ElRow,ElCol} from 'element-plus';
 
 <style scope>
 .el-row{
-    /* height: calc(100vh - 120px); */
     justify-content: center;
     align-content: center;
     text-align: center;

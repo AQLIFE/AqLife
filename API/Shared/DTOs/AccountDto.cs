@@ -15,4 +15,10 @@ namespace MyLife.Shared.DTOs
         Guid? Avatar,
         IEnumerable<SubscriptionDto> Subscriptions
         ) : IEntityDto, ISimpleAccountInfo;
+
+
+    public record AccountProfile(
+        string Name,
+        string? Desc
+        ) : ISimpleAccountInfo;
 }
