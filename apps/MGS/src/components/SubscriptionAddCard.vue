@@ -59,8 +59,10 @@ const handleUploadClick = (event: MouseEvent) => {
 
 <style scoped>
 .aq-add-card {
-  height: calc(100% - 2px);
-  min-height: 331.59px;
+  box-sizing: border-box;
+  /* height: calc(100% - 2px); */
+  height:100%;
+  /* min-height: 331.59px; */
   display: flex;
   flex-direction: row;
   align-items: center;

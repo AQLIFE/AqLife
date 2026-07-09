@@ -102,11 +102,11 @@ export interface FileApiInterface {
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
-    apiFileDownloadGetRaw(requestParameters: ApiFileDownloadGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+    apiFileDownloadGetRaw(requestParameters: ApiFileDownloadGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>>;
 
     /**
      */
-    apiFileDownloadGet(requestParameters: ApiFileDownloadGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    apiFileDownloadGet(requestParameters: ApiFileDownloadGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
     /**
      * Creates request options for apiFileGet without sending the request
@@ -169,11 +169,11 @@ export interface FileApiInterface {
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
-    apiFilePreviewGetRaw(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+    apiFilePreviewGetRaw(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>>;
 
     /**
      */
-    apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
     /**
      * Creates request options for apiFileTagPatch without sending the request
@@ -286,17 +286,18 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
     /**
      */
-    async apiFileDownloadGetRaw(requestParameters: ApiFileDownloadGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiFileDownloadGetRaw(requestParameters: ApiFileDownloadGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
         const requestOptions = await this.apiFileDownloadGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.BlobApiResponse(response);
     }
 
     /**
      */
-    async apiFileDownloadGet(requestParameters: ApiFileDownloadGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiFileDownloadGetRaw(requestParameters, initOverrides);
+    async apiFileDownloadGet(requestParameters: ApiFileDownloadGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
+        const response = await this.apiFileDownloadGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -431,17 +432,18 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
     /**
      */
-    async apiFilePreviewGetRaw(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiFilePreviewGetRaw(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
         const requestOptions = await this.apiFilePreviewGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.BlobApiResponse(response);
     }
 
     /**
      */
-    async apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiFilePreviewGetRaw(requestParameters, initOverrides);
+    async apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
+        const response = await this.apiFilePreviewGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

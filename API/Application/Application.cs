@@ -50,6 +50,7 @@ namespace MyLife.Application
             // 3. 注册核心业务 Service [cite: 197, 198]
             services.AddScoped<UploadContext>();// UploadContext 提供给 FileService
             services.AddScoped<ISearchStrategy, FilteredFilesSearchStrategy>();//FilteredFilesSearchStrategy 提供给 FileSearch
+            services.AddScoped<ISearchStrategy, AllFilesSearchStrategy>();
             services.AddScoped<FileSearch>();
             services.AddScoped<FileService>();
             services.AddScoped<TagServices>();
