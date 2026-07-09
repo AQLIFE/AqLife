@@ -10,7 +10,7 @@ All URIs are relative to *http://localhost*
 | [**apiAccountLoginPost**](AccountApi.md#apiaccountloginpost) | **POST** /api/Account/login |  |
 | [**apiAccountPost**](AccountApi.md#apiaccountpost) | **POST** /api/Account |  |
 | [**apiAccountProfilePatch**](AccountApi.md#apiaccountprofilepatch) | **PATCH** /api/Account/profile |  |
-| [**apiAccountSubscriptionsPatch**](AccountApi.md#apiaccountsubscriptionspatch) | **PATCH** /api/Account/subscriptions |  |
+| [**apiAccountSubscriptionsPut**](AccountApi.md#apiaccountsubscriptionsput) | **PUT** /api/Account/subscriptions |  |
 
 
 
@@ -325,7 +325,7 @@ No authorization required
 
 ## apiAccountProfilePatch
 
-> string apiAccountProfilePatch(iSimpleAccountInfo)
+> string apiAccountProfilePatch(accountProfile)
 
 
 
@@ -343,8 +343,8 @@ async function example() {
   const api = new AccountApi();
 
   const body = {
-    // ISimpleAccountInfo (optional)
-    iSimpleAccountInfo: ...,
+    // AccountProfile (optional)
+    accountProfile: ...,
   } satisfies ApiAccountProfilePatchRequest;
 
   try {
@@ -364,7 +364,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **iSimpleAccountInfo** | [ISimpleAccountInfo](ISimpleAccountInfo.md) |  | [Optional] |
+| **accountProfile** | [AccountProfile](AccountProfile.md) |  | [Optional] |
 
 ### Return type
 
@@ -388,9 +388,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## apiAccountSubscriptionsPatch
+## apiAccountSubscriptionsPut
 
-> string apiAccountSubscriptionsPatch(dtos)
+> string apiAccountSubscriptionsPut(subscriptionDto)
 
 
 
@@ -401,19 +401,19 @@ import {
   Configuration,
   AccountApi,
 } from '@aqlife/api-contract';
-import type { ApiAccountSubscriptionsPatchRequest } from '@aqlife/api-contract';
+import type { ApiAccountSubscriptionsPutRequest } from '@aqlife/api-contract';
 
 async function example() {
   console.log("🚀 Testing @aqlife/api-contract SDK...");
   const api = new AccountApi();
 
   const body = {
-    // Array<SubscriptionFullDto> (optional)
-    dtos: ...,
-  } satisfies ApiAccountSubscriptionsPatchRequest;
+    // Array<SubscriptionDto> (optional)
+    subscriptionDto: ...,
+  } satisfies ApiAccountSubscriptionsPutRequest;
 
   try {
-    const data = await api.apiAccountSubscriptionsPatch(body);
+    const data = await api.apiAccountSubscriptionsPut(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -429,7 +429,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **dtos** | `Array<SubscriptionFullDto>` |  | [Optional] |
+| **subscriptionDto** | `Array<SubscriptionDto>` |  | [Optional] |
 
 ### Return type
 
@@ -441,7 +441,7 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: `multipart/form-data`
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 

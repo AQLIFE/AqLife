@@ -39,8 +39,33 @@ namespace MyLife.Application.Validators.BusinessValidator
         private protected override async Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         => command.Subscriptions is not null
             && command.Subscriptions.Count() > 0
-            && command.Subscriptions.Count(e => e.NewIconFile != null) == command.Subscriptions.Count();
+            && command.Subscriptions.Count(e => e.SubscriptionIcon != null) == command.Subscriptions.Count();
     }
+
+    public class SubscriptionImageIDValidator(AppStorage storage) : AbstractValidator<UpdateAccountSubscriptionsCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "配置账户的图像文件信息不存在";
+        private protected override async Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
+        {
+            // 1. 提取所有非空且非 Empty 的 GUID（去重），实现“按需验证” [cite: 16]
+            var iconsToCheck = command.Subscriptions
+                .Where(s => s.SubscriptionIcon.HasValue && s.SubscriptionIcon.Value != Guid.Empty)
+                .Select(s => s.SubscriptionIcon.Value)
+                .Distinct()
+                .ToList();
+
+            // 2. 如果没有需要验证的图片，直接放行（允许为 null） [cite: 215]
+            if (!iconsToCheck.Any()) return true;
+
+            // 3. 数据库侧验证：仅查询存在的数量是否与待检查数量一致 [cite: 27, 28]
+            var existingCount = await storage.File
+                .Where(f => iconsToCheck.Contains(f.UID))
+                .CountAsync(ct);
+
+            return existingCount == iconsToCheck.Count;
+        }
+    }
+
     /// <summary>
     /// 更新时订阅平台名称重复性检查: 不允许重复
     /// </summary>

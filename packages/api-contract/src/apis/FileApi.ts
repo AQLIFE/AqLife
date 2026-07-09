@@ -14,11 +14,6 @@
 
 import * as runtime from '../runtime';
 import {
-    type CreateFileCommand,
-    CreateFileCommandFromJSON,
-    CreateFileCommandToJSON,
-} from '../models/CreateFileCommand';
-import {
     type DeleteFileCommand,
     DeleteFileCommandFromJSON,
     DeleteFileCommandToJSON,
@@ -28,11 +23,6 @@ import {
     FileMetadataDtoFromJSON,
     FileMetadataDtoToJSON,
 } from '../models/FileMetadataDto';
-import {
-    type UpdateFileCommand,
-    UpdateFileCommandFromJSON,
-    UpdateFileCommandToJSON,
-} from '../models/UpdateFileCommand';
 import {
     type UpdateFileTagCommand,
     UpdateFileTagCommandFromJSON,
@@ -53,7 +43,8 @@ export interface ApiFileGetRequest {
 }
 
 export interface ApiFilePatchRequest {
-    updateFileCommand?: UpdateFileCommand;
+    uID?: string;
+    file?: Blob;
 }
 
 export interface ApiFilePreviewGetRequest {
@@ -65,7 +56,7 @@ export interface ApiFileTagPatchRequest {
 }
 
 export interface ApiFileUploadPostRequest {
-    createFileCommand?: CreateFileCommand;
+    file?: Array<Blob>;
 }
 
 /**
@@ -142,7 +133,8 @@ export interface FileApiInterface {
 
     /**
      * Creates request options for apiFilePatch without sending the request
-     * @param {UpdateFileCommand} [updateFileCommand] 
+     * @param {string} [uID] 
+     * @param {Blob} [file] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -150,7 +142,8 @@ export interface FileApiInterface {
 
     /**
      * 
-     * @param {UpdateFileCommand} [updateFileCommand] 
+     * @param {string} [uID] 
+     * @param {Blob} [file] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -205,7 +198,7 @@ export interface FileApiInterface {
 
     /**
      * Creates request options for apiFileUploadPost without sending the request
-     * @param {CreateFileCommand} [createFileCommand] 
+     * @param {Array<Blob>} [file] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -213,7 +206,7 @@ export interface FileApiInterface {
 
     /**
      * 
-     * @param {CreateFileCommand} [createFileCommand] 
+     * @param {Array<Blob>} [file] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -357,7 +350,29 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        headerParameters['Content-Type'] = 'application/json';
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['uID'] != null) {
+            formParams.append('UID', requestParameters['uID'] as any);
+        }
+
+        if (requestParameters['file'] != null) {
+            formParams.append('File', requestParameters['file'] as any);
+        }
 
 
         let urlPath = `/api/File`;
@@ -367,7 +382,7 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: UpdateFileCommandToJSON(requestParameters['updateFileCommand']),
+            body: formParams,
         };
     }
 
@@ -479,7 +494,27 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        headerParameters['Content-Type'] = 'application/json';
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['file'] != null) {
+            requestParameters['file'].forEach((element) => {
+                formParams.append('File', element as any);
+            })
+        }
 
 
         let urlPath = `/api/File/Upload`;
@@ -489,7 +524,7 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateFileCommandToJSON(requestParameters['createFileCommand']),
+            body: formParams,
         };
     }
 

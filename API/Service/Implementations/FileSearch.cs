@@ -23,11 +23,11 @@ public class FileSearch(AppStorage storage, IHttpContextAccessor httpContext, IO
         // 策略判定：只有已登录（IsValid），才能看全量，否则只看 AllowedDownload 和 用户信息 存在关联的文件
         if (!IsValid)
         {
-            var author = await storage.Account.FirstOrDefaultAsync(e => e.IsValid);
+            var author = await storage.Account.Include(e=>e.Subscriptions).SingleOrDefaultAsync(e => e.IsValid);
             if (author is AccountEntity account)
             {
                 var result = account.Subscriptions.Select(e => e.SubscriptionIcon).ToList();
-                result.Add(account.Avatar);
+                result.Add(account.Avatar);// 有效返回
                 if (result != null)
                     queryable = queryable.Where(e => options.Value.AllowedDownload.Contains(e.Extension) || result.Contains(e.UID));
             }

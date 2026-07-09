@@ -12,6 +12,7 @@ namespace MyLife.Service.EntityService
 {
     public class AccountService(
         AccountMapper mapper,
+        SubscriptionMapper subscriptionMapper,
         AppStorage storage,
         FileService fileService
         )
@@ -104,6 +105,8 @@ namespace MyLife.Service.EntityService
         /// <param name=""></param>
         /// <param name="ct"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete]
         public async Task<Guid> TryUpdateAsync(Guid guid, IEnumerable<SubscriptionFullDto> dtos, CancellationToken ct)
         {
             var account = await TryReadAsync(guid);
@@ -115,6 +118,21 @@ namespace MyLife.Service.EntityService
                 return guid;
             }
             return Guid.Empty;
+        }
+
+        public async Task<Guid> TryUpdateAsync(Guid guid, IEnumerable<SubscriptionDto> dtos, CancellationToken ct)
+        {
+            var account = await TryReadAsync(guid);
+            if (account is AccountEntity entity)
+            {
+                entity.Subscriptions.Clear();
+                var subscriptions = dtos.Select(d => subscriptionMapper.ToEntity(d)).ToList();
+                subscriptions.ForEach(e => { e.AID = entity.UID;e.Account = entity; });
+                await storage.Subscription.AddRangeAsync(subscriptions);
+                //entity.Subscriptions = subscriptions;
+                return guid;
+            }
+            throw new RequestTransactionFailedException("账户不存在");
         }
 
         public async Task TryDeleteAsync(Guid guid, CancellationToken ct)

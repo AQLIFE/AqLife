@@ -19,25 +19,25 @@ import {
     AccountDtoToJSON,
 } from '../models/AccountDto';
 import {
+    type AccountProfile,
+    AccountProfileFromJSON,
+    AccountProfileToJSON,
+} from '../models/AccountProfile';
+import {
     type CreateAccountCommand,
     CreateAccountCommandFromJSON,
     CreateAccountCommandToJSON,
 } from '../models/CreateAccountCommand';
-import {
-    type ISimpleAccountInfo,
-    ISimpleAccountInfoFromJSON,
-    ISimpleAccountInfoToJSON,
-} from '../models/ISimpleAccountInfo';
 import {
     type LoginCommand,
     LoginCommandFromJSON,
     LoginCommandToJSON,
 } from '../models/LoginCommand';
 import {
-    type SubscriptionFullDto,
-    SubscriptionFullDtoFromJSON,
-    SubscriptionFullDtoToJSON,
-} from '../models/SubscriptionFullDto';
+    type SubscriptionDto,
+    SubscriptionDtoFromJSON,
+    SubscriptionDtoToJSON,
+} from '../models/SubscriptionDto';
 
 export interface ApiAccountAvatarPatchRequest {
     avatar?: Blob;
@@ -52,11 +52,11 @@ export interface ApiAccountPostRequest {
 }
 
 export interface ApiAccountProfilePatchRequest {
-    iSimpleAccountInfo?: ISimpleAccountInfo;
+    accountProfile?: AccountProfile;
 }
 
-export interface ApiAccountSubscriptionsPatchRequest {
-    dtos?: Array<SubscriptionFullDto>;
+export interface ApiAccountSubscriptionsPutRequest {
+    subscriptionDto?: Array<SubscriptionDto>;
 }
 
 /**
@@ -169,7 +169,7 @@ export interface AccountApiInterface {
 
     /**
      * Creates request options for apiAccountProfilePatch without sending the request
-     * @param {ISimpleAccountInfo} [iSimpleAccountInfo] 
+     * @param {AccountProfile} [accountProfile] 
      * @throws {RequiredError}
      * @memberof AccountApiInterface
      */
@@ -177,7 +177,7 @@ export interface AccountApiInterface {
 
     /**
      * 
-     * @param {ISimpleAccountInfo} [iSimpleAccountInfo] 
+     * @param {AccountProfile} [accountProfile] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApiInterface
@@ -189,25 +189,25 @@ export interface AccountApiInterface {
     apiAccountProfilePatch(requestParameters: ApiAccountProfilePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
     /**
-     * Creates request options for apiAccountSubscriptionsPatch without sending the request
-     * @param {Array<SubscriptionFullDto>} [dtos] 
+     * Creates request options for apiAccountSubscriptionsPut without sending the request
+     * @param {Array<SubscriptionDto>} [subscriptionDto] 
      * @throws {RequiredError}
      * @memberof AccountApiInterface
      */
-    apiAccountSubscriptionsPatchRequestOpts(requestParameters: ApiAccountSubscriptionsPatchRequest): Promise<runtime.RequestOpts>;
+    apiAccountSubscriptionsPutRequestOpts(requestParameters: ApiAccountSubscriptionsPutRequest): Promise<runtime.RequestOpts>;
 
     /**
      * 
-     * @param {Array<SubscriptionFullDto>} [dtos] 
+     * @param {Array<SubscriptionDto>} [subscriptionDto] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApiInterface
      */
-    apiAccountSubscriptionsPatchRaw(requestParameters: ApiAccountSubscriptionsPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+    apiAccountSubscriptionsPutRaw(requestParameters: ApiAccountSubscriptionsPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
 
     /**
      */
-    apiAccountSubscriptionsPatch(requestParameters: ApiAccountSubscriptionsPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+    apiAccountSubscriptionsPut(requestParameters: ApiAccountSubscriptionsPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
 }
 
@@ -447,7 +447,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: ISimpleAccountInfoToJSON(requestParameters['iSimpleAccountInfo']),
+            body: AccountProfileToJSON(requestParameters['accountProfile']),
         };
     }
 
@@ -472,49 +472,31 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
-     * Creates request options for apiAccountSubscriptionsPatch without sending the request
+     * Creates request options for apiAccountSubscriptionsPut without sending the request
      */
-    async apiAccountSubscriptionsPatchRequestOpts(requestParameters: ApiAccountSubscriptionsPatchRequest): Promise<runtime.RequestOpts> {
+    async apiAccountSubscriptionsPutRequestOpts(requestParameters: ApiAccountSubscriptionsPutRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        const consumes: runtime.Consume[] = [
-            { contentType: 'multipart/form-data' },
-        ];
-        // @ts-ignore: canConsumeForm may be unused
-        const canConsumeForm = runtime.canConsumeForm(consumes);
-
-        let formParams: { append(param: string, value: any): any };
-        let useForm = false;
-        if (useForm) {
-            formParams = new FormData();
-        } else {
-            formParams = new URLSearchParams();
-        }
-
-        if (requestParameters['dtos'] != null) {
-            requestParameters['dtos'].forEach((element) => {
-                formParams.append('dtos', element as any);
-            })
-        }
+        headerParameters['Content-Type'] = 'application/json';
 
 
         let urlPath = `/api/Account/subscriptions`;
 
         return {
             path: urlPath,
-            method: 'PATCH',
+            method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: formParams,
+            body: requestParameters['subscriptionDto']!.map(SubscriptionDtoToJSON),
         };
     }
 
     /**
      */
-    async apiAccountSubscriptionsPatchRaw(requestParameters: ApiAccountSubscriptionsPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
-        const requestOptions = await this.apiAccountSubscriptionsPatchRequestOpts(requestParameters);
+    async apiAccountSubscriptionsPutRaw(requestParameters: ApiAccountSubscriptionsPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiAccountSubscriptionsPutRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         if (this.isJsonMime(response.headers.get('content-type'))) {
@@ -526,8 +508,8 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
 
     /**
      */
-    async apiAccountSubscriptionsPatch(requestParameters: ApiAccountSubscriptionsPatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
-        const response = await this.apiAccountSubscriptionsPatchRaw(requestParameters, initOverrides);
+    async apiAccountSubscriptionsPut(requestParameters: ApiAccountSubscriptionsPutRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiAccountSubscriptionsPutRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
