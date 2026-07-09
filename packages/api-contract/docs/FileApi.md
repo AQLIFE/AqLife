@@ -81,7 +81,7 @@ No authorization required
 
 ## apiFileDownloadGet
 
-> apiFileDownloadGet(uID)
+> Blob apiFileDownloadGet(uID)
 
 
 
@@ -124,7 +124,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+**Blob**
 
 ### Authorization
 
@@ -133,7 +133,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `text/plain`, `application/json`, `text/json`
 
 
 ### HTTP response details
@@ -282,7 +282,7 @@ No authorization required
 
 ## apiFilePreviewGet
 
-> apiFilePreviewGet(uID)
+> Blob apiFilePreviewGet(uID)
 
 
 
@@ -325,7 +325,7 @@ example().catch(console.error);
 
 ### Return type
 
-`void` (Empty response body)
+**Blob**
 
 ### Authorization
 
@@ -334,7 +334,7 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: Not defined
+- **Accept**: `text/plain`, `application/json`, `text/json`
 
 
 ### HTTP response details

@@ -16,6 +16,7 @@ namespace MyLife.Web.Controllers
         => await mediator.Send(query, ct);// 已实现
 
         [HttpGet("preview"), AllowAnonymous]
+        [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
         public async Task<IActionResult> PreviewFile([FromQuery] PreviewFileQuery query, CancellationToken ct)
         {
             var result = await mediator.Send(query, ct);// 已实现
@@ -23,6 +24,7 @@ namespace MyLife.Web.Controllers
         }
 
         [HttpGet("download")]
+        [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
         public async Task<IActionResult> DownloadFile([FromQuery] DownloadFileQuery query, CancellationToken ct)
         {
             var result = await mediator.Send(query, ct);// 已实现
