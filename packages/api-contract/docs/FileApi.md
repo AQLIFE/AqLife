@@ -214,7 +214,7 @@ No authorization required
 
 ## apiFilePatch
 
-> string apiFilePatch(updateFileCommand)
+> string apiFilePatch(uID, file)
 
 
 
@@ -232,8 +232,10 @@ async function example() {
   const api = new FileApi();
 
   const body = {
-    // UpdateFileCommand (optional)
-    updateFileCommand: ...,
+    // string (optional)
+    uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // Blob (optional)
+    file: BINARY_DATA_HERE,
   } satisfies ApiFilePatchRequest;
 
   try {
@@ -253,7 +255,8 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **updateFileCommand** | [UpdateFileCommand](UpdateFileCommand.md) |  | [Optional] |
+| **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **file** | `Blob` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
@@ -265,7 +268,7 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Content-Type**: `multipart/form-data`
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 
@@ -409,7 +412,7 @@ No authorization required
 
 ## apiFileUploadPost
 
-> Array&lt;string&gt; apiFileUploadPost(createFileCommand)
+> Array&lt;string&gt; apiFileUploadPost(file)
 
 
 
@@ -427,8 +430,8 @@ async function example() {
   const api = new FileApi();
 
   const body = {
-    // CreateFileCommand (optional)
-    createFileCommand: ...,
+    // Array<Blob> (optional)
+    file: /path/to/file.txt,
   } satisfies ApiFileUploadPostRequest;
 
   try {
@@ -448,7 +451,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **createFileCommand** | [CreateFileCommand](CreateFileCommand.md) |  | [Optional] |
+| **file** | `Array<Blob>` |  | [Optional] |
 
 ### Return type
 
@@ -460,7 +463,7 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Content-Type**: `multipart/form-data`
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 

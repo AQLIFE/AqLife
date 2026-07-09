@@ -56,7 +56,7 @@ All URIs are relative to *http://localhost*
 *AccountApi* | [**apiAccountLoginPost**](docs/AccountApi.md#apiaccountloginpost) | **POST** /api/Account/login | 
 *AccountApi* | [**apiAccountPost**](docs/AccountApi.md#apiaccountpost) | **POST** /api/Account | 
 *AccountApi* | [**apiAccountProfilePatch**](docs/AccountApi.md#apiaccountprofilepatch) | **PATCH** /api/Account/profile | 
-*AccountApi* | [**apiAccountSubscriptionsPatch**](docs/AccountApi.md#apiaccountsubscriptionspatch) | **PATCH** /api/Account/subscriptions | 
+*AccountApi* | [**apiAccountSubscriptionsPut**](docs/AccountApi.md#apiaccountsubscriptionsput) | **PUT** /api/Account/subscriptions | 
 *CorpusApi* | [**apiCorpusDelete**](docs/CorpusApi.md#apicorpusdelete) | **DELETE** /api/Corpus | 
 *CorpusApi* | [**apiCorpusGet**](docs/CorpusApi.md#apicorpusget) | **GET** /api/Corpus | 
 *CorpusApi* | [**apiCorpusGuidGet**](docs/CorpusApi.md#apicorpusguidget) | **GET** /api/Corpus/{guid} | 
@@ -84,20 +84,17 @@ All URIs are relative to *http://localhost*
 ### Models
 
 - [AccountDto](docs/AccountDto.md)
+- [AccountProfile](docs/AccountProfile.md)
 - [CreateAccountCommand](docs/CreateAccountCommand.md)
-- [CreateFileCommand](docs/CreateFileCommand.md)
 - [CreateTagCommand](docs/CreateTagCommand.md)
 - [DeleteFileCommand](docs/DeleteFileCommand.md)
 - [DeleteTagCommand](docs/DeleteTagCommand.md)
 - [FileMetadataDto](docs/FileMetadataDto.md)
-- [ISimpleAccountInfo](docs/ISimpleAccountInfo.md)
 - [LoginCommand](docs/LoginCommand.md)
 - [SubscriptionDto](docs/SubscriptionDto.md)
-- [SubscriptionFullDto](docs/SubscriptionFullDto.md)
 - [TagDto](docs/TagDto.md)
 - [TodoDto](docs/TodoDto.md)
 - [TodoForAdd](docs/TodoForAdd.md)
-- [UpdateFileCommand](docs/UpdateFileCommand.md)
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
 - [UpdateTagCommand](docs/UpdateTagCommand.md)
 

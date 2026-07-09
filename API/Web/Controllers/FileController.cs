@@ -30,12 +30,12 @@ namespace MyLife.Web.Controllers
         }
 
         [HttpPost("Upload"), ServiceFilter(typeof(FileUploadFilter))]
-        public async Task<IEnumerable<Guid>> UploadFile(CreateFileCommand command, CancellationToken ct)
+        public async Task<IEnumerable<Guid>> UploadFile([FromForm] CreateFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
 
 
         [HttpPatch, ServiceFilter(typeof(FileUploadFilter))]
-        public async Task<Guid> UpdateFile(UpdateFileCommand command, CancellationToken ct)
+        public async Task<Guid> UpdateFile([FromForm] UpdateFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
 
         [HttpPatch("tag")]

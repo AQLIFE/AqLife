@@ -49,10 +49,10 @@ namespace MyLife.Application.Command
     /// <param name="Subscriptions"></param>
     public record UpdateAccountSubscriptionsCommand(
         Guid UID,
-        IEnumerable<SubscriptionFullDto> Subscriptions
-    ) : IUpdateCommand, IHasFormFiles, IRequireValidEntity<AccountEntity>
+        IEnumerable<SubscriptionDto> Subscriptions
+    ) : IUpdateCommand, IRequireValidEntity<AccountEntity>
     {
-        public IEnumerable<IFormFile> GetFiles() => Subscriptions.GetIEnumerableFiles();
+        //public IEnumerable<IFormFile> GetFiles() => Subscriptions.GetIEnumerableFiles();
     }
 
     /// <summary>

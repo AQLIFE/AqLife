@@ -5,7 +5,7 @@
     @click.middle.prevent="$emit('delete', serial)"
   >
     <template #header>
-      <ImageUpload :status="!isEdit" iconSize="8vw" />
+      <ImageUpload :status="!isEdit" iconSize="8vw" :url="item.subscriptionIcon?preview(item.subscriptionIcon):''" v-model:model-value="fileModel" />
     </template>
     <ElCol>
       <ElInput
@@ -52,6 +52,9 @@ const props = defineProps<{
   serial: number
   item: SubscriptionDto // 接收父组件传递过来的单条订阅数据
 }>()
+
+const fileModel = defineModel<File | null>('file')
+
 
 const preview = (guid: string | null | undefined): string =>
   guid ? `${import.meta.env.VITE_API}/api/File/preview?UID=${guid}` : ''
