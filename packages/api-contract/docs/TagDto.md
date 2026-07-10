@@ -6,6 +6,7 @@
 
 Name | Type
 ------------ | -------------
+`uid` | string
 `name` | string
 `aliasName` | string
 `isCategory` | boolean
@@ -17,6 +18,7 @@ import type { TagDto } from '@aqlife/api-contract'
 
 // TODO: Update the object below with actual values
 const example = {
+  "uid": null,
   "name": null,
   "aliasName": null,
   "isCategory": null,

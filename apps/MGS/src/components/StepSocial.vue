@@ -52,14 +52,14 @@
   </ElForm>
 </template>
 <script setup lang="ts">
-import { ref,type Ref } from 'vue';
+import { onBeforeUnmount, ref,type Ref } from 'vue';
 import { ElForm, ElFormItem, ElButton, ElInput, ElImage, ElTooltip, ElIcon, ElUpload,} from 'element-plus'
 import {Delete,Plus,ArrowLeft,ArrowRight} from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
-import type { SubscriptionFullDto } from '@/api';
+import type { SubscriptionDto } from '@/api';
 const PreviewUrls = ref<string[]>([])
-const source:Ref<SubscriptionFullDto[]> = ref([
-  {newIconFile:null,aliasName:'',subscriptionLink:'',subscriptionPlatform:''}
+const source:Ref<SubscriptionDto[]> = ref([
+  {aliasName:'',subscriptionLink:'',subscriptionPlatform:'',subscriptionIcon:''}
 ])
 defineEmits(['prev', 'next'])
 
@@ -68,7 +68,7 @@ function removeSubscription(index:number){
 }
 
 function addSubscription(){
-  source.value.push({newIconFile:null,aliasName:'',subscriptionLink:'',subscriptionPlatform:''})
+  source.value.push({subscriptionIcon:'',aliasName:'',subscriptionLink:'',subscriptionPlatform:''})
 }
 
 function handleFileChange(file: UploadFile, index: number) {
@@ -76,6 +76,10 @@ function handleFileChange(file: UploadFile, index: number) {
     PreviewUrls.value[index] = URL.createObjectURL(file.raw)
   }
 }
+
+onBeforeUnmount(()=>{
+
+})
 </script>
 <style lang="css" scoped>
 .el-form{

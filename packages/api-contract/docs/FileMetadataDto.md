@@ -12,6 +12,7 @@ Name | Type
 `fileSize` | number
 `fileHash` | string
 `uploadTime` | string
+`fileType` | string
 
 ## Example
 
@@ -26,6 +27,7 @@ const example = {
   "fileSize": null,
   "fileHash": null,
   "uploadTime": null,
+  "fileType": null,
 } satisfies FileMetadataDto
 
 console.log(example)
