@@ -8,17 +8,21 @@ namespace MyLife.Service.Mappings
     [Mapper]
     public partial class FileMapper : IGenMapper<FileMetaEntity, FileMetadataDto>
     {
-        [MapperIgnoreSource(nameof(FileMetaEntity.Extension))]
+        [MapProperty(nameof(FileMetaEntity.Extension), nameof(FileMetadataDto.FileType))]
         [MapProperty(nameof(FileMetaEntity.FileTags),nameof(FileMetadataDto.Tags))]
         public partial FileMetadataDto ToDto(FileMetaEntity obj);
 
         [MapperIgnoreTarget(nameof(FileMetaEntity.FileTags))]
         [MapperIgnoreTarget(nameof(FileMetaEntity.Extension))]
         [MapperIgnoreSource(nameof(FileMetadataDto.Tags))]
+        [MapperIgnoreSource(nameof(FileMetadataDto.FileType))]
         public partial FileMetaEntity ToEntity(FileMetadataDto dto);
 
         //[MapProperty(nameof(FileMetaEntity.FileTags), nameof(FileMetadataDto.Tags))]
+        [MapperIgnoreTarget(nameof(FileMetaEntity.FileTags))]
         [MapperIgnoreTarget(nameof(FileMetaEntity.Extension))]
+        [MapperIgnoreSource(nameof(FileMetadataDto.Tags))]
+        [MapperIgnoreSource(nameof(FileMetadataDto.FileType))]
         public partial void UpdateEntity(FileMetadataDto dto, FileMetaEntity entity);
         private string Convert(DateTime dateTime) => dateTime.ToString("yyyy-MM-dd");
         // Mapperly 会自动循环处理 FileTags 集合中的每一个项 [cite: 198]

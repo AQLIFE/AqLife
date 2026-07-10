@@ -7,7 +7,8 @@
         IEnumerable<string>? Tags,
         ulong FileSize = 0u,
         string FileHash = "",
-        string UploadTime = ""
+        string UploadTime = "",
+        string FileType = ""
     ) : IEntityDto;
 
     public record FileDownloadModel(

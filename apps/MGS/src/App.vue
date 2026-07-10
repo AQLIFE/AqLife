@@ -2,7 +2,7 @@
 import { ElCol, ElRow } from 'element-plus'
 import { RouterView, useRoute } from 'vue-router'
 import NavMenu from '@/components/NavMenu.vue'
-import SystemSetting from '@/components/SystemSetting.vue'
+import DataTool from '@/components/DataTool.vue'
 import { SidebarType } from '@/types/sidebarType'
 import RegisterStep from './components/RegisterStep.vue'
 import { computed, onBeforeMount } from 'vue'
@@ -18,7 +18,7 @@ const route = useRoute()
 const currentComponent = computed(() => {
   console.log(route.meta.sidebarType)
   if (route.meta.sidebarType == SidebarType.Register) return RegisterStep
-  if (route.meta.sidebarType == SidebarType.Data)return SystemSetting
+  if (route.meta.sidebarType == SidebarType.Data)return DataTool
 })
 
 onBeforeMount(async ()=>{

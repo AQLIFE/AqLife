@@ -6,7 +6,7 @@
           <ImageUpload
             :status="isActive"
             iconSize="10vw"
-            :url="preview"
+            :url="preview()"
             v-model:model-value="avatarFile"
           />
         </ElTooltip>
@@ -21,7 +21,7 @@
         <ElButton @click="isActive = !isActive" :title="isActive ? '解锁' : '锁定'">
           <ElIcon><component :is="isActive ? Unlock : Lock" /></ElIcon>
         </ElButton>
-        <ElButton type="warning" @click="async()=>await update()">Update</ElButton>
+        <ElButton type="warning" @click="async () => await update()">Update</ElButton>
       </ElFormItem>
     </ElForm>
   </ElCol>
@@ -39,37 +39,42 @@ import {
   ElMessage,
 } from 'element-plus'
 import { Plus, Lock, Unlock } from '@element-plus/icons-vue'
-import { ref,type Ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import { useAccountStore } from '@/stores/useAccountStore'
-import ImageUpload  from '@/components/ImageUpload.vue'
-import { AccountApi, type ISimpleAccountInfo } from '@/api'
+import ImageUpload from '@/components/ImageUpload.vue'
+import { AccountApi, type AccountProfile } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import {type ApiAccountAvatarPatchRequest} from '@aqlife/api-contract'
-
+import { type ApiAccountAvatarPatchRequest } from '@aqlife/api-contract'
+import { useFileStore } from '@/stores/useFileStore'
 
 const isActive = ref(true)
 const accountStore = useAccountStore()
-const preview: string =
-  accountStore.systemAccount?.avatar != null
-    ? `${import.meta.env.VITE_API}/api/File/preview?UID=${accountStore.systemAccount!.avatar}`
-    : ''
 
-    const avatarFile:Ref<File | null> = ref<File | null>(null)
-async function update(){
-  const accountApi = new AccountApi(apiConfiguration)
-  console.log(avatarFile.value == null,accountStore.systemAccount)
-  if(avatarFile.value) await accountApi.apiAccountAvatarPatch({avatar:avatarFile.value as File})
-
-  const SimpleAccountInfo:ISimpleAccountInfo ={
-    name:accountStore.systemAccount?.name,
-    desc:accountStore.systemAccount?.desc
+function preview ():string {
+  const avatar = accountStore.systemAccount?.avatar
+  if (avatar != null) {
+    if (useFileStore().previewUrl.has(avatar)) return useFileStore().previewUrl.get(avatar)!
+    else
+      return `${import.meta.env.VITE_API}/api/File/preview?UID=${avatar}`
   }
-  await accountApi.apiAccountProfilePatch({iSimpleAccountInfo:SimpleAccountInfo})
+  return ''
+}
+const avatarFile: Ref<File | null> = ref<File | null>(null)
+async function update() {
+  const accountApi = new AccountApi(apiConfiguration)
+  console.log(avatarFile.value == null, accountStore.systemAccount)
+  if (avatarFile.value) await accountApi.apiAccountAvatarPatch({ avatar: avatarFile.value as File })
+
+  const SimpleAccountInfo: AccountProfile = {
+    name: accountStore.systemAccount?.name,
+    desc: accountStore.systemAccount?.desc,
+  }
+  await accountApi.apiAccountProfilePatch({ accountProfile: SimpleAccountInfo })
   ElMessage.info('已发起更新')
   accountStore.systemAccount = await accountApi.apiAccountGet()
   ElMessage.success('更新完成')
   // router.push('/account/profile');
-  isActive.value=!isActive.value
+  isActive.value = !isActive.value
 }
 </script>
 

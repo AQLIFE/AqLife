@@ -55,6 +55,12 @@ export interface FileMetadataDto {
      * @memberof FileMetadataDto
      */
     uploadTime?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileMetadataDto
+     */
+    fileType?: string | null;
 }
 
 /**
@@ -80,6 +86,7 @@ export function FileMetadataDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         'fileSize': json['fileSize'] == null ? undefined : json['fileSize'],
         'fileHash': json['fileHash'] == null ? undefined : json['fileHash'],
         'uploadTime': json['uploadTime'] == null ? undefined : json['uploadTime'],
+        'fileType': json['fileType'] == null ? undefined : json['fileType'],
     };
 }
 
@@ -100,6 +107,7 @@ export function FileMetadataDtoToJSONTyped(value?: FileMetadataDto | null, ignor
         'fileSize': value['fileSize'],
         'fileHash': value['fileHash'],
         'uploadTime': value['uploadTime'],
+        'fileType': value['fileType'],
     };
 }
 
