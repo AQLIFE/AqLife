@@ -1,4 +1,4 @@
-import type { SubscriptionDto, SubscriptionFullDto } from '@aqlife/api-contract'
+import type { SubscriptionDto } from '@aqlife/api-contract'
 import { firstFailure, validationFail, validationOk, type ValidationResult } from './types'
 
 export function validateHttpsLink(link?: string | null): ValidationResult {
@@ -50,13 +50,13 @@ export function validateSubscriptionList(
   return validateSubscriptionPlatformsUnique(items)
 }
 
-export function validateSubscriptionUploadIcons(
-  items: SubscriptionFullDto[],
-): ValidationResult {
-  for (const item of items) {
-    if (!item.newIconFile && !item.subscriptionIcon) {
-      return validationFail('配置账户的图像文件缺失')
-    }
-  }
-  return validationOk()
-}
+// export function validateSubscriptionUploadIcons(
+//   items: SubscriptionFullDto[],
+// ): ValidationResult {
+//   for (const item of items) {
+//     if (!item.newIconFile && !item.subscriptionIcon) {
+//       return validationFail('配置账户的图像文件缺失')
+//     }
+//   }
+//   return validationOk()
+// }

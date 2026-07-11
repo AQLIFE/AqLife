@@ -1,9 +1,9 @@
-import type { FileMetadataDto } from '@aqlife/api-contract'
+import type { FileMetadataDto, TagDto } from '@aqlife/api-contract'
 
 export interface FileListItemViewModel {
   id: string | null
   title: string
-  tags: string[]
+  tags: TagDto[]
   sizeLabel: string
   uploadedAt: string
 }
