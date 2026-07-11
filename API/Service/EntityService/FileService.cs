@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using MyLife.Data.Entities;
 using MyLife.Data.Repository;
 using MyLife.Service.Implementations;
+using MyLife.Service.MapperService;
 using MyLife.Shared.DTOs;
 using MyLife.Shared.Exceptions;
 using MyLife.Shared.Options;
@@ -15,6 +16,7 @@ namespace MyLife.Service.EntityService
     public class FileService(
         FileSearch fileSearch,
         IOptions<FilePolicyOption> policy,
+        TagMapper tagMapper,
         AppStorage storage,
         UploadContext upContext,
         FileExtensionContentTypeProvider extProvider)//使用框架内置服务
@@ -113,6 +115,34 @@ namespace MyLife.Service.EntityService
                 fileMeta.FileHash = upContext.FileHashes.FirstOrDefault(e => e.Key == file).Value;
                 var targetPath = Path.Combine(policy.Value.StoragePath, fileMeta.UID + fileMeta.Extension);
                 await SaveFile(file, targetPath);
+                return guid;
+            }
+            else
+                throw new FileNotFoundException("不存在的文件,无法更新");//重复逻辑,以防万一  
+        }
+
+        public async Task<Guid> TryUpdateAsync(Guid guid, IEnumerable<Guid> tags, CancellationToken ct)
+        {
+            var entity = await TryReadAsync(ct, guid);
+            if (entity?.First() is FileMetaEntity fileMeta )
+            {
+                var tagEntites = await storage.Tags.Where(e => tags.Contains(e.UID)).ToListAsync();
+                fileMeta.FileTags?.Clear();
+                fileMeta.FileTags ??= new List<FileTagEntity>();
+
+                // b. 建立新的契约映射
+                foreach (var tag in tagEntites)
+                {
+                    fileMeta.FileTags.Add(new FileTagEntity
+                    {
+                        FileId = guid,
+                        TagId = tag.UID,
+                        //Tag = tag,
+                        //File = fileMeta
+                    });
+                }
+
+                
                 return guid;
             }
             else

@@ -8,7 +8,7 @@ Name | Type
 ------------ | -------------
 `uid` | string
 `fileName` | string
-`tags` | Array&lt;string&gt;
+`tags` | [Array&lt;TagDto&gt;](TagDto.md)
 `fileSize` | number
 `fileHash` | string
 `uploadTime` | string

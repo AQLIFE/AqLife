@@ -4,6 +4,7 @@ import {
   ElTable,
   ElTag,
   ElText,
+  ElEmpty,
   ElTableColumn,
   ElImage,
   ElDrawer,
@@ -11,7 +12,7 @@ import {
   ElMessage,
 } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { onBeforeMount, onBeforeUnmount } from 'vue'
+import { onBeforeMount, onBeforeUnmount,computed } from 'vue'
 import { TagApi } from '@/api'
 import { apiConfiguration } from '@/services/api'
 const columnMap: Record<string, string> = {
@@ -23,16 +24,25 @@ const columnMap: Record<string, string> = {
 const tagStore = useTagStore()
 const tagApi = new TagApi(apiConfiguration)
 onBeforeMount(async()=>{
-  tagStore.tags = await tagApi.apiTagGet()
+  if(tagStore.tags.length==0)tagStore.tags = await tagApi.apiTagGet()
+})
+
+const tableColumns = computed(() => {
+  // 1. 安全守卫：确保数组存在且不为空 [cite: 16]
+  if (!tagStore.tags || tagStore.tags.length === 0) {
+    return []
+  }
+  // 2. 提取键名，过滤掉不需要展示的字段（如 UID）
+  return Object.keys(tagStore.tags[0])
 })
 </script>
 
 <template>
-  <ElTable :data="tagStore.tags" highlight-current-row>
+  <ElTable :data="tagStore.tags" class="fitHeight" highlight-current-row v-if="tagStore.tags && tagStore.tags.length > 0">
     <ElTableColumn
       sortable
       :prop="item"
-      v-for="(item, index) in Object.keys(tagStore.tags[0])"
+      v-for="(item, index) in tableColumns"
       :key="item"
       :label="columnMap[item] ?? item"
     >
@@ -42,4 +52,5 @@ onBeforeMount(async()=>{
         </template>
     </ElTableColumn>
   </ElTable>
+  <ElEmpty v-else description="正在加载标签数据..." />
 </template>

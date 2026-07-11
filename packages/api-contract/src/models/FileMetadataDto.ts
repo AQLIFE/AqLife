@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { TagDto } from './TagDto';
+import {
+    TagDtoFromJSON,
+    TagDtoFromJSONTyped,
+    TagDtoToJSON,
+    TagDtoToJSONTyped,
+} from './TagDto';
+
 /**
  * 
  * @export
@@ -33,10 +41,10 @@ export interface FileMetadataDto {
     fileName?: string | null;
     /**
      * 
-     * @type {Array<string>}
+     * @type {Array<TagDto>}
      * @memberof FileMetadataDto
      */
-    tags?: Array<string> | null;
+    tags?: Array<TagDto> | null;
     /**
      * 
      * @type {number}
@@ -82,7 +90,7 @@ export function FileMetadataDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         
         'uid': json['uid'] == null ? undefined : json['uid'],
         'fileName': json['fileName'] == null ? undefined : json['fileName'],
-        'tags': json['tags'] == null ? undefined : json['tags'],
+        'tags': json['tags'] == null ? undefined : ((json['tags'] as Array<any>).map(TagDtoFromJSON)),
         'fileSize': json['fileSize'] == null ? undefined : json['fileSize'],
         'fileHash': json['fileHash'] == null ? undefined : json['fileHash'],
         'uploadTime': json['uploadTime'] == null ? undefined : json['uploadTime'],
@@ -103,7 +111,7 @@ export function FileMetadataDtoToJSONTyped(value?: FileMetadataDto | null, ignor
         
         'uid': value['uid'],
         'fileName': value['fileName'],
-        'tags': value['tags'],
+        'tags': value['tags'] == null ? undefined : ((value['tags'] as Array<any>).map(TagDtoToJSON)),
         'fileSize': value['fileSize'],
         'fileHash': value['fileHash'],
         'uploadTime': value['uploadTime'],

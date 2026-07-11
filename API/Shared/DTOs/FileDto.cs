@@ -4,7 +4,7 @@
     (
         Guid UID,
         string FileName,
-        IEnumerable<string>? Tags,
+        IEnumerable<TagDto>? Tags,
         ulong FileSize = 0u,
         string FileHash = "",
         string UploadTime = "",
