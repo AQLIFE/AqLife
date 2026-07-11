@@ -308,3 +308,48 @@ config/*         ███░░░░░░░  30%  有文件，几乎未复�
 5. 修复 web：`useNavigation` 改用 `unplugin-icons` / `ui-shared/icons`
 6. 统一 `generate.sh` 与 `config.json` 为 typescript-fetch（与现有 web 用法一致）
 7. 再考虑 `API/` → `services/api/` 与 `domain` 抽离
+
+---
+
+🛠 AqLife 技术笔记：图标共享资产库与命名契约指南
+1. 核心陷阱：Kebab-case 转换 (The "Trap")
+在 AqLife 的 Monorepo 架构中，packages/icons
+ 利用 unplugin-icons 插件将物理 SVG 文件转换为虚拟 Vue 组件。
+转换规则：插件会自动将物理文件名（通常为 PascalCase 或 CamelCase）转换为 全小写连字符 (kebab-case) 形式作为虚拟模块路径。
+典型错误：
+物理文件：MarkdownIcon.svg
+错误导入：import Icon from '~icons/aqlife/Markdown-icon' (由于包含大写 M，路径解析失败)
+正确导入：import Icon from '~icons/aqlife/markdown-icon' (全小写)
+2. 图标注册表模式 (Registry Pattern) 工作流
+为了保持 “逻辑层与展示层解耦” 的架构原则，项目采用了三位一体的注册机制：
+定义枚举 (Enum)：在 mgsIconName.ts 中定义语义化的键名。
+作用：提供类型安全的强约束。
+建立映射 (Registry)：在 mgsRegistry.ts 中通过虚拟路径导入组件并关联枚举。
+规范：虚拟路径必须对齐物理文件名的 kebab-case 格式。
+动态渲染 (Dynamic Component)：使用 <component :is="mgsIconRegistry[enumValue]" /> 进行查表渲染。
+3. 故障排查与 Fail-Fast 准则
+在 54.3% 为 Vue 构成的 AqLife 前端代码库中
+，确保响应式契约的稳定性至关重要：
+Undefined 风险：如果虚拟路径写错，导入的组件值将为 undefined，导致 <component> 渲染为空。
+调试技巧：
+Fail-Fast 实践：建议在 mgsRegistry.ts 中使用 TypeScript 的 Record<MgsIconName, Component> 类型约束。如果你添加了枚举但漏掉了映射，编译阶段（vue-tsc）会立即报错。
+4. 环境配置参考
+物理存储：所有图标应存放在 packages/icons/icons/ 目录下
+。
+路径解析：MGS 项目的 vite.config.ts 必须正确配置 FileSystemIconLoader 指向上述物理路径，并定义集合前缀（如 aqlife）。
+缓存注意：由于虚拟模块是构建时生成的，修改 SVG 文件名或注册表后，建议重启 Vite 开发服务器 以强制刷新虚拟文件系统。
+5. 命名最佳实践清单
+物理文件名
+虚拟模块路径 (unplugin-icons)
+枚举键名 (Enum Key)
+Home.svg
+~icons/aqlife/home
+Home
+UserAccount.svg
+~icons/aqlife/user-account
+UserAccount
+MarkdownIcon.svg
+~icons/aqlife/markdown-icon
+Markdown
+架构提示：始终保持“物理文件名全小写”是避免此类问题的最简单方式，但这需要牺牲文件的可读性。在 AqLife 中，我们选择了保留 PascalCase 文件名并强制要求 Registry 层对齐 kebab-case 路径，这体现了 “严格内部契约，友好外部展示” 的设计理念
+。

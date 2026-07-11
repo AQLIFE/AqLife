@@ -1,5 +1,5 @@
 <template>
-  <ElCol>
+  <ElCol style="display:flex;align-items: center;">
     <ElForm class="form">
       <ElFormItem>
         <ElTooltip content="请上传对应博客头像" style="min-width: 100%; display: block">

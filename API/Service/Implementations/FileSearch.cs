@@ -18,7 +18,7 @@ public class FileSearch(AppStorage storage, IHttpContextAccessor httpContext, IO
         if (strategy == null) return [];
 
         // 2. 统一收拢数据源的安全切面权限过滤（无跟踪查询）
-        IQueryable<FileMetaEntity> queryable = storage.File.AsNoTracking().Include(e=>e.FileTags).ThenInclude(x=>x.Tag);
+        IQueryable<FileMetaEntity> queryable = storage.File.AsNoTracking().Include(e=>e.FileTags)?.ThenInclude(x=>x.Tag);
 
         // 策略判定：只有已登录（IsValid），才能看全量，否则只看 AllowedDownload 和 用户信息 存在关联的文件
         if (!IsValid)

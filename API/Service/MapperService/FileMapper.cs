@@ -1,4 +1,5 @@
 ﻿using MyLife.Data.Entities;
+using MyLife.Service.MapperService;
 using MyLife.Service.ServiceInterfaces;
 using MyLife.Shared.DTOs;
 using Riok.Mapperly.Abstractions;
@@ -6,7 +7,7 @@ using Riok.Mapperly.Abstractions;
 namespace MyLife.Service.Mappings
 {
     [Mapper]
-    public partial class FileMapper : IGenMapper<FileMetaEntity, FileMetadataDto>
+    public partial class FileMapper(TagMapper tagMapper) : IGenMapper<FileMetaEntity, FileMetadataDto>
     {
         [MapProperty(nameof(FileMetaEntity.Extension), nameof(FileMetadataDto.FileType))]
         [MapProperty(nameof(FileMetaEntity.FileTags),nameof(FileMetadataDto.Tags))]
@@ -26,11 +27,9 @@ namespace MyLife.Service.Mappings
         public partial void UpdateEntity(FileMetadataDto dto, FileMetaEntity entity);
         private string Convert(DateTime dateTime) => dateTime.ToString("yyyy-MM-dd");
         // Mapperly 会自动循环处理 FileTags 集合中的每一个项 [cite: 198]
-        private string Convert(FileTagEntity tagEntity)
+        private TagDto Convert(FileTagEntity tagEntity)
         {
-            // 💡 只要 Service 层做了 Include，这里就不会是 null
-            // 这里直接跨表取值：tagEntity -> 导航属性 Tag -> TagName
-            return tagEntity.Tag?.Name ?? "未命名标签";
+            return tagMapper.ToDto(tagEntity.Tag);
         }
 
     }

@@ -36,7 +36,7 @@ async function submitLogin() {
 </script>
 
 <template>
-  <ElCol style="display: flex;flex-direction: row;justify-content: center;">
+  <ElCol class="loginView">
     <ElForm style="width:30vw;" label-width="55px">
     <ElFormItem label="账户名">
       <ElInput v-model="login.accountName" clearable placeholder="请输入账户名" :prefix-icon="User" />
@@ -52,4 +52,14 @@ async function submitLogin() {
   </ElCol>
 </template>
 <style lang="css" scoped>
+.loginView{
+  display: flex;flex-direction: row;
+  justify-content: center;
+  justify-self: center;
+  justify-items: center;
+  height:100vh;
+  align-items: center;
+  align-content: center;
+  align-self: center;
+}
 </style>

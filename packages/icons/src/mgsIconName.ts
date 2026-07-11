@@ -3,4 +3,5 @@ export enum MgsIconName {
   Home = 'HomeIcon',
   Login = 'LoginIcon',
   Register = 'RegisterIcon',
+  Markdown = 'MarkdownIcon'
 }

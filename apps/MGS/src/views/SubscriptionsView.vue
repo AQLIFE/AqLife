@@ -1,5 +1,5 @@
 <template>
-  <ElCol>
+  <ElCol style="display:flex;flex-direction: column;justify-content: center;">
     subscriptList
     <ElRow style="align-items: stretch;">
       <ElCol :span="3" v-for="(item, index) in subscriptDtos" :key="index" class="gap">

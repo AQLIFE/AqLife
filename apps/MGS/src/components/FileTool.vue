@@ -1,48 +1,38 @@
 <template>
   <ElDescriptions border :column="1">
-    <ElDescriptionsItem label="上传">
+    <ElDescriptionsItem label="预览">
+      <ElImage v-if="isImageType(fileDto.fileType)"  :src="useFileStore().previewUrl.get(fileDto.uid!)" class="image"/>
       <ElUpload
+        v-else
+        :disabled="isImageType(fileDto.fileType)"
         v-model:file-list="fileList"
-        :accept="acceptType"
-        drag
-        multiple
-        list-type="picture"
-        show-file-list
+        :accept="fileDto.fileType"
+        :limit="1"
         :auto-upload="false"
       >
-        <ElIcon class="fillIcon"><UploadFilled /></ElIcon>
-        <div class="el-upload__text">Drop file here or <em>click to upload</em></div>
-        <template #tip> 仅允许{{ acceptType }}类型文件上传 </template>
-        <template #file="{ file, index }">
-          <!-- Elemnt-plus 在 TS 开发下,插槽参数被降级为 Any,非常狗血 -->
-          <ElImage class="image" :src="isImageType(file) ? file.url : ''" :key="index" style="font-size: 3rem">
-            <template #error>
-              <ElIcon><Files /></ElIcon>
-            </template>
-          </ElImage>
-          <ElText class="maxText">{{ file.name }}</ElText>
-        </template>
+        <ElImage class="image" src="">
+          <template #error>
+            <ElIcon><component :is="mgsIconRegistry[markdown]"/></ElIcon>
+          </template>
+        </ElImage>
+        <template #tip> 仅允许{{ fileDto.fileType }}类型文件上传 </template>
       </ElUpload>
     </ElDescriptionsItem>
 
-    <ElDescriptionsItem
-      v-for="(item, index) in Object.keys(fileDto)"
-      :key="index"
-      :label="columnMap[item]"
-    >
-    <template v-if="index==2">
-      <ElTag v-for="tag,tagKey in Object.values(fileDto)[index]" :key="tagKey">{{ tag }}</ElTag>
-      <ElTag ><ElIcon><Plus/></ElIcon></ElTag>
-    </template>
-    <ElText v-else>{{ Object.values(fileDto)[index] }}</ElText>
+    <ElDescriptionsItem label="标签">
+      <TagSelect v-model:tag-list="tags"/>
     </ElDescriptionsItem>
   </ElDescriptions>
 </template>
 
 <script setup lang="ts">
+import TagSelect from './TagSelect.vue'
+import { MgsIconName,mgsIconRegistry } from '@aqlife/icons'
+import { useTagStore } from '@/stores/uuseTagStore'
+import { useFileStore } from '@/stores/useFileStore'
 import { computed, reactive } from 'vue'
-import type { FileMetadataDto } from '@/api'
-import { UploadFilled, Files,Plus } from '@element-plus/icons-vue'
+import type { FileMetadataDto, TagDto } from '@/api'
+import { UploadFilled, Files, Plus } from '@element-plus/icons-vue'
 import { normalizeExtension } from '@aqlife/domain'
 import ImageUpload from '@/components/ImageUpload.vue'
 import {
@@ -55,41 +45,33 @@ import {
   type UploadFile,
 } from 'element-plus'
 import { defaultFilePolicy } from '@aqlife/domain'
-const props = defineProps<{ fileDto: FileMetadataDto; columnMap: Record<string, string> }>()
-const fileList = reactive<UploadUserFile[]>([])
-const acceptType = computed(() => {
-  const fileTypes = defaultFilePolicy.allowedUpload.join(',')
-  // console.log(fileTypes) // 输出: ".svg,.jpeg,.jpg,.png"
-  return fileTypes
-})
+const props = defineProps<{ fileDto: FileMetadataDto }>()// 主要是为了获取文件类型来决定组件渲染方式
+const tags = defineModel<TagDto[]>('tags', { default: () => [] })
+const fileList = reactive<UploadUserFile[]>([])// 仅在md 文件格式时才允许存在和更新
+const markdown = MgsIconName.Markdown
 
 const imageExtensions = computed(() => {
   return defaultFilePolicy.allowedUpload.filter((item) => item !== '.md') // 过滤掉不需要的 .md，只留下图片
 })
 
-const isImageType = (f: UploadFile) => {
+const isImageType = (ext: string | undefined | null) => {
   // const f = file  // 顺手顺顺类型
-  if (!f.name) return false
-
-  // 提取后缀名并转为小写
-  const ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase()
-  // 检查提取出的后缀是否存在于图片白名单中
+  if (ext == '' || !ext) return false
   return imageExtensions.value.includes(ext)
 }
-
-
 </script>
 
 <style lang="css" scoped>
 .fillIcon {
   font-size: 5rem;
 }
-.image{
-  max-height: 10vw;
-  max-width: 10vw;
+.image {
+  height: 10vw;
+  width: 10vw;
+  font-size: 10vw;
 }
-.maxText{
-  width:clac(100% - 20px);
+.maxText {
+  width: clac(100% - 20px);
   overflow: hidden;
   padding: 20px;
 }
