@@ -70,7 +70,7 @@
 
   <FileUpload v-if="actionStore.OState == OperationalState.Add" v-model:file-list="UploadContext.fileList"
     v-model:tags="UploadContext.tags" />
-    <FileTool v-else-if="actionStore.OState == OperationalState.Update" :initial-tags="activeDto.tags" v-model:model-value="activeDto" />
+    <FileTool v-else-if="actionStore.OState == OperationalState.Update" :initial-tags="activeDto.tags!" v-model:model-value="activeDto" />
     <!-- 防止tag修改渗透,仅允许在update事件成功以后,由update回调至fileDto -->
 </template>
 
