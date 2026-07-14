@@ -1,6 +1,7 @@
 import { reactive, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { FileApi, FileMetadataDto } from '@/api'
+import { isImageType } from '@aqlife/domain'
 
 export const useFileStore = defineStore('file', () => {
   const fileList = ref<FileMetadataDto[]>([])
@@ -16,7 +17,7 @@ export const useFileStore = defineStore('file', () => {
 
     // 2. 并行获取所有预览图，提升加载速度 [cite: 9]
     const tasks = fileList.value.map(async (item) => {
-      if (!item.uid || previewUrl.has(item.uid)) return
+      if (!item.uid || previewUrl.has(item.uid) || !isImageType(item.fileType!)) return
 
       try {
         const blob = await fileApi.apiFilePreviewGet({ uID: item.uid })
