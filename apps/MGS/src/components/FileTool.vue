@@ -1,5 +1,5 @@
 <template>
-  <ElDrawer v-model="drawerStatus" title="上传新文件" with-header :show-close="false" @close="close">
+  <ElDrawer v-model="drawerStatus" :title="fileDto?.fileName" with-header :show-close="false" @close="close">
 
     <ElDescriptions border :column="1">
       <ElDescriptionsItem label="预览">
@@ -62,9 +62,7 @@ const props = defineProps<{
 const fileList = reactive<UploadUserFile[]>([])// 暂时忽略
 const markdown = MgsIconName.Markdown
 const actionStore = useActionStore()
-const imageExtensions = computed(() => {
-  return defaultFilePolicy.allowedUpload.filter((item) => item !== '.md') // 过滤掉不需要的 .md，只留下图片
-})
+
 const drawerStatus = computed(() => actionStore.OState == OperationalState.Update)
 const selectedTags = ref<TagDto[]>(props.initialTags ? [...props.initialTags] : [])
 
