@@ -16,7 +16,7 @@ namespace MyLife.Web.Controllers
         => await mediator.Send(new AccountQuery(), ct);
 
         [HttpPost, AllowAnonymous]
-        public async Task<Guid?> AddAccount(CreateAccountCommand command, CancellationToken ct)
+        public async Task<string> AddAccount(CreateAccountCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);
 
         [HttpPost("login"), AllowAnonymous]

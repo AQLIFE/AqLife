@@ -15,7 +15,8 @@ namespace MyLife.Data.Entities
         public Guid? FTID { get; set; } = null;// 作为父级任务ID，默认为空
 
         [Column, Required(ErrorMessage = "Description is required")]
-        public string Desc { get; set; }
+        public string Desc { get; set; } = string.Empty;
+
         [Column, Required(ErrorMessage = "Status is required")]
         public TodoStatus Status { get; set; } = TodoStatus.Initial;
 

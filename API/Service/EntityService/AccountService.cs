@@ -7,6 +7,7 @@ using MyLife.Shared.Contracts;
 using MyLife.Shared.DTOs;
 using MyLife.Shared.Exceptions;
 using MyLife.Shared.Tools;
+using MyLife.Shared.Utils;
 
 namespace MyLife.Service.EntityService
 {
@@ -24,11 +25,11 @@ namespace MyLife.Service.EntityService
         public async Task<AccountEntity?> TryReadAsync(Guid? id=null)
             => await storage.Account.Include(e => e.Subscriptions).FirstOrDefaultAsync(a => id == null ? a.IsValid : a.UID == id);
 
-        public async Task<Guid> TryCreateAccountAsync(string name, string? desc, CancellationToken ct)
+        public async Task<string> TryCreateAccountAsync(string name, string? desc,string pwd, CancellationToken ct)
         {
-            AccountEntity entity = new AccountEntity() { Name = name, Desc = desc };
+            AccountEntity entity = new AccountEntity() { Name = name, Desc = desc ,LoginPasswordHash = FastHash.GetSha256Hash(pwd)};
             storage.Account.Add(entity);
-            return entity.UID;
+            return entity.LoginName;
         }
         public async Task<Guid> TryCreateAccountAsync(ISimpleAccountInfo dto, IEnumerable<IFormFile> files, CancellationToken ct)
         {

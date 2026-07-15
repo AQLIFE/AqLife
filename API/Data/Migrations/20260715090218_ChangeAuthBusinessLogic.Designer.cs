@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyLife.Data.Repository;
 
@@ -11,9 +12,11 @@ using MyLife.Data.Repository;
 namespace MyLife.Data.Migrations
 {
     [DbContext(typeof(AppStorage))]
-    partial class AppStorageModelSnapshot : ModelSnapshot
+    [Migration("20260715090218_ChangeAuthBusinessLogic")]
+    partial class ChangeAuthBusinessLogic
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,7 +42,7 @@ namespace MyLife.Data.Migrations
 
                     b.Property<string>("LoginName")
                         .IsRequired()
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("LoginPasswordHash")
                         .IsRequired()
@@ -52,11 +55,7 @@ namespace MyLife.Data.Migrations
 
                     b.HasKey("UID");
 
-                    b.HasIndex("LoginName")
-                        .IsUnique();
-
-                    b.HasIndex("Name")
-                        .IsUnique();
+                    b.HasIndex("Name");
 
                     b.ToTable("Accounts");
                 });

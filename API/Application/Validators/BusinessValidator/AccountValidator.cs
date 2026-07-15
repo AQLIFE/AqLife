@@ -3,6 +3,9 @@ using Microsoft.Extensions.Options;
 using MyLife.Application.Command;
 using MyLife.Data.Repository;
 using MyLife.Shared.Options;
+using MyLife.Shared.Utils;
+using System.Runtime.Intrinsics.Arm;
+using System.Security.Cryptography;
 
 namespace MyLife.Application.Validators.BusinessValidator
 {
@@ -98,10 +101,13 @@ namespace MyLife.Application.Validators.BusinessValidator
     /// </summary>
     /// <param name="options"></param>
     /// <param name="storage"></param>
-    public class LoginValidator(IOptions<JwtOption> options, AppStorage storage) : AbstractValidator<LoginCommand>
+    public class LoginValidator(AppStorage storage) : AbstractValidator<LoginCommand>
     {
         private protected override string ErrorMessage { init; get; } = "登录失败";
         private protected override async Task<bool> IsValidAsync(LoginCommand command, CancellationToken ct)
-            => command.SecretKey == options.Value.SecretKey && await storage.Account.AsNoTracking().FirstOrDefaultAsync(a => a.IsValid && a.Name == command.AccountName) != null;
+        {
+           var entity = await storage.Account.AsNoTracking().FirstAsync(a => a.IsValid);
+           return entity.LoginName == command.AccountName && entity.LoginPasswordHash == FastHash.GetSha256Hash(command.SecretKey);
+        }
     }
 }

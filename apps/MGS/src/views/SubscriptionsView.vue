@@ -26,7 +26,6 @@ const accountStore = useAccountStore()
 // 使用 computed，只要 Store 里的数据一变，这里会自动更新，并且依然保持响应式
 const subscriptDtos = computed(() => accountStore.systemAccount?.subscriptions)
 
-// onBeforeMount(()=>console.log(useAccountStore().systemAccount?.subscriptions))
 const files = ref<(File | null)[]>([]) // 初始化为空数组
 
 function remove(index: number): void {

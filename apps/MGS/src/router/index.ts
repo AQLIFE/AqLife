@@ -28,11 +28,11 @@ router.beforeEach(async (to, from) => {
   const accountStore = useAccountStore()
 
   // 确保状态已加载
-  if (accountStore.systemAccount === null) {
-    const request = new AccountApi(apiConfiguration)
-    const account = await request.apiAccountGet()
-    accountStore.systemAccount = account;
-  }
+  // if (accountStore.systemAccount === null) {
+  //   const request = new AccountApi(apiConfiguration)
+  //   const account = await request.apiAccountGet()
+  //   accountStore.systemAccount = account;
+  // }
 
    // 2. 定义匿名访问白名单
   const publicPaths = ['/home', '/login', '/register']
@@ -44,7 +44,12 @@ router.beforeEach(async (to, from) => {
   // A. 如果是私有路径且没有 Token，强制去登录 (Auth 契约校验 [cite: 217])
   if (!isPublic && !accountStore.bearerToken) {
     ElMessage.warning('请登录')
-    return '/login'
+    return '/home'
+  }
+
+  if (to.path == '/login' && !accountStore.systemAccount) {
+    ElMessage.warning('系统等待初始化,请注册')
+    return '/register'
   }
 
   // B. 业务逻辑补充：系统已初始化时，禁止进入注册页 (单账户系统逻辑)

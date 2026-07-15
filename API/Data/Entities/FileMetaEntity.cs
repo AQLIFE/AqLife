@@ -13,8 +13,6 @@ namespace MyLife.Data.Entities
         public Guid UID { get; set; } = Guid.NewGuid();
         [Column, Description("仅存储文件名,不含后缀")]
         public string FileName { get; set; } = string.Empty;
-        //[Column]
-        //public string DesensitizationName { get; set; } = string.Empty;
         [Column]
         public string Extension { get; set; } = string.Empty;
         [Column]
@@ -25,7 +23,7 @@ namespace MyLife.Data.Entities
         [Column]
         public DateTime UploadTime { set; get; } = DateTime.UtcNow;
 
-        public virtual ICollection<FileTagEntity>? FileTags { get; set; }
+        public virtual ICollection<FileTagEntity> FileTags { get; set; } = [];
 
         public FileMetaEntity() { }
 
