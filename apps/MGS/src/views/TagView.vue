@@ -108,7 +108,7 @@ function handleSearch() {
 }
 
 async function addTag() {
-  if (isAdd.value && addTagDto.value.tagName!=null&&addTagDto.value.tagName!='') {
+  if (isAdd.value&& addTagDto.value.tagName!=null&&addTagDto.value.tagName!='' ) {
     // 默认此时isAdd : true
     const tagGid = await tagApi.apiTagPost({createTagCommand:addTagDto.value})
     const newTag = await tagApi.apiTagGet({uID:tagGid})

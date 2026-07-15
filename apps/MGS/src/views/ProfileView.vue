@@ -21,7 +21,7 @@
         <ElButton @click="isActive = !isActive" :title="isActive ? '解锁' : '锁定'">
           <ElIcon><component :is="isActive ? Unlock : Lock" /></ElIcon>
         </ElButton>
-        <ElButton type="warning" @click="async () => await update()">Update</ElButton>
+        <ElButton type="warning" @click="update">Update</ElButton>
       </ElFormItem>
     </ElForm>
   </ElCol>

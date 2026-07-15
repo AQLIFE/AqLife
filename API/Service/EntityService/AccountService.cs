@@ -71,12 +71,11 @@ namespace MyLife.Service.EntityService
             var entity = await TryReadAsync(guid);
             if (entity is AccountEntity account)
             {
-                account.Desc = desc;
                 account.Name = name;
+                account.Desc = desc;
                 return guid;
             }
             return Guid.Empty;
-
         }
         /// <summary>
         /// 负责更新用户头像
