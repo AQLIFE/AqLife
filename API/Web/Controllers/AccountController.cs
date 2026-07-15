@@ -29,7 +29,7 @@ namespace MyLife.Web.Controllers
             => await mediator.Send(new UpdateAccountAvatarCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), avatar), ct);
         [HttpPatch("profile")]
         public async Task<Guid> UpdateProfile(AccountProfile info, CancellationToken ct)
-            => await mediator.Send(new UpdateAccountProfileCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), info.Name, info.Desc), ct);
+            => await mediator.Send(new UpdateAccountProfileCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"),Name: info.Name,Desc: info.Desc), ct);
         [HttpPut("subscriptions")]// 待定,需要前端验证
         public async Task<Guid> UpdateSubscriptions(IEnumerable<SubscriptionDto> dtos, CancellationToken ct)
             => await mediator.Send(new UpdateAccountSubscriptionsCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), dtos), ct);

@@ -9,15 +9,15 @@ using MyLife.Shared.Tools;
 
 namespace MyLife.Application.Validators.BusinessValidator;
 
-public class PreviewFileValidator(AppStorage storage) : AbstractValidator<PreviewFileQuery>
-{
-    private protected override string ErrorMessage { init; get; } = "不支持预览的文件类型";
-    private protected override async Task<bool> IsValidAsync(PreviewFileQuery command, CancellationToken ct)
-    {
-        var entity = await storage.File.AsNoTracking().FirstAsync(e => e.UID == command.UID);
-        return entity.Extension !=".md";// 存在 另一个前置ID检查，此时 不应为NULL    
-    }
-}
+//public class PreviewFileValidator(AppStorage storage) : AbstractValidator<PreviewFileQuery>
+//{
+//    private protected override string ErrorMessage { init; get; } = "不支持预览的文件类型";
+//    private protected override async Task<bool> IsValidAsync(PreviewFileQuery command, CancellationToken ct)
+//    {
+//        var entity = await storage.File.AsNoTracking().FirstAsync(e => e.UID == command.UID);
+//        return entity.Extension !=".md";// 存在 另一个前置ID检查，此时 不应为NULL    
+//    }
+//}
 
 /// <summary>
 /// 文件类型上传策略,适用创建和更新

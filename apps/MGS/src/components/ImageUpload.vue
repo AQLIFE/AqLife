@@ -1,5 +1,5 @@
 <template>
-  <ElUpload  action="#" :limit="1" :disabled="status" :show-file-list="false" :auto-upload="false" @change="handleChange">
+  <ElUpload  action="#" :limit="1" :disabled="status" :show-file-list="false" :auto-upload="false" @change="handleChange" :accept="props.extType">
     <ElImage :lazy="true" :src="imageSrc ||props.url" :style="{ width: iconSize, height:iconSize }">
       <template #error>
         <ElIcon :style="{ fontSize: props.iconSize }">
@@ -28,6 +28,11 @@ const props = defineProps({
     type: String,
     default: '',
     required: false
+  },
+  extType:{
+    type:String,
+    default:'.svg',
+    required:false
   }
 })
 const modelValue = defineModel<File | null>()
