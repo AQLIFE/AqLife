@@ -68,7 +68,6 @@ const selectedTags = ref<TagDto[]>(props.initialTags ? [...props.initialTags] : 
 
 function close() {
   actionStore.OState = OperationalState.None
-  console.log(actionStore.OState)
 }
 
 async function commit() {

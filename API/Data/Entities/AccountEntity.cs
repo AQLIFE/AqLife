@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyLife.Shared.Contracts;
+using MyLife.Shared.Utils;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -22,7 +23,8 @@ namespace MyLife.Data.Entities
         public virtual AccountEntity Account { get; set; } = null!;
     }
 
-    [Table("Accounts"), Index(nameof(Name))]
+    [Table("Accounts"), Index(nameof(Name),IsUnique =true)]
+    [Index(nameof(LoginName),IsUnique = true)]
     public class AccountEntity : IUserEntity, IEntity
     {
         [Key]
@@ -39,6 +41,12 @@ namespace MyLife.Data.Entities
         public Guid? Avatar { get; set; }
         [Column]
         public bool IsValid { get; set; } = true;
+
+        [Column]
+        public string LoginName { set; get; } = IdentityGenerator.GenerateSecureLoginName();
+        [Column]
+        public string LoginPasswordHash { set; get; } = string.Empty;
+
         public virtual ICollection<SubscriptionEntity> Subscriptions { get; set; } = [];
     }
 }

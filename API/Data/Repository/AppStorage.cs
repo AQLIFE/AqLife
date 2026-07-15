@@ -24,14 +24,17 @@ namespace MyLife.Data.Repository
 
             // 显式声明关系（可选，但推荐以增强健壮性）
             modelBuilder.Entity<FileTagEntity>()
-                .HasOne(ft => ft.File)
-                .WithMany(f => f.FileTags)
-                .HasForeignKey(ft => ft.FileId);
+            .HasOne(ft => ft.File)
+            .WithMany(f => f.FileTags)
+            .HasForeignKey(ft => ft.FileId)
+            .OnDelete(DeleteBehavior.Cascade); // 关键：开启级联删除
 
+            // 3. 配置 TagEntity -> FileTagEntity 的关系及级联删除
             modelBuilder.Entity<FileTagEntity>()
                 .HasOne(ft => ft.Tag)
                 .WithMany(t => t.FileTags)
-                .HasForeignKey(ft => ft.TagId);
+                .HasForeignKey(ft => ft.TagId)
+                .OnDelete(DeleteBehavior.Cascade); // 关键：开启级联删除
         }
     }
 }

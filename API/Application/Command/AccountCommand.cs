@@ -25,8 +25,9 @@ namespace MyLife.Application.Command
     /// <param name="SubAccountAvatar"></param>
     public record CreateAccountCommand(
         string Name,
-        string? Desc
-    ) : ICreateCommand, ISimpleAccountInfo
+        string? Desc,
+        string pwd
+    ) : ICreateCommand<string>, ISimpleAccountInfo
     { }
 
     /// <summary>

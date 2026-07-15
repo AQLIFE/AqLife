@@ -114,7 +114,7 @@ async function commit() {
     const innerTags: string[] = tags.value
       .map((tag) => tag.uid)
       .filter((uid): uid is string => uid != null)
-    // console.log(tags, tags)
+
 
     // 4. 并行处理关联逻辑 (核心优化点) [cite: 9]
     // 即使 tags 为空，我们也要获取文件元数据以更新 UI [cite: 10]
