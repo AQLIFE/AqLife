@@ -1,11 +1,8 @@
 <template>
   <ElCol>
-    <template v-if="registerStore.steps[currentStep]?.status === 'process'">
-      <component :is="stepComponents[currentStep]" @next="handleNext" @prev="handlePrev" />
-    </template>
-    <div v-else>
-      <p>当前步骤未激活或已完成</p>
-    </div>
+    <component :is="stepComponents[currentStep]" @next="handleNext" @prev="handlePrev"/>
+    <!-- <template v-if="registerStore.steps[currentStep]?.status === 'process'">
+    </template> -->
   </ElCol>
 </template>
 
@@ -28,9 +25,8 @@ const stepComponents = [StepAccount, StepAvatar, StepSocial,StepCommit]
 
 function handleNext(): void {
   registerStore.$patch((state) => {
-    state.steps[currentStep.value]!.status = 'finish'
-    currentStep.value++
-    if (currentStep.value < state.steps.length) {
+    if(currentStep.value < state.steps.length - 1) {
+      currentStep.value++
       state.steps[currentStep.value]!.status = 'process'
     }
   })
@@ -39,10 +35,6 @@ function handleNext(): void {
 function handlePrev(): void {
   if (currentStep.value > 0) {
     currentStep.value--
-    registerStore.$patch((state)=>{
-      state.steps[currentStep.value]!.status = 'process'
-      state.steps[currentStep.value+1]!.status = 'wait'
-    })
   }
 }
 </script>

@@ -8,6 +8,7 @@ Name | Type
 ------------ | -------------
 `name` | string
 `desc` | string
+`pwd` | string
 
 ## Example
 
@@ -18,6 +19,7 @@ import type { CreateAccountCommand } from '@aqlife/api-contract'
 const example = {
   "name": null,
   "desc": null,
+  "pwd": null,
 } satisfies CreateAccountCommand
 
 console.log(example)

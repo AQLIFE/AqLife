@@ -5,7 +5,7 @@
     @click.middle.prevent="$emit('delete', serial)"
   >
     <template #header>
-      <ImageUpload :status="!isEdit" iconSize="8vw" :url="item.subscriptionIcon?preview(item.subscriptionIcon):''" v-model:model-value="fileModel" />
+      <ImageUpload :status="!isEdit" iconSize="8vw" :src="item.subscriptionIcon?preview(item.subscriptionIcon):''" v-model:file="fileModel" />
     </template>
     <ElCol>
       <ElInput

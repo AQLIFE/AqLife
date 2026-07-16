@@ -13,7 +13,8 @@ export function validateAccountName(name?: string | null): ValidationResult {
 
 export function validateSecretKey(secret?: string | null): ValidationResult {
   const value = secret?.trim() ?? ''
-  if (!value) return validationFail('系统密钥不能为空')
+  console.log(value)
+  if (value===''||value==null||value==undefined) return validationFail('系统密钥不能为空')
   if (/\s/.test(value)) return validationFail('系统密钥不能包含空格')
   return validationOk()
 }
@@ -22,13 +23,14 @@ export function validateLoginCommand(accountName?: string | null, secretKey?: st
   return firstFailure([validateAccountName(accountName), validateSecretKey(secretKey)])
 }
 
-export function validateAccountProfile(name?: string | null, desc?: string | null): ValidationResult {
+export function validateAccountProfile(name?: string | null, desc?: string | null,secret?:string|null): ValidationResult {
   const nameResult = validateAccountName(name)
   if (!nameResult.ok) return nameResult
 
   if (desc != null && desc.length > 200) {
     return validationFail('简介长度不能超过 200 字')
   }
-
+  const keyResult = validateSecretKey(secret)
+  if (!keyResult.ok) return keyResult
   return validationOk()
 }

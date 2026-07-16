@@ -6,8 +6,8 @@
           <ImageUpload
             :status="isActive"
             iconSize="10vw"
-            :url="preview()"
-            v-model:model-value="avatarFile"
+            :src="preview()"
+            v-model:file="avatarFile"
           />
         </ElTooltip>
       </ElFormItem>
