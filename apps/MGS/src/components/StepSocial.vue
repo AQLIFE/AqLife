@@ -1,16 +1,8 @@
 <template>
   <ElForm>
-    <ElFormItem :label="'社交主页关联配置' + index" v-for="(item, index) in source" :key="index">
+    <ElFormItem :label="'社交主页关联配置' + index" v-for="(item, index) in registerStore.subscriptions" :key="index" required>
       <ElTooltip content="请上传对应平台的logo">
-        <ElUpload :auto-upload="false" :limit="1" :show-file-list="false" accept=".svg" :on-change="(file: any) => handleFileChange(file, index)" action="#">
-          <ElImage :src="PreviewUrls[index]" fit="cover" style="   width: 30px;   height: 30px;   display: block;   border-radius: 4px;   border: 1px dashed #d9d9d9;">
-            <template #error>
-              <ElIcon style="position: relative; top: 2px">
-                <Plus />
-              </ElIcon>
-            </template>
-          </ElImage>
-        </ElUpload>
+        <ImageUpload v-model:file="registerStore.fileList[index]" :src="registerStore.PreviewUrls.get(registerStore.fileList[index]?.name)" @change="handleFileChange" iconSize="30px"/>
       </ElTooltip>
 
       <ElTooltip content="请填写对应平台的社交账户名称">
@@ -46,40 +38,49 @@
       </ElTooltip>
 
       <ElTooltip content="最后确认">
-        <ElButton :icon="ArrowRight" @click="$emit('next')" type="success" />
+        <ElButton :icon="ArrowRight" @click="next" type="success" />
       </ElTooltip>
     </ElFormItem>
   </ElForm>
 </template>
 <script setup lang="ts">
-import { onBeforeUnmount, ref,type Ref } from 'vue';
-import { ElForm, ElFormItem, ElButton, ElInput, ElImage, ElTooltip, ElIcon, ElUpload,} from 'element-plus'
+import { ElForm, ElFormItem, ElButton, ElInput, ElImage, ElTooltip, ElIcon, ElUpload, ElMessage,} from 'element-plus'
 import {Delete,Plus,ArrowLeft,ArrowRight} from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
-import type { SubscriptionDto } from '@/api';
-const PreviewUrls = ref<string[]>([])
-const source:Ref<SubscriptionDto[]> = ref([
-  {aliasName:'',subscriptionLink:'',subscriptionPlatform:'',subscriptionIcon:''}
-])
-defineEmits(['prev', 'next'])
+import ImageUpload from './ImageUpload.vue';
+import { useRegisterStore } from '@/stores/useRegisterStore';
+import { validateSubscriptionList } from '@aqlife/domain';
+
+
+const emit =defineEmits(['prev', 'next'])
+const registerStore = useRegisterStore()
 
 function removeSubscription(index:number){
-  source.value.splice(index,index+1)
+  registerStore.subscriptions.splice(index,1)
+  registerStore.PreviewUrls.delete(registerStore.fileList[index]?.name)
+  registerStore.fileList.splice(index,1)
 }
 
 function addSubscription(){
-  source.value.push({subscriptionIcon:'',aliasName:'',subscriptionLink:'',subscriptionPlatform:''})
+  registerStore.subscriptions.push({subscriptionIcon:'',aliasName:'',subscriptionLink:'',subscriptionPlatform:''})
 }
 
-function handleFileChange(file: UploadFile, index: number) {
+function handleFileChange(file: UploadFile) {
   if (file.raw) {
-    PreviewUrls.value[index] = URL.createObjectURL(file.raw)
+    registerStore.PreviewUrls.set(file.raw.name, URL.createObjectURL(file.raw))
+    console.log('Avatar file changed:', file.name, 'Preview URL:', registerStore.PreviewUrls.get(file.name))
   }
 }
 
-onBeforeUnmount(()=>{
-
-})
+function next(){
+  const result = validateSubscriptionList(registerStore.subscriptions)
+  if(result.ok){
+    ElMessage.success('社交主页关联配置验证成功')
+    emit('next')
+  }else{
+    ElMessage.error('社交主页关联配置验证失败: ' + result.message)
+  }
+}
 </script>
 <style lang="css" scoped>
 .el-form{

@@ -1,5 +1,5 @@
 import type { SubscriptionDto } from '@aqlife/api-contract'
-import { firstFailure, validationFail, validationOk, type ValidationResult } from './types'
+import { validationFail, validationOk, type ValidationResult } from './types'
 
 export function validateHttpsLink(link?: string | null): ValidationResult {
   const value = link?.trim() ?? ''
@@ -43,7 +43,9 @@ export function validateSubscriptionList(
   if (!items.length) return validationOk()
 
   for (const item of items) {
-    const result = validateSubscriptionItem(item)
+    let result = validateSubscriptionItem(item)
+    if (!result.ok) return result
+    result = validateHttpsLink(item.subscriptionLink) 
     if (!result.ok) return result
   }
 
