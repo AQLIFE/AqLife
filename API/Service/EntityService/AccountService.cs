@@ -67,16 +67,16 @@ namespace MyLife.Service.EntityService
         /// <param name="desc"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public async Task<Guid> TryUpdateAsync(Guid guid, string name, string? desc, CancellationToken ct)
+        public async Task<string> TryUpdateAsync(Guid guid, string name, string? desc, CancellationToken ct)
         {
             var entity = await TryReadAsync(guid);
             if (entity is AccountEntity account)
             {
                 account.Name = name;
                 account.Desc = desc;
-                return guid;
+                return account.LoginName;
             }
-            return Guid.Empty;
+            return string.Empty;
         }
         /// <summary>
         /// 负责更新用户头像
@@ -85,7 +85,7 @@ namespace MyLife.Service.EntityService
         /// <param name="avatar"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public async Task<Guid> TryUpdateAsync(Guid guid, IFormFile avatar, CancellationToken ct)
+        public async Task<string> TryUpdateAsync(Guid guid, IFormFile avatar, CancellationToken ct)
         {
             var account = await TryReadAsync(guid);
             if (account is AccountEntity entity)
@@ -93,9 +93,9 @@ namespace MyLife.Service.EntityService
                 var aid = await fileService.TryCreateAsync([avatar], ct);
                 if (entity.Avatar is Guid id && id != Guid.Empty) await fileService.TryDeleteAsync([id], ct);// 先删除旧有头像,避免无效文件留存
                 entity.Avatar = aid.FirstOrDefault();//再替换ID
-                return guid;
+                return account.LoginName;
             }
-            return Guid.Empty;
+            throw new RequestTransactionFailedException("账户不存在");
         }
 
         /// <summary>
@@ -117,10 +117,10 @@ namespace MyLife.Service.EntityService
 
                 return guid;
             }
-            return Guid.Empty;
+            throw new RequestTransactionFailedException("账户不存在");
         }
 
-        public async Task<Guid> TryUpdateAsync(Guid guid, IEnumerable<SubscriptionDto> dtos, CancellationToken ct)
+        public async Task<string> TryUpdateAsync(Guid guid, IEnumerable<SubscriptionDto> dtos, CancellationToken ct)
         {
             var account = await TryReadAsync(guid);
             if (account is AccountEntity entity)
@@ -130,7 +130,7 @@ namespace MyLife.Service.EntityService
                 subscriptions.ForEach(e => { e.AID = entity.UID;e.Account = entity; });
                 await storage.Subscription.AddRangeAsync(subscriptions);
                 //entity.Subscriptions = subscriptions;
-                return guid;
+                return account.LoginName;
             }
             throw new RequestTransactionFailedException("账户不存在");
         }

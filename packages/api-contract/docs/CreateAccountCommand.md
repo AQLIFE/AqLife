@@ -9,6 +9,7 @@ Name | Type
 `name` | string
 `desc` | string
 `pwd` | string
+`serverKey` | string
 
 ## Example
 
@@ -20,6 +21,7 @@ const example = {
   "name": null,
   "desc": null,
   "pwd": null,
+  "serverKey": null,
 } satisfies CreateAccountCommand
 
 console.log(example)

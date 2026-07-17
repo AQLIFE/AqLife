@@ -17,7 +17,7 @@ const avatar:Ref<File|null> = ref<File|null>(null)
 const subscriptions = reactive<SubscriptionDto[]>([
     {aliasName:'',subscriptionLink:'',subscriptionPlatform:'',subscriptionIcon:''}
 ])
-const key = ref<string>('')
+// const key = ref<string>('')
 const PreviewUrls = reactive<Map<string,string>>(new Map())
 const fileList = ref<File[]>([])
 // const loginPwd = ref<string>('')
@@ -30,5 +30,5 @@ export const useRegisterStore = defineStore('register', () => {
     { title: '确认个人信息', icon: markRaw(Finished), status: 'wait'},
   ])
 
-  return { steps,key,profile,avatar,subscriptions,PreviewUrls,fileList}
+  return { steps,profile,avatar,subscriptions,PreviewUrls,fileList}
 })

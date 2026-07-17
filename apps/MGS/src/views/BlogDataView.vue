@@ -1,77 +1,55 @@
 <template>
-  <ElTable :data="fileStore.fileList" highlight-current-row @row-click="activeRow">
-    <!-- <ElTableColumn sortable :prop="item" v-for="(item, index) in tableColumns" :key="item" :label="columnMap[item] ?? item" :filters="index==(tableColumns.length-1)?extensionFilters:undefined" :filter-method="index === tableColumns.length - 1 ? handleFilter : undefined">
-
-      <template #default="scope" v-if="index ==0">
-        <ElImage v-if="isImageType(scope.row.fileType)" class="image" :src="fileStore.previewUrl.get(scope.row.uid)">
-          <template #error>加载中...</template>
-</ElImage>
-
-<ElImage src="" v-else class="image" style="font-size: 5vw;">
-  <template #error>
-            <ElIcon><component :is="mgsIconRegistry[markdown]"/></ElIcon>
-          </template>
-</ElImage>
-</template>
-
-<template #default="scope" v-else-if="index==2">
-        <template v-if="scope.row.tags.length > 0 && scope.row.tags != undefined">
-          <ElTag v-for="(tag, tagKey) in scope.row.tags" :key="tagKey" class="gap">{{tag.name}}</ElTag>
+  <ElCol class="dataview">
+    <ElTable :data="fileStore.fileList" highlight-current-row @row-click="activeRow" style="height:100%;">
+      <ElTableColumn :prop="tableColumns[0]" :label="columnMap[tableColumns[0]]">
+        <template #default="scope">
+          <ElImage v-if="isImageType(scope.row.fileType)" class="image" :src="fileStore.previewUrl.get(scope.row.uid)">
+            <template #error>加载中...</template>
+          </ElImage>
+          <ElImage v-else class="image" style="font-size: 5vw;">
+            <template #error>
+              <ElIcon>
+                <component :is="mgsIconRegistry[markdown]" />
+              </ElIcon>
+            </template>
+          </ElImage>
+          <ElCol>{{ scope.row.uid }}</ElCol>
         </template>
-
-<ElTag>
-  <ElIcon>
-    <Plus />
-  </ElIcon>
-</ElTag>
-</template>
-</ElTableColumn> -->
-    <ElTableColumn :prop="tableColumns[0]" :label="columnMap[tableColumns[0]]">
-      <template #default="scope">
-        <ElImage v-if="isImageType(scope.row.fileType)" class="image" :src="fileStore.previewUrl.get(scope.row.uid)">
-          <template #error>加载中...</template>
-        </ElImage>
-        <ElImage v-else class="image" style="font-size: 5vw;">
-          <template #error>
+      </ElTableColumn>
+      <!-- <ElTableColumn :prop="tableColumns[0]" :label="columnMap[tableColumns[0]]" /> -->
+      <ElTableColumn :prop="tableColumns[1]" :label="columnMap[tableColumns[1]]" />
+      <ElTableColumn :prop="tableColumns[2]" :label="columnMap[tableColumns[2]]">
+        <template #default="scope">
+          <template v-if="scope.row.tags.length > 0 && scope.row.tags != undefined">
+            <ElTag v-for="(tag, tagKey) in scope.row.tags" :key="tagKey" class="gap">{{ tag.name }}</ElTag>
+          </template>
+          <ElTag v-else>
             <ElIcon>
-              <component :is="mgsIconRegistry[markdown]" />
+              <Plus />
             </ElIcon>
-          </template>
-        </ElImage>
-        <ElCol>{{ scope.row.uid }}</ElCol>
-      </template>
-    </ElTableColumn>
-    <!-- <ElTableColumn :prop="tableColumns[0]" :label="columnMap[tableColumns[0]]" /> -->
-    <ElTableColumn :prop="tableColumns[1]" :label="columnMap[tableColumns[1]]" />
-    <ElTableColumn :prop="tableColumns[2]" :label="columnMap[tableColumns[2]]">
-      <template #default="scope">
-        <template v-if="scope.row.tags.length > 0 && scope.row.tags != undefined">
-          <ElTag v-for="(tag, tagKey) in scope.row.tags" :key="tagKey" class="gap">{{ tag.name }}</ElTag>
+          </ElTag>
         </template>
-        <ElTag v-else>
-          <ElIcon>
-            <Plus />
-          </ElIcon>
-        </ElTag>
-      </template>
 
-    </ElTableColumn>
-    <ElTableColumn :prop="tableColumns[3]" :label="columnMap[tableColumns[3]]" sortable>
-      <template #default="scope">
-        <ElText v-if="scope.row.fileSize>=1024">{{ (scope.row.fileSize as number /1024).toFixed(3) }} KB</ElText>
-        <ElText v-else-if="scope.row.fileSize<1024">{{ scope.row.fileSize }} B</ElText>
-      </template>
-    </ElTableColumn>
-    <ElTableColumn :prop="tableColumns[4]" :label="columnMap[tableColumns[4]]" />
-    <ElTableColumn :prop="tableColumns[5]" :label="columnMap[tableColumns[5]]" sortable/>
-    <ElTableColumn :prop="tableColumns[6]" :label="columnMap[tableColumns[6]]" :filters="extensionFilters" :filter-method="handleFilter"/>
+      </ElTableColumn>
+      <ElTableColumn :prop="tableColumns[3]" :label="columnMap[tableColumns[3]]" sortable>
+        <template #default="scope">
+          <ElText v-if="scope.row.fileSize >= 1024">{{ (scope.row.fileSize as number / 1024).toFixed(3) }} KB</ElText>
+          <ElText v-else-if="scope.row.fileSize < 1024">{{ scope.row.fileSize }} B</ElText>
+        </template>
+      </ElTableColumn>
+      <ElTableColumn :prop="tableColumns[4]" :label="columnMap[tableColumns[4]]" />
+      <ElTableColumn :prop="tableColumns[5]" :label="columnMap[tableColumns[5]]" sortable />
+      <ElTableColumn :prop="tableColumns[6]" :label="columnMap[tableColumns[6]]" :filters="extensionFilters"
+        :filter-method="handleFilter" />
 
-  </ElTable>
+    </ElTable>
 
-  <FileUpload v-if="actionStore.OState == OperationalState.Add" v-model:file-list="UploadContext.fileList"
-    v-model:tags="UploadContext.tags" />
-    <FileTool v-else-if="actionStore.OState == OperationalState.Update" :initial-tags="activeDto.tags!" v-model:model-value="activeDto" />
+    <FileUpload v-if="actionStore.OState == OperationalState.Add" v-model:file-list="UploadContext.fileList"
+      v-model:tags="UploadContext.tags" />
+    <FileTool v-else-if="actionStore.OState == OperationalState.Update" :initial-tags="activeDto.tags!"
+      v-model:model-value="activeDto" />
     <!-- 防止tag修改渗透,仅允许在update事件成功以后,由update回调至fileDto -->
+  </ElCol>
 </template>
 
 <script setup lang="ts">
@@ -174,5 +152,14 @@ onBeforeUnmount(() => actionStore.resetActions())
 
 .gap {
   margin-right: 10px;
+}
+
+.dataview {
+  height: inherit;
+  overflow-y: scroll;
+}
+
+.dataview::-webkit-scrollbar {
+  display: none;
 }
 </style>

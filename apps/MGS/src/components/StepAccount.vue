@@ -13,7 +13,7 @@
       <ElInput clearable placeholder="请再次输入密码" v-model="tmpPwd" show-password/>
     </ElFormItem>
     <ElFormItem label="系统密钥" required>
-      <ElInput clearable type="textarea" placeholder="请输入用于初始化博客系统的密钥" v-model="registerStore.key"/>
+      <ElInput clearable type="textarea" placeholder="请输入用于初始化博客系统的密钥" v-model="registerStore.profile.serverKey"/>
     </ElFormItem>
     <ElFormItem>
       <ElButton type="primary" @click="next" :icon="ArrowRight"/>
@@ -33,7 +33,7 @@ const tmpPwd = ref<string>('')
 const registerStore = useRegisterStore()
 function next(){
   if(registerStore.profile.pwd != tmpPwd.value){ElMessage.error('两次密码不一致');return}
-  const result = validateAccountProfile(registerStore.profile.name,registerStore.profile.desc,registerStore.key)
+  const result = validateAccountProfile(registerStore.profile.name,registerStore.profile.desc,registerStore.profile.serverKey)
   if(result.ok){
     registerStore.steps[0].status = 'finish'
     ElMessage.success('账户信息验证通过')
