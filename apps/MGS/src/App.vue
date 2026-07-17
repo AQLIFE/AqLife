@@ -23,7 +23,7 @@ const currentComponent = computed(() => {
 onBeforeMount(async () => {
   const response = await request.apiAccountGetRaw()
   if (response.raw.status == 200) {
-    const account =await response.value()
+    const account = await response.value()
     accountStore.systemAccount = account;
   }
 })
@@ -36,16 +36,11 @@ onBeforeMount(async () => {
       <EntrancePanel v-else />
     </ElCol>
     <ElCol :lg="20" :md="24" class="container">
-      <ElCol v-if="!(route.meta.sidebarType == SidebarType.Home)">
-        <component :is="currentComponent" />
-      </ElCol>
-      <ElCol>
-        <RouterView v-slot="{ Component }">
-          <transition>
-            <component :is="Component"/>
-          </transition>
-        </RouterView>
-      </ElCol>
+      <RouterView v-slot="{ Component }">
+        <transition>
+          <component :is="Component" />
+        </transition>
+      </RouterView>
     </ElCol>
   </ElRow>
 </template>
@@ -58,36 +53,7 @@ onBeforeMount(async () => {
 }
 
 .container {
-  display: flex;
+  display: block;
   height: 100vh;
-  flex-direction: column;
-  overflow: hidden;
-  flex-wrap: nowrap;
-  /* 3. 禁止换行，确保高度计算准确 */
-}
-
-.container>.el-col:nth-child(1) {
-  flex: none;
-  /* 1. 禁止伸缩：它只占据内容所需的物理高度 */
-  height: auto;
-  /* 2. 移除任何强制高度，由内容（按钮等）撑开 */
-}
-
-.container>.el-col:nth-child(2) {
-  flex: 1;
-  /* 4. 核心：占据剩余所有垂直空间 */
-  height: 0;
-  /* 5. 技巧：设置高度为0配合flex:1，强制子元素忽略自身内容高度 */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  /* 6. 防止内容溢出容器 */
-}
-
-.flex{
-  display: flex;
-  height:inherit;
-  justify-content: center;
-  align-items: center;
 }
 </style>

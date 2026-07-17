@@ -1,6 +1,6 @@
 <template>
-  <ElUpload ref="uploadRef" :on-exceed="handleExceed"  v-model:file-list="fileList" action="#" :limit="1" :disabled="status" :show-file-list="false" :auto-upload="false" @change="handleChange" :accept="props.accept">
-    <ElImage :lazy="true" :src="src??''" :style="{ width: iconSize, height:iconSize }">
+  <ElUpload ref="uploadRef" :on-exceed="handleExceed"  v-model:file-list="fileList" action="#" :limit="1" :disabled="disabled" :show-file-list="false" :auto-upload="false" @change="handleChange" :accept="props.accept">
+    <ElImage :src="src??''" :style="{ width: iconSize, height:iconSize }">
       <template #error>
         <ElIcon :style="{ fontSize: props.iconSize }">
           <Plus />
@@ -15,7 +15,7 @@ import { Plus } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { ElImage, ElMessage, ElUpload, ElIcon, type UploadFile, type UploadRawFile, genFileId, type UploadInstance } from 'element-plus'
 const props = defineProps({
-  status: {
+  disabled: {
     type: Boolean,
     default: false,
     required:false
