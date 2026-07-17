@@ -31,6 +31,13 @@ namespace MyLife.Application.Validators.BusinessValidator
         => !await storage.Account.AsNoTracking().AnyAsync();
     }
 
+    public class AccountKeyValidator(IOptions<JwtOption> options) : AbstractValidator<CreateAccountCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "系统密钥不匹配";
+        private protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
+        => options.Value.SecretKey == command.serverKey;
+    }
+
 
 
     /// <summary>

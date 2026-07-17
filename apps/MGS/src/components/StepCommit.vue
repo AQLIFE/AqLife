@@ -1,7 +1,7 @@
 <template>
   <ElRow>
     <ElCol :span="8">
-      <ElImage :src="registerStore.PreviewUrls.get(registerStore.avatar!.name)"/>
+      <ElImage :src="registerStore.PreviewUrls.get(registerStore.avatar!.name)" style="height: 8vw;width: 8vw;"/>
     </ElCol>
     <ElCol :span="16">
       <ElCol>{{ registerStore.profile.name }}</ElCol>
@@ -29,8 +29,10 @@ import { ArrowLeft } from '@element-plus/icons-vue';
 import { apiConfiguration } from '@/services/api';
 import { AccountApi, FileApi } from '@/api';
 import { useAccountStore } from '@/stores/useAccountStore';
+import { useRouter } from 'vue-router';
 const registerStore = useRegisterStore()
 const accountStore = useAccountStore()
+const router = useRouter()
 defineEmits(['prev'])
 async function commit(){
   const accountApi = new AccountApi(apiConfiguration)
@@ -45,9 +47,9 @@ async function commit(){
   });
   await accountApi.apiAccountSubscriptionsPut({subscriptionDto:registerStore.subscriptions})
 
-  ElMessage.success('提交成功')
+  ElMessage.success('提交成功,请从控制台获取你的登录账户名,请注意保存,若丢失请自行处理')
   accountStore.systemAccount = await accountApi.apiAccountGet()
-  console.log(accountStore.systemAccount.name)
-
+  console.log('You LoginName:',randomName)
+  router.push('/home')
 }
 </script>

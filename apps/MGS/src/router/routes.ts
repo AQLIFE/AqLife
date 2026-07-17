@@ -10,6 +10,7 @@ import TagView from '@/views/TagView.vue'
 import TodoView from '@/views/TodoView.vue'
 import { SidebarType } from '@/types/sidebarType'
 import RegisterView from '@/views/RegisterView.vue'
+import BlogDataView from '@/views/BlogDataView.vue'
 
 export const routes = [
   {
@@ -79,7 +80,7 @@ export const routes = [
   },
   {
     path: '/blog',
-    component: BlogView,
+    component: BlogDataView,
     meta: {
       navTitle: 'Blog',
       navIcon: Document,

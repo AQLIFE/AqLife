@@ -26,7 +26,8 @@ namespace MyLife.Application.Command
     public record CreateAccountCommand(
         string Name,
         string? Desc,
-        string pwd
+        string pwd,
+        string serverKey
     ) : ICreateCommand<string>, ISimpleAccountInfo
     { }
 
@@ -41,7 +42,7 @@ namespace MyLife.Application.Command
     [Required, StringLength(20, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-20之间")]
     string Name,
     string? Desc
-    ) : IUpdateCommand, IRequireValidEntity<AccountEntity>;
+    ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>;
 
     /// <summary>
     /// 更新账户订阅列表
@@ -51,7 +52,7 @@ namespace MyLife.Application.Command
     public record UpdateAccountSubscriptionsCommand(
         Guid UID,
         IEnumerable<SubscriptionDto> Subscriptions
-    ) : IUpdateCommand, IRequireValidEntity<AccountEntity>
+    ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>
     {
         //public IEnumerable<IFormFile> GetFiles() => Subscriptions.GetIEnumerableFiles();
     }
@@ -64,7 +65,7 @@ namespace MyLife.Application.Command
     public record UpdateAccountAvatarCommand(
         Guid UID,
         [Required(ErrorMessage = "必须上传头像文件")] IFormFile Avatar
-    ) : IUpdateCommand, IHasFormFiles, IRequireValidEntity<AccountEntity>
+    ) : IUpdateCommand<string>, IHasFormFiles, IRequireValidEntity<AccountEntity>
     {
         public IEnumerable<IFormFile> GetFiles() => [Avatar];
     }

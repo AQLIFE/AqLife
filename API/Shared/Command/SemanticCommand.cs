@@ -15,6 +15,7 @@ public interface ICreateCommand<T> : ICommand<T> { }
 /// 优化：取消了接口泛型，将其降级为具体 Command 的属性，保持接口绝对干净
 /// </summary>
 public interface IUpdateCommand : ICommand { }
+public interface IUpdateCommand<T> : ICommand<T> { }
 
 /// <summary> 
 /// 删除命令：写死返回 Unit（无返回值）。

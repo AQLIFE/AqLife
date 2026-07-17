@@ -1,8 +1,6 @@
 <template>
   <ElCol>
     <component :is="stepComponents[currentStep]" @next="handleNext" @prev="handlePrev"/>
-    <!-- <template v-if="registerStore.steps[currentStep]?.status === 'process'">
-    </template> -->
   </ElCol>
 </template>
 

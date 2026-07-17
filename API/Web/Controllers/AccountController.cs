@@ -25,13 +25,13 @@ namespace MyLife.Web.Controllers
 
 
         [HttpPatch("avatar")]//可能需要传递头像ID?
-        public async Task<Guid> UpdateAvatar(IFormFile avatar, CancellationToken ct)
+        public async Task<string> UpdateAvatar(IFormFile avatar, CancellationToken ct)
             => await mediator.Send(new UpdateAccountAvatarCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), avatar), ct);
         [HttpPatch("profile")]
-        public async Task<Guid> UpdateProfile(AccountProfile info, CancellationToken ct)
+        public async Task<string> UpdateProfile(AccountProfile info, CancellationToken ct)
             => await mediator.Send(new UpdateAccountProfileCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"),Name: info.Name,Desc: info.Desc), ct);
         [HttpPut("subscriptions")]// 待定,需要前端验证
-        public async Task<Guid> UpdateSubscriptions(IEnumerable<SubscriptionDto> dtos, CancellationToken ct)
+        public async Task<string> UpdateSubscriptions(IEnumerable<SubscriptionDto> dtos, CancellationToken ct)
             => await mediator.Send(new UpdateAccountSubscriptionsCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), dtos), ct);
 
         [HttpDelete]
