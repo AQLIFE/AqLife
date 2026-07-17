@@ -1,10 +1,10 @@
 <template>
-  <ElCol style="display:flex;align-items: center;">
-    <ElForm class="form">
+  <ElCol class="flex">
+    <ElForm>
       <ElFormItem>
         <ElTooltip content="请上传对应博客头像" style="min-width: 100%; display: block">
           <ImageUpload
-            :status="isActive"
+            :disabled="isActive"
             iconSize="10vw"
             :src="preview()"
             v-model:file="avatarFile"
@@ -79,9 +79,12 @@ async function update() {
 </script>
 
 <style lang="css" scoped>
-.el-col {
+.flex {
   display: flex;
+  flex-direction:column;
   text-align: center;
+  align-items: center;
+  height:inherit;
   justify-content: center;
 }
 .form-item-button :deep(.el-form-item__content) {

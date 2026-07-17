@@ -1,12 +1,12 @@
 <template>
-  <ElCol style="display:flex;flex-direction: column;justify-content: center;">
+  <ElCol class="subscriptionsView">
     subscriptList
-    <ElRow style="align-items: stretch;">
-      <ElCol :span="3" v-for="(item, index) in subscriptDtos" :key="index" class="gap">
+    <ElRow>
+      <ElCol :span="7" v-for="(item, index) in subscriptDtos" :key="index" class="gap">
         <ScriptionCard :serial="index" @delete="remove" :item="item" v-model:file="files[index]" />
       </ElCol>
 
-      <ElCol :span="3">
+      <ElCol :span="7">
         <SubscriptionAddCard @plusClick="add" @uploadClick="update" :data-list="subscriptDtos" />
       </ElCol>
     </ElRow>
@@ -100,20 +100,13 @@ function valid(files: Array<File | null>, subscriptionDtos: SubscriptionDto[]): 
 </script>
 
 <style lang="css" scoped>
-.link {
-  border: 3px solid #dcdfe6;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.link .icon {
-  position: relative;
-  top: 3px;
-  border-radius: 25%;
-}
-.link .content {
-  background-color: #dcdfe6;
-  align-self: center;
+.subscriptionsView {
+  width: inherit;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .gap {
