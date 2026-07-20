@@ -3,13 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 using MyLife.Application.Behaviors;
 using MyLife.Application.Validators;
 using MyLife.Application.Validators.BusinessValidator;
+using MyLife.Domain.Contracts;
+using MyLife.Domain.Entities;
 using MyLife.Service.EntityService;
-using MyLife.Service.Implementations;
+using MyLife.Service.Interfaces;
 using MyLife.Service.MapperService;
 using MyLife.Service.Mappings;
-using MyLife.Service.ServiceInterfaces.IStrategy;
-using MyLife.Service.ServiceInterfaces.IStrategy.Strategy.FileSearch;
-using MyLife.Shared.Contracts;
+using MyLife.Service.Search.File;
 using MyLife.Shared.Tools;
 
 namespace MyLife.Application
@@ -49,12 +49,15 @@ namespace MyLife.Application
 
             // 3. 注册核心业务 Service [cite: 197, 198]
             services.AddScoped<UploadContext>();// UploadContext 提供给 FileService
-            services.AddScoped<ISearchStrategy, FilteredFilesSearchStrategy>();//FilteredFilesSearchStrategy 提供给 FileSearch
-            services.AddScoped<ISearchStrategy, AllFilesSearchStrategy>();
+            services.AddScoped<ISearchStrategy<FileMetaEntity>, FilteredFilesSearchStrategy>();//FilteredFilesSearchStrategy 提供给 FileSearch
+            services.AddScoped<ISearchStrategy<FileMetaEntity>, AllFilesSearchStrategy>();
             services.AddScoped<FileSearch>();
+
+            // 注册具体实现类
             services.AddScoped<FileService>();
             services.AddScoped<TagServices>();
             services.AddScoped<AccountService>();
+            //services.AddScoped<TodoServices>();
 
             // 4. 注册所有 Mapper [cite: 198]
             services.AddSingleton<TodoMapper>();
@@ -68,17 +71,17 @@ namespace MyLife.Application
         }
 
 
-        private static Type? GetGenericBaseType(Type? currentType, Type targetGenericType)
-        {
-            while (currentType != null && currentType != typeof(object))
-            {
-                if (currentType.IsGenericType && currentType.GetGenericTypeDefinition() == targetGenericType)
-                {
-                    return currentType;
-                }
-                currentType = currentType.BaseType;
-            }
-            return null;
-        }
+        //private static Type? GetGenericBaseType(Type? currentType, Type targetGenericType)
+        //{
+        //    while (currentType != null && currentType != typeof(object))
+        //    {
+        //        if (currentType.IsGenericType && currentType.GetGenericTypeDefinition() == targetGenericType)
+        //        {
+        //            return currentType;
+        //        }
+        //        currentType = currentType.BaseType;
+        //    }
+        //    return null;
+        //}
     }
 }

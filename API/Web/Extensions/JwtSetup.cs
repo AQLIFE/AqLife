@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using MyLife.Data.Entities;
+using MyLife.Domain.Entities;
 using MyLife.Service.Features;
-using MyLife.Service.ServiceInterfaces;
+using MyLife.Service.Interfaces;
 using MyLife.Shared.Exceptions;
 using MyLife.Shared.Options;
 using System.Text;

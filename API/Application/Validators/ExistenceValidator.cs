@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyLife.Data.Repository;
-using MyLife.Shared.Command;
-using MyLife.Shared.Contracts;
+using MyLife.Domain.CommandInterface;
+using MyLife.Domain.Contracts;
 
 namespace MyLife.Application.Validators
 {

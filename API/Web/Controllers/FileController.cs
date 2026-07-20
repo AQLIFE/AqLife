@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyLife.Application.Command;
-using MyLife.Shared.DTOs;
+using MyLife.Domain.Command;
+using MyLife.Shared.IView;
 using MyLife.Web.Middlewares;
 
 namespace MyLife.Web.Controllers
@@ -12,7 +12,7 @@ namespace MyLife.Web.Controllers
     public class FileController(IMediator mediator) : ControllerBase
     {
         [HttpGet, AllowAnonymous]
-        public async Task<IEnumerable<FileMetadataDto>> SearchFile([FromQuery] GetFileMetadataQuery query, CancellationToken ct)
+        public async Task<IEnumerable<FileDto>> SearchFile([FromQuery] GetFileMetadataQuery query, CancellationToken ct)
         => await mediator.Send(query, ct);// 已实现
 
         [HttpGet("preview"), AllowAnonymous]

@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MyLife.Data.Entities;
 using MyLife.Data.Repository;
-using MyLife.Service.ServiceInterfaces;
+using MyLife.Domain.Entities;
+using MyLife.Service.Interfaces;
 using MyLife.Shared.Options;
 using MyLife.Shared.Tools;
 using System.IdentityModel.Tokens.Jwt;

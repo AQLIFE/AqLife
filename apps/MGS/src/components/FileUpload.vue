@@ -92,7 +92,7 @@ function remove(index:number){
 
 function close(){
   actionStore.OState = OperationalState.None
-  console.log(actionStore.OState)
+  // console.log(actionStore.OState)
 }
 
 async function commit() {

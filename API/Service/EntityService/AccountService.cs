@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using MyLife.Data.Entities;
 using MyLife.Data.Repository;
+using MyLife.Domain.Command;
+using MyLife.Domain.Entities;
+using MyLife.Service.Interfaces;
 using MyLife.Service.Mappings;
-using MyLife.Shared.Contracts;
-using MyLife.Shared.DTOs;
+using MyLife.Shared;
 using MyLife.Shared.Exceptions;
+using MyLife.Shared.IView;
 using MyLife.Shared.Tools;
 using MyLife.Shared.Utils;
 
@@ -16,10 +18,10 @@ namespace MyLife.Service.EntityService
         SubscriptionMapper subscriptionMapper,
         AppStorage storage,
         FileService fileService
-        )
+        ) 
     {
         [Obsolete("暂不允许提供到Controller")]
-        public async Task<IEnumerable<AccountEntity>> TryReadListAsync()
+        public async Task<IEnumerable<AccountEntity>?> TryReadAllAsync()
             => await storage.Account.Include(e => e.Subscriptions).AsNoTracking().Where(a => a.IsValid).ToListAsync();
 
         public async Task<AccountEntity?> TryReadAsync(Guid? id=null)
@@ -27,46 +29,12 @@ namespace MyLife.Service.EntityService
 
         public async Task<string> TryCreateAccountAsync(string name, string? desc,string pwd, CancellationToken ct)
         {
-            AccountEntity entity = new AccountEntity() { Name = name, Desc = desc ,LoginPasswordHash = FastHash.GetSha256Hash(pwd)};
+            AccountEntity entity = new AccountEntity(name,desc,pwd);
             storage.Account.Add(entity);
             return entity.LoginName;
         }
-        public async Task<Guid> TryCreateAccountAsync(ISimpleAccountInfo dto, IEnumerable<IFormFile> files, CancellationToken ct)
-        {
-            var entity = mapper.ToEntity(dto);
+       
 
-            // 2. 处理关联文件流（利用注入的 fileService） [cite: 197]
-            var fileMetas = await fileService.TryCreateAsync(files, ct);
-
-            // 3. 核心业务规则：分配头像和订阅图标 [cite: 188]
-            if (fileMetas.Any())
-            {
-                entity.Avatar = fileMetas.First();
-                var subscriptionIcons = fileMetas.Skip(1).ToList();
-                var subscriptions = entity.Subscriptions.ToList();
-
-                // 确保数量匹配时进行赋值
-                for (int i = 0; i < Math.Min(subscriptions.Count, subscriptionIcons.Count); i++)
-                {
-                    subscriptions[i].SubscriptionIcon = subscriptionIcons[i];
-                }
-            }
-
-            // 4. 持久化
-            await storage.Account.AddAsync(entity, ct);
-            //await storage.SaveChangesAsync(ct);
-
-            return entity.UID;
-        }
-
-        /// <summary>
-        /// 负责更新基础信息
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <param name="name"></param>
-        /// <param name="desc"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
         public async Task<string> TryUpdateAsync(Guid guid, string name, string? desc, CancellationToken ct)
         {
             var entity = await TryReadAsync(guid);
@@ -120,7 +88,7 @@ namespace MyLife.Service.EntityService
             throw new RequestTransactionFailedException("账户不存在");
         }
 
-        public async Task<string> TryUpdateAsync(Guid guid, IEnumerable<SubscriptionDto> dtos, CancellationToken ct)
+        public async Task<string> TryUpdateAsync(Guid guid, IEnumerable<CreateSubscriptionCommand> dtos, CancellationToken ct)
         {
             var account = await TryReadAsync(guid);
             if (account is AccountEntity entity)

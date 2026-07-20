@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MyLife.Data.Entities;
 using MyLife.Data.Repository;
-using MyLife.Service.Implementations;
+using MyLife.Domain.Entities;
 using MyLife.Service.MapperService;
-using MyLife.Shared.DTOs;
+using MyLife.Service.Search.File;
 using MyLife.Shared.Exceptions;
+using MyLife.Shared.IView;
 using MyLife.Shared.Options;
 using MyLife.Shared.Tools;
 

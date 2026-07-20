@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using MyLife.Application.Command;
-using MyLife.Data.Entities;
+using MyLife.Domain.Entities;
 using MyLife.Service.EntityService;
 using MyLife.Service.Mappings;
-using MyLife.Shared.DTOs;
+using MyLife.Domain.Command;
+using MyLife.Shared.IView;
 
 namespace MyLife.Application.Handlers.Account
 {

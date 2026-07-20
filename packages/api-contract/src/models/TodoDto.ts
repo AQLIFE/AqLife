@@ -24,6 +24,12 @@ export interface TodoDto {
      * @type {string}
      * @memberof TodoDto
      */
+    uid?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TodoDto
+     */
     ftid?: string | null;
     /**
      * 
@@ -55,6 +61,12 @@ export interface TodoDto {
      * @memberof TodoDto
      */
     priority?: number;
+    /**
+     * 
+     * @type {Array<TodoDto>}
+     * @memberof TodoDto
+     */
+    todoList?: Array<TodoDto> | null;
 }
 
 /**
@@ -74,12 +86,14 @@ export function TodoDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): T
     }
     return {
         
+        'uid': json['uid'] == null ? undefined : json['uid'],
         'ftid': json['ftid'] == null ? undefined : json['ftid'],
         'desc': json['desc'] == null ? undefined : json['desc'],
         'status': json['status'] == null ? undefined : json['status'],
         'createdAt': json['createdAt'] == null ? undefined : json['createdAt'],
         'completedAt': json['completedAt'] == null ? undefined : json['completedAt'],
         'priority': json['priority'] == null ? undefined : json['priority'],
+        'todoList': json['todoList'] == null ? undefined : ((json['todoList'] as Array<any>).map(TodoDtoFromJSON)),
     };
 }
 
@@ -94,12 +108,14 @@ export function TodoDtoToJSONTyped(value?: TodoDto | null, ignoreDiscriminator: 
 
     return {
         
+        'uid': value['uid'],
         'ftid': value['ftid'],
         'desc': value['desc'],
         'status': value['status'],
         'createdAt': value['createdAt'],
         'completedAt': value['completedAt'],
         'priority': value['priority'],
+        'todoList': value['todoList'] == null ? undefined : ((value['todoList'] as Array<any>).map(TodoDtoToJSON)),
     };
 }
 

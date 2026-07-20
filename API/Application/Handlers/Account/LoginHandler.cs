@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using MyLife.Application.Command;
-using MyLife.Data.Entities;
 using MyLife.Shared.Exceptions;
+using MyLife.Service.Interfaces;
+using MyLife.Domain.Entities;
+using MyLife.Domain.Command;
 using MyLife.Service.EntityService;
-using MyLife.Service.ServiceInterfaces;
 
 namespace MyLife.Application.Handlers.Account
 {

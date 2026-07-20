@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using MyLife.Application.Command;
+using MyLife.Domain.Command;
 using MyLife.Service.EntityService;
 
 namespace MyLife.Application.Handlers.Account

@@ -1,6 +1,6 @@
 ﻿namespace MyLife.Service
 {
-    internal class Service
+    public class Service
     {
     }
 }

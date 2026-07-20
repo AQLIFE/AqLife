@@ -68,7 +68,7 @@ function addSubscription(){
 function handleFileChange(file: UploadFile) {
   if (file.raw) {
     registerStore.PreviewUrls.set(file.raw.name, URL.createObjectURL(file.raw))
-    console.log('Avatar file changed:', file.name, 'Preview URL:', registerStore.PreviewUrls.get(file.name))
+    // console.log('Avatar file changed:', file.name, 'Preview URL:', registerStore.PreviewUrls.get(file.name))
   }
 }
 

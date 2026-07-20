@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MyLife.Application.Command;
 using MyLife.Data.Repository;
+using MyLife.Domain.Command;
 using MyLife.Shared.Options;
 using MyLife.Shared.Utils;
 using System.Runtime.Intrinsics.Arm;
