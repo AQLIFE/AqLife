@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyLife.Data.Entities;
 using MyLife.Data.Repository;
+using MyLife.Domain.Entities;
 
 namespace MyLife.Web.Controllers
 {

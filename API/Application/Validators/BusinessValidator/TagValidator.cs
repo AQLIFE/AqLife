@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Command;
 using MyLife.Data.Repository;
+using MyLife.Domain.Command;
 
 namespace MyLife.Application.Validators.BusinessValidator
 {
@@ -15,6 +15,6 @@ namespace MyLife.Application.Validators.BusinessValidator
     {
         private protected override string ErrorMessage { init; get; } = "重复的 Tag 名称";
         private protected override async Task<bool> IsValidAsync(CreateTagCommand command, CancellationToken ct)
-            => !await storage.Tags.AnyAsync(e => e.Name == command.TagName);
+            => !await storage.Tags.AnyAsync(e => e.Name == command.Name);
     }
 }

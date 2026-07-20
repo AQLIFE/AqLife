@@ -6,12 +6,14 @@
 
 Name | Type
 ------------ | -------------
+`uid` | string
 `ftid` | string
 `desc` | string
 `status` | string
 `createdAt` | string
 `completedAt` | string
 `priority` | number
+`todoList` | [Array&lt;TodoDto&gt;](TodoDto.md)
 
 ## Example
 
@@ -20,12 +22,14 @@ import type { TodoDto } from '@aqlife/api-contract'
 
 // TODO: Update the object below with actual values
 const example = {
+  "uid": null,
   "ftid": null,
   "desc": null,
   "status": null,
   "createdAt": null,
   "completedAt": null,
   "priority": null,
+  "todoList": null,
 } satisfies TodoDto
 
 console.log(example)

@@ -1,7 +1,8 @@
 <Solution>
-  <Project Path="Application/Application.csproj" Id="76b01ac3-25c8-4585-b864-cb3b2ce96471" />
-  <Project Path="Data/Data.csproj" />
-  <Project Path="Service/Service.csproj" />
-  <Project Path="Shared/Shared.csproj" />
-  <Project Path="Web/Web.csproj" />
+  <Project Path="F:/Code/Mylife/AqLife/API/Application/Application.csproj" Id="76b01ac3-25c8-4585-b864-cb3b2ce96471" />
+  <Project Path="F:/Code/Mylife/AqLife/API/Data/Data.csproj" />
+  <Project Path="F:/Code/Mylife/AqLife/API/Domain/Domain.csproj" Id="0147bd7e-c00d-4e94-8b05-d01b5e77c93a" />
+  <Project Path="F:/Code/Mylife/AqLife/API/Service/Service.csproj" />
+  <Project Path="F:/Code/Mylife/AqLife/API/Shared/Shared.csproj" />
+  <Project Path="F:/Code/Mylife/AqLife/API/Web/Web.csproj" />
 </Solution>

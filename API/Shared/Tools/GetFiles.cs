@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using MyLife.Shared.DTOs;
+using MyLife.Shared.IView;
 
 namespace MyLife.Shared.Tools
 {

@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyLife.Data.Entities;
 using MyLife.Data.Repository;
+using MyLife.Domain.Command;
+using MyLife.Domain.Entities;
 using MyLife.Service.Mappings;
-using MyLife.Shared.DTOs;
 using MyLife.Shared.Exceptions;
+using MyLife.Shared.IView;
 
 namespace MyLife.Web.Controllers
 {
@@ -15,16 +16,16 @@ namespace MyLife.Web.Controllers
     {
         [HttpGet, AllowAnonymous]
         public async Task<List<TodoDto>> GetAll()
-            => await storage.Todo.Select(e => mapper.ToDto(e)).ToListAsync();
+            => await storage.Todo.Include(e=>e.TodoList).Select(e => mapper.ToDto(e)).ToListAsync();
 
         [HttpGet("{id:guid}"), AllowAnonymous]
-        public async Task<TodoDto?> GetById(Guid id)
+        public async Task<TodoDto?> GetById([FromQuery]Guid id)
             => await storage.Todo.Where(e => e.UID == id).Select(e => mapper.ToDto(e)).FirstOrDefaultAsync();
 
         [HttpPost]
-        public async Task<string> Create(TodoForAdd todo)
+        public async Task<string> Create(CreateTodoCommand command)
         {
-            var entity = mapper.Assembly(todo);
+            var entity = mapper.ToEntity(command);
 
             if (entity.FTID != null && storage.Todo.Any(e => e.UID == entity.FTID) || entity.FTID is null)
             {
@@ -42,6 +43,8 @@ namespace MyLife.Web.Controllers
             if (todo is TodoEntity entity)
             {
                 //entity.Status = TodoMapper.ConvertStatus(status);
+                entity.Status = mapper.Convert(status);
+                if(entity.Status == TodoStatus.Completed)entity.CompletedAt = DateTime.Now;
                 storage.Todo.Update(entity);
                 await storage.SaveChangesAsync();
                 return entity.Status.ToString();

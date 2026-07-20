@@ -62,7 +62,7 @@ function preview ():string {
 const avatarFile: Ref<File | null> = ref<File | null>(null)
 async function update() {
   const accountApi = new AccountApi(apiConfiguration)
-  console.log(avatarFile.value == null, accountStore.systemAccount)
+  // console.log(avatarFile.value == null, accountStore.systemAccount)
   if (avatarFile.value) await accountApi.apiAccountAvatarPatch({ avatar: avatarFile.value as File })
 
   const SimpleAccountInfo: AccountProfile = {

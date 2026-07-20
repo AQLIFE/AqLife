@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Data.Entities;
 using MyLife.Data.Repository;
+using MyLife.Domain.Entities;
 
 namespace MyLife.Service.EntityService
 {

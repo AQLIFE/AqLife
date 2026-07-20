@@ -26,14 +26,6 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   const accountStore = useAccountStore()
-
-  // 确保状态已加载
-  // if (accountStore.systemAccount === null) {
-  //   const request = new AccountApi(apiConfiguration)
-  //   const account = await request.apiAccountGet()
-  //   accountStore.systemAccount = account;
-  // }
-
    // 2. 定义匿名访问白名单
   const publicPaths = ['/home', '/login', '/register']
   // 错误页匹配：检查是否为通配符错误页
@@ -46,22 +38,20 @@ router.beforeEach(async (to, from) => {
     ElMessage.warning('请登录')
     return '/home'
   }
-
+  // C. 体验优化：已登录状态下访问登录页，直接去首页
+  if (to.path === '/login' && accountStore.bearerToken) {
+    ElMessage.success('登录成功,正在载入后台控制面板')
+    return '/home'
+  }
   if (to.path == '/login' && !accountStore.systemAccount) {
     ElMessage.warning('系统等待初始化,请注册')
-    return '/register'
+    return '/home'
   }
 
   // B. 业务逻辑补充：系统已初始化时，禁止进入注册页 (单账户系统逻辑)
   if (to.path === '/register' && accountStore.systemAccount) {
     ElMessage.warning('已有账户,拒绝注册,请登录!')
     return '/login'
-  }
-
-  // C. 体验优化：已登录状态下访问登录页，直接去首页
-  if (to.path === '/login' && accountStore.bearerToken) {
-    ElMessage.success('登录成功,正在载入后台控制面板')
-    return '/home'
   }
 })
 

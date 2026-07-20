@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyLife.Application.Command;
-using MyLife.Shared.DTOs;
+using MyLife.Domain.Command;
+using MyLife.Shared.IView;
 
 namespace MyLife.Web.Controllers
 {

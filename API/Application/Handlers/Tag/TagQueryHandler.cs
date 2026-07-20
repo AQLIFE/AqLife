@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using MyLife.Application.Command;
+using MyLife.Domain.Command;
 using MyLife.Service.EntityService;
 using MyLife.Service.MapperService;
-using MyLife.Shared.DTOs;
+using MyLife.Shared.IView;
 
 namespace MyLife.Application.Handlers.Tag
 {

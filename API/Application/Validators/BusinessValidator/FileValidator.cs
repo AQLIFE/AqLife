@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MyLife.Application.Command;
 using MyLife.Data.Repository;
-using MyLife.Shared.Command;
+using MyLife.Domain.CommandInterface;
 using MyLife.Shared.Options;
 using MyLife.Shared.Tools;
 

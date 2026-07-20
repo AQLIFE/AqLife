@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.StaticFiles;
 using MyLife.Application;
-using MyLife.Application.Command;
 using MyLife.Data;
-using MyLife.Data.Entities;
+using MyLife.Domain.Entities;
 using MyLife.Service.Features;
-using MyLife.Service.ServiceInterfaces;
-using MyLife.Shared.Contracts;
+using MyLife.Service.Interfaces;
 using MyLife.Web.Extensions;
 using MyLife.Web.Middlewares;
 

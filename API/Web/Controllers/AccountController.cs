@@ -1,9 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyLife.Application.Command;
-using MyLife.Shared.Contracts;
-using MyLife.Shared.DTOs;
+using MyLife.Domain.Command;
+using MyLife.Shared.IView;
 using MyLife.Shared.Tools;
 
 namespace MyLife.Web.Controllers
@@ -31,7 +30,7 @@ namespace MyLife.Web.Controllers
         public async Task<string> UpdateProfile(AccountProfile info, CancellationToken ct)
             => await mediator.Send(new UpdateAccountProfileCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"),Name: info.Name,Desc: info.Desc), ct);
         [HttpPut("subscriptions")]// 待定,需要前端验证
-        public async Task<string> UpdateSubscriptions(IEnumerable<SubscriptionDto> dtos, CancellationToken ct)
+        public async Task<string> UpdateSubscriptions(IEnumerable<CreateSubscriptionCommand> dtos, CancellationToken ct)
             => await mediator.Send(new UpdateAccountSubscriptionsCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), dtos), ct);
 
         [HttpDelete]

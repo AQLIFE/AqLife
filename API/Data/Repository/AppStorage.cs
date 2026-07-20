@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Data.Entities;
+using MyLife.Domain.Entities;
 
 namespace MyLife.Data.Repository
 {

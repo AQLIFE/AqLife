@@ -1,4 +1,4 @@
-﻿using MyLife.Shared.Contracts;
+﻿using MyLife.Domain.Contracts;
 using MyLife.Shared.Exceptions;
 
 namespace MyLife.Application.Validators;
