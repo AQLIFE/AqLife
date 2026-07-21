@@ -13,8 +13,6 @@ namespace MyLife.Service.Search.Account
     {
         public async Task<IEnumerable<AccountEntity>> ExecuteAsync(IQueryable<AccountEntity> queryable, Guid? UID = null)
         =>await queryable.Where(e => e.IsValid).ToListAsync();
-        
-
         public bool IsMatch(Guid? UID = null) => UID == null;
     }
 }

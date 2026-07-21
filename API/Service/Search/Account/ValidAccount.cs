@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyLife.Data.Repository;
 using MyLife.Domain.Entities;
 using MyLife.Service.Interfaces;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MyLife.Service.Search.Account
 {
-    public class ValidAccount : IAccountSearchStrategy
+    public class ValidAccount: IAccountSearchStrategy
     {
         public bool IsMatch(Guid? UID) => UID is Guid;
         public async Task<IEnumerable<AccountEntity>> ExecuteAsync(

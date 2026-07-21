@@ -2,48 +2,42 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MyLife.Data.Repository;
+using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
 using MyLife.Service.Interfaces;
+using MyLife.Service.Mapper;
+using MyLife.Service.Search.Base;
+using MyLife.Service.Search.Todo;
+using MyLife.Shared.IView;
 using MyLife.Shared.Options;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MyLife.Service.Search.File;
 
-public class FileSearch(AppStorage storage, IHttpContextAccessor httpContext, IOptions<FilePolicyOption> options, IEnumerable<ISearchStrategy<FileMetaEntity>> searchStrategies)
+public enum FileAccessMode
+{
+    Standard, // 默认模式：应用 AllowedDownload 扩展名过滤 [cite: 34]
+    Preview,  // 预览模式：绕过扩展名检查，应用订阅/头像权限检查 [cite: 11]
+    Internal  // 内部模式：全量数据，用于后台管理
+}
+public readonly record struct FileSearchCriteria(
+    Guid? UID,
+    string? Keyword,
+    FileAccessMode Mode = FileAccessMode.Standard // 默认为标准模式
+): ISearchCriteria;
+
+public class FileSearch(
+    FileSecurityAspect fileSecurity,
+    AppStorage storage, IHttpContextAccessor httpContext,
+    IEnumerable<ISearchStrategy<FileMetaEntity,FileSearchCriteria>> searchStrategies)
+    :BaseSearch<FileQuery, FileMetaEntity, FileDto,FileSearchCriteria>(storage, searchStrategies)
 {
     private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
-    public async Task<IEnumerable<FileMetaEntity>> SearchAsync(CancellationToken ct, Guid? UID = null, string? Title = null, bool isPrivate = false)
+    protected override FileSearchCriteria MapToCriteria(FileQuery query)
+        => new FileSearchCriteria(query.UID, query.Title, FileAccessMode.Preview);
+    protected override async Task<IQueryable<FileMetaEntity>> BuildBaseQueryAsync(IQueryable<FileMetaEntity> queryable, FileQuery query)
     {
-        // 1. 寻找匹配的组策略
-        var strategy = searchStrategies.FirstOrDefault(s => s.IsMatch(UID, Title));
-        if (strategy == null) return [];
-
-        // 2. 统一收拢数据源的安全切面权限过滤（无跟踪查询）
-        IQueryable<FileMetaEntity> queryable = storage.File.Include(e => e.FileTags)?.ThenInclude(x => x.Tag);
-
-        
-        // 矛盾点: 
-        // 1. 
-
-        if (isPrivate && !IsValid)
-        {
-            var author = await storage.Account.Include(e => e.Subscriptions).SingleOrDefaultAsync(e => e.IsValid);
-            if (author is AccountEntity account)
-            {
-                var validGuid = account.Subscriptions.Select(e => e.SubscriptionIcon).ToList();
-                validGuid.Add(account.Avatar);// 有效返回
-
-                if (validGuid != null)
-                    queryable = queryable.Where(e => validGuid.Contains(e.UID) || options.Value.AllowedDownload.Contains(e.Extension));
-            }
-        }
-        else if (!IsValid)
-        {
-            // 策略判定：只有已登录（IsValid），才能看全量，否则只看 AllowedDownload 和 用户信息 存在关联的文件
-            queryable = queryable.Where(e => options.Value.AllowedDownload.Contains(e.Extension));
-        }
-
-        // 3. 将过滤后的安全数据源与 Query 交给策略类执行最终编译查询
-        return await strategy.ExecuteAsync(queryable, UID, Title);
+        queryable = queryable.Include(e => e.FileTags).ThenInclude(x => x.Tag);
+        return await fileSecurity.ApplyAccessPolicy(queryable, FileAccessMode.Preview, IsValid);
     }
-
 }

@@ -7,9 +7,14 @@ using MyLife.Domain.Contracts;
 using MyLife.Domain.Entities;
 using MyLife.Service.EntityService;
 using MyLife.Service.Interfaces;
+using MyLife.Service.Mapper;
 using MyLife.Service.MapperService;
 using MyLife.Service.Mappings;
+using MyLife.Service.Search.Account;
+using MyLife.Service.Search.Base;
 using MyLife.Service.Search.File;
+using MyLife.Service.Search.Tag;
+using MyLife.Service.Search.Todo;
 using MyLife.Shared.Tools;
 
 namespace MyLife.Application
@@ -32,8 +37,8 @@ namespace MyLife.Application
             var validatorTypes = implementationAssembly.GetTypes()
                 .Where(t => !t.IsAbstract && !t.IsInterface && !t.IsGenericTypeDefinition && t.GetInterfaces().Any(i => i.IsGenericType
                 && i.GetGenericTypeDefinition() == typeof(IValidator<>)));
-            services.AddScoped(typeof(IValidator<>), typeof(ExistenceValidator<>));
             // 泛型验证器需要手动注册，因为它们是 open generic types，不能通过扫描程序集自动注册
+            services.AddScoped(typeof(IValidator<>), typeof(ExistenceValidator<>)); // 业务ID的统一检查
             services.AddScoped(typeof(IValidator<>), typeof(FileTypeValidator<>));
             services.AddScoped(typeof(IValidator<>), typeof(FileSizeValidator<>));
             services.AddScoped(typeof(IValidator<>), typeof(FileDuplicateValidator<>));
@@ -41,19 +46,28 @@ namespace MyLife.Application
             {
                 foreach (var item in type.GetInterfaces())
                 {
-                    // 💡 这种循环注册方式支持同一个接口有多个实现
-                    // 这样你的 ValidationBehavior 就可以通过 IEnumerable<IValidator<T>> 获取到所有的验证规则
-                    services.AddScoped(item, type);
+                    // 💡 这种循环注册方式支持同一个接口有多个实现                    
+                    services.AddScoped(item, type);// 这样 ValidationBehavior 就可以通过 IEnumerable<IValidator<T>> 获取到所有的验证规则
                 }
             }
 
             // 3. 注册核心业务 Service [cite: 197, 198]
-            services.AddScoped<UploadContext>();// UploadContext 提供给 FileService
-            services.AddScoped<ISearchStrategy<FileMetaEntity>, FilteredFilesSearchStrategy>();//FilteredFilesSearchStrategy 提供给 FileSearch
-            services.AddScoped<ISearchStrategy<FileMetaEntity>, AllFilesSearchStrategy>();
-            services.AddScoped<FileSearch>();
+            services.AddScoped(typeof(ISearchStrategy<,>), typeof(AllSearchStrategyBase<,>));// 被继承
+            //services.AddScoped(typeof(ISearchStrategy<,>), typeof(FilteredSearchStrategyBase<,>));// 被继承
 
-            // 注册具体实现类
+            services.AddScoped<FileSecurityAspect>();// FileSearch 依赖
+            services.AddScoped<UploadContext>();// UploadContext 提供给 FileService
+            services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, FilteredFilesSearchStrategy>();// FileSearch 专属策略
+            services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();// Tag的策略
+            services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, FilterTodoSearchStrategy>();// Tag的策略
+
+            // 注册所有 Query 业务类
+            services.AddScoped<AccountSearch>();
+            services.AddScoped<FileSearch>();
+            services.AddScoped<TagSearch>();
+            services.AddScoped<TodoSearch>();
+
+            // 注册具体Command 实际业务类
             services.AddScoped<FileService>();
             services.AddScoped<TagServices>();
             services.AddScoped<AccountService>();
@@ -65,6 +79,7 @@ namespace MyLife.Application
             services.AddSingleton<FileMapper>();
             services.AddSingleton<SubscriptionMapper>();
             services.AddSingleton<AccountMapper>();
+            services.AddSingleton<QueryMapper>();
 
 
             return services;

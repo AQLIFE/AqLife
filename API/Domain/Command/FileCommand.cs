@@ -5,7 +5,7 @@ using MyLife.Shared.IView;
 
 namespace MyLife.Domain.Command
 {
-    public record GetFileMetadataQuery(Guid? UID = null, string? Title = null) : IQuery<IEnumerable<FileDto>>;
+    public record FileQuery(Guid? UID = null, string? Title = null) : IQuery<IEnumerable<FileDto>>;
     public record DownloadFileQuery(Guid UID) : IRequireValidEntity<FileMetaEntity>, IQuery<FileDownloadModel>;
     public record PreviewFileQuery(Guid UID) : IRequireValidEntity<FileMetaEntity>, IQuery<FilePreviewModel>;
     public record DeleteFileCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IDeleteCommand;
