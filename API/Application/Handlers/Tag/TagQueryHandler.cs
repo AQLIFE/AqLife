@@ -11,7 +11,7 @@ namespace MyLife.Application.Handlers.Tag
         public async Task<IEnumerable<TagDto>?> Handle(TagQuery query, CancellationToken ct)
         {
             var entites = await services.Search(ct, query.UID, query.Tag);
-            return entites != null ? entites.Select(e => tagMapper.ToDto(e!)) : null;
+            return entites?.Select(e => tagMapper.ToDto(e!)) ?? [];
         }
     }
 }

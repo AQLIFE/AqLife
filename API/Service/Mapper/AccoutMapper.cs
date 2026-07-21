@@ -19,13 +19,6 @@ namespace MyLife.Service.Mappings
         [MapperIgnoreTarget(nameof(SubscriptionEntity.AID))]
         [MapperIgnoreTarget(nameof(SubscriptionEntity.Account))]
         public partial SubscriptionEntity ToEntity(CreateSubscriptionCommand source);
-
-        ////[MapperIgnoreSource(nameof(SubscriptionDto.SID))]
-        //[MapperIgnoreTarget(nameof(SubscriptionEntity.AID))]
-        //[MapperIgnoreTarget(nameof(SubscriptionEntity.Account))]
-        //[MapperIgnoreTarget(nameof(SubscriptionEntity.UID))]
-        //public partial void UpdateEntity(SubscriptionDto dto, SubscriptionEntity entity);
-
     }
 
     [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)] // 添加这一行

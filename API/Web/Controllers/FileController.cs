@@ -12,7 +12,7 @@ namespace MyLife.Web.Controllers
     public class FileController(IMediator mediator) : ControllerBase
     {
         [HttpGet, AllowAnonymous]
-        public async Task<IEnumerable<FileDto>> SearchFile([FromQuery] GetFileMetadataQuery query, CancellationToken ct)
+        public async Task<IEnumerable<FileDto>> SearchFile([FromQuery] FileQuery query, CancellationToken ct)
         => await mediator.Send(query, ct);// 已实现
 
         [HttpGet("preview"), AllowAnonymous]

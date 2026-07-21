@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MyLife.Data.Repository;
+using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
 using MyLife.Service.MapperService;
 using MyLife.Service.Search.File;
@@ -21,14 +22,6 @@ namespace MyLife.Service.EntityService
         UploadContext upContext,
         FileExtensionContentTypeProvider extProvider)//使用框架内置服务
     {
-        // 在 全返回中不显示非md文件信息
-        public async Task<IEnumerable<FileMetaEntity>?> TryReadAsync(CancellationToken ct, Guid? UID = null, string? Title = null)
-            =>await fileSearch.SearchAsync(ct,UID, Title);
-            
-        
-        //[Obsolete("TryReadAsync 已具有更好实现")]
-        //public async Task<IEnumerable<FileMetaEntity?>> TryReadListAsync() => await fileSearch.SearchAsync();
-
         /// <summary>
         /// 预览&下载 API 服务方法 : 生成文件流,提供给 Controller 层直接返回给客户端, 解耦 IO 逻辑和 Web 层的细节
         /// </summary>
@@ -39,7 +32,7 @@ namespace MyLife.Service.EntityService
         /// <exception cref="FileNotFoundException"></exception>
         public async Task<FileDownloadModel> GetFileInternalAsync(Guid id, CancellationToken ct)
         {
-            var fileInfo = await fileSearch.SearchAsync(ct,UID:id,isPrivate:true) is IEnumerable<FileMetaEntity> files && files.Any() ? files.First() : throw new RequestTransactionFailedException("不存在文件记录");
+            var fileInfo = await fileSearch.SearchAsync(query:new FileQuery(UID:id),ct) is IEnumerable<FileMetaEntity> files && files.Any() ? files.First() : throw new RequestTransactionFailedException("不存在文件记录");
 
             #region 允许下载后检查文件是否存在
             var fullPath = Path.Combine(policy.Value.StoragePath, fileInfo!.UID + fileInfo.Extension);
@@ -112,8 +105,8 @@ namespace MyLife.Service.EntityService
 
         public async Task<Guid> TryUpdateAsync(Guid guid, IFormFile file, CancellationToken ct)
         {
-            var entity = await fileSearch.SearchAsync(ct,guid);//此时必定鉴权通过
-            if (entity?.First() is FileMetaEntity fileMeta)
+            FileMetaEntity? entity = await storage.File.FindAsync(guid,ct);//此时必定鉴权通过
+            if (entity is FileMetaEntity fileMeta)
             {
                 fileMeta.FileHash = upContext.FileHashes.FirstOrDefault(e => e.Key == file).Value;
                 var targetPath = Path.Combine(policy.Value.StoragePath, fileMeta.UID + fileMeta.Extension);
@@ -126,8 +119,8 @@ namespace MyLife.Service.EntityService
 
         public async Task<Guid> TryUpdateAsync(Guid guid, IEnumerable<Guid> tags, CancellationToken ct)
         {
-            var entity = await fileSearch.SearchAsync(ct, guid);// 此时必定鉴权通过
-            if (entity?.First() is FileMetaEntity fileMeta )
+            FileMetaEntity? entity = await storage.File.FindAsync(guid, ct);//此时必定鉴权通过
+            if (entity is FileMetaEntity fileMeta )
             {
                 var tagEntites = await storage.Tags.Where(e => tags.Contains(e.UID)).ToListAsync();
                 fileMeta.FileTags?.Clear();

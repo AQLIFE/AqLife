@@ -3,15 +3,21 @@ using MyLife.Domain.Entities;
 
 namespace MyLife.Service.Interfaces
 {
-    public interface ISearchStrategy<TEntity> where TEntity : IEntity
+    public interface ISearchCriteria
+    {
+        Guid? UID { get; init; }
+        string? Keyword { get; init; }
+    }
+    public readonly record struct EntitySearchCriteria(Guid? UID, string? Keyword): ISearchCriteria;
+
+    public interface ISearchStrategy<TEntity, TSearchCriteria> where TEntity : IEntity where TSearchCriteria:ISearchCriteria
     {
         // 判断当前 Query 是否匹配该策略
-        bool IsMatch(Guid? UID = null, string? Title = null);
-
-        // 执行数据库查询
+        bool IsMatch(TSearchCriteria criteria);
         Task<IEnumerable<TEntity>> ExecuteAsync(
             IQueryable<TEntity> queryable,
-            Guid? UID = null, string? Title = null);
+            TSearchCriteria criteria,
+            CancellationToken ct = default);
     }
 
     public interface IAccountSearchStrategy
