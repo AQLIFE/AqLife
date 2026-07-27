@@ -1,12 +1,22 @@
 ﻿using MediatR;
+
+using MyLife.Application.Abstractions.Persistence;
+using Microsoft.EntityFrameworkCore;
+using MyLife.Application.Abstractions.FileStorage;
 using MyLife.Domain.Command;
-using MyLife.Service.EntityService;
+using MyLife.Domain.Entities;
+using MyLife.Shared.Tools;
 
 namespace MyLife.Application.Business.File.Handler
 {
-    public class UpdateFileHandler(FileService service) : IRequestHandler<UpdateFileCommand, Guid>
+    public class UpdateFileHandler(IApplicationDbContext appStorage,IFileStorage fileStorage,UploadContext uploadContext) : IRequestHandler<UpdateFileCommand, Guid>
     {
         public async Task<Guid> Handle(UpdateFileCommand command, CancellationToken ct)
-            => await service.TryUpdateAsync(command.UID, command.File, ct);
+        {
+            FileMetaEntity entity = await appStorage.File.FindAsync(command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法更新");
+            entity.FileHash = uploadContext.FileHashes.FirstOrDefault(e => e.Key == command.File).Value;
+            await fileStorage.SaveAsync(command.File.OpenReadStream(), command.File.FileName, ct);
+            return command.UID;
+        }
     }
 }

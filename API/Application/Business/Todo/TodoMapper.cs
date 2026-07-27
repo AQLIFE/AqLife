@@ -4,7 +4,7 @@ using MyLife.Domain.Entities;
 using MyLife.Shared.IView;
 using Riok.Mapperly.Abstractions;
 
-namespace MyLife.Application.Mapper
+namespace MyLife.Application.Business.Todo
 {
     [Mapper]
     public partial class TodoMapper : IViewMapper<TodoEntity, TodoDto>, ICreateMapper<TodoEntity, CreateTodoCommand>

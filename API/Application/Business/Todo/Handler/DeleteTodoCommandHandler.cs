@@ -1,12 +1,11 @@
 ﻿using MediatR;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
 using MyLife.Shared.Exceptions;
-
+using MyLife.Application.Abstractions.Persistence;
 namespace MyLife.Application.Business.Todo.Handler
 {
-    public class DeleteTodoCommandHandler(AppStorage storage) : IRequestHandler<DeleteTodoCommand, Unit>
+    public class DeleteTodoCommandHandler(IApplicationDbContext storage) : IRequestHandler<DeleteTodoCommand, Unit>
     {
         public async Task<Unit> Handle(DeleteTodoCommand command, CancellationToken ct)
         {

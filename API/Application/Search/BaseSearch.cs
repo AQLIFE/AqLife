@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyLife.Application.Abstractions.Persistence;
 using MyLife.Application.Abstractions.Search;
 using MyLife.Domain.CommandInterface;
 using MyLife.Domain.Contracts;
-using MyLife.Infrastructure.Persistence;
 
 namespace MyLife.Application.Search
 {
@@ -15,7 +15,7 @@ namespace MyLife.Application.Search
     /// <param name="storage"></param>
     /// <param name="searchStrategies"></param>
     public abstract class BaseSearch<TQuery, TEntity, TEntityDto, TSearchCriteria>(
-    AppStorage storage,
+    IApplicationDbContext storage,
     IEnumerable<ISearchStrategy<TEntity, TSearchCriteria>> searchStrategies
 ) : ISearch<TQuery, TEntity, TEntityDto>
     where TQuery : IQuery<IEnumerable<TEntityDto>>

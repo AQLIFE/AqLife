@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
 using MyLife.Application.Abstractions.FileStorage;
+using MyLife.Application.Business.File.Search;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
 using MyLife.Shared.Exceptions;

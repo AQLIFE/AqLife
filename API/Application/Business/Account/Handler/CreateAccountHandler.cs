@@ -1,17 +1,16 @@
 ﻿using MediatR;
-using MyLife.Application.Mapper;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
+using MyLife.Application.Abstractions.Persistence;
 
 namespace MyLife.Application.Business.Account.Handler
 {
-    public class CreateAccountHandler(AppStorage storage, AccountMapper mapper) : IRequestHandler<CreateAccountCommand, string>
+    public class CreateAccountHandler(IApplicationDbContext storage, AccountMapper mapper) : IRequestHandler<CreateAccountCommand, string>
     {
         public async Task<string> Handle(CreateAccountCommand command, CancellationToken ct)
         {
             AccountEntity entity = mapper.ToEntity(command);
-            await storage.Account.AddAsync(entity, ct);
+            await storage.Accounts.AddAsync(entity, ct);
             return entity.LoginName;
         }
     }

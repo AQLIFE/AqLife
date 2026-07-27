@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MyLife.Application.Abstractions.Authentication;
 using MyLife.Application.Business.Account.Search;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
@@ -7,7 +8,7 @@ using MyLife.Shared.Exceptions;
 namespace MyLife.Application.Business.Account.Handler
 {
     // 解耦 LoginHandler 与 Service 业务类,通过Search 业务类来获取数据,并通过 IJwtProvider 来生成 Token
-    public class LoginHandler(IJwtProvider<AccountEntity> provider, AccountSearch search) : IRequestHandler<LoginCommand, string>
+    public class LoginHandler(ITokenProvider<AccountEntity> provider, AccountSearch search) : IRequestHandler<LoginCommand, string>
     {
         public async Task<string> Handle(LoginCommand command, CancellationToken ct)
         {

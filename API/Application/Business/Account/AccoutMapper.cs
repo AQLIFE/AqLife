@@ -4,7 +4,7 @@ using MyLife.Domain.Entities;
 using MyLife.Shared.IView;
 using Riok.Mapperly.Abstractions;
 
-namespace MyLife.Application.Mapper
+namespace MyLife.Application.Business.Account
 {
     [Mapper]
     public partial class SubscriptionMapper : IViewMapper<SubscriptionEntity, SubscriptionDto>, ICreateMapper<SubscriptionEntity, ISubscription>

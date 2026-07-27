@@ -25,10 +25,8 @@ builder.Services.AddCors(options =>
 });
 
 builder.AddSerilog().AddConfiguration().AddFilePolicy().AddJwtPolicy();
-builder.Services.AddApplicationLayer();
+builder.Services.AddApplicationLayer().AddInfrastructure();
 builder.Services.AddGlobalExceptionPolicy(builder.Environment).AddDataLayer(builder.Configuration).AddRouteAdapter();
-builder.Services.AddScoped<ITokenProvider<AccountEntity>, ITokenProvider<AccountEntity>>();
-builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();// 框架内置服务
 builder.Services.AddHttpContextAccessor();// 框架内置服务
 

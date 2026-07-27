@@ -2,12 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using MyLife.Application.Abstractions.FileStorage;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
 using MyLife.Shared.Tools;
-
+using MyLife.Application.Abstractions.Persistence;
 namespace MyLife.Application.Business.File.Service
 {
-    public class FileWriter(AppStorage appStorage, IFileStorage fileStorage, UploadContext uploadContext)
+    public class FileWriter(IApplicationDbContext appStorage, IFileStorage fileStorage, UploadContext uploadContext)
     {
         //public async Task<Guid> WriteAsync(IFormFile file,string hash,CancellationToken ct)
         //{

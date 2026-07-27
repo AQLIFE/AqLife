@@ -1,11 +1,10 @@
 ﻿using MyLife.Application.Validators;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
-
+using MyLife.Application.Abstractions.Persistence;
 namespace MyLife.Application.Business.Todo.Validator
 {
-    public class CreateTodoValidtor(AppStorage storage) : AbstractValidator<CreateTodoCommand>
+    public class CreateTodoValidtor(IApplicationDbContext storage) : AbstractValidator<CreateTodoCommand>
     {
         private protected override string ErrorMessage { init; get; } = "仅允许成为二级 待办,当前层级已超限";
 
@@ -20,7 +19,7 @@ namespace MyLife.Application.Business.Todo.Validator
         }
     }
 
-    public class CreateTodoFUIDValidtor(AppStorage storage) : AbstractValidator<CreateTodoCommand>
+    public class CreateTodoFUIDValidtor(IApplicationDbContext storage) : AbstractValidator<CreateTodoCommand>
     {
         private protected override string ErrorMessage { init; get; } = "父待办不存在";
 

@@ -1,4 +1,5 @@
-using MyLife.Infrastructure.Persistence;
+using MyLife.Application.Abstractions.Persistence;
+using MyLife.Infrastructure;
 using MyLife.Shared.Exceptions;
 using MyLife.Shared.Options;
 using Serilog;
@@ -80,7 +81,7 @@ namespace MyLife.Web.Extensions
             var services = scope.ServiceProvider;
 
             // 2. 通过 DI 提取 Logger 和 DbContext
-            // 建议使用 ILogger<AppStorage>，这样日志里会显示是 AppStorage 相关的错误
+            // 建议使用 ILogger<IApplicationDbContext>，这样日志里会显示是 IApplicationDbContext 相关的错误
             var logger = services.GetRequiredService<ILogger<AppStorage>>();
             var context = services.GetRequiredService<AppStorage>();
 

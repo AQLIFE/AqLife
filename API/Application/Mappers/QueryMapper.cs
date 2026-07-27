@@ -2,7 +2,7 @@
 using MyLife.Domain.Command;
 using Riok.Mapperly.Abstractions;
 
-namespace MyLife.Application.Mapper
+namespace MyLife.Application.Mappers
 {
     [Mapper]
     public partial class QueryMapper

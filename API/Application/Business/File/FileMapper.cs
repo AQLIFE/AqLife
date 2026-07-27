@@ -1,9 +1,10 @@
 ﻿using MyLife.Application.Abstractions.Mapper;
+using MyLife.Application.Business.Tag;
 using MyLife.Domain.Entities;
 using MyLife.Shared.IView;
 using Riok.Mapperly.Abstractions;
 
-namespace MyLife.Application.Mapper
+namespace MyLife.Application.Business.File
 {
     [Mapper]
     public partial class FileMapper(TagMapper tagMapper)

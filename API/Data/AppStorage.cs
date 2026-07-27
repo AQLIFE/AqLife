@@ -1,18 +1,26 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyLife.Application.Abstractions.Persistence;
 using MyLife.Domain.Entities;
 
-namespace MyLife.Infrastructure.Persistence
+namespace MyLife.Infrastructure
 {
-    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options)
+    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext
     {
-        //public DbSet<DemoEntity> Demo { get; set; }
         public DbSet<FileMetaEntity> File { get; set; }
         public DbSet<CorpusEntity> Corpus { get; set; }
-        public DbSet<AccountEntity> Account { get; set; }
+        public DbSet<AccountEntity> Accounts { get; set; }
         public DbSet<SubscriptionEntity> Subscription { get; set; }
         public DbSet<TodoEntity> Todo { get; set; }
         public DbSet<TagEntity> Tags { get; set; }
         public DbSet<FileTagEntity> BlogTags { get; set; }
+
+        public async Task<ITransaction> BeginTransactionAsync(CancellationToken ct)
+        {
+            var transaction =
+           await Database.BeginTransactionAsync(ct);
+
+            return new EfTransaction(transaction);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
