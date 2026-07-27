@@ -7,11 +7,11 @@ using MyLife.Shared.IView;
 namespace MyLife.Web.Controllers
 {
     [Route("[controller]")]
-    [ApiController,Authorize]
+    [ApiController, Authorize]
     public class TagController(IMediator mediator) : ControllerBase
     {
-        [HttpGet,AllowAnonymous]
-        public async Task<IEnumerable<TagDto>?> Search([FromQuery]TagQuery query, CancellationToken ct)
+        [HttpGet, AllowAnonymous]
+        public async Task<IEnumerable<TagDto>?> Search([FromQuery] TagQuery query, CancellationToken ct)
         => await mediator.Send(query, ct);
         [HttpPost]
         public async Task<Guid> AddTag(CreateTagCommand command, CancellationToken ct)

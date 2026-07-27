@@ -19,5 +19,13 @@ namespace MyLife.Shared.IView
     string SubscriptionLink,
     string SubscriptionPlatform,
     Guid? SubscriptionIcon
-    ) : IEntityDto;
+    ) : IEntityDto, ISubscription;
+
+    public interface ISubscription
+    {
+        string AliasName { get; init; }
+        string SubscriptionLink { get; init; }
+        string SubscriptionPlatform { get; init; }
+        Guid? SubscriptionIcon { get; init; }
+    }
 }

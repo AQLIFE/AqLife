@@ -1,0 +1,15 @@
+﻿using Microsoft.EntityFrameworkCore;
+using MyLife.Application.Validators;
+using MyLife.Domain.Command;
+using MyLife.Infrastructure.Persistence;
+
+namespace MyLife.Application.Business.Tag.Validator
+{
+
+    public class CreateTagValidator(AppStorage storage) : AbstractValidator<CreateTagCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "重复的 Tag 名称";
+        private protected override async Task<bool> IsValidAsync(CreateTagCommand command, CancellationToken ct)
+            => !await storage.Tags.AnyAsync(e => e.Name == command.Name);
+    }
+}

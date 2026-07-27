@@ -1,20 +1,22 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using MyLife.Application.Abstractions.FileStorage;
+using MyLife.Application.Abstractions.Search;
 using MyLife.Application.Behaviors;
+using MyLife.Application.Business.Account.Search;
+using MyLife.Application.Business.Corpus.Search;
+using MyLife.Application.Business.File.Search;
+using MyLife.Application.Business.File.Service;
+using MyLife.Application.Business.File.Validator;
+using MyLife.Application.Business.Tag.Search;
+using MyLife.Application.Business.Todo.Search;
+using MyLife.Application.Mapper;
+using MyLife.Application.Search;
 using MyLife.Application.Validators;
-using MyLife.Application.Validators.BusinessValidator;
 using MyLife.Domain.Contracts;
 using MyLife.Domain.Entities;
+using MyLife.Infrastructure.FileStorage;
 using MyLife.Service.EntityService;
-using MyLife.Service.Interfaces;
-using MyLife.Service.Mapper;
-using MyLife.Service.MapperService;
-using MyLife.Service.Mappings;
-using MyLife.Service.Search.Account;
-using MyLife.Service.Search.Base;
-using MyLife.Service.Search.File;
-using MyLife.Service.Search.Tag;
-using MyLife.Service.Search.Todo;
 using MyLife.Shared.Tools;
 
 namespace MyLife.Application
@@ -56,22 +58,25 @@ namespace MyLife.Application
             //services.AddScoped(typeof(ISearchStrategy<,>), typeof(FilteredSearchStrategyBase<,>));// 被继承
 
             services.AddScoped<FileSecurityAspect>();// FileSearch 依赖
+            services.AddScoped<PreviewContext>();
             services.AddScoped<UploadContext>();// UploadContext 提供给 FileService
-            services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, FilteredFilesSearchStrategy>();// FileSearch 专属策略
+            services.AddScoped<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>, FilteredFilesSearchStrategy>();// FileSearch 专属策略
             services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();// Tag的策略
             services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, FilterTodoSearchStrategy>();// Tag的策略
 
             // 注册所有 Query 业务类
             services.AddScoped<AccountSearch>();
             services.AddScoped<FileSearch>();
+            services.AddScoped<CorpusSearch>();
             services.AddScoped<TagSearch>();
             services.AddScoped<TodoSearch>();
 
             // 注册具体Command 实际业务类
+            //services.AddScoped<IFileStorage, LocalFileStorage>();
+            services.AddScoped<FileReader>();
+            services.AddScoped<FileWriter>();
+            services.AddScoped<FileDeleter>();
             services.AddScoped<FileService>();
-            services.AddScoped<TagServices>();
-            services.AddScoped<AccountService>();
-            //services.AddScoped<TodoServices>();
 
             // 4. 注册所有 Mapper [cite: 198]
             services.AddSingleton<TodoMapper>();
@@ -80,23 +85,10 @@ namespace MyLife.Application
             services.AddSingleton<SubscriptionMapper>();
             services.AddSingleton<AccountMapper>();
             services.AddSingleton<QueryMapper>();
+            services.AddSingleton<CorpusMapper>();
 
 
             return services;
         }
-
-
-        //private static Type? GetGenericBaseType(Type? currentType, Type targetGenericType)
-        //{
-        //    while (currentType != null && currentType != typeof(object))
-        //    {
-        //        if (currentType.IsGenericType && currentType.GetGenericTypeDefinition() == targetGenericType)
-        //        {
-        //            return currentType;
-        //        }
-        //        currentType = currentType.BaseType;
-        //    }
-        //    return null;
-        //}
     }
 }

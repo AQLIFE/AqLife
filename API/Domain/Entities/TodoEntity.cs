@@ -32,5 +32,17 @@ namespace MyLife.Domain.Entities
 
         [ForeignKey(nameof(FTID))]
         public ICollection<TodoEntity> TodoList { get; set; } = [];
+
+
+        public void Update(string content, TodoStatus status, int priority)
+        {
+            Desc = content;
+            Status = status;
+            Priority = priority;
+            if (status == TodoStatus.Completed)
+            {
+                CompletedAt = DateTime.UtcNow;
+            }
+        }
     }
 }

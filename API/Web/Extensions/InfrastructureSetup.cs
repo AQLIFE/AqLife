@@ -1,4 +1,4 @@
-using MyLife.Data.Repository;
+using MyLife.Infrastructure.Persistence;
 using MyLife.Shared.Exceptions;
 using MyLife.Shared.Options;
 using Serilog;
@@ -28,7 +28,7 @@ namespace MyLife.Web.Extensions
                 {
                     Log.Error(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, $"核心配置文件不存在{baseConfig}");
 
-                    throw new OptionNotFoundException($"核心配置文件不存在: {baseConfig}");
+                    throw new ConfigurationFileNotFoundException($"核心配置文件不存在: {baseConfig}");
                 }
                 builder.Configuration.AddJsonFile(basePath, optional: true, reloadOnChange: true);
 

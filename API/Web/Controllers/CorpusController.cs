@@ -1,53 +1,40 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyLife.Data.Repository;
-using MyLife.Domain.Entities;
+using MyLife.Domain.Command;
+using MyLife.Shared.IView;
 
 namespace MyLife.Web.Controllers
 {
     [Route("[controller]"), ApiController, Authorize]
-    public class CorpusController(AppStorage storage) : ControllerBase
+    public class CorpusController(IMediator mediator) : ControllerBase
     {
         [HttpGet]
-        public async Task<List<string>> GetAllCorpus()
-            => await storage.Corpus.AsNoTracking().Select(e => e.CorpusContent).ToListAsync();
+        public async Task<IEnumerable<CorpusDto>?> AllAsync(CancellationToken ct)
+            => await mediator.Send(new CorpusQuery(), ct);
 
 
         [HttpGet("search")]
-        public async Task<string> FuzzeSearch(string query)
-            => await storage.Corpus.AsNoTracking().Where(e => e.CorpusContent.Contains(query)).Select(e => e.CorpusContent).FirstOrDefaultAsync() ?? "不存在语料";
-
-        [HttpGet("{guid:guid}")]
-        public async Task<string> GetCorpus([FromRoute] Guid guid)
-            => await storage.Corpus.AsNoTracking().Where(e => e.UID == guid).Select(e => e.CorpusContent).FirstOrDefaultAsync() ?? "不存在语料";
+        public async Task<IEnumerable<CorpusDto>?> SearchAsync([FromQuery] CorpusQuery query, CancellationToken ct)
+            => await mediator.Send(query, ct);
 
         [HttpGet("random"), AllowAnonymous]
-        public async Task<string> GetRandomCorpus()
-        {
-            var count = await storage.Corpus.CountAsync();
-            if (count == 0) return "没有任何语料";
-            var randomIndex = new Random().Next(count);
-            var corpus = await storage.Corpus.OrderBy(e => e.UID).Skip(randomIndex).FirstOrDefaultAsync();
-            return corpus?.CorpusContent ?? "不存在语料";
-        }
+        public async Task<CorpusDto?> GetRandomCorpus(CancellationToken ct)
+        => await mediator.Send(new RandomCorpusQuery(), ct);
+        //{
+        //    var count = await storage.Corpus.CountAsync();
+        //    if (count == 0) return "没有任何语料";
+        //    var randomIndex = new Random().Next(count);
+        //    var corpus = await storage.Corpus.OrderBy(e => e.UID).Skip(randomIndex).FirstOrDefaultAsync();
+        //    return corpus?.CorpusContent ?? "不存在语料";
+        //}
 
         [HttpPost]
-        public async Task<string> AddCorpus(string content)
-        {
-            var corpus = new CorpusEntity { CorpusContent = content };
-            await storage.Corpus.AddAsync(corpus);
-            await storage.SaveChangesAsync();
-            return corpus.UID.ToString();
-        }
+        public async Task<Guid> AddCorpus(CreateCorpusCommand command, CancellationToken ct)
+        => await mediator.Send(command, ct);
 
         [HttpDelete]
-        public async Task<int> DeleteCorpus(Guid guid)
-        {
-            var corpus = await storage.Corpus.FirstOrDefaultAsync(e => e.UID == guid);
-            if (corpus == null) return 0;
-            storage.Corpus.Remove(corpus);
-            return await storage.SaveChangesAsync();
-        }
+        public async Task DeleteCorpus(DeleteCorepusCommand command, CancellationToken ct)
+        => await mediator.Send(command, ct);
     }
 }

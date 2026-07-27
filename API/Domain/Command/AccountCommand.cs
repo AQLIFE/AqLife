@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyLife.Domain.Command
 {
-    public record AccountQuery : IQuery<AccountDto?>;
+    public record AccountQuery(Guid? UID = null) : IQuery<IEnumerable<AccountDto>?>;
     public record LoginCommand(
     [Required(ErrorMessage = "必填项:name")] string AccountName,
     [Required(ErrorMessage = "必填项:key")] string SecretKey
@@ -23,6 +23,7 @@ namespace MyLife.Domain.Command
     /// <param name="Avatar"></param>
     /// <param name="SubAccountAvatar"></param>
     public record CreateAccountCommand(
+        [Required, StringLength(10, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-20之间")]
         string Name,
         string? Desc,
         string pwd,
@@ -38,7 +39,7 @@ namespace MyLife.Domain.Command
     /// <param name="Desc"></param>
     public record UpdateAccountProfileCommand(
     Guid UID,
-    [Required, StringLength(20, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-20之间")]
+    [Required, StringLength(10, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-20之间")]
     string Name,
     string? Desc
     ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>;
@@ -50,7 +51,7 @@ namespace MyLife.Domain.Command
     /// <param name="Subscriptions"></param>
     public record UpdateAccountSubscriptionsCommand(
         Guid UID,
-        IEnumerable<CreateSubscriptionCommand> Subscriptions
+        IEnumerable<SubscriptionDto> Subscriptions
     ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>
     {
         //public IEnumerable<IFormFile> GetFiles() => Subscriptions.GetIEnumerableFiles();

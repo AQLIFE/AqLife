@@ -16,4 +16,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interfaces\Authentication\" />
+    <Folder Include="Queries\" />
+  </ItemGroup>
 </Project>
