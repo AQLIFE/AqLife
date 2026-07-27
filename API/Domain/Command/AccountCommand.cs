@@ -28,8 +28,8 @@ namespace MyLife.Domain.Command
         string? Desc,
         string pwd,
         string serverKey
-    ) : ICreateCommand<string>, ISimpleAccountInfo
-    { }
+    ) : ICreateCommand<string>, ISimpleAccountInfo;
+    
 
     /// <summary>
     /// 更新账户基础信息
@@ -39,7 +39,7 @@ namespace MyLife.Domain.Command
     /// <param name="Desc"></param>
     public record UpdateAccountProfileCommand(
     Guid UID,
-    [Required, StringLength(10, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-20之间")]
+    [Required, StringLength(15, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-15之间")]
     string Name,
     string? Desc
     ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>;
@@ -69,4 +69,15 @@ namespace MyLife.Domain.Command
     {
         public IEnumerable<IFormFile> GetFiles() => [Avatar];
     }
+
+
+    public record UpdatePasswordCommand(
+        Guid UID,
+        //[property:RegularExpression(pattern:@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,32}$",ErrorMessage ="不规范的旧密码")]
+        [property:Required(ErrorMessage ="必须提供")]
+        string OldPassword,
+        [property:RegularExpression(pattern:@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,32}$",ErrorMessage ="不规范的新密码")]
+        string NewPassword
+    ) : IRequireValidEntity<AccountEntity>, IUpdateCommand<string>;
+    
 }

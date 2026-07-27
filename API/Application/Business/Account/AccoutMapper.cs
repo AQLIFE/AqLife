@@ -28,7 +28,8 @@ namespace MyLife.Application.Business.Account
         [MapperIgnoreSource(nameof(AccountEntity.IsValid))]
         public partial AccountDto ToDto(AccountEntity source);
 
-        public partial AccountEntity ToEntity(CreateAccountCommand command);
+        [MapperIgnoreSource(nameof(CreateAccountCommand.serverKey))]
+        public  AccountEntity ToEntity(CreateAccountCommand command)=>new AccountEntity(command.Name,command.Desc,command.pwd);
 
         private SubscriptionDto Convert(SubscriptionEntity entity) => subMapper.ToDto(entity);
         //private SubscriptionEntity Convert(SubscriptionDto dto) => subMapper.ToEntity(dto);

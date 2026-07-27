@@ -9,7 +9,7 @@ namespace MyLife.Domain.Entities
     public class TagEntity : IEntity
     {
         [Key]
-        public Guid UID { get; set; } = Guid.NewGuid();
+        public Guid UID { get; init; } = Guid.NewGuid();
 
         [Required, StringLength(32)]
         public string Name { get; set; } = string.Empty; // 标签名称，如 "C#"、".NET 8"

@@ -10,7 +10,7 @@ namespace MyLife.Domain.Entities
     public class FileMetaEntity : IEntity
     {
         [Key]
-        public Guid UID { get; set; } = Guid.NewGuid();
+        public Guid UID { get; init; } = Guid.NewGuid();
         [Column, Description("仅存储文件名,不含后缀")]
         public string FileName { get; set; } = string.Empty;
         [Column]

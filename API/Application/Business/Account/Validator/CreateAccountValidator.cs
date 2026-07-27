@@ -4,6 +4,7 @@ using MyLife.Application.Validators;
 using MyLife.Domain.Command;
 using MyLife.Shared.Options;
 using MyLife.Application.Abstractions.Persistence;
+using System.Runtime.Intrinsics.Arm;
 
 namespace MyLife.Application.Business.Account.Validator
 {
@@ -37,6 +38,6 @@ namespace MyLife.Application.Business.Account.Validator
     {
         private protected override string ErrorMessage { init; get; } = "系统密钥不匹配";
         private protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
-        => options.Value.SecretKey == command.serverKey;
+        => options.Value.SecretKey == command.serverKey && command.serverKey.Length==256u;
     }
 }

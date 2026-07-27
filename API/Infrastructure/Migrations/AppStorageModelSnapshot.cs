@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyLife.Infrastructure;
 
-
 #nullable disable
 
 namespace MyLife.Data.Migrations
@@ -23,7 +22,7 @@ namespace MyLife.Data.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("MyLife.Data.Entities.AccountEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.AccountEntity", b =>
                 {
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
@@ -33,7 +32,8 @@ namespace MyLife.Data.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Desc")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<bool>("IsValid")
                         .HasColumnType("tinyint(1)");
@@ -48,8 +48,8 @@ namespace MyLife.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)");
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
 
                     b.HasKey("UID");
 
@@ -62,7 +62,7 @@ namespace MyLife.Data.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.CorpusEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.CorpusEntity", b =>
                 {
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
@@ -77,7 +77,7 @@ namespace MyLife.Data.Migrations
                     b.ToTable("Corpus");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.FileMetaEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.FileMetaEntity", b =>
                 {
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
@@ -106,7 +106,7 @@ namespace MyLife.Data.Migrations
                     b.ToTable("FileMeta");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.FileTagEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.FileTagEntity", b =>
                 {
                     b.Property<Guid>("FileId")
                         .HasColumnType("char(36)");
@@ -121,7 +121,7 @@ namespace MyLife.Data.Migrations
                     b.ToTable("FileTags");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.SubscriptionEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.SubscriptionEntity", b =>
                 {
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
@@ -156,7 +156,7 @@ namespace MyLife.Data.Migrations
                     b.ToTable("Subscriptions");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.TagEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.TagEntity", b =>
                 {
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
@@ -181,7 +181,7 @@ namespace MyLife.Data.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.TodoEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.TodoEntity", b =>
                 {
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
@@ -213,15 +213,15 @@ namespace MyLife.Data.Migrations
                     b.ToTable("TodoList");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.FileTagEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.FileTagEntity", b =>
                 {
-                    b.HasOne("MyLife.Data.Entities.FileMetaEntity", "File")
+                    b.HasOne("MyLife.Domain.Entities.FileMetaEntity", "File")
                         .WithMany("FileTags")
                         .HasForeignKey("FileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyLife.Data.Entities.TagEntity", "Tag")
+                    b.HasOne("MyLife.Domain.Entities.TagEntity", "Tag")
                         .WithMany("FileTags")
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -232,9 +232,9 @@ namespace MyLife.Data.Migrations
                     b.Navigation("Tag");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.SubscriptionEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.SubscriptionEntity", b =>
                 {
-                    b.HasOne("MyLife.Data.Entities.AccountEntity", "Account")
+                    b.HasOne("MyLife.Domain.Entities.AccountEntity", "Account")
                         .WithMany("Subscriptions")
                         .HasForeignKey("AID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -243,28 +243,31 @@ namespace MyLife.Data.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.TodoEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.TodoEntity", b =>
                 {
-                    b.HasOne("MyLife.Data.Entities.TodoEntity", "Parent")
-                        .WithMany()
+                    b.HasOne("MyLife.Domain.Entities.TodoEntity", null)
+                        .WithMany("TodoList")
                         .HasForeignKey("FTID");
-
-                    b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.AccountEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.AccountEntity", b =>
                 {
                     b.Navigation("Subscriptions");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.FileMetaEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.FileMetaEntity", b =>
                 {
                     b.Navigation("FileTags");
                 });
 
-            modelBuilder.Entity("MyLife.Data.Entities.TagEntity", b =>
+            modelBuilder.Entity("MyLife.Domain.Entities.TagEntity", b =>
                 {
                     b.Navigation("FileTags");
+                });
+
+            modelBuilder.Entity("MyLife.Domain.Entities.TodoEntity", b =>
+                {
+                    b.Navigation("TodoList");
                 });
 #pragma warning restore 612, 618
         }

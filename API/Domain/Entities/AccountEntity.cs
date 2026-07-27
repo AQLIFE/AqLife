@@ -10,7 +10,7 @@ namespace MyLife.Domain.Entities
     public class SubscriptionEntity : IEntity
     {
         [Key]
-        public Guid UID { get; set; } = Guid.NewGuid();
+        public Guid UID { get; init; } = Guid.NewGuid();
 
         public Guid AID { get; set; }
         [StringLength(16, ErrorMessage = "订阅账户名限制")]
@@ -28,11 +28,11 @@ namespace MyLife.Domain.Entities
     public class AccountEntity : IUserEntity, IEntity
     {
         [Key]
-        public Guid UID { get; set; } = Guid.NewGuid();
-        [StringLength(10), Column]
-        public string Name { get; set; } = "Demo";
-        [Column]
-        public string? Desc { get; set; }
+        public Guid UID { get; init; } = Guid.NewGuid();
+        [StringLength(32), Column]
+        public string Name { get;private set; } = "Demo";
+        [StringLength(255),Column]
+        public string? Desc { get;private set; }
 
         /// <summary>
         /// 使用:设计 决定 Filecontroller 必须返回对应头像GUID
@@ -40,12 +40,12 @@ namespace MyLife.Domain.Entities
         [Column]
         public Guid? Avatar { get; private set; }
         [Column]
-        public bool IsValid { get; set; } = true;
+        public bool IsValid { get;private set; } = true;
 
         [Column]
-        public string LoginName { set; get; } = IdentityGenerator.GenerateSecureLoginName();
+        public string LoginName { get;init; } = IdentityGenerator.GenerateSecureLoginName();
         [Column]
-        public string LoginPasswordHash { set; get; } = string.Empty;
+        public string LoginPasswordHash { get; private set; } = string.Empty;
 
         public virtual ICollection<SubscriptionEntity> Subscriptions { get; set; } = [];
 
@@ -77,6 +77,15 @@ namespace MyLife.Domain.Entities
 
                 Subscriptions.Add(subscription);
             }
+        }
+
+        public void ChangePassword(string pwd)
+        {
+            LoginPasswordHash = FastHash.GetSha256Hash(pwd);
+        }
+        public void Disable()
+        {
+            IsValid = false;
         }
     }
 }
