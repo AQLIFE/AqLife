@@ -11,5 +11,8 @@ namespace MyLife.Domain.Entities
         public Guid UID { set; get; } = Guid.NewGuid();
         [Column]
         public string CorpusContent { set; get; } = string.Empty;
+
+        public CorpusEntity() { }
+        public CorpusEntity(string content) { CorpusContent = content; }
     }
 }

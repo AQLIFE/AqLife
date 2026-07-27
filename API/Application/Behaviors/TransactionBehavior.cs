@@ -1,6 +1,6 @@
 ﻿using MediatR;
-using MyLife.Data.Repository;
 using MyLife.Domain.CommandInterface;
+using MyLife.Infrastructure.Persistence;
 
 namespace MyLife.Application.Behaviors
 {

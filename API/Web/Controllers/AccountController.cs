@@ -11,7 +11,7 @@ namespace MyLife.Web.Controllers
     public class AccountController(IMediator mediator) : ControllerBase
     {
         [HttpGet, AllowAnonymous]
-        public async Task<AccountDto?> GetValid(CancellationToken ct)
+        public async Task<IEnumerable<AccountDto>?> GetValid(CancellationToken ct)
         => await mediator.Send(new AccountQuery(), ct);
 
         [HttpPost, AllowAnonymous]
@@ -28,9 +28,9 @@ namespace MyLife.Web.Controllers
             => await mediator.Send(new UpdateAccountAvatarCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), avatar), ct);
         [HttpPatch("profile")]
         public async Task<string> UpdateProfile(AccountProfile info, CancellationToken ct)
-            => await mediator.Send(new UpdateAccountProfileCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"),Name: info.Name,Desc: info.Desc), ct);
+            => await mediator.Send(new UpdateAccountProfileCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), Name: info.Name, Desc: info.Desc), ct);
         [HttpPut("subscriptions")]// 待定,需要前端验证
-        public async Task<string> UpdateSubscriptions(IEnumerable<CreateSubscriptionCommand> dtos, CancellationToken ct)
+        public async Task<string> UpdateSubscriptions(IEnumerable<SubscriptionDto> dtos, CancellationToken ct)
             => await mediator.Send(new UpdateAccountSubscriptionsCommand(User.TryGetAccountId() ?? throw new ArgumentNullException("无法识别的ID"), dtos), ct);
 
         [HttpDelete]

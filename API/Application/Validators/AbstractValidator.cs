@@ -15,7 +15,7 @@ public abstract class AbstractValidator<TResponse> : IValidator<TResponse>
     /// <summary>
     /// 定义该验证器触发时抛出的异常类型，默认是业务逻辑检查异常 [cite: 55]
     /// </summary>
-    private protected virtual BusinessException CreateException(string message)
+    private protected virtual Exception CreateException(string message)
         => new RequestCheckException(message);
     public async Task VerifyAsync(TResponse source, CancellationToken ct = default) { if (!await this.IsValidAsync(source, ct)) throw CreateException(this.ErrorMessage); }// 初始逻辑占位
 

@@ -19,7 +19,7 @@ namespace MyLife.Web.Extensions
 
             var section = builder.Configuration.GetSection("FilePolicy");
 
-            var filePolicy = section.Get<FilePolicyOption>() ?? throw new OptionMappingException("配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
+            var filePolicy = section.Get<FilePolicyOption>() ?? throw new ConfigurationNotFoundException("配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
 
             EnsureStorageDirectoryCreated(builder.Environment.ContentRootPath, filePolicy.StoragePath);
             builder.Services.AddOptions<FilePolicyOption>().Bind(section).ValidateOnStart();
@@ -59,7 +59,7 @@ namespace MyLife.Web.Extensions
                 catch
                 {
                     Log.Error(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, "存储路径恢复失败,请检查权限或磁盘状态.");
-                    throw new OptionSelfRecoveryMeasuresException("存储路径恢复失败,请检查权限或磁盘状态.");
+                    throw new Exception("存储路径恢复失败,请检查权限或磁盘状态.");//待定
                 }
             }
         }

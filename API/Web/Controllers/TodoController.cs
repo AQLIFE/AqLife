@@ -1,30 +1,25 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyLife.Data.Repository;
 using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Service.Mappings;
-using MyLife.Shared.Exceptions;
 using MyLife.Shared.IView;
 
 namespace MyLife.Web.Controllers
 {
     [Route("[controller]")]
-    [ApiController,Authorize]
+    [ApiController, Authorize]
     public class TodoController(IMediator mediator) : ControllerBase
     {
         [HttpGet, AllowAnonymous]
         public async Task<IEnumerable<TodoDto>?> GetAllAsync(CancellationToken ct)
-            => await mediator.Send(new TodoQuery(),ct);
+            => await mediator.Send(new TodoQuery(), ct);
 
         [HttpGet("search"), AllowAnonymous]
         public async Task<IEnumerable<TodoDto>?> SearchAsync([FromQuery] TodoQuery query, CancellationToken ct)
             => await mediator.Send(query, ct);
 
         [HttpPost]
-        public async Task<Guid> CreateAsync(CreateTodoCommand command,CancellationToken ct)
+        public async Task<Guid> CreateAsync(CreateTodoCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);
 
         [HttpPatch]
@@ -32,7 +27,7 @@ namespace MyLife.Web.Controllers
         => await mediator.Send(command, ct);
 
         [HttpDelete]
-        public async Task DeleteTodoAsync(DeleteTodoCommand command,CancellationToken ct)
+        public async Task DeleteTodoAsync(DeleteTodoCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);
     }
 }

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MyLife.Domain.Entities;
-using MyLife.Service.Features;
-using MyLife.Service.Interfaces;
 using MyLife.Shared.Exceptions;
 using MyLife.Shared.Options;
 using System.Text;
@@ -19,7 +17,7 @@ namespace MyLife.Web.Extensions
         {
             var jwtSection = builder.Configuration.GetSection("Jwt");
             builder.Services.AddOptions<JwtOption>().Bind(jwtSection).ValidateOnStart();
-            var jwtOption = jwtSection.Get<JwtOption>() ?? throw new OptionNotFoundException("无法从配置中加载 JwtOption，请检查 appsettings.json");
+            var jwtOption = jwtSection.Get<JwtOption>() ?? throw new ConfigurationNotFoundException("无法从配置中加载 JwtOption，请检查 appsettings.json");
 
             var JwtValidationParameters = new TokenValidationParameters
             {
@@ -53,7 +51,7 @@ namespace MyLife.Web.Extensions
                 if (authService is AuthService concreteService && !concreteService.IsUserExistsInStorage(context.Principal))
                 {
                     context.Fail("该账户已被注销或删除。");
-                    throw new RequestAuthorizationException("身份已失效，请重新登录。");
+                    throw new AuthenticationException("身份已失效，请重新登录。");
                 }
 
             }
