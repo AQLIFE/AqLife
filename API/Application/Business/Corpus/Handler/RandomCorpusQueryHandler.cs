@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using MyLife.Application.Business.Corpus.Search;
-using MyLife.Application.Mapper;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
 using MyLife.Shared.IView;

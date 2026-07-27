@@ -1,4 +1,5 @@
-﻿using MyLife.Domain.Entities;
+﻿using MyLife.Application.Business.File.Search;
+using MyLife.Domain.Entities;
 
 namespace MyLife.Application.Business.File.Abstractions
 {

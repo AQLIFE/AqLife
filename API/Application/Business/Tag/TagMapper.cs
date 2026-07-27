@@ -4,7 +4,7 @@ using MyLife.Domain.Entities;
 using MyLife.Shared.IView;
 using Riok.Mapperly.Abstractions;
 
-namespace MyLife.Application.Mapper
+namespace MyLife.Application.Business.Tag
 {
     [Mapper]
     public partial class TagMapper : IViewMapper<TagEntity, TagDto>, ICreateMapper<TagEntity, CreateTagCommand>

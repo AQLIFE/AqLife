@@ -1,12 +1,10 @@
 ﻿using MediatR;
-using MyLife.Application.Mapper;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
-
+using MyLife.Application.Abstractions.Persistence;
 namespace MyLife.Application.Business.Tag.Handler
 {
-    public class CreateTagHandler(AppStorage storage, TagMapper tagMapper) : IRequestHandler<CreateTagCommand, Guid>
+    public class CreateTagHandler(IApplicationDbContext storage, TagMapper tagMapper) : IRequestHandler<CreateTagCommand, Guid>
     {
         public async Task<Guid> Handle(CreateTagCommand command, CancellationToken ct)
         {

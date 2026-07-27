@@ -1,12 +1,11 @@
 ﻿using MediatR;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
 using MyLife.Shared.Exceptions;
-
+using MyLife.Application.Abstractions.Persistence;
 namespace MyLife.Application.Business.Tag.Handler
 {
-    public class DeleteTagHandler(AppStorage storage) : IRequestHandler<DeleteTagCommand, Unit>
+    public class DeleteTagHandler(IApplicationDbContext storage) : IRequestHandler<DeleteTagCommand, Unit>
     {
         public async Task<Unit> Handle(DeleteTagCommand command, CancellationToken ct)
         {

@@ -1,12 +1,11 @@
 ﻿using MediatR;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
 using MyLife.Shared.Exceptions;
-
+using MyLife.Application.Abstractions.Persistence;
 namespace MyLife.Application.Business.Tag.Handler
 {
-    public class UpdateTagHandler(AppStorage storage) : IRequestHandler<UpdateTagCommand, Guid>
+    public class UpdateTagHandler(IApplicationDbContext storage) : IRequestHandler<UpdateTagCommand, Guid>
     {
         public async Task<Guid> Handle(UpdateTagCommand command, CancellationToken ct)
         {

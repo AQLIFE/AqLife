@@ -4,7 +4,7 @@ using MyLife.Domain.Entities;
 using MyLife.Shared.IView;
 using Riok.Mapperly.Abstractions;
 
-namespace MyLife.Application.Mapper
+namespace MyLife.Application.Business.Corpus
 {
     [Mapper]
     public partial class CorpusMapper : IViewMapper<CorpusEntity, CorpusDto>, ICreateMapper<CorpusEntity, CreateCorpusCommand>

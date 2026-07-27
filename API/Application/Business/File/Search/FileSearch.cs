@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using MyLife.Application.Abstractions.Persistence;
 using MyLife.Application.Abstractions.Search;
-using MyLife.Application.Mapper;
+using MyLife.Application.Mappers;
 using MyLife.Application.Search;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
 using MyLife.Shared.IView;
 using MyLife.Shared.Tools;
+
 
 namespace MyLife.Application.Business.File.Search;
 
@@ -28,7 +29,7 @@ public class FileSearch(
     PreviewContext previewContext,
     QueryMapper queryMapper,
     FileSecurityAspect fileSecurity,
-    AppStorage storage, IHttpContextAccessor httpContext,
+    IApplicationDbContext storage, IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>> searchStrategies)
     : BaseSearch<FileQuery, FileMetaEntity, FileDto, EntitySearchCriteria>(storage, searchStrategies)
 {

@@ -3,20 +3,23 @@ using Microsoft.Extensions.DependencyInjection;
 using MyLife.Application.Abstractions.FileStorage;
 using MyLife.Application.Abstractions.Search;
 using MyLife.Application.Behaviors;
+using MyLife.Application.Business.Account;
 using MyLife.Application.Business.Account.Search;
+using MyLife.Application.Business.Corpus;
 using MyLife.Application.Business.Corpus.Search;
+using MyLife.Application.Business.File;
 using MyLife.Application.Business.File.Search;
 using MyLife.Application.Business.File.Service;
 using MyLife.Application.Business.File.Validator;
+using MyLife.Application.Business.Tag;
 using MyLife.Application.Business.Tag.Search;
+using MyLife.Application.Business.Todo;
 using MyLife.Application.Business.Todo.Search;
-using MyLife.Application.Mapper;
+using MyLife.Application.Mappers;
 using MyLife.Application.Search;
 using MyLife.Application.Validators;
 using MyLife.Domain.Contracts;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.FileStorage;
-using MyLife.Service.EntityService;
 using MyLife.Shared.Tools;
 
 namespace MyLife.Application
@@ -76,7 +79,7 @@ namespace MyLife.Application
             services.AddScoped<FileReader>();
             services.AddScoped<FileWriter>();
             services.AddScoped<FileDeleter>();
-            services.AddScoped<FileService>();
+            //services.AddScoped<FileService>();
 
             // 4. 注册所有 Mapper [cite: 198]
             services.AddSingleton<TodoMapper>();

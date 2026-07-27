@@ -1,12 +1,11 @@
 ﻿using MediatR;
-using MyLife.Application.Mapper;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
+using MyLife.Application.Abstractions.Persistence;
 
 namespace MyLife.Application.Business.Corpus.Handler
 {
-    public class CreateCorpusCommandHandler(CorpusMapper mapper, AppStorage storage) : IRequestHandler<CreateCorpusCommand, Guid>
+    public class CreateCorpusCommandHandler(CorpusMapper mapper, IApplicationDbContext storage) : IRequestHandler<CreateCorpusCommand, Guid>
     {
         public async Task<Guid> Handle(CreateCorpusCommand command, CancellationToken ct)
         {

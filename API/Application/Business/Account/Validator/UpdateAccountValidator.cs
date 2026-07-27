@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyLife.Application.Validators;
 using MyLife.Domain.Command;
-using MyLife.Infrastructure.Persistence;
+using MyLife.Application.Abstractions.Persistence;
 
 namespace MyLife.Application.Business.Account.Validator
 {
@@ -21,7 +21,7 @@ namespace MyLife.Application.Business.Account.Validator
     ///  更新的订阅ID 必须全部为有效ID
     /// </summary>
     /// <param name="storage"></param>
-    public class SubscriptionIconExistenceValidator(AppStorage storage) : AbstractValidator<UpdateAccountSubscriptionsCommand>
+    public class SubscriptionIconExistenceValidator(IApplicationDbContext storage) : AbstractValidator<UpdateAccountSubscriptionsCommand>
     {
         private protected override string ErrorMessage { init; get; } = "配置账户的图像文件信息不存在";
         private protected override async Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)

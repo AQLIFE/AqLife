@@ -1,14 +1,14 @@
 ﻿using MyLife.Application.Abstractions.Search;
-using MyLife.Application.Mapper;
+using MyLife.Application.Mappers;
 using MyLife.Application.Search;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
 using MyLife.Shared.IView;
+using MyLife.Application.Abstractions.Persistence;
 
 namespace MyLife.Application.Business.Tag.Search
 {
-    public class TagSearch(QueryMapper queryMapper, AppStorage storage
+    public class TagSearch(QueryMapper queryMapper, IApplicationDbContext storage
     , IEnumerable<ISearchStrategy<TagEntity, EntitySearchCriteria>> searchStrategies
     ) : BaseSearch<TagQuery, TagEntity, TagDto, EntitySearchCriteria>(storage, searchStrategies)
     {

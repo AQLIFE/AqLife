@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using MyLife.Application.Abstractions.FileStorage;
 using MyLife.Shared.Options;
 
 namespace MyLife.Infrastructure.FileStorage

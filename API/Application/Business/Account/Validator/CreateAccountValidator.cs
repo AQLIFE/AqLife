@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Options;
 using MyLife.Application.Validators;
 using MyLife.Domain.Command;
-using MyLife.Infrastructure.Persistence;
 using MyLife.Shared.Options;
+using MyLife.Application.Abstractions.Persistence;
 
 namespace MyLife.Application.Business.Account.Validator
 {
@@ -11,22 +11,22 @@ namespace MyLife.Application.Business.Account.Validator
     /// 创建时账户名唯一性检查:不允许重复
     /// </summary>
     /// <param name="storage"></param>
-    public class CreateAccountNameUniquenessValidator(AppStorage storage) : AbstractValidator<CreateAccountCommand>
+    public class CreateAccountNameUniquenessValidator(IApplicationDbContext storage) : AbstractValidator<CreateAccountCommand>
     {
         private protected override string ErrorMessage { init; get; } = "账户名称已存在";
         private protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
-        => !await storage.Account.AsNoTracking().AnyAsync(a => a.Name == command.Name);
+        => !await storage.Accounts.AsNoTracking().AnyAsync(a => a.Name == command.Name);
     }
 
     /// <summary>
     /// 创建时账户唯一性检查: 不允许创建第二个账户
     /// </summary>
     /// <param name="storage"></param>
-    public class SingleAccountSystemValidator(AppStorage storage) : AbstractValidator<CreateAccountCommand>
+    public class SingleAccountSystemValidator(IApplicationDbContext storage) : AbstractValidator<CreateAccountCommand>
     {
         private protected override string ErrorMessage { init; get; } = "仅允许注册一个账户";
         private protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
-        => !await storage.Account.AsNoTracking().AnyAsync(a => a.IsValid);
+        => !await storage.Accounts.AsNoTracking().AnyAsync(a => a.IsValid);
     }
 
     /// <summary>

@@ -1,16 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyLife.Application.Abstractions.Search;
-using MyLife.Application.Mapper;
+using MyLife.Application.Mappers;
 using MyLife.Application.Search;
 using MyLife.Domain.Command;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Persistence;
 using MyLife.Shared.IView;
+using MyLife.Application.Abstractions.Persistence;
 
 
 namespace MyLife.Application.Business.Todo.Search
 {
-    public class TodoSearch(QueryMapper queryMapper, AppStorage storage
+    public class TodoSearch(QueryMapper queryMapper, IApplicationDbContext storage
         , IEnumerable<ISearchStrategy<TodoEntity, EntitySearchCriteria>> searchStrategies
         ) : BaseSearch<TodoQuery, TodoEntity, TodoDto, EntitySearchCriteria>(storage, searchStrategies)
     {

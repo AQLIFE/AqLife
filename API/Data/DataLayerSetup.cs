@@ -1,7 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyLife.Infrastructure.Persistence;
+using MyLife.Application.Abstractions.Authentication;
+using MyLife.Application.Abstractions.FileStorage;
+using MyLife.Application.Abstractions.Persistence;
+using MyLife.Domain.Entities;
+using MyLife.Infrastructure.Authentication;
+using MyLife.Infrastructure.FileStorage;
 using MyLife.Shared.Exceptions;
 using MyLife.Shared.Options;
 
@@ -17,6 +22,16 @@ namespace MyLife.Infrastructure
             string connStr = configuration.GetConnectionString(dbconfig?.DbType is string link ? link : string.Empty) ?? throw new ConfigurationNotFoundException($"无法找到 关键字:{dbconfig?.DbType} 连接字符串!");
 
             services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version));
+
+            return services;
+        }
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+        {
+            //services.AddDbContext<AppStorage>();
+
+            services.AddScoped<IApplicationDbContext, AppStorage>();
+            services.AddScoped<IFileStorage, LocalFileStorage>();
+            services.AddScoped<ITokenProvider<AccountEntity>, TokenProvider>();
 
             return services;
         }

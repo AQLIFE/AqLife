@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using MyLife.Application.Abstractions.Authentication;
 using MyLife.Domain.Entities;
+using MyLife.Infrastructure.Authentication;
 using MyLife.Shared.Exceptions;
 using MyLife.Shared.Options;
 using System.Text;
@@ -47,11 +50,10 @@ namespace MyLife.Web.Extensions
         {
             OnTokenValidated = async context =>
             {
-                var authService = context.HttpContext.RequestServices.GetRequiredService<IJwtProvider<AccountEntity>>();
-                if (authService is AuthService concreteService && !concreteService.IsUserExistsInStorage(context.Principal))
+                var concreteService = context.HttpContext.RequestServices.GetRequiredService<ITokenProvider<AccountEntity>>();
+                if ( ! await concreteService.IsUserExistsAsync(context.Principal!,context.HttpContext.RequestAborted))
                 {
-                    context.Fail("该账户已被注销或删除。");
-                    throw new AuthenticationException("身份已失效，请重新登录。");
+                    context.Fail("该账户已被注销或不存在。");
                 }
 
             }
