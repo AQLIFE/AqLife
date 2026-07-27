@@ -1,10 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using MyLife.Application.Abstractions.Persistence;
 using MyLife.Application.Validators;
 using MyLife.Domain.Command;
-using MyLife.Application.Abstractions.Persistence;
+using MyLife.Domain.Entities;
+using MyLife.Shared.Exceptions;
+using MyLife.Shared.Options;
+using MyLife.Shared.Utils;
 
 namespace MyLife.Application.Business.Account.Validator
 {
+    public class AvatarExtensionValidator : AbstractValidator<UpdateAccountAvatarCommand>
+    {
+        private readonly HashSet<string> Extension = [".png", ".jpeg", ".jpg"];
+        private protected override string ErrorMessage { init; get; } = "更新账户头像必须是图像类型";
+        private protected override async Task<bool> IsValidAsync(UpdateAccountAvatarCommand command, CancellationToken ct)
+        => Extension.Contains(Path.GetExtension(command.Avatar.FileName).ToLowerInvariant());
+    }
+
     /// <summary>
     /// 更新时账户头像以及订阅链接图像检查:不可为空
     /// </summary>
@@ -58,6 +71,17 @@ namespace MyLife.Application.Business.Account.Validator
 
             return Task.FromResult(
                 names.Count == names.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+        }
+    }
+
+    public class UpdatePasswordValidator(IApplicationDbContext dbContext):AbstractValidator<UpdatePasswordCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "错误的密码";
+        private protected override async Task<bool> IsValidAsync(UpdatePasswordCommand command, CancellationToken ct)
+        {
+            AccountEntity account = await dbContext.Accounts.AsNoTracking().SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
+
+            return account.LoginPasswordHash == FastHash.GetSha256Hash(command.OldPassword);
         }
     }
 }

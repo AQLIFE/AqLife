@@ -10,7 +10,7 @@ namespace MyLife.Domain.Entities
     public class TodoEntity : IEntity
     {
         [Key]
-        public Guid UID { get; set; } = Guid.NewGuid();
+        public Guid UID { get; init; } = Guid.NewGuid();
 
         public Guid? FTID { get; set; } = null;// 作为父级任务ID，默认为空
 

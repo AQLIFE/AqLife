@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MyLife.Application.Abstractions.Authentication;
 using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Authentication;
 using MyLife.Shared.Exceptions;
 using MyLife.Shared.Options;
 using System.Text;

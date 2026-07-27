@@ -8,7 +8,7 @@ namespace MyLife.Domain.Entities
     public class CorpusEntity : IEntity
     {
         [Key]
-        public Guid UID { set; get; } = Guid.NewGuid();
+        public Guid UID { get; init; } = Guid.NewGuid();
         [Column]
         public string CorpusContent { set; get; } = string.Empty;
 
