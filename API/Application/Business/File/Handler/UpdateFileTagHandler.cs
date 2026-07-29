@@ -13,6 +13,7 @@ namespace MyLife.Application.Business.File.Handler
         {
             FileMetaEntity entity = await context.File.FindAsync(command.UID, ct)?? throw new FileNotFoundException("不存在的文件,无法更新");//此时必定鉴权通过
             var tagEntites = await context.Tags.Where(e => command.tags.Contains(e.UID)).ToListAsync();
+            context.BlogTags.RemoveRange(entity.FileTags);
             entity.FileTags?.Clear();
             entity.FileTags ??= new List<FileTagEntity>();
 

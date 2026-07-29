@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyLife.Domain.Command
 {
-    public record AccountQuery(Guid? UID = null) : IQuery<IEnumerable<AccountDto>?>;
+    public record AccountQuery(Guid? UID = null) : IQuery<AccountDto>;
     public record LoginCommand(
     [Required(ErrorMessage = "必填项:name")] string AccountName,
     [Required(ErrorMessage = "必填项:key")] string SecretKey

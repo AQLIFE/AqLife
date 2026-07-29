@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyLife.Domain.Command;
@@ -11,7 +12,7 @@ namespace MyLife.Web.Controllers
     public class AccountController(IMediator mediator) : ControllerBase
     {
         [HttpGet, AllowAnonymous]
-        public async Task<IEnumerable<AccountDto>?> GetValid(CancellationToken ct)
+        public async Task<AccountDto?> GetValid(CancellationToken ct)
         => await mediator.Send(new AccountQuery(), ct);
 
         [HttpPost, AllowAnonymous]

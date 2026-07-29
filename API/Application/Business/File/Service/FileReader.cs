@@ -20,11 +20,11 @@ namespace MyLife.Application.Business.File.Service
         public async Task<FileDownloadModel> ReadAsync(Guid id, CancellationToken ct)
         {
             FileMetaEntity fileInfo = (await fileSearch.SearchAsync(query: new FileQuery(UID: id), ct)).FirstOrDefault() ?? throw new ResourceNotFoundException("不存在文件记录");
-            string storageFileName = fileInfo.UID + fileInfo.Extension;
-            if (!fileStorage.Exists(storageFileName)) throw new ResourceNotFoundException("源文件丢失,请联系管理员:" + fileInfo.FileName);
+            
+            if (!fileStorage.Exists(fileInfo.StorageName)) throw new ResourceNotFoundException("源文件丢失,请联系管理员:" + fileInfo.FileName);
 
-            Stream stream = fileStorage.OpenRead(storageFileName);
-            var contentType = GetFileMimeType(storageFileName);
+            Stream stream = fileStorage.OpenRead(fileInfo.StorageName);
+            var contentType = GetFileMimeType(fileInfo.StorageName);
             return new FileDownloadModel(stream, contentType, fileInfo.FileName);
         }
     }

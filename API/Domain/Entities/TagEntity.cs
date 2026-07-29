@@ -21,11 +21,26 @@ namespace MyLife.Domain.Entities
         public virtual ICollection<FileTagEntity> FileTags { get; set; } = [];
 
         public TagEntity() { }
+        public TagEntity(string name, bool isCategory = false, string? aliasName = null)
+        {
+            this.Name = name;
+            this.AliasName = aliasName ?? name;
+            this.IsCategory = isCategory;
+        }
         public void Update(string name, bool isCategory = false, string? aliasName = null)
         {
             this.Name = name;
             this.AliasName = aliasName ?? name;
             this.IsCategory = isCategory;
+        }
+
+        public void SetCategory()
+        {
+            IsCategory = true;
+        }
+        public void CancelCategory()
+        {
+            IsCategory = false;
         }
     }
 }

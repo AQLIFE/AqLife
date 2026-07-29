@@ -131,7 +131,7 @@ import {
   ElIcon,
   type UploadUserFile,
 } from 'element-plus'
-import { FileApi, type FileMetadataDto, type TagDto } from '@/api'
+import { FileApi, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { onBeforeMount, ref, reactive, computed, onBeforeUnmount } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
@@ -157,7 +157,7 @@ const UploadContext = reactive<{ fileList: UploadUserFile[]; tags: TagDto[] }>({
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const actionStore = useActionStore()
-const activeDto = ref<FileMetadataDto>({})
+const activeDto = ref<FileDto>({})
 
 const extensionFilters = defaultFilePolicy.allowedUpload.map(ext => ({
   text: ext.toUpperCase(),
@@ -170,7 +170,7 @@ const handleFilter = (value: string, row: any, column: any) => {
 }
 const activeRow = (row: any) => {
   actionStore.OState = OperationalState.Update
-  activeDto.value = row as FileMetadataDto
+  activeDto.value = row as FileDto
   // drawerStatus.value = !drawerStatus.value
 }
 
@@ -192,7 +192,7 @@ const filterDisabled = computed(() => !fileStore.fileList || fileStore.fileList.
 
 const tagOptions = computed<TagDto[]>(() => {
   const map = new Map<string, TagDto>()
-  fileStore.fileList?.forEach((item: FileMetadataDto) => {
+  fileStore.fileList?.forEach((item: FileDto) => {
     item.tags?.forEach((tag: TagDto) => {
       if (!tag) return
       const key = tag.uid ?? tag.name ?? JSON.stringify(tag)
@@ -222,28 +222,28 @@ function onSearchEnter() {
   searchTerm.value = searchText.value.trim()
 }
 
-function matchesSearch(row: FileMetadataDto) {
+function matchesSearch(row: FileDto) {
   if (!searchField.value || !searchTerm.value) return true
   const rawValue = (row as any)[searchField.value]
   const textValue = rawValue == null ? '' : String(rawValue)
   return textValue.toLowerCase().includes(searchTerm.value.toLowerCase())
 }
 
-function matchesTags(row: FileMetadataDto) {
+function matchesTags(row: FileDto) {
   if (!selectedTags.value.length) return true
   const rowTags = row.tags ?? []
   return selectedTags.value.every(selected =>
-    rowTags.some(tag => tag?.uid && selected.uid && tag.uid === selected.uid),
+    rowTags.some((tag:TagDto) => tag?.uid && selected.uid && tag.uid === selected.uid),
   )
 }
 
-function matchesSize(row: FileMetadataDto) {
+function matchesSize(row: FileDto) {
   if (sizeRange.value[0] === 0 && sizeRange.value[1] === 100) return true
   const fileSizeKb = (row.fileSize ?? 0) / 1024
   return fileSizeKb >= sizeRange.value[0] && fileSizeKb <= sizeRange.value[1]
 }
 
-function matchesDate(row: FileMetadataDto) {
+function matchesDate(row: FileDto) {
   if (!dateRange.value || dateRange.value.length !== 2) return true
   const [start, end] = dateRange.value
   if (!start || !end) return true
@@ -256,7 +256,7 @@ function matchesDate(row: FileMetadataDto) {
 }
 
 const filteredFileList = computed(() =>
-  fileStore.fileList?.filter((item: FileMetadataDto) =>
+  fileStore.fileList?.filter((item: FileDto) =>
     matchesSearch(item) && matchesTags(item) && matchesSize(item) && matchesDate(item),
   ) ?? [],
 )

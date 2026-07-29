@@ -11,7 +11,7 @@ namespace MyLife.Application.Business.File.Service
         //public async Task<Guid> WriteAsync(IFormFile file,string hash,CancellationToken ct)
         //{
         //    FileMetaEntity meta = new (file, hash);
-        //    string storageFileName = meta.UID + meta.Extension;
+        
         //    await fileStorage.SaveAsync(file.OpenReadStream(), storageFileName, ct);
         //    await appStorage.File.AddAsync(meta, ct);
         //    return meta.UID;
@@ -42,12 +42,9 @@ namespace MyLife.Application.Business.File.Service
                     }
 
                     var meta = new FileMetaEntity(file, hash);
+                    await fileStorage.SaveAsync(file.OpenReadStream(), meta.StorageName, ct);
 
-                    var fileName = meta.UID + meta.Extension;
-
-                    await fileStorage.SaveAsync(file.OpenReadStream(), fileName, ct);
-
-                    savedFiles.Add(fileName);
+                    savedFiles.Add(meta.StorageName);
 
                     newMetas.Add(meta);
                     result.Add(meta.UID);

@@ -13,21 +13,33 @@
  */
 
 import * as runtime from '../runtime';
+import {
+    type CorpusDto,
+    CorpusDtoFromJSON,
+    CorpusDtoToJSON,
+} from '../models/CorpusDto';
+import {
+    type CreateCorpusCommand,
+    CreateCorpusCommandFromJSON,
+    CreateCorpusCommandToJSON,
+} from '../models/CreateCorpusCommand';
+import {
+    type DeleteCorepusCommand,
+    DeleteCorepusCommandFromJSON,
+    DeleteCorepusCommandToJSON,
+} from '../models/DeleteCorepusCommand';
 
 export interface ApiCorpusDeleteRequest {
-    guid?: string;
-}
-
-export interface ApiCorpusGuidGetRequest {
-    guid: string;
+    deleteCorepusCommand?: DeleteCorepusCommand;
 }
 
 export interface ApiCorpusPostRequest {
-    content?: string;
+    createCorpusCommand?: CreateCorpusCommand;
 }
 
 export interface ApiCorpusSearchGetRequest {
-    query?: string;
+    uID?: string;
+    content?: string;
 }
 
 /**
@@ -39,7 +51,7 @@ export interface ApiCorpusSearchGetRequest {
 export interface CorpusApiInterface {
     /**
      * Creates request options for apiCorpusDelete without sending the request
-     * @param {string} [guid] 
+     * @param {DeleteCorepusCommand} [deleteCorepusCommand] 
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
      */
@@ -47,16 +59,16 @@ export interface CorpusApiInterface {
 
     /**
      * 
-     * @param {string} [guid] 
+     * @param {DeleteCorepusCommand} [deleteCorepusCommand] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
      */
-    apiCorpusDeleteRaw(requestParameters: ApiCorpusDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<number>>;
+    apiCorpusDeleteRaw(requestParameters: ApiCorpusDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      */
-    apiCorpusDelete(requestParameters: ApiCorpusDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<number>;
+    apiCorpusDelete(requestParameters: ApiCorpusDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * Creates request options for apiCorpusGet without sending the request
@@ -71,36 +83,15 @@ export interface CorpusApiInterface {
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
      */
-    apiCorpusGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>>;
+    apiCorpusGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CorpusDto>>>;
 
     /**
      */
-    apiCorpusGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>>;
-
-    /**
-     * Creates request options for apiCorpusGuidGet without sending the request
-     * @param {string} guid 
-     * @throws {RequiredError}
-     * @memberof CorpusApiInterface
-     */
-    apiCorpusGuidGetRequestOpts(requestParameters: ApiCorpusGuidGetRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * 
-     * @param {string} guid 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CorpusApiInterface
-     */
-    apiCorpusGuidGetRaw(requestParameters: ApiCorpusGuidGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
-
-    /**
-     */
-    apiCorpusGuidGet(requestParameters: ApiCorpusGuidGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+    apiCorpusGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CorpusDto>>;
 
     /**
      * Creates request options for apiCorpusPost without sending the request
-     * @param {string} [content] 
+     * @param {CreateCorpusCommand} [createCorpusCommand] 
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
      */
@@ -108,7 +99,7 @@ export interface CorpusApiInterface {
 
     /**
      * 
-     * @param {string} [content] 
+     * @param {CreateCorpusCommand} [createCorpusCommand] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
@@ -132,15 +123,16 @@ export interface CorpusApiInterface {
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
      */
-    apiCorpusRandomGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+    apiCorpusRandomGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CorpusDto>>;
 
     /**
      */
-    apiCorpusRandomGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+    apiCorpusRandomGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CorpusDto>;
 
     /**
      * Creates request options for apiCorpusSearchGet without sending the request
-     * @param {string} [query] 
+     * @param {string} [uID] 
+     * @param {string} [content] 
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
      */
@@ -148,16 +140,17 @@ export interface CorpusApiInterface {
 
     /**
      * 
-     * @param {string} [query] 
+     * @param {string} [uID] 
+     * @param {string} [content] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
      */
-    apiCorpusSearchGetRaw(requestParameters: ApiCorpusSearchGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+    apiCorpusSearchGetRaw(requestParameters: ApiCorpusSearchGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CorpusDto>>>;
 
     /**
      */
-    apiCorpusSearchGet(requestParameters: ApiCorpusSearchGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+    apiCorpusSearchGet(requestParameters: ApiCorpusSearchGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CorpusDto>>;
 
 }
 
@@ -172,11 +165,9 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
     async apiCorpusDeleteRequestOpts(requestParameters: ApiCorpusDeleteRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters['guid'] != null) {
-            queryParameters['guid'] = requestParameters['guid'];
-        }
-
         const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
 
 
         let urlPath = `/api/Corpus`;
@@ -186,27 +177,23 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
+            body: DeleteCorepusCommandToJSON(requestParameters['deleteCorepusCommand']),
         };
     }
 
     /**
      */
-    async apiCorpusDeleteRaw(requestParameters: ApiCorpusDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<number>> {
+    async apiCorpusDeleteRaw(requestParameters: ApiCorpusDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const requestOptions = await this.apiCorpusDeleteRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<number>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.VoidApiResponse(response);
     }
 
     /**
      */
-    async apiCorpusDelete(requestParameters: ApiCorpusDeleteRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<number> {
-        const response = await this.apiCorpusDeleteRaw(requestParameters, initOverrides);
-        return await response.value();
+    async apiCorpusDelete(requestParameters: ApiCorpusDeleteRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiCorpusDeleteRaw(requestParameters, initOverrides);
     }
 
     /**
@@ -230,64 +217,17 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
 
     /**
      */
-    async apiCorpusGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>> {
+    async apiCorpusGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CorpusDto>>> {
         const requestOptions = await this.apiCorpusGetRequestOpts();
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse<any>(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(CorpusDtoFromJSON));
     }
 
     /**
      */
-    async apiCorpusGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>> {
+    async apiCorpusGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CorpusDto>> {
         const response = await this.apiCorpusGetRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for apiCorpusGuidGet without sending the request
-     */
-    async apiCorpusGuidGetRequestOpts(requestParameters: ApiCorpusGuidGetRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['guid'] == null) {
-            throw new runtime.RequiredError(
-                'guid',
-                'Required parameter "guid" was null or undefined when calling apiCorpusGuidGet().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/api/Corpus/{guid}`;
-        urlPath = urlPath.replace('{guid}', encodeURIComponent(String(requestParameters['guid'])));
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    async apiCorpusGuidGetRaw(requestParameters: ApiCorpusGuidGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
-        const requestOptions = await this.apiCorpusGuidGetRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<string>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
-    }
-
-    /**
-     */
-    async apiCorpusGuidGet(requestParameters: ApiCorpusGuidGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
-        const response = await this.apiCorpusGuidGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -297,11 +237,9 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
     async apiCorpusPostRequestOpts(requestParameters: ApiCorpusPostRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters['content'] != null) {
-            queryParameters['content'] = requestParameters['content'];
-        }
-
         const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
 
 
         let urlPath = `/api/Corpus`;
@@ -311,6 +249,7 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
+            body: CreateCorpusCommandToJSON(requestParameters['createCorpusCommand']),
         };
     }
 
@@ -355,20 +294,16 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
 
     /**
      */
-    async apiCorpusRandomGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+    async apiCorpusRandomGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CorpusDto>> {
         const requestOptions = await this.apiCorpusRandomGetRequestOpts();
         const response = await this.request(requestOptions, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<string>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => CorpusDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async apiCorpusRandomGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+    async apiCorpusRandomGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CorpusDto> {
         const response = await this.apiCorpusRandomGetRaw(initOverrides);
         return await response.value();
     }
@@ -379,8 +314,12 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
     async apiCorpusSearchGetRequestOpts(requestParameters: ApiCorpusSearchGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters['query'] != null) {
-            queryParameters['query'] = requestParameters['query'];
+        if (requestParameters['uID'] != null) {
+            queryParameters['UID'] = requestParameters['uID'];
+        }
+
+        if (requestParameters['content'] != null) {
+            queryParameters['Content'] = requestParameters['content'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -398,20 +337,16 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
 
     /**
      */
-    async apiCorpusSearchGetRaw(requestParameters: ApiCorpusSearchGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+    async apiCorpusSearchGetRaw(requestParameters: ApiCorpusSearchGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CorpusDto>>> {
         const requestOptions = await this.apiCorpusSearchGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<string>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(CorpusDtoFromJSON));
     }
 
     /**
      */
-    async apiCorpusSearchGet(requestParameters: ApiCorpusSearchGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+    async apiCorpusSearchGet(requestParameters: ApiCorpusSearchGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CorpusDto>> {
         const response = await this.apiCorpusSearchGetRaw(requestParameters, initOverrides);
         return await response.value();
     }

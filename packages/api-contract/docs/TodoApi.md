@@ -6,15 +6,15 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 | [**apiTodoDelete**](TodoApi.md#apitododelete) | **DELETE** /api/Todo |  |
 | [**apiTodoGet**](TodoApi.md#apitodoget) | **GET** /api/Todo |  |
-| [**apiTodoIdGet**](TodoApi.md#apitodoidget) | **GET** /api/Todo/{id} |  |
 | [**apiTodoPatch**](TodoApi.md#apitodopatch) | **PATCH** /api/Todo |  |
 | [**apiTodoPost**](TodoApi.md#apitodopost) | **POST** /api/Todo |  |
+| [**apiTodoSearchGet**](TodoApi.md#apitodosearchget) | **GET** /api/Todo/search |  |
 
 
 
 ## apiTodoDelete
 
-> boolean apiTodoDelete(guid)
+> apiTodoDelete(deleteTodoCommand)
 
 
 
@@ -32,8 +32,8 @@ async function example() {
   const api = new TodoApi();
 
   const body = {
-    // string (optional)
-    guid: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // DeleteTodoCommand (optional)
+    deleteTodoCommand: ...,
   } satisfies ApiTodoDeleteRequest;
 
   try {
@@ -53,11 +53,11 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **guid** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **deleteTodoCommand** | [DeleteTodoCommand](DeleteTodoCommand.md) |  | [Optional] |
 
 ### Return type
 
-**boolean**
+`void` (Empty response body)
 
 ### Authorization
 
@@ -65,8 +65,8 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
-- **Accept**: `text/plain`, `application/json`, `text/json`
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Accept**: Not defined
 
 
 ### HTTP response details
@@ -134,74 +134,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## apiTodoIdGet
-
-> TodoDto apiTodoIdGet(id)
-
-
-
-### Example
-
-```ts
-import {
-  Configuration,
-  TodoApi,
-} from '@aqlife/api-contract';
-import type { ApiTodoIdGetRequest } from '@aqlife/api-contract';
-
-async function example() {
-  console.log("🚀 Testing @aqlife/api-contract SDK...");
-  const api = new TodoApi();
-
-  const body = {
-    // string
-    id: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-  } satisfies ApiTodoIdGetRequest;
-
-  try {
-    const data = await api.apiTodoIdGet(body);
-    console.log(data);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// Run the test
-example().catch(console.error);
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **id** | `string` |  | [Defaults to `undefined`] |
-
-### Return type
-
-[**TodoDto**](TodoDto.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: `text/plain`, `application/json`, `text/json`
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **200** | OK |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
-
-
 ## apiTodoPatch
 
-> string apiTodoPatch(guid, status)
+> string apiTodoPatch(updateTodoCommand)
 
 
 
@@ -219,10 +154,8 @@ async function example() {
   const api = new TodoApi();
 
   const body = {
-    // string (optional)
-    guid: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-    // string (optional)
-    status: status_example,
+    // UpdateTodoCommand (optional)
+    updateTodoCommand: ...,
   } satisfies ApiTodoPatchRequest;
 
   try {
@@ -242,8 +175,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **guid** | `string` |  | [Optional] [Defaults to `undefined`] |
-| **status** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **updateTodoCommand** | [UpdateTodoCommand](UpdateTodoCommand.md) |  | [Optional] |
 
 ### Return type
 
@@ -255,7 +187,7 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 
@@ -269,7 +201,7 @@ No authorization required
 
 ## apiTodoPost
 
-> string apiTodoPost(todoForAdd)
+> string apiTodoPost(createTodoCommand)
 
 
 
@@ -287,8 +219,8 @@ async function example() {
   const api = new TodoApi();
 
   const body = {
-    // TodoForAdd (optional)
-    todoForAdd: ...,
+    // CreateTodoCommand (optional)
+    createTodoCommand: ...,
   } satisfies ApiTodoPostRequest;
 
   try {
@@ -308,7 +240,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **todoForAdd** | [TodoForAdd](TodoForAdd.md) |  | [Optional] |
+| **createTodoCommand** | [CreateTodoCommand](CreateTodoCommand.md) |  | [Optional] |
 
 ### Return type
 
@@ -321,6 +253,74 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## apiTodoSearchGet
+
+> Array&lt;TodoDto&gt; apiTodoSearchGet(uID, desc)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  TodoApi,
+} from '@aqlife/api-contract';
+import type { ApiTodoSearchGetRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new TodoApi();
+
+  const body = {
+    // string (optional)
+    uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    desc: desc_example,
+  } satisfies ApiTodoSearchGetRequest;
+
+  try {
+    const data = await api.apiTodoSearchGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **desc** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**Array&lt;TodoDto&gt;**](TodoDto.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 

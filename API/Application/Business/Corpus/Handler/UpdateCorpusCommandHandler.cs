@@ -11,7 +11,7 @@ namespace MyLife.Application.Business.Corpus.Handler
         public async Task<Guid> Handle(UpdateCorpusCommand command, CancellationToken ct)
         {
             CorpusEntity corpus = await storage.Corpus.FindAsync([command.UID], ct) ?? throw new ResourceNotFoundException("不存在的ID");
-            corpus.CorpusContent = command.Content;// EF Coee 会自动跟踪实体变化
+            corpus.ChangeCorpus(command.Content);
             return command.UID;
         }
     }

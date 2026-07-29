@@ -18,7 +18,7 @@ namespace MyLife.Application.Search
     IApplicationDbContext storage,
     IEnumerable<ISearchStrategy<TEntity, TSearchCriteria>> searchStrategies
 ) : ISearch<TQuery, TEntity, TEntityDto>
-    where TQuery : IQuery<IEnumerable<TEntityDto>>
+    //where TQuery : IQuery<IEnumerable<TEntityDto>>
     where TEntity : class, IEntity
     where TSearchCriteria : ISearchCriteria
     {

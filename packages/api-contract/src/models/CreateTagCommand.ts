@@ -24,7 +24,7 @@ export interface CreateTagCommand {
      * @type {string}
      * @memberof CreateTagCommand
      */
-    tagName?: string | null;
+    name?: string | null;
     /**
      * 
      * @type {string}
@@ -56,7 +56,7 @@ export function CreateTagCommandFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-        'tagName': json['tagName'] == null ? undefined : json['tagName'],
+        'name': json['name'] == null ? undefined : json['name'],
         'aliasName': json['aliasName'] == null ? undefined : json['aliasName'],
         'isCategory': json['isCategory'] == null ? undefined : json['isCategory'],
     };
@@ -73,7 +73,7 @@ export function CreateTagCommandToJSONTyped(value?: CreateTagCommand | null, ign
 
     return {
         
-        'tagName': value['tagName'],
+        'name': value['name'],
         'aliasName': value['aliasName'],
         'isCategory': value['isCategory'],
     };

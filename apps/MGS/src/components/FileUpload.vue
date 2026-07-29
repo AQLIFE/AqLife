@@ -43,7 +43,7 @@ import { useActionStore } from '@/stores/useActionStore.ts'
 import TagSelect from './TagSelect.vue'
 import { MgsIconName,mgsIconRegistry } from '@aqlife/icons'
 import { computed, onBeforeMount, reactive, ref, type Ref } from 'vue'
-import { FileApi, TagApi, type FileMetadataDto, type TagDto } from '@/api'
+import { FileApi, TagApi, type FileDto, type TagDto } from '@/api'
 import { UploadFilled, Files, Plus, Delete } from '@element-plus/icons-vue'
 
 import {
@@ -143,7 +143,7 @@ async function commit() {
     const results = await Promise.all(updateTasks)
 
     // 5. 批量更新 Store，减少 Vue 响应式触发次数 [cite: 11]
-    const validDtos = results.filter((dto): dto is FileMetadataDto[] => !!dto)
+    const validDtos = results.filter((dto): dto is FileDto[] => !!dto)
     if (validDtos.length > 0) {
       fileStore.fileList.push(...validDtos[0])
       ElMessage.success(`成功处理 ${validDtos.length} 个文件`)

@@ -1,7 +1,7 @@
 <template>
   <ElRow class="layout" :gutter="10">
-    <ElCol v-for="item in blogList" :key="item.id ?? item.title" :span="8">
-      <ElCard shadow="hover" @click="() => $router.push(`/preview/${item.id}`)">
+    <ElCol v-for="item in blogList" :key="item.uid ?? item.title" :span="8">
+      <ElCard shadow="hover" @click="() => $router.push(`/preview/${item.uid}`)">
         <template #header>
           <div class="header">
             <div>{{ item.title }}</div>

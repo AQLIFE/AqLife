@@ -45,7 +45,7 @@ const tagStore = useTagStore()
 const proxyTags = ref<TagDto[]>([])
 
 const addTagDto = ref<CreateTagCommand>({
-    tagName: '',
+    name: '',
     aliasName: '',
     isCategory: false
 })
@@ -108,7 +108,7 @@ function handleSearch() {
 }
 
 async function addTag() {
-  if (isAdd.value&& addTagDto.value.tagName!=null&&addTagDto.value.tagName!='' ) {
+  if (isAdd.value&& addTagDto.value.name!=null&&addTagDto.value.name!='' ) {
     // 默认此时isAdd : true
     const tagGid = await tagApi.apiTagPost({createTagCommand:addTagDto.value})
     const newTag = await tagApi.apiTagGet({uID:tagGid})
@@ -116,7 +116,7 @@ async function addTag() {
     ElMessage.success('上传 Tag 成功')
     proxyTags.value = tagStore.tags
     addTagDto.value.aliasName = ''
-    addTagDto.value.tagName = ''
+    addTagDto.value.name = ''
     addTagDto.value.isCategory = false
   }
   isAdd.value = !isAdd.value
@@ -144,10 +144,10 @@ async function addTag() {
     </ElCol>
     <ElForm v-if="isAdd" inline class="inline-form">
       <ElFormItem :label="Object.values(columnMap)[1]">
-        <ElInput v-model="addTagDto.tagName" clearable/>
+        <ElInput v-model="addTagDto.name" clearable/>
       </ElFormItem>
       <ElFormItem :label="Object.values(columnMap)[2]">
-        <ElInput v-model="addTagDto.aliasName" clearable :disabled="!addTagDto.tagName"/>
+        <ElInput v-model="addTagDto.aliasName" clearable :disabled="!addTagDto.name"/>
       </ElFormItem>
       <ElFormItem :label="Object.values(columnMap)[3]">
         <ElSwitch v-model="addTagDto.isCategory" inline-prompt active-text="标识为 分类"/>

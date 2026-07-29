@@ -12,7 +12,7 @@ namespace MyLife.Application.Business.File.Service
             {
                 if (id == Guid.Empty || id == null) continue;
                 FileMetaEntity file = await storage.File.FindAsync([id], ct) ?? throw new ResourceNotFoundException("文件不存在");
-                await fileStorage.DeleteAsync(file.UID + file.Extension, ct);
+                await fileStorage.DeleteAsync(file.StorageName, ct);
                 storage.File.Remove(file);
             }
         }
