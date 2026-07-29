@@ -42,7 +42,7 @@ export interface SubscriptionDto {
      * @type {string}
      * @memberof SubscriptionDto
      */
-    subscriptionIcon?: string | null;
+    subscriptionIcon?: string;
 }
 
 /**

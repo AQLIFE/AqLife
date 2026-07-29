@@ -29,13 +29,13 @@
 </template>
 
 <script setup lang="ts">
-import { isImageType } from '@aqlife/domain'
+import { isImageType, type FileListItemViewModel } from '@aqlife/domain'
 import TagSelect from './TagSelect.vue'
 import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
 import { useTagStore } from '@/stores/uuseTagStore'
 import { useFileStore } from '@/stores/useFileStore'
 import { computed, reactive, ref } from 'vue'
-import { FileApi, type FileMetadataDto, type TagDto } from '@/api'
+import { FileApi, type FileDto, type TagDto } from '@/api'
 import { UploadFilled, Files, Plus } from '@element-plus/icons-vue'
 import { normalizeExtension } from '@aqlife/domain'
 import ImageUpload from '@/components/ImageUpload.vue'
@@ -53,7 +53,7 @@ import { defaultFilePolicy } from '@aqlife/domain'
 import { OperationalState, useActionStore } from '@/stores/useActionStore.ts'
 import { apiConfiguration } from '@/services/api.ts'
 
-const fileDto = defineModel<FileMetadataDto>()// 主要是为了获取文件类型来决定组件渲染方式
+const fileDto = defineModel<FileDto>()// 主要是为了获取文件类型来决定组件渲染方式
 const props = defineProps<{
   initialTags?: TagDto[]
 }>()
@@ -108,7 +108,7 @@ async function commit() {
 
       // 找到 Store 中的旧对象并替换，确保表格即时刷新 [cite: 11]
       const store = useFileStore()
-      const index = store.fileList.findIndex(f => f.uid === updatedGuid)
+      const index = store.fileList.findIndex((f:FileDto) => f.uid === updatedGuid)
       if (index !== -1) {
         store.fileList[index] = updatedDto
       }

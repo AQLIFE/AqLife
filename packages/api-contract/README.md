@@ -59,7 +59,6 @@ All URIs are relative to *http://localhost*
 *AccountApi* | [**apiAccountSubscriptionsPut**](docs/AccountApi.md#apiaccountsubscriptionsput) | **PUT** /api/Account/subscriptions | 
 *CorpusApi* | [**apiCorpusDelete**](docs/CorpusApi.md#apicorpusdelete) | **DELETE** /api/Corpus | 
 *CorpusApi* | [**apiCorpusGet**](docs/CorpusApi.md#apicorpusget) | **GET** /api/Corpus | 
-*CorpusApi* | [**apiCorpusGuidGet**](docs/CorpusApi.md#apicorpusguidget) | **GET** /api/Corpus/{guid} | 
 *CorpusApi* | [**apiCorpusPost**](docs/CorpusApi.md#apicorpuspost) | **POST** /api/Corpus | 
 *CorpusApi* | [**apiCorpusRandomGet**](docs/CorpusApi.md#apicorpusrandomget) | **GET** /api/Corpus/random | 
 *CorpusApi* | [**apiCorpusSearchGet**](docs/CorpusApi.md#apicorpussearchget) | **GET** /api/Corpus/search | 
@@ -76,27 +75,33 @@ All URIs are relative to *http://localhost*
 *TagApi* | [**apiTagPost**](docs/TagApi.md#apitagpost) | **POST** /api/Tag | 
 *TodoApi* | [**apiTodoDelete**](docs/TodoApi.md#apitododelete) | **DELETE** /api/Todo | 
 *TodoApi* | [**apiTodoGet**](docs/TodoApi.md#apitodoget) | **GET** /api/Todo | 
-*TodoApi* | [**apiTodoIdGet**](docs/TodoApi.md#apitodoidget) | **GET** /api/Todo/{id} | 
 *TodoApi* | [**apiTodoPatch**](docs/TodoApi.md#apitodopatch) | **PATCH** /api/Todo | 
 *TodoApi* | [**apiTodoPost**](docs/TodoApi.md#apitodopost) | **POST** /api/Todo | 
+*TodoApi* | [**apiTodoSearchGet**](docs/TodoApi.md#apitodosearchget) | **GET** /api/Todo/search | 
 
 
 ### Models
 
 - [AccountDto](docs/AccountDto.md)
 - [AccountProfile](docs/AccountProfile.md)
+- [CorpusDto](docs/CorpusDto.md)
 - [CreateAccountCommand](docs/CreateAccountCommand.md)
+- [CreateCorpusCommand](docs/CreateCorpusCommand.md)
 - [CreateTagCommand](docs/CreateTagCommand.md)
+- [CreateTodoCommand](docs/CreateTodoCommand.md)
+- [DeleteCorepusCommand](docs/DeleteCorepusCommand.md)
 - [DeleteFileCommand](docs/DeleteFileCommand.md)
 - [DeleteTagCommand](docs/DeleteTagCommand.md)
-- [FileMetadataDto](docs/FileMetadataDto.md)
+- [DeleteTodoCommand](docs/DeleteTodoCommand.md)
+- [FileDto](docs/FileDto.md)
 - [LoginCommand](docs/LoginCommand.md)
 - [SubscriptionDto](docs/SubscriptionDto.md)
 - [TagDto](docs/TagDto.md)
 - [TodoDto](docs/TodoDto.md)
-- [TodoForAdd](docs/TodoForAdd.md)
+- [TodoStatus](docs/TodoStatus.md)
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
 - [UpdateTagCommand](docs/UpdateTagCommand.md)
+- [UpdateTodoCommand](docs/UpdateTodoCommand.md)
 
 ### Authorization
 

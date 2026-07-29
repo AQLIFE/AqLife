@@ -11,7 +11,7 @@ namespace MyLife.Domain.Entities
     {
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
-        [Column, Description("仅存储文件名,不含后缀")]
+        [Column, Description("仅存储文件名,不含后缀"),StringLength(64)]
         public string FileName { get; set; } = string.Empty;
         [Column]
         public string Extension { get; set; } = string.Empty;
@@ -22,6 +22,9 @@ namespace MyLife.Domain.Entities
         public string FileHash { set; get; }
         [Column]
         public DateTime UploadTime { set; get; } = DateTime.UtcNow;
+        
+        [NotMapped]
+        public string StorageName => UID + Extension;
 
         public virtual ICollection<FileTagEntity> FileTags { get; set; } = [];
 

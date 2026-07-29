@@ -10,6 +10,9 @@ using MyLife.Shared.Utils;
 
 namespace MyLife.Application.Business.Account.Validator
 {
+    /// <summary>
+    /// 更新头像必须是图像类型
+    /// </summary>
     public class AvatarExtensionValidator : AbstractValidator<UpdateAccountAvatarCommand>
     {
         private readonly HashSet<string> Extension = [".png", ".jpeg", ".jpg"];
@@ -19,39 +22,32 @@ namespace MyLife.Application.Business.Account.Validator
     }
 
     /// <summary>
-    /// 更新时账户头像以及订阅链接图像检查:不可为空
-    /// </summary>
-    public class SubscriptionIconRequiredValidator : AbstractValidator<UpdateAccountSubscriptionsCommand>
-    {
-        private protected override string ErrorMessage { init; get; } = "配置账户的图像文件缺失";
-        private protected override async Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
-        => command.Subscriptions is not null
-            && command.Subscriptions.Count() > 0
-            && command.Subscriptions.Count(e => e.SubscriptionIcon != null) == command.Subscriptions.Count();
-    }
-
-    /// <summary>
     ///  更新的订阅ID 必须全部为有效ID
     /// </summary>
     /// <param name="storage"></param>
     public class SubscriptionIconExistenceValidator(IApplicationDbContext storage) : AbstractValidator<UpdateAccountSubscriptionsCommand>
     {
-        private protected override string ErrorMessage { init; get; } = "配置账户的图像文件信息不存在";
+        private protected override string ErrorMessage { init; get; } = "配置账户的图像文件不存在";
         private protected override async Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         {
             // 1. 提取所有非空且非 Empty 的 GUID（去重），实现“按需验证” [cite: 16]
-            var iconsToCheck = command.Subscriptions
-                .Where(s => s.SubscriptionIcon.HasValue && s.SubscriptionIcon.Value != Guid.Empty && s.SubscriptionIcon is Guid)
-                .Select(s => s.SubscriptionIcon!.Value)
-                .Distinct()
-                .ToList();
+            var iconsToCheck = command.Subscriptions.Where(s => s.SubscriptionIcon != Guid.Empty).Select(e=>e.SubscriptionIcon).Distinct().ToList();
 
             // 3. 数据库侧验证：仅查询存在的数量是否与待检查数量一致 [cite: 27, 28]
-            var existingCount = await storage.File
-                .Where(f => iconsToCheck.Contains(f.UID))
-                .CountAsync(ct);
+            var existingCount = await storage.File.Where(f => iconsToCheck.Contains(f.UID)).CountAsync(ct);
 
             return existingCount == iconsToCheck.Count;
+        }
+    }
+
+    public class SubscriptionIconExtensionValidator(IApplicationDbContext dbContext) : AbstractValidator<UpdateAccountSubscriptionsCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "订阅图像必须是SVG文件类型";
+        private protected override async Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
+        {
+            IEnumerable<Guid> guids = command.Subscriptions.Select(e => e.SubscriptionIcon).AsEnumerable();
+            List<FileMetaEntity> files = await dbContext.File.AsNoTracking().Where(r => guids.Contains(r.UID)).ToListAsync();
+            return files.All(e => e.Extension == ".svg");
         }
     }
 

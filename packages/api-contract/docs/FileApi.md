@@ -146,7 +146,7 @@ No authorization required
 
 ## apiFileGet
 
-> Array&lt;FileMetadataDto&gt; apiFileGet(uID, title)
+> Array&lt;FileDto&gt; apiFileGet(uID, title)
 
 
 
@@ -192,7 +192,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;FileMetadataDto&gt;**](FileMetadataDto.md)
+[**Array&lt;FileDto&gt;**](FileDto.md)
 
 ### Authorization
 

@@ -1,10 +1,10 @@
 import { reactive, ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { FileApi, FileMetadataDto } from '@/api'
+import type { FileApi, FileDto } from '@/api'
 import { isImageType } from '@aqlife/domain'
 
 export const useFileStore = defineStore('file', () => {
-  const fileList = ref<FileMetadataDto[]>([])
+  const fileList = ref<FileDto[]>([])
   const previewUrl = reactive<Map<String,string>>(new Map<string, string>())
   const isInitialized = ref(false)
 

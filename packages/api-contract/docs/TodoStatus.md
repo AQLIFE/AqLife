@@ -1,26 +1,20 @@
 
-# CreateTagCommand
+# TodoStatus
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`name` | string
-`aliasName` | string
-`isCategory` | boolean
 
 ## Example
 
 ```typescript
-import type { CreateTagCommand } from '@aqlife/api-contract'
+import type { TodoStatus } from '@aqlife/api-contract'
 
 // TODO: Update the object below with actual values
 const example = {
-  "name": null,
-  "aliasName": null,
-  "isCategory": null,
-} satisfies CreateTagCommand
+} satisfies TodoStatus
 
 console.log(example)
 
@@ -29,7 +23,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as CreateTagCommand
+const exampleParsed = JSON.parse(exampleJSON) as TodoStatus
 console.log(exampleParsed)
 ```
 

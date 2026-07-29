@@ -5,7 +5,7 @@ import type { AccountDto } from '@/api'
 
 export const useAccountStore = defineStore('account', () => {
   const bearerToken = ref<string | null>(tokenStore.get())
-  const systemAccount = ref<AccountDto|null>(null)
+  const systemAccount = ref<AccountDto|undefined>()
 
   function setToken(token: string | null) {
     tokenStore.set(token)

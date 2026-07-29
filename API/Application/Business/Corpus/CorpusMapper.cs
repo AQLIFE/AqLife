@@ -10,9 +10,9 @@ namespace MyLife.Application.Business.Corpus
     public partial class CorpusMapper : IViewMapper<CorpusEntity, CorpusDto>, ICreateMapper<CorpusEntity, CreateCorpusCommand>
     {
         public partial CorpusDto ToDto(CorpusEntity source);
+        
+        public CorpusEntity ToEntity(CreateCorpusCommand command) => new (command.Content);
 
-        [MapperIgnoreTarget(nameof(CorpusEntity.UID))]
-        [MapProperty(nameof(CreateCorpusCommand.Content), nameof(CorpusEntity.CorpusContent))]
-        public partial CorpusEntity ToEntity(CreateCorpusCommand command);
+        public string Convert(DateTime dateTime) => dateTime.ToString(); 
     }
 }

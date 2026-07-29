@@ -60,7 +60,7 @@ async function commit() {
   try {
     ElMessage.warning('正在创建永久 Tags,若要删除,请移步至 tag 管理面板')
 
-    const tempUid = await tagApi.apiTagPost({ createTagCommand: { tagName: tempTag.value } })
+    const tempUid = await tagApi.apiTagPost({ createTagCommand: { name: tempTag.value } })
     const tempTagDto = await tagApi.apiTagGet({ uID: tempUid })
     tagSelectList.value?.push(tempTagDto[0])
     tempTag.value = ''

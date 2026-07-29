@@ -1,26 +1,34 @@
 
-# CreateTagCommand
+# FileDto
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`name` | string
-`aliasName` | string
-`isCategory` | boolean
+`uid` | string
+`fileName` | string
+`tags` | [Array&lt;TagDto&gt;](TagDto.md)
+`fileSize` | number
+`fileHash` | string
+`uploadTime` | string
+`fileType` | string
 
 ## Example
 
 ```typescript
-import type { CreateTagCommand } from '@aqlife/api-contract'
+import type { FileDto } from '@aqlife/api-contract'
 
 // TODO: Update the object below with actual values
 const example = {
-  "name": null,
-  "aliasName": null,
-  "isCategory": null,
-} satisfies CreateTagCommand
+  "uid": null,
+  "fileName": null,
+  "tags": null,
+  "fileSize": null,
+  "fileHash": null,
+  "uploadTime": null,
+  "fileType": null,
+} satisfies FileDto
 
 console.log(example)
 
@@ -29,7 +37,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as CreateTagCommand
+const exampleParsed = JSON.parse(exampleJSON) as FileDto
 console.log(exampleParsed)
 ```
 

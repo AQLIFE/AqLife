@@ -19,10 +19,10 @@ import {
     DeleteFileCommandToJSON,
 } from '../models/DeleteFileCommand';
 import {
-    type FileMetadataDto,
-    FileMetadataDtoFromJSON,
-    FileMetadataDtoToJSON,
-} from '../models/FileMetadataDto';
+    type FileDto,
+    FileDtoFromJSON,
+    FileDtoToJSON,
+} from '../models/FileDto';
 import {
     type UpdateFileTagCommand,
     UpdateFileTagCommandFromJSON,
@@ -125,11 +125,11 @@ export interface FileApiInterface {
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
-    apiFileGetRaw(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<FileMetadataDto>>>;
+    apiFileGetRaw(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<FileDto>>>;
 
     /**
      */
-    apiFileGet(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<FileMetadataDto>>;
+    apiFileGet(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<FileDto>>;
 
     /**
      * Creates request options for apiFilePatch without sending the request
@@ -329,16 +329,16 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
     /**
      */
-    async apiFileGetRaw(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<FileMetadataDto>>> {
+    async apiFileGetRaw(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<FileDto>>> {
         const requestOptions = await this.apiFileGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(FileMetadataDtoFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(FileDtoFromJSON));
     }
 
     /**
      */
-    async apiFileGet(requestParameters: ApiFileGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<FileMetadataDto>> {
+    async apiFileGet(requestParameters: ApiFileGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<FileDto>> {
         const response = await this.apiFileGetRaw(requestParameters, initOverrides);
         return await response.value();
     }

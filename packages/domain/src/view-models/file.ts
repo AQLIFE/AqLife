@@ -1,7 +1,7 @@
-import type { FileMetadataDto, TagDto } from '@aqlife/api-contract'
+import type { FileDto, TagDto } from '@aqlife/api-contract'
 
 export interface FileListItemViewModel {
-  id: string | null
+  uid: string | null
   title: string
   tags: TagDto[]
   sizeLabel: string
@@ -14,9 +14,9 @@ function formatBytes(size = 0): string {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export function toFileListItemViewModel(dto: FileMetadataDto): FileListItemViewModel {
+export function toFileListItemViewModel(dto: FileDto): FileListItemViewModel {
   return {
-    id: dto.uid ?? null,
+    uid: dto.uid ?? null,
     title: dto.fileName?.trim() ?? '未命名文件',
     tags: dto.tags ?? [],
     sizeLabel: formatBytes(dto.fileSize ?? 0),
@@ -24,6 +24,6 @@ export function toFileListItemViewModel(dto: FileMetadataDto): FileListItemViewM
   }
 }
 
-export function toFileListViewModel(items: FileMetadataDto[]): FileListItemViewModel[] {
+export function toFileListViewModel(items: FileDto[]): FileListItemViewModel[] {
   return items.map(toFileListItemViewModel)
 }
