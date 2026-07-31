@@ -49,6 +49,7 @@ export interface ApiTodoPostRequest {
 export interface ApiTodoSearchGetRequest {
     uID?: string;
     desc?: string;
+    isTree?: boolean;
 }
 
 /**
@@ -144,6 +145,7 @@ export interface TodoApiInterface {
      * Creates request options for apiTodoSearchGet without sending the request
      * @param {string} [uID] 
      * @param {string} [desc] 
+     * @param {boolean} [isTree] 
      * @throws {RequiredError}
      * @memberof TodoApiInterface
      */
@@ -153,6 +155,7 @@ export interface TodoApiInterface {
      * 
      * @param {string} [uID] 
      * @param {string} [desc] 
+     * @param {boolean} [isTree] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TodoApiInterface
@@ -338,6 +341,10 @@ export class TodoApi extends runtime.BaseAPI implements TodoApiInterface {
 
         if (requestParameters['desc'] != null) {
             queryParameters['Desc'] = requestParameters['desc'];
+        }
+
+        if (requestParameters['isTree'] != null) {
+            queryParameters['IsTree'] = requestParameters['isTree'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

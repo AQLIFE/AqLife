@@ -4,7 +4,7 @@ using MyLife.Shared.IView;
 
 namespace MyLife.Domain.Command
 {
-    public record RandomCorpusQuery : IQuery<CorpusDto>;
+    public record RandomCorpusQuery : IQuery<string>;
     public record CorpusQuery(Guid? UID = null, string? Content = null) : IQuery<IEnumerable<CorpusDto>>;
     public record CreateCorpusCommand(string Content) : ICreateCommand;
     public record UpdateCorpusCommand(Guid UID, string Content) : IUpdateCommand, IRequireValidEntity<CorpusEntity>;

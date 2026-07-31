@@ -276,7 +276,7 @@ const columnMap: Record<string, string> = {
 
 onBeforeMount(async () => {
   await fileStore.fetchAllFiles(fileApi)
-  actionStore.onAdd = handleAddFile
+  // actionStore.onAdd = handleAddFile
   activeDto.value = { fileName: '', fileHash: '', fileType: '', fileSize: 0 }
 })
 
@@ -285,7 +285,7 @@ function handleAddFile() {
   // drawerStatus.value = !drawerStatus.value
 }
 
-onBeforeUnmount(() => actionStore.resetActions())
+// onBeforeUnmount(() => actionStore.resetActions())
 </script>
 
 <style lang="css" scoped>

@@ -201,7 +201,7 @@ No authorization required
 
 ## apiCorpusRandomGet
 
-> CorpusDto apiCorpusRandomGet()
+> string apiCorpusRandomGet()
 
 
 
@@ -236,7 +236,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**CorpusDto**](CorpusDto.md)
+**string**
 
 ### Authorization
 

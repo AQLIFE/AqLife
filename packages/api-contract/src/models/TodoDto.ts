@@ -67,6 +67,12 @@ export interface TodoDto {
      * @memberof TodoDto
      */
     todoList?: Array<TodoDto> | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TodoDto
+     */
+    hasChildren?: boolean;
 }
 
 /**
@@ -94,6 +100,7 @@ export function TodoDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): T
         'completedAt': json['completedAt'] == null ? undefined : json['completedAt'],
         'priority': json['priority'] == null ? undefined : json['priority'],
         'todoList': json['todoList'] == null ? undefined : ((json['todoList'] as Array<any>).map(TodoDtoFromJSON)),
+        'hasChildren': json['hasChildren'] == null ? undefined : json['hasChildren'],
     };
 }
 
@@ -116,6 +123,7 @@ export function TodoDtoToJSONTyped(value?: TodoDto | null, ignoreDiscriminator: 
         'completedAt': value['completedAt'],
         'priority': value['priority'],
         'todoList': value['todoList'] == null ? undefined : ((value['todoList'] as Array<any>).map(TodoDtoToJSON)),
+        'hasChildren': value['hasChildren'],
     };
 }
 

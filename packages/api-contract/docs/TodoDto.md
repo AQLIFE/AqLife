@@ -14,6 +14,7 @@ Name | Type
 `completedAt` | string
 `priority` | number
 `todoList` | [Array&lt;TodoDto&gt;](TodoDto.md)
+`hasChildren` | boolean
 
 ## Example
 
@@ -30,6 +31,7 @@ const example = {
   "completedAt": null,
   "priority": null,
   "todoList": null,
+  "hasChildren": null,
 } satisfies TodoDto
 
 console.log(example)

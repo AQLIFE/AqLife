@@ -6,18 +6,19 @@ import DevPlanCard from './components/DevPlanCard.vue'
 import FAuthorCard from '@/components/skeletons/FAuthorCard.vue'
 import SearchBox from '@/components/SearchBox.vue'
 import { SidebarType } from '@/types/sidebarType'
-import CalendarSelector from '@/components/CalendarSelector.vue'
+import { useAuthorInfoStore } from './stores/useAuthorInfoStore.ts'
 const route = useRoute()
+const accountStore = useAuthorInfoStore()
 </script>
 
 <template>
-  <div id="baseLayout">
+  <div id="baseLayout" v-loading="!accountStore.userInfo.subscriptions">
     <div id="tools">
       <div class="template">
         <SearchBox />
       </div>
       <div class="template">
-        <CalendarSelector />
+        <!-- <CalendarSelector /> -->
       </div>
       <div class="template">3</div>
     </div>

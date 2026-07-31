@@ -8,4 +8,6 @@ export enum WebIconName {
   Wish = 'WishIcon',
   Random = 'RandomIcon',
   Skill = 'SkillIcon',
+  Key = 'KeyIcon',
+  Markdown = 'MarkdownIcon'
 }

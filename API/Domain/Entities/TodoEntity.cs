@@ -31,18 +31,22 @@ namespace MyLife.Domain.Entities
         public int Priority { get; set; } = 0;
 
         [ForeignKey(nameof(FTID))]
-        public ICollection<TodoEntity> TodoList { get; set; } = [];
+        public ICollection<TodoEntity> Children { get; set; } = [];
+
+        [NotMapped]
+        public bool HasChildren => Children != null && Children.Count > 0;
 
 
-        public void Update(string content, TodoStatus status, int priority)
+        public void Update(string content, TodoStatus status, int priority=0)
         {
             Desc = content;
             Status = status;
-            Priority = priority;
             if (status == TodoStatus.Completed)
             {
                 CompletedAt = DateTime.UtcNow;
+                priority = 0;
             }
+            Priority = priority;
         }
     }
 }
