@@ -7,6 +7,7 @@ namespace MyLife.Application.Mappers
     [Mapper]
     public partial class QueryMapper
     {
+        [MapperIgnoreSource(nameof(TodoQuery.IsTree))]
         [MapProperty(nameof(TodoQuery.Desc), nameof(EntitySearchCriteria.Keyword))]
         public partial EntitySearchCriteria ToCriteria(TodoQuery query);
 

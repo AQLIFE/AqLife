@@ -4,7 +4,7 @@ import { handle } from '@/utils/request'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export const useDevPlanStore = defineStore('dev-plan', () => {
+export const useTodoStore = defineStore('dev-plan', () => {
   const todoList = ref<TodoDto[]>([])
   const api = new TodoApi(apiConfiguration)
   const getAll = async () => {

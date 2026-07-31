@@ -18,6 +18,6 @@ namespace MyLife.Application.Business.Todo.Search
         => queryMapper.ToCriteria(query);
 
         protected override async Task<IQueryable<TodoEntity>> BuildBaseQueryAsync(IQueryable<TodoEntity> queryable, TodoQuery query)
-       => queryable.Include(e => e.TodoList);
+       => query.IsTree? queryable.Where(t => t.FTID == null).Include(e => e.Children):queryable;
     }
 }

@@ -266,7 +266,7 @@ No authorization required
 
 ## apiTodoSearchGet
 
-> Array&lt;TodoDto&gt; apiTodoSearchGet(uID, desc)
+> Array&lt;TodoDto&gt; apiTodoSearchGet(uID, desc, isTree)
 
 
 
@@ -288,6 +288,8 @@ async function example() {
     uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
     // string (optional)
     desc: desc_example,
+    // boolean (optional)
+    isTree: true,
   } satisfies ApiTodoSearchGetRequest;
 
   try {
@@ -309,6 +311,7 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **desc** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **isTree** | `boolean` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 

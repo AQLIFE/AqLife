@@ -123,11 +123,11 @@ export interface CorpusApiInterface {
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
      */
-    apiCorpusRandomGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CorpusDto>>;
+    apiCorpusRandomGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
 
     /**
      */
-    apiCorpusRandomGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CorpusDto>;
+    apiCorpusRandomGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
     /**
      * Creates request options for apiCorpusSearchGet without sending the request
@@ -294,16 +294,20 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
 
     /**
      */
-    async apiCorpusRandomGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CorpusDto>> {
+    async apiCorpusRandomGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const requestOptions = await this.apiCorpusRandomGetRequestOpts();
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => CorpusDtoFromJSON(jsonValue));
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
     }
 
     /**
      */
-    async apiCorpusRandomGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CorpusDto> {
+    async apiCorpusRandomGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiCorpusRandomGetRaw(initOverrides);
         return await response.value();
     }

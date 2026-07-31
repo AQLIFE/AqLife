@@ -19,16 +19,9 @@ namespace MyLife.Web.Controllers
             => await mediator.Send(query, ct);
 
         [HttpGet("random"), AllowAnonymous]
-        public async Task<CorpusDto?> GetRandomCorpus(CancellationToken ct)
+        public async Task<string> GetRandomCorpus(CancellationToken ct)
         => await mediator.Send(new RandomCorpusQuery(), ct);
-        //{
-        //    var count = await storage.Corpus.CountAsync();
-        //    if (count == 0) return "没有任何语料";
-        //    var randomIndex = new Random().Next(count);
-        //    var corpus = await storage.Corpus.OrderBy(e => e.UID).Skip(randomIndex).FirstOrDefaultAsync();
-        //    return corpus?.CorpusContent ?? "不存在语料";
-        //}
-
+        
         [HttpPost]
         public async Task<Guid> AddCorpus(CreateCorpusCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);

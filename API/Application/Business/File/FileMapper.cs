@@ -10,6 +10,7 @@ namespace MyLife.Application.Business.File
     public partial class FileMapper(TagMapper tagMapper)
         : IViewMapper<FileMetaEntity, FileDto>
     {
+        [MapperIgnoreSource(nameof(FileMetaEntity.StorageName))]
         [MapProperty(nameof(FileMetaEntity.Extension), nameof(FileDto.FileType))]
         [MapProperty(nameof(FileMetaEntity.FileTags), nameof(FileDto.Tags))]
         public partial FileDto ToDto(FileMetaEntity source);

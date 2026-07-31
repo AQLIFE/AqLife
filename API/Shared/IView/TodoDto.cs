@@ -15,6 +15,7 @@ namespace MyLife.Shared.IView
         DateTime? CompletedAt,// 任务完成时间，默认为空，只有当任务状态为Completed时才会有值
 
         int Priority,// 任务优先级,数值越大优先级越高，默认为0
-        ICollection<TodoDto> TodoList
+        ICollection<TodoDto> TodoList,
+        bool HasChildren
     ) : IEntityDto;
 }

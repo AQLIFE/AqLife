@@ -1,6 +1,6 @@
 <template>
   <ElRow style="height: 120px;">
-    <ElButton :disabled="!actionStore.onAdd" @click="actionStore.onAdd?.()">Add</ElButton>
+    <!-- <ElButton :disabled="!actionStore.onAdd" @click="actionStore.onAdd?.()">Add</ElButton> -->
     <!-- <ElButton :disabled="!actionStore.onUpdate" @click="actionStore.onUpdate?.()">Update</ElButton> -->
     <!-- <ElButton :disabled="!actionStore.onDelete" @click="actionStore.onDelete?.()">Delete</ElButton> -->
     <ElButton>View</ElButton>
