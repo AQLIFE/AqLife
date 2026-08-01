@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { ElCol,ElAnchorLink,ElAnchor } from 'element-plus';
-import { useBlogStore } from '@/stores/useBlogStore'
+import { useArticleStore } from '@/stores/articleStore';
 
-const blogStore = useBlogStore()
+const articleStore = useArticleStore()
 </script>
 
 <template>
     <ElCol>
         <ElCol style="color:lightslategray">
-            {{ blogStore.blogTitle }}
+            {{ articleStore.blogTitle }}
         </ElCol>
-        <ElAnchor>
-            <!-- <ElAnchorLink v-for="item in blog..filter(i=>i.level<=3)" :key="item.id" :href="'#' + item.id" :title="item.title" /> -->
+        <ElAnchor type="underline">
+            <ElAnchorLink style="line-height: 30px;" v-for="item,index in articleStore.toc" :key="index" :href="'#' + item.anchor" >
+            {{ item.title }}    
+            </ElAnchorLink>
         </ElAnchor>
     </ElCol>
 </template>

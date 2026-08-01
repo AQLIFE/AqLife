@@ -55,7 +55,7 @@ export const routes = [
       navIcon: WebIconName.Blog,
       showInNav: false,
       order: 3,
-      sidebarType: SidebarType.None,
+      sidebarType: SidebarType.Preview,
     },
   },
   {

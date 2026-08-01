@@ -1,19 +1,24 @@
 <template>
-  <ElCol>
-    <ElCol>header</ElCol>
+  <ElCol class="preview">
+    <ElPageHeader :icon="ArrowLeft" @back="$router.back()">
+      <template #content>
+        <span>{{articleStore.blogTitle}}</span>
+        <template v-if="fileMeta[0]">
+          <ElTag style="margin: 0px 20px;" v-for="item,index in fileMeta[0].tags" :key="index">{{ item.name }}</ElTag>
+        </template>
+      </template>
+      <template #extra>
+        <ElButton :icon="Share" link/>
+      </template>
+    </ElPageHeader>
+
     <div id="mdRender">
       <template v-for="(node, index) in renderNodes" :key="index">
-        <CodeBlock
-          v-if="node.type === 'component' && node.component === 'CodeBlock'"
-          :info="node.content"
-          :infoType="node.info"
-        />
+        <CodeBlock v-if="node.type === 'component' && node.component === 'CodeBlock'" :info="node.content"
+          :infoType="node.info" />
 
-        <MermaidPreview
-          v-else-if="node.type === 'component' && node.component === 'MermaidPreview'"
-          :info="node.content"
-          :info-type="node.info"
-        />
+        <MermaidPreview v-else-if="node.type === 'component' && node.component === 'MermaidPreview'"
+          :info="node.content" :info-type="node.info" />
         <TipPreview v-else-if="node.type == 'blockquote'" :quoteTokens="node.tokens" />
         <TablePreview v-else-if="node.type === 'table'" :tableTokens="node.tokens" />
 
@@ -24,23 +29,33 @@
 </template>
 
 <script lang="ts" setup>
-import { ElCol } from 'element-plus'
-import { useRoute } from 'vue-router'
-import { FileApi, type ApiFileDownloadGetRequest } from '@/api'
+import { ElCol, ElPageHeader,ElRow,ElButton, ElTag } from 'element-plus'
+import { useRoute, useRouter } from 'vue-router'
+import { FileApi, type ApiFileDownloadGetRequest, type FileDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { ref, onBeforeMount, computed } from 'vue'
+import { ref, onBeforeMount, computed, watch } from 'vue'
 import { mdRenderOption } from '@/data/mdRenderOption'
 import CodeBlock from '@/components/CodeBlock.vue'
 import MermaidPreview from '@/components/MermaidPreview.vue'
 import TablePreview from '@/components/TablePreview.vue'
 import TipPreview from '@/components/TipPreview.vue'
 import type Token from 'markdown-it/lib/token.mjs'
+import { useArticleStore } from '@/stores/articleStore'
+import { extractToc } from '@/services/markdownParser'
+import { ArrowLeft, Download, Share } from '@element-plus/icons-vue'
+const articleStore = useArticleStore()
+
 
 const route = useRoute()
+useRouter();
 const fileApi = new FileApi(apiConfiguration)
 
 const sourceMarkdown = ref<string>('')
 
+watch(sourceMarkdown, (value: string) => {
+  articleStore.markdown = value
+  articleStore.toc = extractToc(tokens.value)
+})
 const tokens = computed(() => mdRenderOption.parse(sourceMarkdown.value, {}))
 
 const renderTokens = (token: Token) =>
@@ -52,6 +67,7 @@ const renderNodes = computed(() => {
 
   for (let i = 0; i < allTokens.length; i++) {
     const token = allTokens[i]
+    console.log(i, token.type, token.tag, token.level, token.content)
 
     if (token.type === 'fence') {
       nodes.push({
@@ -85,7 +101,7 @@ const renderNodes = computed(() => {
   return nodes
 })
 
-async function downloadAndRenderMarkdown(params: ApiFileDownloadGetRequest) {
+async function getPreview(params: ApiFileDownloadGetRequest) {
   try {
     const responseWrapper = await fileApi.apiFilePreviewGetRaw(params)
     const response = responseWrapper.raw
@@ -102,17 +118,22 @@ async function downloadAndRenderMarkdown(params: ApiFileDownloadGetRequest) {
     return ''
   }
 }
-
+const fileMeta = ref<FileDto[]>([])
 onBeforeMount(async () => {
-  sourceMarkdown.value = await downloadAndRenderMarkdown({ uID: route.params.id as string })
+  sourceMarkdown.value = await getPreview({ uID: route.params.id as string })
+  fileMeta.value = await fileApi.apiFileGet({ uID: route.params.id as string })
+  if (fileMeta.value[0] != undefined) articleStore.blogTitle = fileMeta.value[0].fileName!
 })
 </script>
 
 <style lang="css" scoped>
+.preview{
+  display: grid;
+  height: 100vh;
+  grid-template-rows: auto 1fr;
+}
 #mdRender {
   width: 100%;
-  height: calc(100vh - 100px);
-
   overflow-y: auto;
 }
 
