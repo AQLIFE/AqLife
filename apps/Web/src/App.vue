@@ -7,6 +7,7 @@ import FAuthorCard from '@/components/skeletons/FAuthorCard.vue'
 import SearchBox from '@/components/SearchBox.vue'
 import { SidebarType } from '@/types/sidebarType'
 import { useAuthorInfoStore } from './stores/useAuthorInfoStore.ts'
+import TOC from './components/TOC.vue'
 const route = useRoute()
 const accountStore = useAuthorInfoStore()
 </script>
@@ -19,8 +20,9 @@ const accountStore = useAuthorInfoStore()
       </div>
       <div class="template">
         <!-- <CalendarSelector /> -->
+         <TOC v-if="route.meta.sidebarType == SidebarType.Preview"/>
       </div>
-      <div class="template">3</div>
+      <!-- <div class="template">3</div> -->
     </div>
     <div id="content">
       <div class="template"><NavigationBar /></div>
@@ -52,7 +54,7 @@ const accountStore = useAuthorInfoStore()
 /*---------------------tools------------------------ */
 #tools {
   display: grid;
-  grid-template-rows: 1fr 2fr 3fr;
+  grid-template-rows: auto 1fr;
   /* 设置 三行独立高度*/
 }
 
