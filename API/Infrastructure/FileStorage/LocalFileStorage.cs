@@ -39,5 +39,12 @@ namespace MyLife.Infrastructure.FileStorage
             if (!File.Exists(LocalPath)) throw new FileNotFoundException("文件丢失");
             return new FileStream(LocalPath, FileMode.Open, FileAccess.Read);
         }
+
+        public async Task<string> GetContent(string fileName)
+        {
+            string LocalPath = GetPath(fileName);
+            if (!File.Exists(LocalPath)) throw new FileNotFoundException("文件丢失");
+            return await File.ReadAllTextAsync(LocalPath);
+        }
     }
 }

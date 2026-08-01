@@ -8,7 +8,8 @@
         ulong FileSize = 0u,
         string FileHash = "",
         string UploadTime = "",
-        string FileType = ""
+        string FileType = "",
+        string FileIntroduction = ""
     ) : IEntityDto;
 
     public record FileDownloadModel(

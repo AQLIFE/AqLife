@@ -13,6 +13,7 @@ Name | Type
 `fileHash` | string
 `uploadTime` | string
 `fileType` | string
+`fileIntroduction` | string
 
 ## Example
 
@@ -28,6 +29,7 @@ const example = {
   "fileHash": null,
   "uploadTime": null,
   "fileType": null,
+  "fileIntroduction": null,
 } satisfies FileDto
 
 console.log(example)

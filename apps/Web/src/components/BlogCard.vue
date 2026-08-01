@@ -5,7 +5,7 @@
           <!-- <ElRow class="header">
           </ElRow> -->
         </template>
-        <ElCol style="padding: 10px 25px;">博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头</ElCol>
+        <ElCol style="padding: 10px 25px;">{{ blog.fileIntroduction??demo }}</ElCol>
         <template #footer>
           <ElRow>
             <ElCol :span="14 ">
@@ -25,4 +25,5 @@ import { View } from '@element-plus/icons-vue';
 import { ElCard, ElCol, ElIcon, ElRow,ElTag } from 'element-plus';
 import type { FileDto } from '@/api';
 defineProps<{blog:FileDto}>()
+const demo = '博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头博文开头'
 </script>
