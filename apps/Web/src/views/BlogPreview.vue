@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ElCol, ElPageHeader,ElRow,ElButton, ElTag } from 'element-plus'
+import { ElCol, ElPageHeader,ElButton, ElTag } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { FileApi, type ApiFileDownloadGetRequest, type FileDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
@@ -42,7 +42,7 @@ import TipPreview from '@/components/TipPreview.vue'
 import type Token from 'markdown-it/lib/token.mjs'
 import { useArticleStore } from '@/stores/articleStore'
 import { extractToc } from '@/services/markdownParser'
-import { ArrowLeft, Download, Share } from '@element-plus/icons-vue'
+import { ArrowLeft, Share } from '@element-plus/icons-vue'
 const articleStore = useArticleStore()
 
 

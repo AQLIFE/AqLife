@@ -25,6 +25,8 @@ namespace MyLife.Domain.Entities
         
         [NotMapped]
         public string StorageName => UID + Extension;
+        [NotMapped]
+        public string FileIntroduction { set; get; } = string.Empty;
 
         public virtual ICollection<FileTagEntity> FileTags { get; set; } = [];
 
@@ -42,6 +44,10 @@ namespace MyLife.Domain.Entities
             Extension = Path.GetExtension(file.FileName).ToLowerInvariant() ?? string.Empty;
             FileSize = (ulong)file.Length;
             FileHash = hash;
+        }
+        public void SetFileIntroduction(string content)
+        {
+            FileIntroduction = content;
         }
     }
 }

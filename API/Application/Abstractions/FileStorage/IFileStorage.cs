@@ -9,5 +9,6 @@
         bool Exists(string fileName);
 
         Stream OpenRead(string fileName);
+        Task<string> GetContent(string fileName);
     }
 }
