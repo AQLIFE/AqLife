@@ -1,22 +1,64 @@
 <template>
-  <ElMenu mode="vertical" router collapse-transition v-for="item,index in routes" :key="index">
-    <el-sub-menu :index="item.path" v-if="item.children && item.meta.showInNav">
+  <ElMenu mode="vertical" router :default-active="route.path" collapse-transition v-for="item, index in viewRoutes" :key="index">
+    <ElSubMenu :index="item.path" v-if="item.children && item.meta.showInNav && index==0">
       <template #title>
-        <el-icon><component :is="item.meta?.navIcon" /></el-icon>
-        <span>{{ item.meta?.navTitle }}</span>
+        <ElIcon>
+          <component :is="item.meta?.navIcon" />
+        </ElIcon>
+        <ElCol :span="11">{{ item.meta?.navTitle }}</ElCol>
       </template>
-      <el-menu-item v-for="innerItem,inerIndex in item.children" :index="item.path +'/'+innerItem.path" :key="index-inerIndex">{{ innerItem.path }}</el-menu-item>
-    </el-sub-menu>
+      <ElMenuItem v-for="innerItem, inerIndex in item.children" :index="item.path + '/' + innerItem.path"
+        :key="index + '-' + inerIndex">
+        {{ innerItem.path }}
+      </ElMenuItem>
+    </ElSubMenu>
 
-    <el-menu-item :index="item.path" v-else-if="item.meta?.showInNav">
-      <el-icon><component :is="item.meta?.navIcon" /></el-icon>
-      <span>{{ item.meta?.navTitle }}</span>
-    </el-menu-item>
+    <ElMenuItem :index="item.path" v-else-if="index == 1">
+      <ElIcon>
+        <component :is="item.meta?.navIcon" />
+      </ElIcon>
+      <ElCol :span="8">{{ item.meta?.navTitle }}</ElCol>
+      <ElSegmented v-model="selectStatus" :options="item.children" :props="{ label: 'path', value: 'path' }" @change="handleSegmentedChange(item.path)"/>
+    </ElMenuItem>
+
+    <ElMenuItem :index="item.path" v-else>
+      <ElIcon>
+        <component :is="item.meta?.navIcon" />
+      </ElIcon>
+      <ElCol :span="8">{{ item.meta?.navTitle }}</ElCol>
+    </ElMenuItem>
 
   </ElMenu>
 </template>
 <script setup lang="ts">
-import { ElMenu, ElMenuItem, ElIcon, ElSubMenu } from 'element-plus'
+import { ElMenu,ElRow,ElCol, ElMenuItem, ElIcon, ElSubMenu, ElSegmented } from 'element-plus'
 import { routes } from '@/router/routes'
+import { useRoute, useRouter } from 'vue-router';
+import { ref,computed, watch } from 'vue';
+import { List, Document, View } from '@element-plus/icons-vue';
+const router = useRouter()
+const route = useRoute()
+
+const viewRoutes = computed(() =>
+  routes
+    .filter(route => route.meta?.showInNav)
+    .sort((a, b) => (a.meta?.order ?? 0) - (b.meta?.order ?? 0))
+)
+const selectStatus = ref('')
+function handleSegmentedChange(path: string) {
+  router.push(`${path}/${selectStatus.value}`)
+}
+
+watch(
+  () => route.path,
+  (path) => {
+    if (path.startsWith('/blog/')) {
+      selectStatus.value = path.split('/')[2] ?? ''
+    } else {
+      selectStatus.value = ''
+    }
+  },
+  { immediate: true }
+)
 </script>
 <style lang="css" scoped></style>

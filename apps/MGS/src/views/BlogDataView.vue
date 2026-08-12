@@ -57,8 +57,9 @@
           :disabled="filterDisabled"
         />
       </ElCol>
-      <ElCol :span="2">
-        <ElButton style="width: inherit;" :icon="Plus" @click="handleAddFile"/>
+      <ElCol :span="3">
+        <ElButton style="width: inherit;" :icon="Upload" @click="handleUploadFile" type="warning"/>
+        <ElButton style="width: inherit;" :icon="Plus" @click="handleAddFile" type="success"/>
       </ElCol>
     </ElRow>
     <ElTable :data="tableData" highlight-current-row @row-click="activeRow" style="height:100%;">
@@ -105,9 +106,9 @@
 
       </ElTable>
 
-    <FileUpload v-if="actionStore.OState == OperationalState.Add" v-model:file-list="UploadContext.fileList"
+    <FileUpload v-model:file-list="UploadContext.fileList"
       v-model:tags="UploadContext.tags" />
-    <FileTool v-else-if="actionStore.OState == OperationalState.Update" :initial-tags="activeDto.tags!"
+    <FileTool  :initial-tags="activeDto.tags!"
       v-model:model-value="activeDto" />
     <!-- 防止tag修改渗透,仅允许在update事件成功以后,由update回调至fileDto -->
   </ElCol>
@@ -138,7 +139,7 @@ import { useFileStore } from '@/stores/useFileStore'
 import { useActionStore, OperationalState } from '@/stores/useActionStore'
 import FileUpload from '@/components/FileUpload.vue'
 import FileTool from '@/components/FileTool.vue'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus,Upload } from '@element-plus/icons-vue'
 import { defaultFilePolicy } from '@aqlife/domain'
 
 // 子组件参数
@@ -280,9 +281,13 @@ onBeforeMount(async () => {
   activeDto.value = { fileName: '', fileHash: '', fileType: '', fileSize: 0 }
 })
 
-function handleAddFile() {
+function handleUploadFile() {
+  actionStore.OState = OperationalState.Upload
+  console.log(actionStore.OState)
+}
+
+function handleAddFile(){
   actionStore.OState = OperationalState.Add
-  // drawerStatus.value = !drawerStatus.value
 }
 
 // onBeforeUnmount(() => actionStore.resetActions())

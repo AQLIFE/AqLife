@@ -1,5 +1,5 @@
 <template>
-  <ElDrawer v-model="drawerStatus" title="上传新文件" with-header :show-close="false" @close="close">
+  <ElDrawer v-model="drawerStatus" title="上传新文件" with-header :show-close="false">
   <ElDescriptions border :column="1">
     <ElDescriptionsItem label="上传">
       <ElUpload
@@ -81,7 +81,15 @@ const fileApi = new FileApi(apiConfiguration)
 const fileList = defineModel<UploadUserFile[]>('fileList', { default: () => [] })
 const tags = defineModel<TagDto[]>('tags', { default: () => [] })
 
-const drawerStatus = computed(()=>actionStore.OState == OperationalState.Add)
+const drawerStatus = computed({
+  get: () => actionStore.OState === OperationalState.Upload,
+
+  set: (value: boolean) => {
+    if (!value && actionStore.OState === OperationalState.Upload) {
+      actionStore.OState = OperationalState.None
+    }
+  }
+})
 const selectDisabled = computed(() => fileList.value.length <= 0)
 
 // 组件方法
@@ -92,7 +100,6 @@ function remove(index:number){
 
 function close(){
   actionStore.OState = OperationalState.None
-  // console.log(actionStore.OState)
 }
 
 async function commit() {
