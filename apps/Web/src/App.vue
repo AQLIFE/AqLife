@@ -8,6 +8,8 @@ import SearchBox from '@/components/SearchBox.vue'
 import { SidebarType } from '@/types/sidebarType'
 import { useAuthorInfoStore } from './stores/useAuthorInfoStore.ts'
 import TOC from './components/TOC.vue'
+import BlogOverview from '@/components/BlogOverview.vue'
+import ADemo from './components/ADemo.vue'
 const route = useRoute()
 const accountStore = useAuthorInfoStore()
 </script>
@@ -21,8 +23,8 @@ const accountStore = useAuthorInfoStore()
       <div class="template">
         <!-- <CalendarSelector /> -->
          <TOC v-if="route.meta.sidebarType == SidebarType.Preview"/>
+         <ADemo v-else/>
       </div>
-      <!-- <div class="template">3</div> -->
     </div>
     <div id="content">
       <div class="template"><NavigationBar /></div>
@@ -34,6 +36,7 @@ const accountStore = useAuthorInfoStore()
       </div>
       <div class="template">
         <DevPlanCard v-if="route.meta.sidebarType === SidebarType.About" />
+        <BlogOverview v-else/>
       </div>
     </div>
   </div>

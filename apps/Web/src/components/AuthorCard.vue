@@ -9,9 +9,6 @@
                 </template>
             </ElImage>
             <ElCol class="authorInfo">
-                <ElIcon style="position: relative;top:6px;">
-                    <User />
-                </ElIcon>
                 {{ userInfo.name }}
             </ElCol>
             <ElCol class="authorInfo">{{ userInfo.desc }}</ElCol>
@@ -34,14 +31,14 @@
                 </ElImage>
             </ElLink>
         </div>
-        <div class="template">
+        <!-- <div class="template">
             <ElCol class="demo">正在编写NET ...</ElCol>
-        </div>
+        </div> -->
     </ElCard>
 </template>
 
 <script lang="ts" setup>
-import { Picture, User } from '@element-plus/icons-vue'
+import { Picture } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useAuthorInfoStore } from '@/stores/useAuthorInfoStore'
 import { ElImage, ElCol, ElIcon, ElLink, ElCard } from 'element-plus'
@@ -60,9 +57,9 @@ const previewRequest = (guid: string) =>
     background-color: var(--topColor);
 }
 
-#author .template:nth-child(even) {
+/* #author .template:nth-child(even) {
     margin: -20px 0px;
-}
+} */
 
 
 /*-------------------设置第1个template的布局---------------------*/

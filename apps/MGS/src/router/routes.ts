@@ -5,12 +5,12 @@ import { User, Document, PriceTag, List } from '@element-plus/icons-vue'
 import HomeView from '@/views/HomeView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import SubscriptionsView from '@/views/SubscriptionsView.vue'
-import BlogView from '@/views/BlogView.vue'
 import TagView from '@/views/TagView.vue'
 import TodoView from '@/views/TodoView.vue'
 import { SidebarType } from '@/types/sidebarType'
 import RegisterView from '@/views/RegisterView.vue'
 import BlogDataView from '@/views/BlogDataView.vue'
+import BlogView from '@/views/BlogView.vue'
 
 export const routes = [
   {
@@ -80,7 +80,7 @@ export const routes = [
   },
   {
     path: '/blog',
-    component: BlogDataView,
+    redirect:'/blog/list',
     meta: {
       navTitle: 'Blog',
       navIcon: Document,
@@ -88,6 +88,16 @@ export const routes = [
       order: 5,
       sidebarType: SidebarType.Data,
     },
+    children: [
+      {
+        path: 'list',
+        component: BlogDataView,
+      },
+      {
+        path: 'view',
+        component: BlogView,
+      },
+    ],
   },
   {
     path: '/tag',

@@ -1,5 +1,5 @@
 <template>
-  <ElRow class="layout" :gutter="10" v-lodding="!blogStore.cacheBlogList">
+  <ElRow class="layout" :gutter="10" v-lodding="isLodding">
     <ElCol v-for="item in blogStore.cacheBlogList" :key="item.uid" :span="12">
       <BlogCard  :blog="item"/>
     </ElCol>
@@ -12,10 +12,10 @@ import BlogCard from '@/components/BlogCard.vue'
 import { apiConfiguration } from '@/services/api'
 import { useBlogStore } from '@/stores/useBlogStore'
 import { ElRow, ElCol, ElMessage } from 'element-plus'
-import { onBeforeMount } from 'vue'
+import { onBeforeMount,ref } from 'vue'
 
 const blogStore = useBlogStore()
-
+const isLodding = ref<boolean>(!blogStore.cacheBlogList)
 onBeforeMount(async () => {
   const fileApi = new FileApi(apiConfiguration)
   try {

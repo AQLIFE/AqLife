@@ -24,7 +24,7 @@
                         <ElButton class="none" :icon="webIconRegistry[Markdown]" @click="router.push({path:`/preview/${item.uid}`})" link>{{ item.fileName }}</ElButton>
                     </ElCol>
                     <ElCol :span="10">
-                        <ElTag v-for="tag, index in item.tags" :key="index" :type="tag.isCategory ? 'success' : 'info'" style="height:100%;">{{tag.name}}</ElTag>
+                        <ElTag v-for="tag, index in item.tags" :key="index" :type="tag.isCategory?'success':'info'" style="height:100%;">{{tag.name}}</ElTag>
                     </ElCol>
                     <ElCol :span="2">
                         <ElButton @click="deleteSH(index)" :icon="Delete"/>
@@ -41,7 +41,7 @@
 <script lang="ts" setup>
 import { ElCol, ElCard, ElIcon, ElSelect, ElButton, ElTag, ElRow } from 'element-plus';
 import { Delete, Search } from '@element-plus/icons-vue';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeMount, onMounted, onUnmounted, ref } from 'vue';
 import { FileApi, type FileDto } from '@/api';
 import { apiConfiguration } from '@/services/api';
 import { WebIconName, webIconRegistry } from '@aqlife/icons'
@@ -118,7 +118,15 @@ onMounted(() => {
         }
     });
 });
-
+onBeforeMount(()=>{
+    if(SearchHistory.value.length>=1)
+{
+    SearchHistory.value.forEach(async item => {
+        item.tags =( await fileApi.apiFileGet({uID:item.uid}))[0].tags
+        console.log(item.tags)
+    });
+}
+})
 // 3. 组件卸载时：持久化写入 LocalStorage
 onUnmounted(() => {
     if (SearchHistory.value.length > 0) {
