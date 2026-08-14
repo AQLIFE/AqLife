@@ -10,6 +10,8 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@aqlife/api-contract": "*"
+    "@aqlife/api-contract": "*",
+    "markdown-it-anchor":"*",
+    "markdown-it":"*"
   }
 }

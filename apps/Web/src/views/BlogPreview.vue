@@ -13,7 +13,7 @@
     </ElPageHeader>
 
     <div id="mdRender">
-      <template v-for="(node, index) in renderNodes" :key="index">
+      <template v-for="(node, index) in rNode" :key="index">
         <CodeBlock v-if="node.type === 'component' && node.component === 'CodeBlock'" :info="node.content"
           :infoType="node.info" />
 
@@ -34,12 +34,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { FileApi, type ApiFileDownloadGetRequest, type FileDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { ref, onBeforeMount, computed, watch } from 'vue'
-import { mdRenderOption } from '@/data/mdRenderOption'
+import { mdRenderOption, renderNodes } from '@aqlife/domain'
 import CodeBlock from '@/components/CodeBlock.vue'
 import MermaidPreview from '@/components/MermaidPreview.vue'
 import TablePreview from '@/components/TablePreview.vue'
 import TipPreview from '@/components/TipPreview.vue'
-import type Token from 'markdown-it/lib/token.mjs'
 import { useArticleStore } from '@/stores/articleStore'
 import { extractToc } from '@/services/markdownParser'
 import { ArrowLeft, Share } from '@element-plus/icons-vue'
@@ -58,48 +57,7 @@ watch(sourceMarkdown, (value: string) => {
 })
 const tokens = computed(() => mdRenderOption.parse(sourceMarkdown.value, {}))
 
-const renderTokens = (token: Token) =>
-  mdRenderOption.renderer.render([token], mdRenderOption.options, {})
-
-const renderNodes = computed(() => {
-  const nodes: any[] = []
-  const allTokens = tokens.value
-
-  for (let i = 0; i < allTokens.length; i++) {
-    const token = allTokens[i]
-    console.log(i, token.type, token.tag, token.level, token.content)
-
-    if (token.type === 'fence') {
-      nodes.push({
-        type: 'component',
-        component: token.info === 'mermaid' ? 'MermaidPreview' : 'CodeBlock',
-        content: token.content,
-        info: token.info,
-      })
-    } else if (token.type === 'blockquote_open') {
-      const quoteGroup = []
-      let j = i
-      while (j < allTokens.length && allTokens[j].type !== 'blockquote_close') {
-        quoteGroup.push(allTokens[j])
-        j++
-      }
-      quoteGroup.push(allTokens[j])
-      nodes.push({ type: 'blockquote', tokens: quoteGroup })
-      i = j
-    } else if (token.type === 'table_open') {
-      const tableGroup = []
-      while (i < allTokens.length - 1 && allTokens[i].type !== 'table_close') {
-        tableGroup.push(allTokens[i++])
-      }
-      tableGroup.push(allTokens[i])
-      nodes.push({ type: 'table', tokens: tableGroup })
-    } else {
-      const html = renderTokens(token)
-      nodes.push({ type: 'html', content: html })
-    }
-  }
-  return nodes
-})
+const rNode = computed(()=>renderNodes(tokens.value))
 
 async function getPreview(params: ApiFileDownloadGetRequest) {
   try {
