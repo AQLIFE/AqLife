@@ -16,8 +16,8 @@ namespace MyLife.Application.Business.File.Handler
             {
                 if (item.Extension == ".md")
                 {
-                    string content = (await fileStorage.GetContent(item.StorageName))[..300];
-                    item.SetFileIntroduction(content);
+                    string content = (await fileStorage.GetContent(item.StorageName));
+                    item.SetFileIntroduction(content.Length <= 300 ? content : content[..300]);
                 }
             }
             return result?.Select(e => mapper.ToDto(e)) ?? [];

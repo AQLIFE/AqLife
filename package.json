@@ -34,5 +34,8 @@
     "@esbuild/win32-x64": "0.28.1",
     "@rolldown/binding-win32-x64-msvc": "1.1.4",
     "@rollup/rollup-win32-x64-msvc": "4.62.2"
+  },
+  "dependencies": {
+    "monaco-editor": "^0.56.0"
   }
 }
