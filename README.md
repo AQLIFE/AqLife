@@ -47,19 +47,6 @@ MI["USE markdown-it,根据SAT树生成个人实现"]
 end
 ```
 
-## 前端待办
-
-- [ ] 完善 OptionAccount (仍在考虑优化)
-- [x] 添加 Blog 详情页（即 Markdown 文档渲染器组件）
-- [ ] 设计时间线组件
-
-## 后端待办
-
-- [ ] 持续优化业务代码
-- [ ] 追加 Blog 业务
-- [ ] 追加 业务流程控制
-- [ ] 重写所有业务流程,使用统一业务流
-
 ## 业务流程
 
 ```mermaid
@@ -85,17 +72,6 @@ gantt
     section 查询
     查询注册账户信息 :done, merge, after c2, 12s
 ```
-
-### DI 生命周期
-
-OnTokenValidated 是在运行时跑的，为什么 IHttpContextAccessor 还是拿不到用户？这就是 JWT 身份验证中间件内部的执行序列 导致的：
-- 接收请求：中间件截获了你带 Token 的请求。
-- 解密与验证：中间件成功验证了 Token 的签名、有效期等。
-- 触发 OnTokenValidated（你写代码的地方）：验证通过后，中间件会立即调用这个钩子。注意：此时中间件虽然知道你是谁（数据在 context.Principal 里），但它还没有把这个身份正式“任命”给 httpContext.User。
-- 赋值 (Assignment)：只有当你的 OnTokenValidated 逻辑执行完毕并返回“成功”后，中间件才会执行最后一步：httpContext.User = context.Principal;。
-- 后续管道：此后，请求才会流向 Authorize 拦截器和 Controller。
-
-结论：你在 OnTokenValidated 内部通过 IHttpContextAccessor 去找 User，就像是在接线员还没把电话转接到分机前，你就去分机提听筒，自然只能拿到一个“未授权”的空对象。
 
 ## Monorepo
 

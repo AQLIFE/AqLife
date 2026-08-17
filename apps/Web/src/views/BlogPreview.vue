@@ -1,6 +1,6 @@
 <template>
   <ElCol class="preview">
-    <ElPageHeader :icon="ArrowLeft" @back="$router.back()">
+    <ElPageHeader :icon="ArrowLeft" @back="$router.push('/blog')" class="header">
       <template #content>
         <span>{{articleStore.blogTitle}}</span>
         <template v-if="fileMeta[0]">
@@ -33,7 +33,7 @@ import { ElCol, ElPageHeader,ElButton, ElTag } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { FileApi, type ApiFileDownloadGetRequest, type FileDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { ref, onBeforeMount, computed, watch } from 'vue'
+import { ref, computed, onBeforeMount,watch } from 'vue'
 import { mdRenderOption, renderNodes } from '@aqlife/domain'
 import CodeBlock from '@/components/CodeBlock.vue'
 import MermaidPreview from '@/components/MermaidPreview.vue'
@@ -82,6 +82,12 @@ onBeforeMount(async () => {
   fileMeta.value = await fileApi.apiFileGet({ uID: route.params.id as string })
   if (fileMeta.value[0] != undefined) articleStore.blogTitle = fileMeta.value[0].fileName!
 })
+watch(()=>route.params.id,
+async()=>{
+  sourceMarkdown.value = await getPreview({ uID: route.params.id as string })
+  fileMeta.value = await fileApi.apiFileGet({ uID: route.params.id as string })
+  if (fileMeta.value[0] != undefined) articleStore.blogTitle = fileMeta.value[0].fileName!
+})
 </script>
 
 <style lang="css" scoped>
@@ -90,9 +96,13 @@ onBeforeMount(async () => {
   height: 100vh;
   grid-template-rows: auto 1fr;
 }
+.header{
+  height:50px;
+  line-height: 50px;
+}
 #mdRender {
-  width: 100%;
-  overflow-y: auto;
+  grid-column: 1/2;
+  overflow-x:scroll;
 }
 
 #mdRender::-webkit-scrollbar {

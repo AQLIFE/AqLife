@@ -3,6 +3,7 @@ using MyLife.Domain.Contracts;
 using MyLife.Shared.Utils;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MyLife.Domain.Entities
 {
@@ -12,15 +13,31 @@ namespace MyLife.Domain.Entities
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
 
-        public Guid AID { get; set; }
+        public Guid AID { get;  private set; }
         [StringLength(16, ErrorMessage = "订阅账户名限制")]
-        public string AliasName { get; set; } = String.Empty;
-        public required string SubscriptionLink { get; set; }
-        public required string SubscriptionPlatform { get; set; }
-        public Guid? SubscriptionIcon { get; set; }
+        public string AliasName { get; init; } = String.Empty;
+        public  string SubscriptionLink { get; init; } = String.Empty;
+        public  string SubscriptionPlatform { get; init; } = String.Empty;
+        public Guid SubscriptionIcon { get; init; } = Guid.Empty;
 
         [ForeignKey(nameof(AID))]
         public virtual AccountEntity Account { get; set; } = null!;
+        public SubscriptionEntity() { }
+
+        public SubscriptionEntity(Guid aid,string slink,string sPlatform,string sName,Guid icon)
+        {
+            AID = aid;
+            AliasName = sName;
+            SubscriptionLink = slink;
+            SubscriptionPlatform = sPlatform;
+            SubscriptionIcon = icon;
+        }
+
+        public void BindAccount(AccountEntity account)
+        {
+            AID = account.UID;
+            Account  = account;
+        }
     }
 
     [Table("Accounts"), Index(nameof(Name), IsUnique = true)]
@@ -30,7 +47,7 @@ namespace MyLife.Domain.Entities
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
         [StringLength(32), Column]
-        public string Name { get;private set; } = "Demo";
+        public string Name { get; private set; } = string.Empty;
         [StringLength(255),Column]
         public string? Desc { get;private set; }
 
@@ -38,7 +55,7 @@ namespace MyLife.Domain.Entities
         /// 使用:设计 决定 Filecontroller 必须返回对应头像GUID
         /// </summary>
         [Column]
-        public Guid? Avatar { get; private set; }
+        public Guid Avatar { get; private set; } = Guid.Empty;
         [Column]
         public bool IsValid { get;private set; } = true;
 
@@ -72,8 +89,7 @@ namespace MyLife.Domain.Entities
 
             foreach (var subscription in subscriptions)
             {
-                subscription.Account = this;
-                subscription.AID = UID;
+                subscription.BindAccount(this);
 
                 Subscriptions.Add(subscription);
             }

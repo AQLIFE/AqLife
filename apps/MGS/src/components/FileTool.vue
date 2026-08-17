@@ -23,6 +23,7 @@
       </ElDescriptionsItem>
     </ElDescriptions>
     <template #footer>
+      <ElButton type="success" @click="preview" v-if="!isImageType(fileDto!.fileType!)">Preview</ElButton>
       <ElButton type="warning" @click="commit">Update</ElButton>
     </template>
   </ElDrawer>
@@ -52,6 +53,7 @@ import {
 import { defaultFilePolicy } from '@aqlife/domain'
 import { OperationalState, useActionStore } from '@/stores/useActionStore.ts'
 import { apiConfiguration } from '@/services/api.ts'
+import { useRouter } from 'vue-router'
 
 const fileDto = defineModel<FileDto>()// 主要是为了获取文件类型来决定组件渲染方式
 const props = defineProps<{
@@ -67,7 +69,7 @@ const drawerStatus = computed(() => actionStore.OState == OperationalState.Updat
 const selectedTags = ref<TagDto[]>(props.initialTags ? [...props.initialTags] : [])
 
 function close() {
-  actionStore.OState = OperationalState.None
+  if(actionStore.OState === OperationalState.Add)actionStore.OState = OperationalState.None
 }
 
 async function commit() {
@@ -123,6 +125,13 @@ async function commit() {
     ElMessage.error('更新失败，请检查文件状态或网络连接')
     console.error('Commit Error:', error)
   }
+}
+
+const router = useRouter()
+function preview(){
+  actionStore.OState = OperationalState.View
+  actionStore.cacheViewGuid = fileDto.value?.uid ?? ''
+  router.push('/blog/view')
 }
 </script>
 
