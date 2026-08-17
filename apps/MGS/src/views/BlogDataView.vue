@@ -141,6 +141,7 @@ import FileUpload from '@/components/FileUpload.vue'
 import FileTool from '@/components/FileTool.vue'
 import { Plus,Upload } from '@element-plus/icons-vue'
 import { defaultFilePolicy } from '@aqlife/domain'
+import { useRouter } from 'vue-router'
 
 // 子组件参数
 const searchField = ref<string | null>(null)
@@ -283,14 +284,15 @@ onBeforeMount(async () => {
 
 function handleUploadFile() {
   actionStore.OState = OperationalState.Upload
-  console.log(actionStore.OState)
+  // console.log(actionStore.OState)
 }
-
+const router = useRouter()
 function handleAddFile(){
   actionStore.OState = OperationalState.Add
+
+  router.push('/blog/view')
 }
 
-// onBeforeUnmount(() => actionStore.resetActions())
 </script>
 
 <style lang="css" scoped>

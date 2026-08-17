@@ -4,5 +4,6 @@ export enum OperationalState{None,View,Add,Update,Deletet,Upload}
 export const useActionStore = defineStore('action', () => {
 
   const OState:Ref<OperationalState> = ref(OperationalState.None)
-  return { OState }
+  const cacheViewGuid = ref('')
+  return { OState,cacheViewGuid }
 })

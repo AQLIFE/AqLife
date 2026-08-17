@@ -10,7 +10,7 @@ const articleStore = useArticleStore()
         <ElCol style="color:lightslategray">
             {{ articleStore.blogTitle }}
         </ElCol>
-        <ElAnchor type="underline">
+        <ElAnchor type="underline" container="#mdRender">
             <ElAnchorLink style="line-height: 30px;" v-for="item,index in articleStore.toc" :key="index" :href="'#' + item.anchor" >
             {{ item.title }}    
             </ElAnchorLink>

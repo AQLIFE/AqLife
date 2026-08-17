@@ -1,5 +1,5 @@
 <template>
-  <ElRow class="layout" :gutter="10" v-lodding="isLodding">
+  <ElRow class="layout" :gutter="10" v-loading="isLodding">
     <ElCol v-for="item in blogStore.cacheBlogList" :key="item.uid" :span="12">
       <BlogCard  :blog="item"/>
     </ElCol>

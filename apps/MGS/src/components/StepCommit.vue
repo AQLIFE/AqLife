@@ -49,7 +49,7 @@ async function commit(){
 
   ElMessage.success('提交成功,请从控制台获取你的登录账户名,请注意保存,若丢失请自行处理')
   accountStore.systemAccount = await accountApi.apiAccountGet()
-  console.log('You LoginName:',randomName)//保留
+  // console.log('You LoginName:',randomName)//保留
   router.push('/home')
 }
 </script>
