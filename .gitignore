@@ -10,6 +10,8 @@ Thumbs.db
 *.sln.docstates
 *.ntvs*
 *.njsproj
+*.rsuser
+*.iscache
 
 .vscode/*
 !.vscode/extensions.json
