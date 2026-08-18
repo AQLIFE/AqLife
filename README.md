@@ -2,10 +2,10 @@
 
 ```mermaid
 ---
-title: 宏观设计
+title: 宏观需求规划
 ---
 graph LR
-  MYLIFE --> API & SPA
+  MYLIFE --> API & Web & MGS
   subgraph API
     File--派生-->Blog
     Account--派生-->Subscription
@@ -15,37 +15,44 @@ graph LR
     Blog & tag -->BlogTag
   end
 
-  subgraph SPA
+  subgraph Web
     HomeView
-    OptionAccountView
     BlogView--派生-->BlogPreView
-    ShareView
-    AboutView
     ErrorView
+  end
+
+  subgraph MGS
+    LoginView
+    registerView
+    profile & subscription --> account  
+    FileView --> ManoEditor
+    TodoView
+    TagView
   end
 ```
 
-```mermaid
----
-title: 业务亮点
----
-graph LR
+## 项目特点
 
-MYLIFE --> API & SPA
+API
 
-subgraph API
-GlobalExcetionMatch
-BVLUTSP["Business validation logic using the Strategy pattern"]
-DIVFC["DI injection via file configuration"]
-sscdb["System self-check during build"]
-dd["3NF Database Design"]
-end
+- 全局异常: 通过定义异常类,配合前置的校验管线实现Fast Fail,并根据异常类型的内部属性确定 HttpStatusCode,并将友好错误返回给前端
+- 模仿 Fluent Vaild 库,以策略模式实现的验证器方案,允许DI注入,使用便捷,易于扩展,和 前置校验管线 有高效的耦合,各个需求(Account/File/Tag/Todo)都有对应的策略模式的Search 方案,同样支持DI注入,易于扩展
+- 廋 Controller : 通过引入 MediatR ,将 Controller 大幅瘦身
+- Env Self-Check : 在Program 启动阶段增加 DbContext / File存储以及配置 的自检,若自检失败不会允许运行并计入日志,提供运维的可维护性
+- 快速上传: 对文件的每次上传都计算其hash,若命中数据库记录,则直接返回对应的数据ID,若没有则上传,通过UploadContext实现
 
-subgraph SPA
-OC["USE openapi-generator FETCH "]
-MI["USE markdown-it,根据SAT树生成个人实现"]
-end
-```
+MGS & Web
+
+- 使用 Markdown-It 对后端Md 文件进行转换,将 AST 组件树 通过遍历转为自己实现的组件树,若我没有实现,则使用MARKDOWN-it的组件树进行渲染.
+- 使用 Mano Editor 作为 md 的实时编辑器,VScode 同源方案,快速易用
+- 通过 Element-plus 的 Step 组件实现账户注册功能,流程化引导,简单易用
+- 使用 openapi-generator 对NET  WEB API进行自动生成 FETCH的请求 方法,可随后端更新,并能提供后端数据模型的定义,便于前端使用TS 进行类型检查,提升工程化开发的可靠性
+
+Other
+
+- 提供简单 CI/CD 检查,保障Commit 有效性
+- 预构 单元测试,提供API 可信度,后期引入 集成测试
+- Monorepo 单体项目,B/S架构,约束 MGS & WEB 前端项目的TS 规范和语法,并提供统一的Npm包支持,减少单项目的npm 滥用
 
 ## 业务流程
 
