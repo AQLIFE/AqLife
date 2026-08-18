@@ -8,7 +8,7 @@ export const monorepoRoot = path.resolve(scriptsDir, '../../..')
 
 export const paths = {
   root: monorepoRoot,
-  apiWebProject: path.join(monorepoRoot, 'API/Web/Web.csproj'),
+  apiWebProject: path.join(monorepoRoot, 'services/API/Web/Web.csproj'),
   openapiGenerator: path.join(monorepoRoot, 'tools/openapi-generator'),
   apps: {
     web: path.join(monorepoRoot, 'apps/Web'),
