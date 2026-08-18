@@ -21,6 +21,7 @@ ehthumbs.db
 *.ntvs*
 *.njsproj
 *.rsuser
+*.iscache
 
 # --- .NET / API ---
 [Bb]in/
