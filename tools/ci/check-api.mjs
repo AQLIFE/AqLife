@@ -10,7 +10,7 @@ run('dotnet', ['restore', paths.apiWebProject], {
 
 run('dotnet', ['build', paths.apiWebProject, '--no-restore', '-c', 'Release'], {
   cwd: paths.root,
-  label: 'dotnet build services/API/Web (Release)',
+  label: 'dotnet build ./services/API/Web (Release)',
 })
 
 console.log('\n[AqLife CI] ✅ 后端检查通过')
