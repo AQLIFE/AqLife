@@ -27,8 +27,6 @@ namespace MyLife.Infrastructure
         }
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
-            //services.AddDbContext<AppStorage>();
-
             services.AddScoped<IApplicationDbContext, AppStorage>();
             services.AddScoped<IFileStorage, LocalFileStorage>();
             services.AddScoped<ITokenProvider<AccountEntity>, TokenProvider>();
