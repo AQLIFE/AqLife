@@ -38,6 +38,6 @@ namespace MyLife.Application.Business.Account.Validator
     {
         private protected override string ErrorMessage { init; get; } = "系统密钥不匹配";
         private protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
-        => options.Value.SecretKey == command.serverKey && command.serverKey.Length==256u;
+        => options.Value.SecretKey == command.serverKey;        
     }
 }

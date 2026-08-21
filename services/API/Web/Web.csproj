@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <Content Remove="Configurations\appsettings.json" />
+    <Content Remove="Configurations\appsettings.Test.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,6 +58,9 @@
 
   <ItemGroup>
     <None Include="Configurations\appsettings.json" />
+    <None Include="Configurations\appsettings.Test.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

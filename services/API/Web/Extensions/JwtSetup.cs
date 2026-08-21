@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MyLife.Application.Abstractions.Authentication;
 using MyLife.Domain.Entities;
+using MyLife.Infrastructure.Configuration;
 using MyLife.Shared.Exceptions;
 using MyLife.Shared.Options;
 using System.Text;
@@ -15,10 +16,18 @@ namespace MyLife.Web.Extensions
     /// </summary>
     public static class JwtSetup
     {
+        /// <summary>
+        /// 生成环境
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        /// <exception cref="ConfigurationNotFoundException"></exception>
         public static WebApplicationBuilder AddJwtPolicy(this WebApplicationBuilder builder)
         {
+            builder.Services.AddJwtOptions(builder.Configuration);
+
             var jwtSection = builder.Configuration.GetSection("Jwt");
-            builder.Services.AddOptions<JwtOption>().Bind(jwtSection).ValidateOnStart();
+
             var jwtOption = jwtSection.Get<JwtOption>() ?? throw new ConfigurationNotFoundException("无法从配置中加载 JwtOption，请检查 appsettings.json");
 
             var JwtValidationParameters = new TokenValidationParameters
@@ -44,6 +53,7 @@ namespace MyLife.Web.Extensions
 
             return builder;
         }
+
 
         public static JwtBearerEvents BearerEvents { set; get; } = new JwtBearerEvents()
         {

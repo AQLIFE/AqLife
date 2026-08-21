@@ -62,4 +62,14 @@ namespace MyLife.Shared.Exceptions
         public override ExceptionBehavior Behavior => ExceptionBehavior.Conflict;//409
         public override string Code { get; } = "ResourceConflict";
     }
+
+    /// <summary>
+    ///  数据模型合法性异常
+    /// </summary>
+    public class DomainLegalityException(string message): Exception(message), IApplicationException
+    {
+        public ExceptionCategory Category => ExceptionCategory.Resource;
+        public ExceptionBehavior Behavior => ExceptionBehavior.BadRequest;
+        public string Code { get; } = "ResourceIllegal";
+    }
 }
