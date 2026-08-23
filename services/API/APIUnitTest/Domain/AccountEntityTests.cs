@@ -42,7 +42,6 @@ namespace APIUnitTest.Domain
         {
             AccountEntity account = new(
                 "Test",
-                null,
                 "OldPassword123"
                 );
 

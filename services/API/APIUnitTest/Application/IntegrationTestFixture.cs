@@ -35,5 +35,26 @@ namespace APIUnitTest.Application
         {
             Services.Dispose();
         }
+
+        public async Task ResetDatabase()
+        {
+            using var scope = Services.CreateScope();
+
+            var storage = scope.ServiceProvider
+                .GetRequiredService<AppStorage>();
+
+            storage.Accounts.RemoveRange(storage.Accounts);
+            storage.Subscription.RemoveRange(storage.Subscription);
+
+            await storage.SaveChangesAsync();
+        }
+    }
+    public abstract class IntegrationTestBase(
+    IntegrationTestFixture fixture)
+    {
+        protected IServiceScope CreateScope()
+        {
+            return fixture.Services.CreateScope();
+        }
     }
 }
