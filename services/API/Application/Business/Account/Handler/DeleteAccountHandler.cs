@@ -12,7 +12,7 @@ public class DeleteAccountHandler(IApplicationDbContext storage, FileDeleter fil
 {
     public async Task<Unit> Handle(DeleteAccountCommand command, CancellationToken ct)
     {
-        AccountEntity account = await storage.Accounts.Include(e => e.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID && e.IsValid) ?? throw new ResourceNotFoundException("账户不存在");
+        AccountEntity account = await storage.Accounts.Include(e => e.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID ) ?? throw new ResourceNotFoundException("账户不存在");
 
         var subs = account.Subscriptions.Select(s => s.SubscriptionIcon).ToList();
         if (account.Avatar is Guid avatar) subs.Add(avatar);

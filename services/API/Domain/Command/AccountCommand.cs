@@ -23,11 +23,12 @@ namespace MyLife.Domain.Command
     /// <param name="Avatar"></param>
     /// <param name="SubAccountAvatar"></param>
     public record CreateAccountCommand(
-        [Required, StringLength(10, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-20之间")]
+        [Required, StringLength(32, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-32之间")]
         string Name,
+        [StringLength(255)]
         string? Desc,
-        string pwd,
-        string serverKey
+        string Pwd,
+        string ServerKey
     ) : ICreateCommand<string>, ISimpleAccountInfo;
     
 
