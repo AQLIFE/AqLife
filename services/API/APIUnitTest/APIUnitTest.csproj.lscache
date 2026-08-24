@@ -13,18 +13,18 @@ primary
 lastDtbSucceeded
 
 [properties]
-AssemblyName=Application
+AssemblyName=APIUnitTest
 CommandLineArgsForDesignTimeEvaluation=-langversion:12.0 -define:TRACE
 CompilerGeneratedFilesOutputPath=
 MaxSupportedLangVersion=12.0
 ProjectAssetsFile=<PATH>obj/project.assets.json
-RootNamespace=MyLife.Application
+RootNamespace=APIUnitTest
 RunAnalyzers=
 RunAnalyzersDuringLiveAnalysis=
 SolutionPath=*Undefined*
 TargetFrameworkIdentifier=.NETCoreApp
-TargetPath=<PATH>bin/Debug/net8.0/Application.dll
-TargetRefPath=<PATH>obj/Debug/net8.0/ref/Application.dll
+TargetPath=<PATH>bin/Debug/net8.0/APIUnitTest.dll
+TargetRefPath=<PATH>obj/Debug/net8.0/ref/APIUnitTest.dll
 TemporaryDependencyNodeTargetIdentifier=net8.0
 
 [commandLineArguments]
@@ -43,9 +43,9 @@ TemporaryDependencyNodeTargetIdentifier=net8.0
 /debug:portable
 /filealign:512
 /optimize-
-/out:obj\Debug\net8.0\Application.dll
-/refout:obj\Debug\net8.0\refint\Application.dll
-/target:library
+/out:obj\Debug\net8.0\APIUnitTest.dll
+/refout:obj\Debug\net8.0\refint\APIUnitTest.dll
+/target:exe
 /warnaserror-
 /utf8output
 /deterministic+
@@ -53,117 +53,25 @@ TemporaryDependencyNodeTargetIdentifier=net8.0
 /warnaserror+:NU1605,SYSLIB0011
 
 [sourceFiles]
-Abstractions/
- Authentication/ITokenProvider.cs
- FileStorage/IFileStorage.cs
- Mapper/IMapper.cs
- Persistence/
-  IApplicationDbContext.cs
-  ITransaction .cs
- Search/
-  ISearch.cs
-  ISearchCriteria.cs
-  ISearchStrategy.cs
-Application.cs
-Behaviors/
- TransactionBehavior.cs
- ValidationBehavior.cs
-Business/Account/
- AccoutMapper.cs
- Handler/
-  AccountQueryHandler.cs
-  CreateAccountHandler.cs
-  DeleteAccountHandler.cs
-  LoginHandler.cs
-  UpdateAccountHandler.cs
- Search/
-  AccountSearch.cs
-  DefaultAccount.cs
-  ValidAccount.cs
- Validator/
-  AuthValidator.cs
-  CreateAccountValidator.cs
-  UpdateAccountValidator.cs
-Business/Corpus/
- CorpusMapper.cs
- Handler/
-  CorpusQueryHandler.cs
-  CreateCorpusCommandHandler.cs
-  DeleteCorpusCommandHandler.cs
-  RandomCorpusQueryHandler.cs
-  UpdateCorpusCommandHandler.cs
- Search/
-  CorpusSearch.cs
-  FilteredCorpusSearchStrategy.cs
- Validator/
-  CreateCorpusValidator.cs
-  UpdateCorpusValidator.cs
-Business/File/
- Abstractions/IFileAccessPolicy.cs
- FileMapper.cs
- Handler/
-  CreateFileHandler.cs
-  DeleteFileHandler.cs
-  DownloadFileHandler.cs
-  FileQueryHandler.cs
-  PreviewFileHandler.cs
-  UpdateFileHandler.cs
-  UpdateFileTagHandler.cs
- Search/
-  FileSearch.cs
-  FileSecurityAspect.cs
-  FilteredFilesSearchStrategy.cs
- Service/
-  FileDeleter.cs
-  FileReader.cs
-  FileWriter.cs
- Validator/
-  DeleteFileValidator.cs
-  UpdateFileValidator.cs
-  UploadFileValidator.cs
-Business/Tag/Handler/
- CreateTagHandler.cs
- DeleteTagHandler.cs
- TagQueryHandler.cs
- UpdateTagHandler.cs
-Business/Tag/Search/
- FilterTagSearchStrategy.cs
- TagSearch.cs
-Business/Tag/
- TagMapper.cs
- Validator/
-  CreateTagValidator.cs
-  DeleteTagValidator.cs
-Business/Todo/Handler/
- CreateTodoCommandHandler.cs
- DeleteTodoCommandHandler.cs
- TodoQueryHandler.cs
- UpdateTodoCommandHandler.cs
-Business/Todo/Search/
- FilterTodoSearchStrategy.cs
- TodoSearch.cs
-Business/Todo/
- TodoMapper.cs
- Validator/
-  CreateTodoValidator.cs
-  DeleteTodoValidator.cs
-Mappers/QueryMapper.cs
+<NUGET>/microsoft.net.test.sdk/17.8.0/build/netcoreapp3.1/Microsoft.NET.Test.Sdk.Program.cs
+Application/
+ AccountIntegrationTests.cs
+ IntegrationTestFixture.cs
+Domain/
+ AccountEntityTests.cs
+ FileEntityTests.cs
+ TagEntityTests.cs
+ TodoEntityTests.cs
 obj/Debug/net8.0/
  .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
- Application.AssemblyInfo.cs
- Application.GlobalUsings.g.cs
-Search/
- AllSearchStrategyBase.cs
- BaseSearch.cs
- EntitySearchCriteria.cs
- FilteredSearchStrategyBase.cs
-Validators/
- AbstractValidator.cs
- ExistenceValidator.cs
+ APIUnitTest.AssemblyInfo.cs
+ APIUnitTest.GlobalUsings.g.cs
 
 [metadataReferences]
 ../
+ Application/obj/Debug/net8.0/ref/Application.dll
  Domain/obj/Debug/net8.0/ref/Domain.dll
+ Infrastructure/obj/Debug/net8.0/ref/Infrastructure.dll
  Shared/obj/Debug/net8.0/ref/Shared.dll
 <NUGET>/
  duende.identitymodel/8.1.0/lib/net8.0/Duende.IdentityModel.dll
@@ -307,7 +215,9 @@ Validators/
   System.Security.Cryptography.Xml.dll
   System.Threading.RateLimiting.dll
  microsoft.bcl.memory/10.0.4/lib/net8.0/Microsoft.Bcl.Memory.dll
+ microsoft.codecoverage/17.8.0/lib/netcoreapp3.1/Microsoft.VisualStudio.CodeCoverage.Shim.dll
  microsoft.entityframeworkcore.abstractions/8.0.26/lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll
+ microsoft.entityframeworkcore.relational/8.0.13/lib/net8.0/Microsoft.EntityFrameworkCore.Relational.dll
  microsoft.entityframeworkcore/8.0.26/lib/net8.0/Microsoft.EntityFrameworkCore.dll
  microsoft.extensions.dependencyinjection.abstractions/10.0.0/lib/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
  microsoft.extensions.logging.abstractions/10.0.0/lib/net8.0/Microsoft.Extensions.Logging.Abstractions.dll
@@ -478,8 +388,26 @@ Validators/
   System.Xml.XPath.dll
   System.Xml.XPath.XDocument.dll
   WindowsBase.dll
+ microsoft.testplatform.testhost/17.8.0/lib/netcoreapp3.1/
+  Microsoft.TestPlatform.CommunicationUtilities.dll
+  Microsoft.TestPlatform.CoreUtilities.dll
+  Microsoft.TestPlatform.CrossPlatEngine.dll
+  Microsoft.TestPlatform.PlatformAbstractions.dll
+  Microsoft.TestPlatform.Utilities.dll
+  Microsoft.VisualStudio.TestPlatform.Common.dll
+  Microsoft.VisualStudio.TestPlatform.ObjectModel.dll
+  testhost.dll
+ mysqlconnector/2.3.5/lib/net8.0/MySqlConnector.dll
+ newtonsoft.json/13.0.1/lib/netstandard2.0/Newtonsoft.Json.dll
+ nuget.frameworks/6.5.0/lib/netstandard2.0/NuGet.Frameworks.dll
+ pomelo.entityframeworkcore.mysql/8.0.3/lib/net8.0/Pomelo.EntityFrameworkCore.MySql.dll
  riok.mapperly/4.3.1/lib/netstandard2.0/Riok.Mapperly.Abstractions.dll
  system.diagnostics.diagnosticsource/10.0.0/lib/net8.0/System.Diagnostics.DiagnosticSource.dll
+ system.identitymodel.tokens.jwt/7.1.2/lib/net8.0/System.IdentityModel.Tokens.Jwt.dll
+ xunit.abstractions/2.0.3/lib/netstandard2.0/xunit.abstractions.dll
+ xunit.assert/2.5.3/lib/netstandard1.1/xunit.assert.dll
+ xunit.extensibility.core/2.5.3/lib/netstandard1.1/xunit.core.dll
+ xunit.extensibility.execution/2.5.3/lib/netstandard1.1/xunit.execution.dotnet.dll
 
 [analyzerReferences]
 <DOTNET>/sdk/10.0.300/Sdks/Microsoft.NET.Sdk/analyzers/
@@ -503,7 +431,10 @@ Validators/
  riok.mapperly/4.3.1/analyzers/roslyn5.0/dotnet/cs/
   Riok.Mapperly.Abstractions.dll
   Riok.Mapperly.dll
+ xunit.analyzers/1.4.0/analyzers/dotnet/cs/
+  xunit.analyzers.dll
+  xunit.analyzers.fixes.dll
 
 [analyzerConfigFiles]
 <DOTNET>/sdk/10.0.300/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_8_default.globalconfig
-obj/Debug/net8.0/Application.GeneratedMSBuildEditorConfig.editorconfig
+obj/Debug/net8.0/APIUnitTest.GeneratedMSBuildEditorConfig.editorconfig

@@ -1,0 +1,29 @@
+opencollection: 1.0.0
+
+info:
+  name: Web
+  version: "1"
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    openapi:
+      - sourceUrl: http://192.168.0.100:5110/swagger/v1/swagger.json
+        groupBy: tags
+        lastSyncDate: 2026-08-23T08:09:11.978Z
+        specHash: 0d96eaa5e8b3cee4291848aea843162e
+        autoCheck: true
+        autoCheckInterval: 5

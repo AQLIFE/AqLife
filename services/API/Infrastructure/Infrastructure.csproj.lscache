@@ -13,18 +13,18 @@ primary
 lastDtbSucceeded
 
 [properties]
-AssemblyName=Application
+AssemblyName=Infrastructure
 CommandLineArgsForDesignTimeEvaluation=-langversion:12.0 -define:TRACE
 CompilerGeneratedFilesOutputPath=
 MaxSupportedLangVersion=12.0
 ProjectAssetsFile=<PATH>obj/project.assets.json
-RootNamespace=MyLife.Application
+RootNamespace=MyLife.Infrastructure
 RunAnalyzers=
 RunAnalyzersDuringLiveAnalysis=
 SolutionPath=*Undefined*
 TargetFrameworkIdentifier=.NETCoreApp
-TargetPath=<PATH>bin/Debug/net8.0/Application.dll
-TargetRefPath=<PATH>obj/Debug/net8.0/ref/Application.dll
+TargetPath=<PATH>bin/Debug/net8.0/Infrastructure.dll
+TargetRefPath=<PATH>obj/Debug/net8.0/ref/Infrastructure.dll
 TemporaryDependencyNodeTargetIdentifier=net8.0
 
 [commandLineArguments]
@@ -43,8 +43,8 @@ TemporaryDependencyNodeTargetIdentifier=net8.0
 /debug:portable
 /filealign:512
 /optimize-
-/out:obj\Debug\net8.0\Application.dll
-/refout:obj\Debug\net8.0\refint\Application.dll
+/out:obj\Debug\net8.0\Infrastructure.dll
+/refout:obj\Debug\net8.0\refint\Infrastructure.dll
 /target:library
 /warnaserror-
 /utf8output
@@ -53,116 +53,60 @@ TemporaryDependencyNodeTargetIdentifier=net8.0
 /warnaserror+:NU1605,SYSLIB0011
 
 [sourceFiles]
-Abstractions/
- Authentication/ITokenProvider.cs
- FileStorage/IFileStorage.cs
- Mapper/IMapper.cs
- Persistence/
-  IApplicationDbContext.cs
-  ITransaction .cs
- Search/
-  ISearch.cs
-  ISearchCriteria.cs
-  ISearchStrategy.cs
-Application.cs
-Behaviors/
- TransactionBehavior.cs
- ValidationBehavior.cs
-Business/Account/
- AccoutMapper.cs
- Handler/
-  AccountQueryHandler.cs
-  CreateAccountHandler.cs
-  DeleteAccountHandler.cs
-  LoginHandler.cs
-  UpdateAccountHandler.cs
- Search/
-  AccountSearch.cs
-  DefaultAccount.cs
-  ValidAccount.cs
- Validator/
-  AuthValidator.cs
-  CreateAccountValidator.cs
-  UpdateAccountValidator.cs
-Business/Corpus/
- CorpusMapper.cs
- Handler/
-  CorpusQueryHandler.cs
-  CreateCorpusCommandHandler.cs
-  DeleteCorpusCommandHandler.cs
-  RandomCorpusQueryHandler.cs
-  UpdateCorpusCommandHandler.cs
- Search/
-  CorpusSearch.cs
-  FilteredCorpusSearchStrategy.cs
- Validator/
-  CreateCorpusValidator.cs
-  UpdateCorpusValidator.cs
-Business/File/
- Abstractions/IFileAccessPolicy.cs
- FileMapper.cs
- Handler/
-  CreateFileHandler.cs
-  DeleteFileHandler.cs
-  DownloadFileHandler.cs
-  FileQueryHandler.cs
-  PreviewFileHandler.cs
-  UpdateFileHandler.cs
-  UpdateFileTagHandler.cs
- Search/
-  FileSearch.cs
-  FileSecurityAspect.cs
-  FilteredFilesSearchStrategy.cs
- Service/
-  FileDeleter.cs
-  FileReader.cs
-  FileWriter.cs
- Validator/
-  DeleteFileValidator.cs
-  UpdateFileValidator.cs
-  UploadFileValidator.cs
-Business/Tag/Handler/
- CreateTagHandler.cs
- DeleteTagHandler.cs
- TagQueryHandler.cs
- UpdateTagHandler.cs
-Business/Tag/Search/
- FilterTagSearchStrategy.cs
- TagSearch.cs
-Business/Tag/
- TagMapper.cs
- Validator/
-  CreateTagValidator.cs
-  DeleteTagValidator.cs
-Business/Todo/Handler/
- CreateTodoCommandHandler.cs
- DeleteTodoCommandHandler.cs
- TodoQueryHandler.cs
- UpdateTodoCommandHandler.cs
-Business/Todo/Search/
- FilterTodoSearchStrategy.cs
- TodoSearch.cs
-Business/Todo/
- TodoMapper.cs
- Validator/
-  CreateTodoValidator.cs
-  DeleteTodoValidator.cs
-Mappers/QueryMapper.cs
+AppStorage.cs
+Authentication/TokenProvider.cs
+Configuration/JwtOptionsSetup.cs
+DataLayerSetup.cs
+EfTransaction.cs
+FileStorage/LocalFileStorage.cs
+Migrations/
+ 20260506070312_InitialCreate.cs
+ 20260506070312_InitialCreate.Designer.cs
+ 20260508033306_OptimizeDataStructures.cs
+ 20260508033306_OptimizeDataStructures.Designer.cs
+ 20260508065713_OptimizeFileEntity.cs
+ 20260508065713_OptimizeFileEntity.Designer.cs
+ 20260510080334_AddTodoTable.cs
+ 20260510080334_AddTodoTable.Designer.cs
+ 20260513064808_OptimizeAccountModel.cs
+ 20260513064808_OptimizeAccountModel.Designer.cs
+ 20260519082503_OptimizeAccount.cs
+ 20260519082503_OptimizeAccount.Designer.cs
+ 20260519134526_FixTheSpellingErrorsInTheFieldsOfTheAccountModel.cs
+ 20260519134526_FixTheSpellingErrorsInTheFieldsOfTheAccountModel.Designer.cs
+ 20260526084246_OptimizeKey.cs
+ 20260526084246_OptimizeKey.Designer.cs
+ 20260526092512_OptimizeFile.cs
+ 20260526092512_OptimizeFile.Designer.cs
+ 20260602022206_ChangeSaveDb.cs
+ 20260602022206_ChangeSaveDb.Designer.cs
+ 20260602101259_ChangeAll.cs
+ 20260602101259_ChangeAll.Designer.cs
+ 20260609031208_addTags.cs
+ 20260609031208_addTags.Designer.cs
+ 20260609060739_OptimizeTags.cs
+ 20260609060739_OptimizeTags.Designer.cs
+ 20260623095355_ModelOptimization.cs
+ 20260623095355_ModelOptimization.Designer.cs
+ 20260627130133_IndexOptimization.cs
+ 20260627130133_IndexOptimization.Designer.cs
+ 20260715090218_ChangeAuthBusinessLogic.cs
+ 20260715090218_ChangeAuthBusinessLogic.Designer.cs
+ 20260715094800_AddCascadeDeleteForFileTags.cs
+ 20260715094800_AddCascadeDeleteForFileTags.Designer.cs
+ 20260727160700_RefactorAccountAndSubscriptionConstraints.cs
+ 20260727160700_RefactorAccountAndSubscriptionConstraints.Designer.cs
+ 20260730140429_corpusModelOptimize.cs
+ 20260730140429_corpusModelOptimize.Designer.cs
+ AppStorageModelSnapshot.cs
 obj/Debug/net8.0/
  .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
- Application.AssemblyInfo.cs
- Application.GlobalUsings.g.cs
-Search/
- AllSearchStrategyBase.cs
- BaseSearch.cs
- EntitySearchCriteria.cs
- FilteredSearchStrategyBase.cs
-Validators/
- AbstractValidator.cs
- ExistenceValidator.cs
+ Infrastructure.AssemblyInfo.cs
+ Infrastructure.GlobalUsings.g.cs
 
 [metadataReferences]
 ../
+ Application/obj/Debug/net8.0/ref/Application.dll
  Domain/obj/Debug/net8.0/ref/Domain.dll
  Shared/obj/Debug/net8.0/ref/Shared.dll
 <NUGET>/
@@ -308,6 +252,7 @@ Validators/
   System.Threading.RateLimiting.dll
  microsoft.bcl.memory/10.0.4/lib/net8.0/Microsoft.Bcl.Memory.dll
  microsoft.entityframeworkcore.abstractions/8.0.26/lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll
+ microsoft.entityframeworkcore.relational/8.0.13/lib/net8.0/Microsoft.EntityFrameworkCore.Relational.dll
  microsoft.entityframeworkcore/8.0.26/lib/net8.0/Microsoft.EntityFrameworkCore.dll
  microsoft.extensions.dependencyinjection.abstractions/10.0.0/lib/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
  microsoft.extensions.logging.abstractions/10.0.0/lib/net8.0/Microsoft.Extensions.Logging.Abstractions.dll
@@ -478,8 +423,11 @@ Validators/
   System.Xml.XPath.dll
   System.Xml.XPath.XDocument.dll
   WindowsBase.dll
+ mysqlconnector/2.3.5/lib/net8.0/MySqlConnector.dll
+ pomelo.entityframeworkcore.mysql/8.0.3/lib/net8.0/Pomelo.EntityFrameworkCore.MySql.dll
  riok.mapperly/4.3.1/lib/netstandard2.0/Riok.Mapperly.Abstractions.dll
  system.diagnostics.diagnosticsource/10.0.0/lib/net8.0/System.Diagnostics.DiagnosticSource.dll
+ system.identitymodel.tokens.jwt/7.1.2/lib/net8.0/System.IdentityModel.Tokens.Jwt.dll
 
 [analyzerReferences]
 <DOTNET>/sdk/10.0.300/Sdks/Microsoft.NET.Sdk/analyzers/
@@ -506,4 +454,4 @@ Validators/
 
 [analyzerConfigFiles]
 <DOTNET>/sdk/10.0.300/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_8_default.globalconfig
-obj/Debug/net8.0/Application.GeneratedMSBuildEditorConfig.editorconfig
+obj/Debug/net8.0/Infrastructure.GeneratedMSBuildEditorConfig.editorconfig

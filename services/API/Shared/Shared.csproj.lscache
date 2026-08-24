@@ -53,28 +53,21 @@ TemporaryDependencyNodeTargetIdentifier=net8.0
 /warnaserror+:NU1605,SYSLIB0011
 
 [sourceFiles]
-Command/
- AspectMarkerInterfaces.cs
- CoreFoundation.cs
- SemanticCommand.cs
-Contracts/
- IEntity.cs
- ISimpleAccountInfo.cs
- IUserEntity.cs
- IValidator.cs
-DTOs/
- AccountDto.cs
- FileDto.cs
- IEntityDto.cs
- SubscriptionDto.cs
- TagDto.cs
- TodoDto.cs
 Exceptions/
  BusinessException.cs
  DataBaseException.cs
  FileException.cs
  OptionException.cs
- RequestException.cs
+IApplicationException.cs
+ISimpleAccountInfo.cs
+IView/
+ AccountDto.cs
+ CorpusDto.cs
+ FileDto.cs
+ IEntityDto.cs
+ SubscriptionDto.cs
+ TagDto.cs
+ TodoDto.cs
 obj/Debug/net8.0/
  .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
  Shared.AssemblyInfo.cs
@@ -87,7 +80,11 @@ Options/
 Tools/
  GetFiles.cs
  GetUserID.cs
+ PreviewContext.cs
  UploadContext.cs
+Utils/
+ FastHash.cs
+ IdentityGenerator.cs
 
 [metadataReferences]
 <NUGET>/

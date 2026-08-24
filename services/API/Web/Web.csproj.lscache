@@ -78,8 +78,8 @@ Program.cs
 [metadataReferences]
 ../
  Application/obj/Debug/net8.0/ref/Application.dll
- Data/obj/Debug/net8.0/ref/Data.dll
- Service/obj/Debug/net8.0/ref/Service.dll
+ Domain/obj/Debug/net8.0/ref/Domain.dll
+ Infrastructure/obj/Debug/net8.0/ref/Infrastructure.dll
  Shared/obj/Debug/net8.0/ref/Shared.dll
 <NUGET>/
  aspnetcore.healthchecks.mysql/9.0.0/lib/net8.0/HealthChecks.MySql.dll
