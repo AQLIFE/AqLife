@@ -40,6 +40,13 @@ namespace MyLife.Application.Business.Account.Validator
         }
     }
 
+    public class UpdateAccount_InvalidName_ShouldRejectValidator : AbstractValidator<UpdateAccountProfileCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "账户名称不允许存在空格";
+        private protected override async Task<bool> IsValidAsync(UpdateAccountProfileCommand command, CancellationToken ct)
+        => !string.IsNullOrWhiteSpace(command.Name) && command.Name.All(c => !char.IsWhiteSpace(c));
+    }
+
     public class SubscriptionIconExtensionValidator(IApplicationDbContext dbContext) : AbstractValidator<UpdateAccountSubscriptionsCommand>
     {
         private protected override string ErrorMessage { init; get; } = "订阅图像必须是SVG文件类型";
