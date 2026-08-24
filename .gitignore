@@ -68,7 +68,6 @@ API/Web/Cache/
 
 # --- 密钥与环境配置（切勿提交）---
 # ASP.NET 使用 appsettings.json 及环境覆盖文件
-services/API/Web/Configurations/appsettings.json
 services/API/Web/Configurations/appsettings.*.json
 !services/API/Web/Configurations/appsettings.Test.json
 !services/API/Web/Configurations/appsettings.*.example.json
