@@ -71,7 +71,7 @@ API/Web/Cache/
 services/API/Web/Configurations/appsettings.json
 services/API/Web/Configurations/appsettings.*.json
 !services/API/Web/Configurations/appsettings.*.example.json
-services/API/APIUnitTest/appsettings.Test.json
+services/API/APIUnitTest/appsettings.Test.Local.json
 
 # 用户机密 / 环境变量
 **/secrets.json

@@ -32,3 +32,12 @@ jobs:
 
       - name: Run CI checks
         run: npm run ci
+
+      - name: Restore .NET
+        run: dotnet restore
+      
+      - name: Build .NET
+        run: dotnet build --no-restore
+      
+      - name: Run .NET tests
+        run: dotnet test --no-build
