@@ -33,11 +33,14 @@ jobs:
       - name: Run CI checks
         run: npm run ci
 
-      - name: Restore .NET
+       - name: Restore .NET
+        working-directory: services/API/APIUnitTest
         run: dotnet restore
       
       - name: Build .NET
+        working-directory: services/API/APIUnitTest
         run: dotnet build --no-restore
       
       - name: Run .NET tests
+        working-directory: services/API/APIUnitTest
         run: dotnet test --no-build
