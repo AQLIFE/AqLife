@@ -47,7 +47,6 @@ jobs:
         run: npm run ci
 
       - name: Apply EF migrations
-        working-directory: services/API/APIUnitTest
         run: dotnet ef database update --project Infrastructure --startup-project Web -- --environment Test
 
       - name: Restore .NET
