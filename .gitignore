@@ -70,6 +70,7 @@ API/Web/Cache/
 # ASP.NET 使用 appsettings.json 及环境覆盖文件
 services/API/Web/Configurations/appsettings.json
 services/API/Web/Configurations/appsettings.*.json
+!services/API/Web/Configurations/appsettings.Test.json
 !services/API/Web/Configurations/appsettings.*.example.json
 services/API/APIUnitTest/appsettings.Test.Local.json
 
