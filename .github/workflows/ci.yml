@@ -49,9 +49,11 @@ jobs:
       - name: Restore .NET tools
         run: dotnet tool restore
 
-      - name: Apply EF migrations
-        run: dotnet tool run dotnet-ef database update --project Infrastructure --startup-project Web -- --environment Test
+      - name: Check EF tool
+        run: dotnet tool list
 
+      - name: Apply EF migrations
+        run: dotnet tool run dotnet-ef database update --project services/API/Infrastructure --startup-project services/API/Web -- --environment Test
       - name: Restore .NET
         working-directory: services/API/APIUnitTest
         run: dotnet restore
