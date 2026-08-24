@@ -58,7 +58,6 @@
 
   <ItemGroup>
     <None Include="Configurations\appsettings.json" />
-    <None Include="Configurations\appsettings.Test.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
