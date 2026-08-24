@@ -12,6 +12,19 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -ptest"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10        
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,6 +45,10 @@ jobs:
 
       - name: Run CI checks
         run: npm run ci
+
+      - name: Apply EF migrations
+        working-directory: services/API/APIUnitTest
+        run: dotnet ef database update --project Infrastructure --startup-project Web -- --environment Test
 
       - name: Restore .NET
         working-directory: services/API/APIUnitTest
