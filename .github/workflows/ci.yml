@@ -46,6 +46,9 @@ jobs:
       - name: Run CI checks
         run: npm run ci
 
+      - name: Restore .NET tools
+        run: dotnet tool restore
+
       - name: Apply EF migrations
         run: dotnet ef database update --project Infrastructure --startup-project Web -- --environment Test
 
