@@ -12,4 +12,6 @@
 
         public FilePolicyOption() { }
     }
+
+    public enum FileStatus{Draft,Scheduled,Published }
 }

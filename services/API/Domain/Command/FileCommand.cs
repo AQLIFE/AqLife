@@ -14,9 +14,15 @@ namespace MyLife.Domain.Command
         public IEnumerable<IFormFile> GetFiles() => [File];
     }
     public record UpdateFileTagCommand(Guid UID, IEnumerable<Guid> tags) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
+    public record PublishFileCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
 
     public record CreateFileCommand(params IFormFile[] File) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
     {
         public IEnumerable<IFormFile> GetFiles() => File;
+    }
+
+    public record PublishScheduledCommand(DateTime? ScheduledTime,IFormFile File) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
+    {
+        public IEnumerable<IFormFile> GetFiles() => [File];
     }
 }

@@ -107,6 +107,7 @@ Business/File/
   DownloadFileHandler.cs
   FileQueryHandler.cs
   PreviewFileHandler.cs
+  PublishFileHandler.cs
   UpdateFileHandler.cs
   UpdateFileTagHandler.cs
  Search/
