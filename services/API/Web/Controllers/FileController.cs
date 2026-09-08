@@ -35,6 +35,26 @@ namespace MyLife.Web.Controllers
         public async Task<IEnumerable<Guid>> UploadFile([FromForm] CreateFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
 
+        /// <summary>
+        /// 上传文件并设置延时发布
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        [HttpPost("PublishScheduled"), ServiceFilter(typeof(FileUploadFilter))]
+        public async Task<IEnumerable<Guid>> PublishScheduledFile([FromForm] PublishScheduledCommand command, CancellationToken ct)
+        => await mediator.Send(command, ct);// 已实现
+
+        /// <summary>
+        /// 手动发布特定文件
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        [HttpPost("Publish"), ServiceFilter(typeof(FileUploadFilter))]
+        public async Task<Guid> PublishScheduledFile(PublishFileCommand command, CancellationToken ct)
+        => await mediator.Send(command, ct);// 已实现
+
 
         [HttpPatch, ServiceFilter(typeof(FileUploadFilter))]
         public async Task<Guid> UpdateFile([FromForm] UpdateFileCommand command, CancellationToken ct)

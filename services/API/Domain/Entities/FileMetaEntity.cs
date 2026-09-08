@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MyLife.Domain.Contracts;
+using MyLife.Shared.Options;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,22 +12,27 @@ namespace MyLife.Domain.Entities
     {
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
-        [Column, Description("仅存储文件名,不含后缀"),StringLength(64)]
-        public string FileName { get; set; } = string.Empty;
+        [Column, Description("仅存储文件名,不含后缀"), StringLength(64)]
+        public string FileName { get;private  set; } = string.Empty;
         [Column]
-        public string Extension { get; set; } = string.Empty;
+        public string Extension { get;private set; } = string.Empty;
         [Column]
-        public ulong FileSize { set; get; } = 0u;
+        public ulong FileSize {private set; get; } = 0u;
 
         [Column, Required(ErrorMessage = "文件哈希不能为空")]
-        public string FileHash { set; get; }
+        public string FileHash {private set; get; }
         [Column]
-        public DateTime UploadTime { set; get; } = DateTime.UtcNow;
-        
+        public DateTime UploadTime {private set; get; } = DateTime.UtcNow;
+        [Column]
+        public DateTime? PublishAt { get;private set; } = null;
+
+        [Column]
+        public FileStatus Status {private set; get; } = FileStatus.Draft;
+
         [NotMapped]
         public string StorageName => UID + Extension;
         [NotMapped]
-        public string FileIntroduction { set; get; } = string.Empty;
+        public string FileIntroduction { private set; get; } = string.Empty;
 
         public virtual ICollection<FileTagEntity> FileTags { get; set; } = [];
 
@@ -45,9 +51,25 @@ namespace MyLife.Domain.Entities
             FileSize = (ulong)file.Length;
             FileHash = hash;
         }
+        public FileMetaEntity(IFormFile file, string hash,DateTime ScheduledTime): this(file,hash)
+        {
+            PublishAt = ScheduledTime;
+            this.Status = FileStatus.Scheduled;
+        }
+
+
+        public void Publish()
+        {
+            this.PublishAt = DateTime.UtcNow;
+        }
+
         public void SetFileIntroduction(string content)
         {
             FileIntroduction = content;
+        }
+        public void UpdateHash(string hash)
+        {
+            FileHash = hash;
         }
     }
 }

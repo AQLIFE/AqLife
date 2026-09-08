@@ -17,7 +17,7 @@ namespace MyLife.Application.Business.File.Service
         //    return meta.UID;
         //}
 
-        public async Task<List<Guid>> WriteAsync(IEnumerable<IFormFile> files, CancellationToken ct)
+        public async Task<List<Guid>> WriteAsync(IEnumerable<IFormFile> files, CancellationToken ct,DateTime? publishAt=null)
         {
             List<IFormFile> fileList = files.ToList();
 
@@ -41,7 +41,7 @@ namespace MyLife.Application.Business.File.Service
                         continue;
                     }
 
-                    var meta = new FileMetaEntity(file, hash);
+                    var meta = publishAt is null ? new FileMetaEntity(file, hash):new FileMetaEntity(file, hash, publishAt.Value);
                     await fileStorage.SaveAsync(file.OpenReadStream(), meta.StorageName, ct);
 
                     savedFiles.Add(meta.StorageName);
