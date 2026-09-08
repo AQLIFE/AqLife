@@ -98,6 +98,8 @@ Migrations/
  20260727160700_RefactorAccountAndSubscriptionConstraints.Designer.cs
  20260730140429_corpusModelOptimize.cs
  20260730140429_corpusModelOptimize.Designer.cs
+ 20260822040408_AccountAdjustment.cs
+ 20260822040408_AccountAdjustment.Designer.cs
  AppStorageModelSnapshot.cs
 obj/Debug/net8.0/
  .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
