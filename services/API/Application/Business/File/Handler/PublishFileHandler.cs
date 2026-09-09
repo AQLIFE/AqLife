@@ -2,6 +2,7 @@ using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Business.File.Service;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using AqLife.Shared.Exceptions;
 using MediatR;
 
 namespace AqLife.Application.Business.File.Handler

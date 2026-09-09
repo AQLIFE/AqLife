@@ -2,6 +2,7 @@
 using AqLife.Application.Business.Account.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using AqLife.Shared.Exceptions;
 using MediatR;
 
 namespace AqLife.Application.Business.Account.Handler

@@ -1,4 +1,5 @@
-﻿using Duende.IdentityModel;
+﻿using AqLife.Shared.Exceptions;
+using Duende.IdentityModel;
 using System.Security.Claims;
 
 namespace AqLife.Shared.Tools

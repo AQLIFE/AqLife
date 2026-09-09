@@ -7,11 +7,13 @@
 Thumbs.db
 Desktop.ini
 ehthumbs.db
+$RECYCLE.BIN/
 
 # --- Editor / IDE ---
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json.example
+!.vscode/launch.json.example
 .idea/
 *.sw?
 *.suo
@@ -22,6 +24,12 @@ ehthumbs.db
 *.njsproj
 *.rsuser
 *.iscache
+*.DotSettings.user
+**/.vs/
+*.csproj.user
+*.csproj.Backup.tmp
+*.csproj.lscache
+*.sln.lscache
 
 # --- .NET / API ---
 [Bb]in/
@@ -33,15 +41,16 @@ project.lock.json
 project.fragment.lock.json
 *.nuget.props
 *.nuget.targets
-*.DotSettings.user
+*.nupkg
+**/packages/
+!**/packages/build/
 
-# --- Node / Monorepo (apps/*, packages/*, tools/*) ---
+# --- Node / Monorepo ---
 node_modules/
 dist/
 dist-ssr/
 coverage/
 *.local
-
 .npm/
 .pnpm-store/
 .pnpm-debug.log*
@@ -56,14 +65,17 @@ lerna-debug.log*
 **/.cache/
 **/node_modules/.tmp/
 
-# OpenAPI Generator 本地缓存
+# OpenAPI Generator
 .openapitools/
+**/openapi-generator/
+**/generated/  # 如果生成物不入库的话
 
 # --- 测试 / E2E ---
 /cypress/videos/
 /cypress/screenshots/
 /playwright-report/
 /test-results/
+**/TestResults/
 
 # --- 日志与运行时输出 ---
 logs/
@@ -71,12 +83,14 @@ logs/
 *.log
 debug.log
 
-API/Web/logs/
-API/Web/Cache/
+# 正确路径（旧路径 API/Web 已过时）
+services/API/Web/logs/
+services/API/Web/Cache/
+**/Cache/
 
 # --- 密钥与环境配置（切勿提交）---
-# ASP.NET 使用 appsettings.json 及环境覆盖文件
 services/API/Web/Configurations/appsettings.*.json
+!services/API/Web/Configurations/appsettings.json
 !services/API/Web/Configurations/appsettings.Test.json
 !services/API/Web/Configurations/appsettings.*.example.json
 services/API/APIUnitTest/appsettings.Test.Local.json
@@ -86,11 +100,11 @@ services/API/APIUnitTest/appsettings.Test.Local.json
 .env.*
 !.env.example
 !.env.*.example
-**/.vs
-.vs/*
 
-# --- 本地工具 / 个人草稿（不入库）---
+# --- 本地工具 / 个人草稿 ---
 /APIFOX/
 run/
 API/API.mermaid
 项目结构.md
+*.http.user
+*.http.local

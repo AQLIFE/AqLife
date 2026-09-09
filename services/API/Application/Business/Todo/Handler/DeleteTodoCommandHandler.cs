@@ -1,6 +1,7 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using AqLife.Shared.Exceptions;
 using MediatR;
 namespace AqLife.Application.Business.Todo.Handler
 {

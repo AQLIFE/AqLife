@@ -2,6 +2,7 @@
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using AqLife.Shared.Exceptions;
 using AqLife.Shared.Utils;
 using Microsoft.EntityFrameworkCore;
 
