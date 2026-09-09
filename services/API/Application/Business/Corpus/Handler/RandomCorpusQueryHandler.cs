@@ -1,10 +1,9 @@
-﻿using MediatR;
-using MyLife.Application.Business.Corpus.Search;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
+﻿using AqLife.Application.Business.Corpus.Search;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using MediatR;
 
-namespace MyLife.Application.Business.Corpus.Handler
+namespace AqLife.Application.Business.Corpus.Handler
 {
     public class RandomCorpusQueryHandler(CorpusSearch search) : IRequestHandler<RandomCorpusQuery, string>
     {

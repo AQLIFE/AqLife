@@ -1,7 +1,7 @@
-﻿using MyLife.Application.Search;
-using MyLife.Domain.Entities;
+﻿using AqLife.Application.Search;
+using AqLife.Domain.Entities;
 
-namespace MyLife.Application.Business.Todo.Search
+namespace AqLife.Application.Business.Todo.Search
 {
 
     public class FilterTodoSearchStrategy : FilteredSearchStrategyBase<TodoEntity, EntitySearchCriteria>

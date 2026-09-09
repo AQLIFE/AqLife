@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using MyLife.Shared.IView;
-
-namespace MyLife.Shared.Tools
+﻿namespace AqLife.Shared.Tools
 {
     //public static class GetFiles
     //{

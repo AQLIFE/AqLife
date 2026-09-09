@@ -1,10 +1,10 @@
-﻿using MediatR;
+﻿using AqLife.Domain.Command;
+using AqLife.Shared.IView;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyLife.Domain.Command;
-using MyLife.Shared.IView;
 
-namespace MyLife.Web.Controllers
+namespace AqLife.Web.Controllers
 {
     [Route("[controller]"), ApiController, Authorize]
     public class CorpusController(IMediator mediator) : ControllerBase
@@ -21,7 +21,7 @@ namespace MyLife.Web.Controllers
         [HttpGet("random"), AllowAnonymous]
         public async Task<string> GetRandomCorpus(CancellationToken ct)
         => await mediator.Send(new RandomCorpusQuery(), ct);
-        
+
         [HttpPost]
         public async Task<Guid> AddCorpus(CreateCorpusCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);

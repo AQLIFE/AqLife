@@ -1,10 +1,9 @@
-﻿using MediatR;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.Exceptions;
-using MyLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using MediatR;
 
-namespace MyLife.Application.Business.Corpus.Handler
+namespace AqLife.Application.Business.Corpus.Handler
 {
     public class UpdateCorpusCommandHandler(IApplicationDbContext storage) : IRequestHandler<UpdateCorpusCommand, Guid>
     {

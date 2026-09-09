@@ -1,4 +1,4 @@
-﻿namespace MyLife.Shared.IView
+﻿namespace AqLife.Shared.IView
 {
     public interface IEntityDto
     {

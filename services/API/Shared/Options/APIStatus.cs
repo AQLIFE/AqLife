@@ -1,4 +1,4 @@
-﻿namespace MyLife.Shared.Options
+﻿namespace AqLife.Shared.Options
 {
     public struct APIStatus
     {

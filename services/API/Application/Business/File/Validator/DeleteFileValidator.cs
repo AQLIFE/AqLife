@@ -1,9 +1,9 @@
-﻿using MyLife.Application.Business.Account.Search;
-using MyLife.Application.Validators;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
+﻿using AqLife.Application.Business.Account.Search;
+using AqLife.Application.Validators;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
 
-namespace MyLife.Application.Business.File.Validator
+namespace AqLife.Application.Business.File.Validator
 {
 
     /// <summary>
@@ -18,10 +18,10 @@ namespace MyLife.Application.Business.File.Validator
             var entity = await accountSearch.SearchAsync(new AccountQuery(), ct);
             if (entity.Count() > 0 && entity.First() is AccountEntity account)
             {
-                List<Guid> accountFIles = new ();
+                List<Guid> accountFIles = new();
                 IEnumerable<Guid> subs = account.Subscriptions.Where(e => e.SubscriptionIcon != Guid.Empty).Select(e => e.SubscriptionIcon).AsEnumerable();
                 accountFIles.AddRange(subs);
-                if(account.Avatar != Guid.Empty )accountFIles.Add(account.Avatar);
+                if (account.Avatar != Guid.Empty) accountFIles.Add(account.Avatar);
                 return !accountFIles.Contains(command.UID);// 反之不包含即可允许删除
             }
             return true;//如果搜不到账户信息,则默认该ID 与 Account 没有业务关系

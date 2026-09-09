@@ -1,7 +1,7 @@
-﻿using MyLife.Application.Search;
-using MyLife.Domain.Entities;
+﻿using AqLife.Application.Search;
+using AqLife.Domain.Entities;
 
-namespace MyLife.Application.Business.File.Search
+namespace AqLife.Application.Business.File.Search
 {
     public class FilteredFilesSearchStrategy : FilteredSearchStrategyBase<FileMetaEntity, EntitySearchCriteria>
     {

@@ -1,18 +1,17 @@
-﻿using MediatR;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Business.File.Service;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Business.File.Service;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Shared.Exceptions;
 
-namespace MyLife.Application.Business.Account.Handler;
+namespace AqLife.Application.Business.Account.Handler;
 
 public class DeleteAccountHandler(IApplicationDbContext storage, FileDeleter fileDeleter) : IRequestHandler<DeleteAccountCommand, Unit>
 {
     public async Task<Unit> Handle(DeleteAccountCommand command, CancellationToken ct)
     {
-        AccountEntity account = await storage.Accounts.Include(e => e.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID ) ?? throw new ResourceNotFoundException("账户不存在");
+        AccountEntity account = await storage.Accounts.Include(e => e.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID) ?? throw new ResourceNotFoundException("账户不存在");
 
         var subs = account.Subscriptions.Select(s => s.SubscriptionIcon).ToList();
         if (account.Avatar is Guid avatar) subs.Add(avatar);

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MyLife.Shared.IView
+namespace AqLife.Shared.IView
 {
     public record TodoDto
     (

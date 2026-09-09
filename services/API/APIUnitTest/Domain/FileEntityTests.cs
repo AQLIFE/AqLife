@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using MyLife.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using AqLife.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace APIUnitTest.Domain
+namespace AqLife.APIUnitTest.Domain
 {
     public class FileEntityTests
     {

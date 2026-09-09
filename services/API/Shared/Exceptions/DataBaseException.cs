@@ -1,6 +1,6 @@
-﻿using MyLife.Shared.Options;
+﻿using AqLife.Shared.Options;
 
-namespace MyLife.Shared.Exceptions
+namespace AqLife.Shared.Exceptions
 {
     public abstract class DatabaseException(string message) : Exception(message), IApplicationException
     {

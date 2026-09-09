@@ -1,10 +1,10 @@
-﻿using MyLife.Application.Abstractions.Mapper;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
 using Riok.Mapperly.Abstractions;
 
-namespace MyLife.Application.Business.Account
+namespace AqLife.Application.Business.Account
 {
     [Mapper]
     public partial class SubscriptionMapper : IViewMapper<SubscriptionEntity, SubscriptionDto>, ICreateMapper<SubscriptionEntity, ISubscription>
@@ -29,7 +29,7 @@ namespace MyLife.Application.Business.Account
         public partial AccountDto ToDto(AccountEntity source);
 
         [MapperIgnoreSource(nameof(CreateAccountCommand.ServerKey))]
-        public  AccountEntity ToEntity(CreateAccountCommand command)=>new (command.Name,command.Desc,command.Pwd);
+        public AccountEntity ToEntity(CreateAccountCommand command) => new(command.Name, command.Desc, command.Pwd);
 
         private SubscriptionDto Convert(SubscriptionEntity entity) => subMapper.ToDto(entity);
         //private SubscriptionEntity Convert(SubscriptionDto dto) => subMapper.ToEntity(dto);

@@ -1,9 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MyLife.Data.Migrations
+namespace AqLife.Data.Migrations
 {
     /// <inheritdoc />
     public partial class AccountAdjustment : Migration

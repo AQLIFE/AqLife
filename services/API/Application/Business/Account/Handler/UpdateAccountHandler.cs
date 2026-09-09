@@ -1,12 +1,12 @@
-﻿using MediatR;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Business.File.Service;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Business.File.Service;
-using MyLife.Domain.Command;
-using MyLife.Shared.Exceptions;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Domain.Entities;
+using AqLife.Application.Business.Account;
 
-namespace MyLife.Application.Business.Account.Handler
+namespace AqLife.Application.Business.Account.Handler
 {
     public class UpdateAccountProfileHandler(IApplicationDbContext storage) : IRequestHandler<UpdateAccountProfileCommand, string>
     {
@@ -49,7 +49,7 @@ namespace MyLife.Application.Business.Account.Handler
     {
         public async Task<string> Handle(UpdatePasswordCommand command, CancellationToken ct)
         {
-            AccountEntity account = await storage.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct)?? throw new ResourceNotFoundException("账户不存在");
+            AccountEntity account = await storage.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
             account.ChangePassword(command.NewPassword);
             return account.LoginName;
         }

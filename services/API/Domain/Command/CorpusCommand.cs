@@ -1,8 +1,8 @@
-﻿using MyLife.Domain.CommandInterface;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
+﻿using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
 
-namespace MyLife.Domain.Command
+namespace AqLife.Domain.Command
 {
     public record RandomCorpusQuery : IQuery<string>;
     public record CorpusQuery(Guid? UID = null, string? Content = null) : IQuery<IEnumerable<CorpusDto>>;

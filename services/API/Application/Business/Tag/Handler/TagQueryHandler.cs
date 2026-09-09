@@ -1,9 +1,10 @@
-﻿using MediatR;
-using MyLife.Application.Business.Tag.Search;
-using MyLife.Domain.Command;
-using MyLife.Shared.IView;
+﻿using AqLife.Application.Business.Tag.Search;
+using AqLife.Domain.Command;
+using AqLife.Shared.IView;
+using MediatR;
+using AqLife.Application.Business.Tag;
 
-namespace MyLife.Application.Business.Tag.Handler
+namespace AqLife.Application.Business.Tag.Handler
 {
     public class TagQueryHandler(TagSearch search, TagMapper tagMapper) : IRequestHandler<TagQuery, IEnumerable<TagDto>?>
     {

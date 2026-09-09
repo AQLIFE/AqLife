@@ -1,8 +1,8 @@
-﻿using MyLife.Application.Search;
-using MyLife.Domain.Command;
+﻿using AqLife.Application.Search;
+using AqLife.Domain.Command;
 using Riok.Mapperly.Abstractions;
 
-namespace MyLife.Application.Mappers
+namespace AqLife.Application.Mappers
 {
     [Mapper]
     public partial class QueryMapper

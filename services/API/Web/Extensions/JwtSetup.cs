@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using AqLife.Application.Abstractions.Authentication;
+using AqLife.Domain.Entities;
+using AqLife.Infrastructure.Configuration;
+using AqLife.Shared.Exceptions;
+using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using MyLife.Application.Abstractions.Authentication;
-using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Configuration;
-using MyLife.Shared.Exceptions;
-using MyLife.Shared.Options;
 using System.Text;
 
 
-namespace MyLife.Web.Extensions
+namespace AqLife.Web.Extensions
 {
     /// <summary>
     /// 
@@ -60,7 +59,7 @@ namespace MyLife.Web.Extensions
             OnTokenValidated = async context =>
             {
                 var concreteService = context.HttpContext.RequestServices.GetRequiredService<ITokenProvider<AccountEntity>>();
-                if ( ! await concreteService.IsUserExistsAsync(context.Principal!,context.HttpContext.RequestAborted))
+                if (!await concreteService.IsUserExistsAsync(context.Principal!, context.HttpContext.RequestAborted))
                 {
                     context.Fail("该账户已被注销或不存在。");
                 }

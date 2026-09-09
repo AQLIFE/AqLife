@@ -1,15 +1,15 @@
-﻿using MyLife.Application.Abstractions.Mapper;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
 using Riok.Mapperly.Abstractions;
 
-namespace MyLife.Application.Business.Todo
+namespace AqLife.Application.Business.Todo
 {
     [Mapper]
     public partial class TodoMapper : IViewMapper<TodoEntity, TodoDto>, ICreateMapper<TodoEntity, CreateTodoCommand>
     {
-        [MapProperty(nameof(TodoEntity.Children),nameof(TodoDto.TodoList))]
+        [MapProperty(nameof(TodoEntity.Children), nameof(TodoDto.TodoList))]
         public partial TodoDto ToDto(TodoEntity entity);
 
         [MapperIgnoreTarget(nameof(TodoEntity.UID))]

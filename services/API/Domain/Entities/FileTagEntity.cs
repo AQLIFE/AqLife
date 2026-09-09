@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MyLife.Domain.Entities
+namespace AqLife.Domain.Entities
 {
     [Table("FileTags")]
     public class FileTagEntity

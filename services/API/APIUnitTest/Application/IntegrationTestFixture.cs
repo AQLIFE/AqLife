@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AqLife.Application;
+using AqLife.Infrastructure;
+using AqLife.Infrastructure.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyLife.Application;
-using MyLife.Infrastructure;
-using MyLife.Infrastructure.Configuration;
-using MyLife.Shared.Options;
 
-namespace APIUnitTest.Application
+namespace AqLife.APIUnitTest.Application
 {
     public class IntegrationTestFixture : IDisposable
     {
@@ -28,7 +27,7 @@ namespace APIUnitTest.Application
 
             services.AddInfrastructure();
             Services = services.BuildServiceProvider();
-            
+
         }
 
         public void Dispose()

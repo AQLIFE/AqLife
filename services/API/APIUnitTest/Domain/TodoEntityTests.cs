@@ -1,12 +1,7 @@
-﻿using MyLife.Domain.Entities;
-using MyLife.Shared.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AqLife.Domain.Entities;
+using AqLife.Shared.Exceptions;
 
-namespace APIUnitTest.Domain
+namespace AqLife.APIUnitTest.Domain
 {
     public class TodoEntityTests
     {

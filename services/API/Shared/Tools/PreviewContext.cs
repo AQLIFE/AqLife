@@ -1,4 +1,4 @@
-﻿namespace MyLife.Shared.Tools
+﻿namespace AqLife.Shared.Tools
 {
     public class PreviewContext
     {

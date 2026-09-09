@@ -1,4 +1,4 @@
-﻿namespace MyLife.Domain.Contracts;
+﻿namespace AqLife.Domain.Contracts;
 
 public interface IValidator<in TSource>
 {

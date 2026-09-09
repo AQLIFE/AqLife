@@ -1,9 +1,10 @@
-﻿using MediatR;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using MediatR;
+using AqLife.Application.Business.Account;
 
-namespace MyLife.Application.Business.Account.Handler
+namespace AqLife.Application.Business.Account.Handler
 {
     public class CreateAccountHandler(IApplicationDbContext storage, AccountMapper mapper) : IRequestHandler<CreateAccountCommand, string>
     {

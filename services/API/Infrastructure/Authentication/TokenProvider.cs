@@ -1,18 +1,18 @@
-﻿using Duende.IdentityModel;
+﻿using AqLife.Application.Abstractions.Authentication;
+using AqLife.Domain.Entities;
+using AqLife.Shared.Options;
+using AqLife.Shared.Tools;
+using Duende.IdentityModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MyLife.Application.Abstractions.Authentication;
-using MyLife.Domain.Entities;
-using MyLife.Shared.Options;
-using MyLife.Shared.Tools;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace MyLife.Infrastructure.Authentication
+namespace AqLife.Infrastructure.Authentication
 {
-    public class TokenProvider(IOptions<JwtOption> options,AppStorage appStorage) : ITokenProvider<AccountEntity>
+    public class TokenProvider(IOptions<JwtOption> options, AppStorage appStorage) : ITokenProvider<AccountEntity>
     {
         public string CreateToken(AccountEntity account)
         {
@@ -33,7 +33,7 @@ namespace MyLife.Infrastructure.Authentication
 
             return new JwtSecurityTokenHandler().WriteToken(sourceToken);
         }
-        public async Task<bool> IsUserExistsAsync(ClaimsPrincipal principal,CancellationToken ct = default)
+        public async Task<bool> IsUserExistsAsync(ClaimsPrincipal principal, CancellationToken ct = default)
         {
             if (principal?.Identity?.IsAuthenticated != true)
                 return false;
@@ -46,7 +46,7 @@ namespace MyLife.Infrastructure.Authentication
                 return false;
 
 
-            return await appStorage.Accounts.AsNoTracking().AnyAsync(e => e.UID == uid&& e.IsValid,ct);
+            return await appStorage.Accounts.AsNoTracking().AnyAsync(e => e.UID == uid && e.IsValid, ct);
         }
     }
 }

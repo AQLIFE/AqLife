@@ -1,16 +1,15 @@
+using AqLife.Application.Abstractions.Authentication;
+using AqLife.Application.Abstractions.FileStorage;
+using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Entities;
+using AqLife.Infrastructure.Authentication;
+using AqLife.Infrastructure.FileStorage;
+using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyLife.Application.Abstractions.Authentication;
-using MyLife.Application.Abstractions.FileStorage;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Domain.Entities;
-using MyLife.Infrastructure.Authentication;
-using MyLife.Infrastructure.FileStorage;
-using MyLife.Shared.Exceptions;
-using MyLife.Shared.Options;
 
-namespace MyLife.Infrastructure
+namespace AqLife.Infrastructure
 {
     public static class DataLayerSetup
     {

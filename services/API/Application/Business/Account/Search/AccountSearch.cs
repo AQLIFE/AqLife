@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Abstractions.Search;
-using MyLife.Application.Mappers;
-using MyLife.Application.Search;
-using MyLife.Domain.Command;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
-namespace MyLife.Application.Business.Account.Search
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Search;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
+using Microsoft.EntityFrameworkCore;
+using AqLife.Application.Mappers;
+namespace AqLife.Application.Business.Account.Search
 {
     // 尝试使用BaseSearch来实现AccountSearch，减少重复代码,等待测试
     public class AccountSearch(QueryMapper queryMapper, IApplicationDbContext storage, IEnumerable<ISearchStrategy<AccountEntity, EntitySearchCriteria>> searchStrategies)

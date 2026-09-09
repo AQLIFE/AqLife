@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-using MyLife.Shared;
-using MyLife.Shared.Options;
+﻿using AqLife.Shared;
+using AqLife.Shared.Options;
+using Microsoft.AspNetCore.Diagnostics;
 
-namespace MyLife.Web.Middlewares
+namespace AqLife.Web.Middlewares
 {
 
     public class BaseExceptionHandler(ILogger<IExceptionHandler> logger) : IExceptionHandler

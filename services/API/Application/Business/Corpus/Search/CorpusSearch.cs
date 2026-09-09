@@ -1,12 +1,12 @@
-﻿using MyLife.Application.Abstractions.Search;
-using MyLife.Application.Mappers;
-using MyLife.Application.Search;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
-using MyLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Search;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
+using AqLife.Application.Mappers;
 
-namespace MyLife.Application.Business.Corpus.Search
+namespace AqLife.Application.Business.Corpus.Search
 {
     public class CorpusSearch(QueryMapper queryMapper, IApplicationDbContext storage, IEnumerable<ISearchStrategy<CorpusEntity, EntitySearchCriteria>> searchStrategies) : BaseSearch<CorpusQuery, CorpusEntity, CorpusDto, EntitySearchCriteria>(storage, searchStrategies)
     {

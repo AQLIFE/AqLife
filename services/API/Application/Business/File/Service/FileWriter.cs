@@ -1,23 +1,23 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AqLife.Application.Abstractions.FileStorage;
+using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Entities;
+using AqLife.Shared.Tools;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Abstractions.FileStorage;
-using MyLife.Domain.Entities;
-using MyLife.Shared.Tools;
-using MyLife.Application.Abstractions.Persistence;
-namespace MyLife.Application.Business.File.Service
+namespace AqLife.Application.Business.File.Service
 {
     public class FileWriter(IApplicationDbContext appStorage, IFileStorage fileStorage, UploadContext uploadContext)
     {
         //public async Task<Guid> WriteAsync(IFormFile file,string hash,CancellationToken ct)
         //{
         //    FileMetaEntity meta = new (file, hash);
-        
+
         //    await fileStorage.SaveAsync(file.OpenReadStream(), storageFileName, ct);
         //    await appStorage.File.AddAsync(meta, ct);
         //    return meta.UID;
         //}
 
-        public async Task<List<Guid>> WriteAsync(IEnumerable<IFormFile> files, CancellationToken ct,DateTime? publishAt=null)
+        public async Task<List<Guid>> WriteAsync(IEnumerable<IFormFile> files, CancellationToken ct, DateTime? publishAt = null)
         {
             List<IFormFile> fileList = files.ToList();
 
@@ -41,7 +41,7 @@ namespace MyLife.Application.Business.File.Service
                         continue;
                     }
 
-                    var meta = publishAt is null ? new FileMetaEntity(file, hash):new FileMetaEntity(file, hash, publishAt.Value);
+                    var meta = publishAt is null ? new FileMetaEntity(file, hash) : new FileMetaEntity(file, hash, publishAt.Value);
                     await fileStorage.SaveAsync(file.OpenReadStream(), meta.StorageName, ct);
 
                     savedFiles.Add(meta.StorageName);

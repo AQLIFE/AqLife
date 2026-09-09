@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using MyLife.Domain.CommandInterface;
-using MyLife.Domain.Entities;
-using MyLife.Shared;
-using MyLife.Shared.IView;
+﻿using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Entities;
+using AqLife.Shared;
+using AqLife.Shared.IView;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 
-namespace MyLife.Domain.Command
+namespace AqLife.Domain.Command
 {
     public record AccountQuery(Guid? UID = null) : IQuery<AccountDto>;
     public record LoginCommand(
@@ -30,7 +30,7 @@ namespace MyLife.Domain.Command
         string Pwd,
         string ServerKey
     ) : ICreateCommand<string>, ISimpleAccountInfo;
-    
+
 
     /// <summary>
     /// 更新账户基础信息
@@ -80,5 +80,5 @@ namespace MyLife.Domain.Command
         [property:RegularExpression(pattern:@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,32}$",ErrorMessage ="不规范的新密码")]
         string NewPassword
     ) : IRequireValidEntity<AccountEntity>, IUpdateCommand<string>;
-    
+
 }

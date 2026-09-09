@@ -1,12 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Validators;
+using AqLife.Domain.Command;
+using AqLife.Shared.Options;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MyLife.Application.Validators;
-using MyLife.Domain.Command;
-using MyLife.Shared.Options;
-using MyLife.Application.Abstractions.Persistence;
-using System.Runtime.Intrinsics.Arm;
 
-namespace MyLife.Application.Business.Account.Validator
+namespace AqLife.Application.Business.Account.Validator
 {
     /// <summary>
     /// 创建时账户名唯一性检查:不允许重复
@@ -45,6 +44,6 @@ namespace MyLife.Application.Business.Account.Validator
     {
         private protected override string ErrorMessage { init; get; } = "系统密钥不匹配";
         private protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
-        => options.Value.SecretKey == command.ServerKey;        
+        => options.Value.SecretKey == command.ServerKey;
     }
 }

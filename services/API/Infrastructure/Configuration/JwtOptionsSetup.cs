@@ -1,13 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AqLife.Shared.Options;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyLife.Shared.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MyLife.Infrastructure.Configuration
+namespace AqLife.Infrastructure.Configuration
 {
     public static class JwtOptionsSetup
     {

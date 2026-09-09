@@ -1,8 +1,8 @@
-﻿using MediatR;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Domain.CommandInterface;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.CommandInterface;
+using MediatR;
 
-namespace MyLife.Application.Behaviors
+namespace AqLife.Application.Behaviors
 {
     // 事务管道
     public class TransactionBehavior<TRequest, TResponse>(IApplicationDbContext storage) : IPipelineBehavior<TRequest, TResponse>
@@ -18,9 +18,9 @@ namespace MyLife.Application.Behaviors
             await using var transaction = await storage.BeginTransactionAsync(cancellationToken);
             try
             {
-            var response = await next(); // 执行真正的业务
-            await storage.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken); // 提交 : 隐式事务回滚机制,若在Commit之前触发异常,则会自动回滚
+                var response = await next(); // 执行真正的业务
+                await storage.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken); // 提交 : 隐式事务回滚机制,若在Commit之前触发异常,则会自动回滚
                 return response;
             }
             catch

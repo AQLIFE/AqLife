@@ -1,9 +1,9 @@
+using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
-using MyLife.Shared.Options;
 
-namespace MyLife.Web.Middlewares
+namespace AqLife.Web.Middlewares
 {
     //public enum PolicyKey { Upload, Download, Unkown }
     public class FileUploadFilter(IOptions<FilePolicyOption> options) : IAuthorizationFilter

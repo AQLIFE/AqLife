@@ -1,26 +1,20 @@
-﻿using MediatR;
+﻿using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using AqLife.Infrastructure;
+using AqLife.Shared.Exceptions;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Infrastructure;
-using MyLife.Shared.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit.v3;
 
-namespace APIUnitTest.Application.AccountIntegrationTests
+namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
 {
     [Collection<IntegrationTestCollection>]
-    public class DeleteAccountIntegrationTests(IntegrationTestFixture fixture): IntegrationTestBase(fixture)
+    public class DeleteAccountIntegrationTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
     {
-       /// <summary>
-       /// 验证需求: 完整删除账户相关数据
-       /// </summary>
-       /// <returns></returns>
+        /// <summary>
+        /// 验证需求: 完整删除账户相关数据
+        /// </summary>
+        /// <returns></returns>
         [Fact, ResetDatabase]
         public async Task DeleteAccount_ShouldDeleteAccount()
         {
@@ -44,7 +38,7 @@ namespace APIUnitTest.Application.AccountIntegrationTests
         /// 验证需求: 重复删除,捕获异常
         /// </summary>
         /// <returns></returns>
-        [Fact,ResetDatabase]
+        [Fact, ResetDatabase]
         public async Task DeleteAccount_DeleteRepeatedly()
         {
             using var scope = CreateScope();
@@ -64,13 +58,13 @@ namespace APIUnitTest.Application.AccountIntegrationTests
             Assert.False(await storage.Accounts.AnyAsync(e => e.UID == account.UID, CancellationToken.None));// 删除后，账户应该不存在
 
             // 删除成功后,再次删除,触发异常
-            await Assert.ThrowsAsync<ResourceNotFoundException>(() => mediator.Send(command,CancellationToken.None));
+            await Assert.ThrowsAsync<ResourceNotFoundException>(() => mediator.Send(command, CancellationToken.None));
         }
         /// <summary>
         /// 验证需求: 删除功能不受账户禁用状体影响
         /// </summary>
         /// <returns></returns>
-        [Fact(Skip = "需求废弃,核心验证逻辑由DeleteAccount_ShouldDeleteAccount完成"),ResetDatabase]
+        [Fact(Skip = "需求废弃,核心验证逻辑由DeleteAccount_ShouldDeleteAccount完成"), ResetDatabase]
         public async Task DeleteAccount_DeleteInactiveAccount()
         {
             using var scope = CreateScope();
@@ -88,7 +82,7 @@ namespace APIUnitTest.Application.AccountIntegrationTests
             storage.Accounts.Update(account);
             await storage.SaveChangesAsync(CancellationToken.None);
 
-            var cloudAccount = await storage.Accounts.SingleOrDefaultAsync(e => e.Name == account.Name,CancellationToken.None);
+            var cloudAccount = await storage.Accounts.SingleOrDefaultAsync(e => e.Name == account.Name, CancellationToken.None);
             Assert.NotNull(cloudAccount);
             Assert.False(cloudAccount.IsValid);
 
@@ -111,7 +105,7 @@ namespace APIUnitTest.Application.AccountIntegrationTests
                 .GetRequiredService<IMediator>();
 
             CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", "8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92");
-            
+
             var loginName = await mediator.Send(command, CancellationToken.None);
 
             return await storage.Accounts.SingleAsync(e => e.LoginName == loginName);

@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using MyLife.Domain.Contracts;
-using MyLife.Shared.Options;
+﻿using AqLife.Domain.Contracts;
+using AqLife.Shared.Options;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MyLife.Domain.Entities
+namespace AqLife.Domain.Entities
 {
     [Table("FileMeta")]
     public class FileMetaEntity : IEntity
@@ -13,21 +13,21 @@ namespace MyLife.Domain.Entities
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
         [Column, Description("仅存储文件名,不含后缀"), StringLength(64)]
-        public string FileName { get;private  set; } = string.Empty;
+        public string FileName { get; private set; } = string.Empty;
         [Column]
-        public string Extension { get;private set; } = string.Empty;
+        public string Extension { get; private set; } = string.Empty;
         [Column]
-        public ulong FileSize {private set; get; } = 0u;
+        public ulong FileSize { private set; get; } = 0u;
 
         [Column, Required(ErrorMessage = "文件哈希不能为空")]
-        public string FileHash {private set; get; }
+        public string FileHash { private set; get; }
         [Column]
-        public DateTime UploadTime {private set; get; } = DateTime.UtcNow;
+        public DateTime UploadTime { private set; get; } = DateTime.UtcNow;
         [Column]
-        public DateTime? PublishAt { get;private set; } = null;
+        public DateTime? PublishAt { get; private set; } = null;
 
         [Column]
-        public FileStatus Status {private set; get; } = FileStatus.Draft;
+        public FileStatus Status { private set; get; } = FileStatus.Draft;
 
         [NotMapped]
         public string StorageName => UID + Extension;
@@ -51,7 +51,7 @@ namespace MyLife.Domain.Entities
             FileSize = (ulong)file.Length;
             FileHash = hash;
         }
-        public FileMetaEntity(IFormFile file, string hash,DateTime ScheduledTime): this(file,hash)
+        public FileMetaEntity(IFormFile file, string hash, DateTime ScheduledTime) : this(file, hash)
         {
             PublishAt = ScheduledTime;
             this.Status = FileStatus.Scheduled;

@@ -1,6 +1,6 @@
-﻿using MyLife.Shared.Options;
+﻿using AqLife.Shared.Options;
 
-namespace MyLife.Shared.Exceptions
+namespace AqLife.Shared.Exceptions
 {
     /// <summary>
     /// 文件类异常,用于表示与文件操作相关的异常,可以在此基础上派生出更具体的文件异常类型,以便于在全局异常处理中进行区分和处理

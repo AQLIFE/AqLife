@@ -1,9 +1,8 @@
-﻿using MediatR;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.Exceptions;
-using MyLife.Application.Abstractions.Persistence;
-namespace MyLife.Application.Business.Todo.Handler
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using MediatR;
+namespace AqLife.Application.Business.Todo.Handler
 {
     public class DeleteTodoCommandHandler(IApplicationDbContext storage) : IRequestHandler<DeleteTodoCommand, Unit>
     {

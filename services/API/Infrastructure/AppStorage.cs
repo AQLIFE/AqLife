@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Domain.Entities;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace MyLife.Infrastructure
+namespace AqLife.Infrastructure
 {
     public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext
     {

@@ -1,11 +1,10 @@
-﻿using MediatR;
-using MyLife.Application.Business.File.Search;
-using MyLife.Application.Business.File.Service;
-using MyLife.Domain.Command;
-using MyLife.Shared.IView;
-using MyLife.Shared.Tools;
+﻿using AqLife.Application.Business.File.Service;
+using AqLife.Domain.Command;
+using AqLife.Shared.IView;
+using AqLife.Shared.Tools;
+using MediatR;
 
-namespace MyLife.Application.Business.File.Handler
+namespace AqLife.Application.Business.File.Handler
 {
     public class PreviewFileHandler(FileReader fileReader, PreviewContext previewContext) : IRequestHandler<PreviewFileQuery, FilePreviewModel>
     {

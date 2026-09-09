@@ -1,7 +1,7 @@
-﻿using MyLife.Application.Search;
-using MyLife.Domain.Entities;
+﻿using AqLife.Application.Search;
+using AqLife.Domain.Entities;
 
-namespace MyLife.Application.Business.Account.Search
+namespace AqLife.Application.Business.Account.Search
 {
     public class ValidAccount : FilteredSearchStrategyBase<AccountEntity, EntitySearchCriteria>
     {

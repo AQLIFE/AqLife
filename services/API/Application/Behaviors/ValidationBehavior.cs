@@ -1,8 +1,8 @@
-﻿using MediatR;
-using MyLife.Domain.CommandInterface;
-using MyLife.Domain.Contracts;
+﻿using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Contracts;
+using MediatR;
 
-namespace MyLife.Application.Behaviors;
+namespace AqLife.Application.Behaviors;
 
 // 统一的检查管道（任何请求进来，先强制走这里）
 public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)

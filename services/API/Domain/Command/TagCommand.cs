@@ -1,9 +1,9 @@
-﻿using MyLife.Domain.CommandInterface;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
+﻿using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
 using System.ComponentModel.DataAnnotations;
 
-namespace MyLife.Domain.Command
+namespace AqLife.Domain.Command
 {
     public record TagQuery(Guid? UID = null, string? Tag = null) : IQuery<IEnumerable<TagDto>?>;
     public record CreateTagCommand([Required(ErrorMessage = "TagName is required")] string Name, string? AliasName, bool IsCategory) : ICreateCommand;
