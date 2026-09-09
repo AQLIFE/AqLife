@@ -24,6 +24,11 @@ import {
     FileDtoToJSON,
 } from '../models/FileDto';
 import {
+    type PublishFileCommand,
+    PublishFileCommandFromJSON,
+    PublishFileCommandToJSON,
+} from '../models/PublishFileCommand';
+import {
     type UpdateFileTagCommand,
     UpdateFileTagCommandFromJSON,
     UpdateFileTagCommandToJSON,
@@ -49,6 +54,15 @@ export interface ApiFilePatchRequest {
 
 export interface ApiFilePreviewGetRequest {
     uID?: string;
+}
+
+export interface ApiFilePublishPostRequest {
+    publishFileCommand?: PublishFileCommand;
+}
+
+export interface ApiFilePublishScheduledPostRequest {
+    scheduledTime?: string;
+    file?: Blob;
 }
 
 export interface ApiFileTagPatchRequest {
@@ -174,6 +188,50 @@ export interface FileApiInterface {
     /**
      */
     apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
+
+    /**
+     * Creates request options for apiFilePublishPost without sending the request
+     * @param {PublishFileCommand} [publishFileCommand] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFilePublishPostRequestOpts(requestParameters: ApiFilePublishPostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {PublishFileCommand} [publishFileCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFilePublishPostRaw(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiFilePublishPost(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiFilePublishScheduledPost without sending the request
+     * @param {string} [scheduledTime] 
+     * @param {Blob} [file] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFilePublishScheduledPostRequestOpts(requestParameters: ApiFilePublishScheduledPostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} [scheduledTime] 
+     * @param {Blob} [file] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFilePublishScheduledPostRaw(requestParameters: ApiFilePublishScheduledPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>>;
+
+    /**
+     */
+    apiFilePublishScheduledPost(requestParameters: ApiFilePublishScheduledPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>>;
 
     /**
      * Creates request options for apiFileTagPatch without sending the request
@@ -443,6 +501,108 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
      */
     async apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
         const response = await this.apiFilePreviewGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFilePublishPost without sending the request
+     */
+    async apiFilePublishPostRequestOpts(requestParameters: ApiFilePublishPostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/File/Publish`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: PublishFileCommandToJSON(requestParameters['publishFileCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiFilePublishPostRaw(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiFilePublishPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiFilePublishPost(requestParameters: ApiFilePublishPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiFilePublishPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFilePublishScheduledPost without sending the request
+     */
+    async apiFilePublishScheduledPostRequestOpts(requestParameters: ApiFilePublishScheduledPostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['scheduledTime'] != null) {
+            formParams.append('ScheduledTime', requestParameters['scheduledTime'] as any);
+        }
+
+        if (requestParameters['file'] != null) {
+            formParams.append('File', requestParameters['file'] as any);
+        }
+
+
+        let urlPath = `/api/File/PublishScheduled`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: formParams,
+        };
+    }
+
+    /**
+     */
+    async apiFilePublishScheduledPostRaw(requestParameters: ApiFilePublishScheduledPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>> {
+        const requestOptions = await this.apiFilePublishScheduledPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse<any>(response);
+    }
+
+    /**
+     */
+    async apiFilePublishScheduledPost(requestParameters: ApiFilePublishScheduledPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>> {
+        const response = await this.apiFilePublishScheduledPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

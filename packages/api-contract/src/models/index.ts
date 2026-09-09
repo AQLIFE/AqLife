@@ -13,6 +13,7 @@ export * from './DeleteTagCommand';
 export * from './DeleteTodoCommand';
 export * from './FileDto';
 export * from './LoginCommand';
+export * from './PublishFileCommand';
 export * from './SubscriptionDto';
 export * from './TagDto';
 export * from './TodoDto';
