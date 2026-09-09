@@ -1,6 +1,7 @@
 ﻿using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
+using AqLife.Shared.Exceptions;
 namespace AqLife.Application.Business.File.Service
 {
     public class FileDeleter(IApplicationDbContext storage, IFileStorage fileStorage)

@@ -5,6 +5,7 @@ using AqLife.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using AqLife.Application.Business.Account;
+using AqLife.Shared.Exceptions;
 
 namespace AqLife.Application.Business.Account.Handler
 {

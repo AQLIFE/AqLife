@@ -1,11 +1,51 @@
 # 项目结构
 
+## 如何运行该项目
+
+项目依赖:
+
+- Node v24+
+- NET 8
+- Mysql 8.0.X
+
+```shell
+## 从0开始
+## 第一步创建一个数据库,并同步创建一个程序账户,完成授权
+CREATE DATABASE aqlife;-- 此时数据库名称对应 NET 数据库连接字符串,也可以修改
+CREATE USER 'ubuntu'@'%' IDENTIFIED BY '密码';-- 创建 NET 程序数据库账户
+GRANT ALL PRIVILEGES ON `aqlife`.* TO 'ubuntu'@'%'; -- 授权aqlife 数据库所有权限给 ubuntu 账户(本地访问)
+FLUSH PRIVILEGES;-- 更新权限
+
+## 第二步 创建你自己的程序配置文件
+cp services/API/Web/Configurations/appsettings.Development.example.json services/API/Web/Configurations/appsettings.Development.json
+## ! 请编辑这个文件,添加你的数据库链接字符串,JWT[可选]
+
+
+## 第三步完成 CodeFrist 生成,将数据模型迁移至 Mysql 数据库
+dotnet ef database update --project .\services\API\Infrastructure\Infrastructure.csproj --startup_project .\services\API\Web\Web.csproj
+## 这里是示例,请根据实际部署路径修改
+
+## 以Dev模式启动
+
+### 启动 API服务器
+dotnet run --project .\services\API\Web\Web.csproj
+### 启动游客端
+npm run dev:web
+### 启动 管理端
+npm run dev:mgs
+
+```
+
+> 对于product 模式的,请等待后续 Releases
+
+## 项目概述
+
 ```mermaid
 ---
 title: 宏观需求规划
 ---
 graph LR
-  MYLIFE --> API & Web & MGS
+  AqLife --> API & Web & MGS
   subgraph API
     File--派生-->Blog
     Account--派生-->Subscription
@@ -114,7 +154,7 @@ gantt
 #### api-contract : 契约即真理
 
 后端驱动契约：利用 C# API 项目中已有的 Swagger/OpenAPI 定义，通过工具（如 Swashbuckle.AspNetCore）在编译时生成 swagger.json 。
-共享 DTO 定义：之前在 MyLife.Shared 中定义的 TagDto、AccountDto 等模型，通过 OpenAPI 转换为 TypeScript 接口存放在此处 。这样当在 C# 中修改字段时，前端会快速收到 TS 类型错误的提醒。
+共享 DTO 定义：之前在 AqLife.Shared 中定义的 TagDto、AccountDto 等模型，通过 OpenAPI 转换为 TypeScript 接口存放在此处 。这样当在 C# 中修改字段时，前端会快速收到 TS 类型错误的提醒。
 
 #### domain : 前端的“影子业务层”
 

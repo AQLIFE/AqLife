@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 const scriptsDir = path.dirname(fileURLToPath(import.meta.url))
 
-/** Monorepo 根目录 (MyLife/) */
+/** Monorepo 根目录 (AqLife/) */
 export const monorepoRoot = path.resolve(scriptsDir, '../../..')
 
 export const paths = {

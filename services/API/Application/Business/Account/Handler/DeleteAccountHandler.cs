@@ -2,6 +2,7 @@
 using AqLife.Application.Business.File.Service;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using AqLife.Shared.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

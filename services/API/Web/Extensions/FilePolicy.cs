@@ -1,4 +1,5 @@
-﻿using AqLife.Shared.Options;
+﻿using AqLife.Shared.Exceptions;
+using AqLife.Shared.Options;
 using Serilog;
 
 namespace AqLife.Web.Extensions
