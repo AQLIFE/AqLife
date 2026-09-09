@@ -17,6 +17,7 @@ docs/DeleteTodoCommand.md
 docs/FileApi.md
 docs/FileDto.md
 docs/LoginCommand.md
+docs/PublishFileCommand.md
 docs/SubscriptionDto.md
 docs/TagApi.md
 docs/TagDto.md
@@ -47,6 +48,7 @@ src/models/DeleteTagCommand.ts
 src/models/DeleteTodoCommand.ts
 src/models/FileDto.ts
 src/models/LoginCommand.ts
+src/models/PublishFileCommand.ts
 src/models/SubscriptionDto.ts
 src/models/TagDto.ts
 src/models/TodoDto.ts
