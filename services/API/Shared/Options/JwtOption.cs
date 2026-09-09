@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace MyLife.Shared.Options
+﻿namespace AqLife.Shared.Options
 {
     public record JwtOption
     {

@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Options;
-using MyLife.Application.Validators;
-using MyLife.Domain.Command;
-using MyLife.Shared.Options;
+﻿using AqLife.Application.Validators;
+using AqLife.Domain.Command;
+using AqLife.Shared.Options;
+using Microsoft.Extensions.Options;
 
-namespace MyLife.Application.Business.File.Validator;
+namespace AqLife.Application.Business.File.Validator;
 
 
 

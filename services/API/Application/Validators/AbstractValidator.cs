@@ -1,7 +1,6 @@
-﻿using MyLife.Domain.Contracts;
-using MyLife.Shared.Exceptions;
+﻿using AqLife.Domain.Contracts;
 
-namespace MyLife.Application.Validators;
+namespace AqLife.Application.Validators;
 
 public abstract class AbstractValidator<TResponse> : IValidator<TResponse>
 {

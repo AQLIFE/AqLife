@@ -1,8 +1,8 @@
-﻿using MediatR;
-using MyLife.Application.Business.File.Service;
-using MyLife.Domain.Command;
+﻿using AqLife.Application.Business.File.Service;
+using AqLife.Domain.Command;
+using MediatR;
 
-namespace MyLife.Application.Business.File.Handler
+namespace AqLife.Application.Business.File.Handler
 {
     public class DeleteFileHandler(FileDeleter fileDeleter) : IRequestHandler<DeleteFileCommand, Unit>
     {

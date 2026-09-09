@@ -1,7 +1,7 @@
-﻿using MyLife.Application.Business.File.Search;
-using MyLife.Domain.Entities;
+﻿using AqLife.Application.Business.File.Search;
+using AqLife.Domain.Entities;
 
-namespace MyLife.Application.Business.File.Abstractions
+namespace AqLife.Application.Business.File.Abstractions
 {
     public interface IFileAccessPolicy
     {

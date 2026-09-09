@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Abstractions.Search;
-using MyLife.Domain.Contracts;
+﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
 
-namespace MyLife.Application.Search
+namespace AqLife.Application.Search
 {
     /// <summary>
     /// 提供一个抽象的搜索策略基类，用于根据指定的搜索条件对实体进行过滤和查询。任意一个检索条件不为空即可触发

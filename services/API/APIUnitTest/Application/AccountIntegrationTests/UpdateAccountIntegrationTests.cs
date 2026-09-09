@@ -1,14 +1,12 @@
-﻿using APIUnitTest.TestData;
+﻿using AqLife.Domain.Command;
+using AqLife.Infrastructure;
+using AqLife.Shared.Exceptions;
+using AqLife.Shared.Utils;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Testing.Platform.Services;
-using MyLife.Domain.Command;
-using MyLife.Infrastructure;
-using MyLife.Shared.Exceptions;
-using MyLife.Shared.Utils;
-using System.Security.Principal;
 
-namespace APIUnitTest.Application.AccountIntegrationTests
+namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
 {
     [Collection<IntegrationTestCollection>]
     public class UpdateAccountIntegrationTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
@@ -81,9 +79,9 @@ namespace APIUnitTest.Application.AccountIntegrationTests
 
             await Assert.ThrowsAsync<ResourceNotFoundException>(() => mediator.Send(updateCommand, CancellationToken.None));
             // 预期更新失败
-            var account = await storage.Accounts.SingleOrDefaultAsync(e => e.UID == updateCommand.UID, CancellationToken.None);            
+            var account = await storage.Accounts.SingleOrDefaultAsync(e => e.UID == updateCommand.UID, CancellationToken.None);
             Assert.Null(account);
-            
+
         }
     }
 }

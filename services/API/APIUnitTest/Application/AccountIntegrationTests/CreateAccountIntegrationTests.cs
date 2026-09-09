@@ -1,17 +1,14 @@
-﻿using APIUnitTest.TestData;
+﻿using AqLife.APIUnitTest.TestData;
+using AqLife.Domain.Command;
+using AqLife.Infrastructure;
+using AqLife.Shared.Exceptions;
+using AqLife.Shared.Utils;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using MyLife.Domain.Command;
-using MyLife.Infrastructure;
-using MyLife.Shared.Exceptions;
-using MyLife.Shared.Utils;
-using System.Reflection;
-using System.Security.Principal;
-using Xunit.v3;
 
 
-namespace APIUnitTest.Application.AccountIntegrationTests
+namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
 {
     [Collection<IntegrationTestCollection>]
     public class CreateAccountIntegrationTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
@@ -162,7 +159,7 @@ namespace APIUnitTest.Application.AccountIntegrationTests
             }
             else
             {
-                var loginName =await mediator.Send(command, CancellationToken.None);
+                var loginName = await mediator.Send(command, CancellationToken.None);
                 var account = await storage.Accounts.SingleOrDefaultAsync(e => e.LoginName == loginName, CancellationToken.None);
                 Assert.NotNull(account);
                 Assert.True(account.Desc.Length == testSource.Length);

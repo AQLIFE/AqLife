@@ -1,8 +1,8 @@
-﻿using MyLife.Application.Validators;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Application.Abstractions.Persistence;
-namespace MyLife.Application.Business.Todo.Validator
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Validators;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+namespace AqLife.Application.Business.Todo.Validator
 {
     public class CreateTodoValidtor(IApplicationDbContext storage) : AbstractValidator<CreateTodoCommand>
     {

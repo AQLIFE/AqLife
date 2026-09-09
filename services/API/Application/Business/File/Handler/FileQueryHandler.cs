@@ -1,10 +1,11 @@
-﻿using MediatR;
-using MyLife.Application.Abstractions.FileStorage;
-using MyLife.Application.Business.File.Search;
-using MyLife.Domain.Command;
-using MyLife.Shared.IView;
+﻿using AqLife.Application.Abstractions.FileStorage;
+using AqLife.Application.Business.File.Search;
+using AqLife.Domain.Command;
+using AqLife.Shared.IView;
+using MediatR;
+using AqLife.Application.Business.File;
 
-namespace MyLife.Application.Business.File.Handler
+namespace AqLife.Application.Business.File.Handler
 {
     public class FileQueryHandler(FileSearch search, FileMapper mapper, IFileStorage fileStorage) : IRequestHandler<FileQuery, IEnumerable<FileDto>>
     {

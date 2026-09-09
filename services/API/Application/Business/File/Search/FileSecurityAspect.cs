@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Business.File.Abstractions;
+using AqLife.Domain.Entities;
+using AqLife.Shared.Options;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MyLife.Application.Business.File.Abstractions;
-using MyLife.Domain.Entities;
-using MyLife.Shared.Options;
-using MyLife.Application.Abstractions.Persistence;
-namespace MyLife.Application.Business.File.Search
+namespace AqLife.Application.Business.File.Search
 {
     public class FileSecurityAspect(IOptions<FilePolicyOption> options, IApplicationDbContext storage) : IFileAccessPolicy
     {
@@ -26,7 +26,7 @@ namespace MyLife.Application.Business.File.Search
             AccountEntity author = await storage.Accounts.Include(e => e.Subscriptions).SingleAsync(e => e.IsValid);
             var validGuid = author.Subscriptions.Select(e => e.SubscriptionIcon).ToList();
             validGuid.Add(author.Avatar);
-            return queryable.Where(e => validGuid.Contains(e.UID) || (options.Value.AllowedDownload.Contains(e.Extension) && e.Status == FileStatus.Published)  );
+            return queryable.Where(e => validGuid.Contains(e.UID) || (options.Value.AllowedDownload.Contains(e.Extension) && e.Status == FileStatus.Published));
         }
 
     }

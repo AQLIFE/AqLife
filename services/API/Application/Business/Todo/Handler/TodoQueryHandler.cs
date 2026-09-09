@@ -1,9 +1,10 @@
-﻿using MediatR;
-using MyLife.Application.Business.Todo.Search;
-using MyLife.Domain.Command;
-using MyLife.Shared.IView;
+﻿using AqLife.Application.Business.Todo.Search;
+using AqLife.Domain.Command;
+using AqLife.Shared.IView;
+using MediatR;
+using AqLife.Application.Business.Todo;
 
-namespace MyLife.Application.Business.Todo.Handler
+namespace AqLife.Application.Business.Todo.Handler
 {
     public class TodoQueryHandler(TodoSearch search, TodoMapper mapper) : IRequestHandler<TodoQuery, IEnumerable<TodoDto>?>
     {

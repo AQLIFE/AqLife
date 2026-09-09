@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Xunit.v3;
 
-namespace APIUnitTest.Application
+namespace AqLife.APIUnitTest.Application
 {
     public sealed class ResetDatabaseAttribute : BeforeAfterTestAttribute
     {
-        public override void Before(MethodInfo methodUnderTest,IXunitTest test)
+        public override void Before(MethodInfo methodUnderTest, IXunitTest test)
         {
             var fixture = TestContext.Current
                 .GetFixture<IntegrationTestFixture>()

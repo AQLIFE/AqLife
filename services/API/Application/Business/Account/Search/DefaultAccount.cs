@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Search;
-using MyLife.Domain.Entities;
+﻿using AqLife.Application.Search;
+using AqLife.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace MyLife.Application.Business.Account.Search
+namespace AqLife.Application.Business.Account.Search
 {
     public class DefaultAccount : AllSearchStrategyBase<AccountEntity, EntitySearchCriteria>
     {

@@ -1,8 +1,7 @@
-﻿using MyLife.Shared.Exceptions;
-using MyLife.Shared.Options;
+﻿using AqLife.Shared.Options;
 using Serilog;
 
-namespace MyLife.Web.Extensions
+namespace AqLife.Web.Extensions
 {
     public static class FilePolicyInitializer
     {

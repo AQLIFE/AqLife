@@ -1,7 +1,7 @@
-﻿using MyLife.Domain.Contracts;
-using MyLife.Shared.IView;
+﻿using AqLife.Domain.Contracts;
+using AqLife.Shared.IView;
 
-namespace MyLife.Application.Abstractions.Mapper
+namespace AqLife.Application.Abstractions.Mapper
 {
     public interface ICreateMapper<T, TCreate> where T : IEntity
     {

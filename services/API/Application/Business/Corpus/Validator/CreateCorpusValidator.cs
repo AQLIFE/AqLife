@@ -1,16 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Application.Validators;
-using MyLife.Domain.Command;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Validators;
+using AqLife.Domain.Command;
+using Microsoft.EntityFrameworkCore;
 
-namespace MyLife.Application.Business.Corpus.Validator
+namespace AqLife.Application.Business.Corpus.Validator
 {
-    public class CreateCorpusValidator(IApplicationDbContext dbContext) :AbstractValidator<CreateCorpusCommand>
+    public class CreateCorpusValidator(IApplicationDbContext dbContext) : AbstractValidator<CreateCorpusCommand>
     {
         private protected override string ErrorMessage { init; get; } = "语料已存在";
         private protected override async Task<bool> IsValidAsync(CreateCorpusCommand command, CancellationToken ct)

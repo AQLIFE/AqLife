@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MyLife.Domain.CommandInterface;
+namespace AqLife.Domain.CommandInterface;
 
 // ==========================================
 // 1. 核心 CQRS 架构基石 (Core Foundation)

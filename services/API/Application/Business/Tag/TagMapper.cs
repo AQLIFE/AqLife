@@ -1,10 +1,10 @@
-﻿using MyLife.Application.Abstractions.Mapper;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
 using Riok.Mapperly.Abstractions;
 
-namespace MyLife.Application.Business.Tag
+namespace AqLife.Application.Business.Tag
 {
     [Mapper]
     public partial class TagMapper : IViewMapper<TagEntity, TagDto>, ICreateMapper<TagEntity, CreateTagCommand>

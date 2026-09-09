@@ -1,14 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Abstractions.Search;
-using MyLife.Application.Mappers;
-using MyLife.Application.Search;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
-using MyLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Search;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
+using Microsoft.EntityFrameworkCore;
+using AqLife.Application.Mappers;
 
 
-namespace MyLife.Application.Business.Todo.Search
+namespace AqLife.Application.Business.Todo.Search
 {
     public class TodoSearch(QueryMapper queryMapper, IApplicationDbContext storage
         , IEnumerable<ISearchStrategy<TodoEntity, EntitySearchCriteria>> searchStrategies
@@ -18,6 +18,6 @@ namespace MyLife.Application.Business.Todo.Search
         => queryMapper.ToCriteria(query);
 
         protected override async Task<IQueryable<TodoEntity>> BuildBaseQueryAsync(IQueryable<TodoEntity> queryable, TodoQuery query)
-       => query.IsTree? queryable.Where(t => t.FTID == null).Include(e => e.Children):queryable;
+       => query.IsTree ? queryable.Where(t => t.FTID == null).Include(e => e.Children) : queryable;
     }
 }

@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
-
-namespace MyLife.Shared.IView
+﻿namespace AqLife.Shared.IView
 {
     //[Obsolete("落后的设计")]
     //public record SubscriptionFullDto(

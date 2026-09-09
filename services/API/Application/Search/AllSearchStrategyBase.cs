@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Abstractions.Search;
-using MyLife.Domain.Contracts;
+﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
 
-namespace MyLife.Application.Search
+namespace AqLife.Application.Search
 {
     public class AllSearchStrategyBase<TEntity, TSearchCriteria> : ISearchStrategy<TEntity, TSearchCriteria>
         where TEntity : class, IEntity

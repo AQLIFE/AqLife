@@ -1,4 +1,4 @@
-﻿namespace MyLife.Shared.IView
+﻿namespace AqLife.Shared.IView
 {
     /// <summary>
     /// 作为 Account -  API 结果,不再需要进行校验

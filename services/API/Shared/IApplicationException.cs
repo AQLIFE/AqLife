@@ -1,6 +1,6 @@
-﻿using MyLife.Shared.Options;
+﻿using AqLife.Shared.Options;
 
-namespace MyLife.Shared
+namespace AqLife.Shared
 {
     public interface IApplicationException
     {

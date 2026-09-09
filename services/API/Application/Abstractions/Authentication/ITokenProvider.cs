@@ -1,7 +1,7 @@
-﻿using MyLife.Domain.Contracts;
+﻿using AqLife.Domain.Contracts;
 using System.Security.Claims;
 
-namespace MyLife.Application.Abstractions.Authentication
+namespace AqLife.Application.Abstractions.Authentication
 {
     public interface ITokenProvider<in T> where T : IUserEntity
     {

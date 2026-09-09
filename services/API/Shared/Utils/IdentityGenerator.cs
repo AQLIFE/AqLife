@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace MyLife.Shared.Utils
+namespace AqLife.Shared.Utils
 {
     public static class IdentityGenerator
     {

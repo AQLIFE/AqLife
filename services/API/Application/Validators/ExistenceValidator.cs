@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Domain.CommandInterface;
-using MyLife.Domain.Contracts;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
 
-namespace MyLife.Application.Validators
+namespace AqLife.Application.Validators
 {
     public class ExistenceValidator<TRequest>(IApplicationDbContext storage) : AbstractValidator<TRequest> where TRequest : IRequireValidEntity<IEntity>
     {

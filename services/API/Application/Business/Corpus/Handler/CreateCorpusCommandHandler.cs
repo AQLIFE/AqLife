@@ -1,9 +1,10 @@
-﻿using MediatR;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using MediatR;
+using AqLife.Application.Business.Corpus;
 
-namespace MyLife.Application.Business.Corpus.Handler
+namespace AqLife.Application.Business.Corpus.Handler
 {
     public class CreateCorpusCommandHandler(CorpusMapper mapper, IApplicationDbContext storage) : IRequestHandler<CreateCorpusCommand, Guid>
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
-namespace MyLife.Web.Extensions
+namespace AqLife.Web.Extensions
 {
     public static class RoutingSetup
     {

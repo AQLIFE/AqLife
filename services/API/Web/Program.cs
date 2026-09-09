@@ -1,22 +1,23 @@
+using AqLife.Application;
+using AqLife.Infrastructure;
+using AqLife.Web.Extensions;
+using AqLife.Web.Middlewares;
 using Microsoft.AspNetCore.StaticFiles;
-using MyLife.Application;
-using MyLife.Application.Abstractions.Authentication;
-using MyLife.Application.Abstractions.FileStorage;
-using MyLife.Domain.Entities;
-using MyLife.Infrastructure;
-using MyLife.Infrastructure.FileStorage;
-using MyLife.Web.Extensions;
-using MyLife.Web.Middlewares;
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSwaggerGen();
 
+var corsOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("MyLifeAllowSpecificOrigins", policy =>
+    options.AddPolicy("AqLifeAllowSpecificOrigins", policy =>
     {
-        policy.WithOrigins("http://localhost:5173","http://localhost:5110", "http://localhost:5200", "http://192.168.0.100:5200", "http://192.168.0.100:5173") // 允许你的 Vue 开发服务器地址
+        policy.WithOrigins(corsOrigins) // 允许你的 Vue 开发服务器地址
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials() // 如果后续涉及 Cookie/Auth，建议开启
@@ -37,7 +38,7 @@ var app = builder.Build();
 app.UseExceptionHandler();
 app.InitCheckDatabaseConnection();
 
-app.UseCors("MyLifeAllowSpecificOrigins");
+app.UseCors("AqLifeAllowSpecificOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -1,11 +1,10 @@
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Infrastructure;
-using MyLife.Shared.Exceptions;
-using MyLife.Shared.Options;
+using AqLife.Infrastructure;
+using AqLife.Shared.Exceptions;
+using AqLife.Shared.Options;
 using Serilog;
 using Serilog.Formatting.Compact;
 
-namespace MyLife.Web.Extensions
+namespace AqLife.Web.Extensions
 {
     public static class InfrastructureSetup
     {

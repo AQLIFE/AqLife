@@ -1,6 +1,6 @@
-﻿using MyLife.Web.Middlewares;
+﻿using AqLife.Web.Middlewares;
 
-namespace MyLife.Web.Extensions
+namespace AqLife.Web.Extensions
 {
 
     public static class ExceptionHandlerSetup

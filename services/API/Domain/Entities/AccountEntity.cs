@@ -1,11 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Domain.Contracts;
-using MyLife.Shared.Utils;
+﻿using AqLife.Domain.Contracts;
+using AqLife.Shared.Utils;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.Cryptography.X509Certificates;
 
-namespace MyLife.Domain.Entities
+namespace AqLife.Domain.Entities
 {
     [Table("Subscriptions"), Index(nameof(SubscriptionPlatform), nameof(SubscriptionLink), IsUnique = true)]
     public class SubscriptionEntity : IEntity
@@ -13,18 +12,18 @@ namespace MyLife.Domain.Entities
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
 
-        public Guid AID { get;  private set; }
+        public Guid AID { get; private set; }
         [StringLength(16, ErrorMessage = "订阅账户名限制")]
         public string AliasName { get; init; } = String.Empty;
-        public  string SubscriptionLink { get; init; } = String.Empty;
-        public  string SubscriptionPlatform { get; init; } = String.Empty;
+        public string SubscriptionLink { get; init; } = String.Empty;
+        public string SubscriptionPlatform { get; init; } = String.Empty;
         public Guid SubscriptionIcon { get; init; } = Guid.Empty;
 
         [ForeignKey(nameof(AID))]
         public virtual AccountEntity Account { get; set; } = null!;
         public SubscriptionEntity() { }
 
-        public SubscriptionEntity(Guid aid,string slink,string sPlatform,string sName,Guid icon)
+        public SubscriptionEntity(Guid aid, string slink, string sPlatform, string sName, Guid icon)
         {
             AID = aid;
             AliasName = sName;
@@ -36,7 +35,7 @@ namespace MyLife.Domain.Entities
         public void BindAccount(AccountEntity account)
         {
             AID = account.UID;
-            Account  = account;
+            Account = account;
         }
     }
 
@@ -46,9 +45,9 @@ namespace MyLife.Domain.Entities
     {
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
-        [StringLength(32,ErrorMessage = "账户名称长度必须介于32之内"), Column]
+        [StringLength(32, ErrorMessage = "账户名称长度必须介于32之内"), Column]
         public string Name { get; private set; } = string.Empty;
-        [StringLength(255,ErrorMessage ="最大允许255个字符"), Column]
+        [StringLength(255, ErrorMessage = "最大允许255个字符"), Column]
         public string Desc { get; private set; } = string.Empty;
 
         /// <summary>
@@ -57,10 +56,10 @@ namespace MyLife.Domain.Entities
         [Column]
         public Guid Avatar { get; private set; } = Guid.Empty;
         [Column]
-        public bool IsValid { get;private set; } = true;
+        public bool IsValid { get; private set; } = true;
 
         [Column]
-        public string LoginName { get;init; } = IdentityGenerator.GenerateSecureLoginName();
+        public string LoginName { get; init; } = IdentityGenerator.GenerateSecureLoginName();
         [Column]
         public string LoginPasswordHash { get; private set; } = string.Empty;
 
@@ -70,7 +69,7 @@ namespace MyLife.Domain.Entities
         public AccountEntity(string name, string? desc, string pwd)
         {
             Name = name;
-            if(desc is not null)Desc = desc;
+            if (desc is not null) Desc = desc;
             LoginPasswordHash = FastHash.GetSha256Hash(pwd);
         }
         public AccountEntity(string name, string pwd)

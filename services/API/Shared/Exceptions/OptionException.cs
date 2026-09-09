@@ -1,6 +1,6 @@
-﻿using MyLife.Shared.Options;
+﻿using AqLife.Shared.Options;
 
-namespace MyLife.Shared.Exceptions
+namespace AqLife.Shared.Exceptions
 {
     /// <summary>
     /// 应用程序配置异常,用于表示在应用程序自检配置过程中发生的异常,例如配置项缺失、配置值无效等情况,可以在全局异常处理中捕获并进行相应的处理,如记录日志、提示用户等

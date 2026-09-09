@@ -1,6 +1,6 @@
-﻿using MyLife.Domain.Contracts;
+﻿using AqLife.Domain.Contracts;
 
-namespace MyLife.Application.Abstractions.Search
+namespace AqLife.Application.Abstractions.Search
 {
 
     public interface ISearchStrategy<TEntity, TSearchCriteria> where TEntity : IEntity where TSearchCriteria : ISearchCriteria

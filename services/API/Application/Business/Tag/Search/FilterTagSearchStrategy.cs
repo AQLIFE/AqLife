@@ -1,7 +1,7 @@
-﻿using MyLife.Application.Search;
-using MyLife.Domain.Entities;
+﻿using AqLife.Application.Search;
+using AqLife.Domain.Entities;
 
-namespace MyLife.Application.Business.Tag.Search
+namespace AqLife.Application.Business.Tag.Search
 {
     public class FilterTagSearchStrategy : FilteredSearchStrategyBase<TagEntity, EntitySearchCriteria>
     {

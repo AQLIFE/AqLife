@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Domain.Contracts;
+﻿using AqLife.Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MyLife.Domain.Entities
+namespace AqLife.Domain.Entities
 {
     [Table("Tags"), Index(nameof(Name), IsUnique = true)]
     public class TagEntity : IEntity

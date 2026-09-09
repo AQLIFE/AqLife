@@ -1,4 +1,4 @@
-﻿namespace MyLife.Application.Abstractions.FileStorage
+﻿namespace AqLife.Application.Abstractions.FileStorage
 {
     public interface IFileStorage
     {

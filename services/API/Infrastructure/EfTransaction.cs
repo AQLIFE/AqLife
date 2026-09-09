@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MyLife.Infrastructure
+﻿namespace AqLife.Infrastructure
 {
+    using AqLife.Application.Abstractions.Persistence;
     using Microsoft.EntityFrameworkCore.Storage;
-    using MyLife.Application.Abstractions.Persistence;
 
     public sealed class EfTransaction(
         IDbContextTransaction transaction)

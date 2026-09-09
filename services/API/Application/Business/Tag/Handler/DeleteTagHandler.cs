@@ -1,9 +1,8 @@
-﻿using MediatR;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.Exceptions;
-using MyLife.Application.Abstractions.Persistence;
-namespace MyLife.Application.Business.Tag.Handler
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using MediatR;
+namespace AqLife.Application.Business.Tag.Handler
 {
     public class DeleteTagHandler(IApplicationDbContext storage) : IRequestHandler<DeleteTagCommand, Unit>
     {

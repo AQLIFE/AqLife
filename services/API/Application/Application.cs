@@ -1,28 +1,28 @@
-﻿using MediatR;
+﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Behaviors;
+using AqLife.Application.Business.Account.Search;
+using AqLife.Application.Business.Corpus.Search;
+using AqLife.Application.Business.File.Search;
+using AqLife.Application.Business.File.Service;
+using AqLife.Application.Business.File.Validator;
+using AqLife.Application.Business.Tag.Search;
+using AqLife.Application.Business.Todo.Search;
+using AqLife.Application.Search;
+using AqLife.Application.Validators;
+using AqLife.Domain.Contracts;
+using AqLife.Domain.Entities;
+using AqLife.Shared.Tools;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using MyLife.Application.Abstractions.FileStorage;
-using MyLife.Application.Abstractions.Search;
-using MyLife.Application.Behaviors;
-using MyLife.Application.Business.Account;
-using MyLife.Application.Business.Account.Search;
-using MyLife.Application.Business.Corpus;
-using MyLife.Application.Business.Corpus.Search;
-using MyLife.Application.Business.File;
-using MyLife.Application.Business.File.Search;
-using MyLife.Application.Business.File.Service;
-using MyLife.Application.Business.File.Validator;
-using MyLife.Application.Business.Tag;
-using MyLife.Application.Business.Tag.Search;
-using MyLife.Application.Business.Todo;
-using MyLife.Application.Business.Todo.Search;
-using MyLife.Application.Mappers;
-using MyLife.Application.Search;
-using MyLife.Application.Validators;
-using MyLife.Domain.Contracts;
-using MyLife.Domain.Entities;
-using MyLife.Shared.Tools;
+using AqLife.Application.Business;
+using AqLife.Application.Business.Tag;
+using AqLife.Application.Business.File;
+using AqLife.Application.Business.Account;
+using AqLife.Application.Mappers;
+using AqLife.Application.Business.Corpus;
+using AqLife.Application.Business.Todo;
 
-namespace MyLife.Application
+namespace AqLife.Application
 {
     public static class Application
     {

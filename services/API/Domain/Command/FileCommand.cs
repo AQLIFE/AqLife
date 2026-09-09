@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using MyLife.Domain.CommandInterface;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
+﻿using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
+using Microsoft.AspNetCore.Http;
 
-namespace MyLife.Domain.Command
+namespace AqLife.Domain.Command
 {
     public record FileQuery(Guid? UID = null, string? Title = null) : IQuery<IEnumerable<FileDto>>;
     public record DownloadFileQuery(Guid UID) : IRequireValidEntity<FileMetaEntity>, IQuery<FileDownloadModel>;
@@ -21,7 +21,7 @@ namespace MyLife.Domain.Command
         public IEnumerable<IFormFile> GetFiles() => File;
     }
 
-    public record PublishScheduledCommand(DateTime? ScheduledTime,IFormFile File) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
+    public record PublishScheduledCommand(DateTime? ScheduledTime, IFormFile File) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
     {
         public IEnumerable<IFormFile> GetFiles() => [File];
     }

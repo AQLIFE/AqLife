@@ -1,14 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Application.Validators;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.Exceptions;
-using MyLife.Shared.Options;
-using MyLife.Shared.Utils;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Validators;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using AqLife.Shared.Utils;
+using Microsoft.EntityFrameworkCore;
 
-namespace MyLife.Application.Business.Account.Validator
+namespace AqLife.Application.Business.Account.Validator
 {
     /// <summary>
     /// 更新头像必须是图像类型
@@ -31,7 +28,7 @@ namespace MyLife.Application.Business.Account.Validator
         private protected override async Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         {
             // 1. 提取所有非空且非 Empty 的 GUID（去重），实现“按需验证” [cite: 16]
-            var iconsToCheck = command.Subscriptions.Where(s => s.SubscriptionIcon != Guid.Empty).Select(e=>e.SubscriptionIcon).Distinct().ToList();
+            var iconsToCheck = command.Subscriptions.Where(s => s.SubscriptionIcon != Guid.Empty).Select(e => e.SubscriptionIcon).Distinct().ToList();
 
             // 3. 数据库侧验证：仅查询存在的数量是否与待检查数量一致 [cite: 27, 28]
             var existingCount = await storage.File.Where(f => iconsToCheck.Contains(f.UID)).CountAsync(ct);
@@ -77,7 +74,7 @@ namespace MyLife.Application.Business.Account.Validator
         }
     }
 
-    public class UpdatePasswordValidator(IApplicationDbContext dbContext):AbstractValidator<UpdatePasswordCommand>
+    public class UpdatePasswordValidator(IApplicationDbContext dbContext) : AbstractValidator<UpdatePasswordCommand>
     {
         private protected override string ErrorMessage { init; get; } = "错误的密码";
         private protected override async Task<bool> IsValidAsync(UpdatePasswordCommand command, CancellationToken ct)

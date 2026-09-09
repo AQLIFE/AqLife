@@ -1,8 +1,7 @@
 ﻿using Duende.IdentityModel;
-using MyLife.Shared.Exceptions;
 using System.Security.Claims;
 
-namespace MyLife.Shared.Tools
+namespace AqLife.Shared.Tools
 {
     public static class ClaimsPrincipalExtensions
     {

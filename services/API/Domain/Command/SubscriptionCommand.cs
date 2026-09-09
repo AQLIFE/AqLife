@@ -1,8 +1,8 @@
-﻿using MyLife.Domain.CommandInterface;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
+﻿using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
 
-namespace MyLife.Domain.Command
+namespace AqLife.Domain.Command
 {
     public record SubscriptionQuery(Guid UID) : IQuery<SubscriptionDto>, IRequireValidEntity<SubscriptionEntity>;
     public record CreateSubscriptionCommand(string AliasName, string SubscriptionLink, string SubscriptionPlatform, Guid SubscriptionIcon) : ISubscription, ICreateCommand;

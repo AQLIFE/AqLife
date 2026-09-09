@@ -1,9 +1,10 @@
-﻿using MediatR;
-using MyLife.Application.Business.Corpus.Search;
-using MyLife.Domain.Command;
-using MyLife.Shared.IView;
+﻿using AqLife.Application.Business.Corpus.Search;
+using AqLife.Domain.Command;
+using AqLife.Shared.IView;
+using MediatR;
+using AqLife.Application.Business.Corpus;
 
-namespace MyLife.Application.Business.Corpus.Handler
+namespace AqLife.Application.Business.Corpus.Handler
 {
     public class CorpusQueryHandler(CorpusSearch search, CorpusMapper mapper) : IRequestHandler<CorpusQuery, IEnumerable<CorpusDto>?>
     {

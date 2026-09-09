@@ -1,7 +1,7 @@
-﻿using MyLife.Application.Search;
-using MyLife.Domain.Entities;
+﻿using AqLife.Application.Search;
+using AqLife.Domain.Entities;
 
-namespace MyLife.Application.Business.Corpus.Search
+namespace AqLife.Application.Business.Corpus.Search
 {
     public class FilteredCorpusSearchStrategy : FilteredSearchStrategyBase<CorpusEntity, EntitySearchCriteria>
     {

@@ -1,12 +1,7 @@
-﻿using MyLife.Domain.Entities;
-using MyLife.Shared.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AqLife.Domain.Entities;
+using AqLife.Shared.Utils;
 
-namespace APIUnitTest.Domain
+namespace AqLife.APIUnitTest.Domain
 {
     public class AccountEntityTests
     {
@@ -83,7 +78,7 @@ namespace APIUnitTest.Domain
             {
                 Assert.Contains(e, account.Subscriptions);
                 Assert.Equal(account.UID, e.AID);
-                Assert.Same(account,e.Account);
+                Assert.Same(account, e.Account);
             });
 
             List<SubscriptionEntity> newSubscriptions = [

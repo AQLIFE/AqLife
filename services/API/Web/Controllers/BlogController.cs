@@ -1,4 +1,4 @@
-﻿namespace MyLife.Web.Controllers
+﻿namespace AqLife.Web.Controllers
 {
     //[ApiController, Route("[controller]")]
     //public class BlogController(FileService fileService, FileMapper fileMapper) : ControllerBase

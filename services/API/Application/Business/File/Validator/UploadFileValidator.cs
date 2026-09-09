@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AqLife.Application.Validators;
+using AqLife.Domain.CommandInterface;
+using AqLife.Shared.Options;
+using AqLife.Shared.Tools;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using MyLife.Application.Validators;
-using MyLife.Domain.CommandInterface;
-using MyLife.Shared.Options;
-using MyLife.Shared.Tools;
 
-namespace MyLife.Application.Business.File.Validator
+namespace AqLife.Application.Business.File.Validator
 {
 
     /// <summary>

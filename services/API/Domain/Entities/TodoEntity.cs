@@ -1,9 +1,8 @@
-﻿using MyLife.Domain.Contracts;
-using MyLife.Shared.Exceptions;
+﻿using AqLife.Domain.Contracts;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MyLife.Domain.Entities
+namespace AqLife.Domain.Entities
 {
     public enum TodoStatus { Initial, Wait, Execute, Completed }
 
@@ -13,7 +12,7 @@ namespace MyLife.Domain.Entities
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
 
-        public Guid? FTID { get;private set; } = null;// 作为父级任务ID，默认为空
+        public Guid? FTID { get; private set; } = null;// 作为父级任务ID，默认为空
 
         [Column, Required(ErrorMessage = "Description is required")]
         public string Desc { get; private set; } = string.Empty;
@@ -34,7 +33,7 @@ namespace MyLife.Domain.Entities
         // 已废弃 :  不可被更新 可以删除
         // 合法语义区间 : 可以更新和删除
         [Column]
-        public int Priority { get;private set; } = 1;
+        public int Priority { get; private set; } = 1;
 
         [ForeignKey(nameof(FTID))]
         public ICollection<TodoEntity> Children { get; set; } = [];

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace MyLife.Shared.Tools
+namespace AqLife.Shared.Tools
 {
     /// <summary>
     /// 仅用于传递文件hash

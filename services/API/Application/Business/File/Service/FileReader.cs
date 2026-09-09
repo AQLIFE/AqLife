@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.StaticFiles;
-using MyLife.Application.Abstractions.FileStorage;
-using MyLife.Application.Business.File.Search;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.Exceptions;
-using MyLife.Shared.IView;
+﻿using AqLife.Application.Abstractions.FileStorage;
+using AqLife.Application.Business.File.Search;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
+using Microsoft.AspNetCore.StaticFiles;
 
-namespace MyLife.Application.Business.File.Service
+namespace AqLife.Application.Business.File.Service
 {
     public class FileReader(FileExtensionContentTypeProvider extProvider, FileSearch fileSearch, IFileStorage fileStorage)
     {
@@ -20,7 +18,7 @@ namespace MyLife.Application.Business.File.Service
         public async Task<FileDownloadModel> ReadAsync(Guid id, CancellationToken ct)
         {
             FileMetaEntity fileInfo = (await fileSearch.SearchAsync(query: new FileQuery(UID: id), ct)).FirstOrDefault() ?? throw new ResourceNotFoundException("不存在文件记录");
-            
+
             if (!fileStorage.Exists(fileInfo.StorageName)) throw new ResourceNotFoundException("源文件丢失,请联系管理员:" + fileInfo.FileName);
 
             Stream stream = fileStorage.OpenRead(fileInfo.StorageName);

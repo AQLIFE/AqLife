@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Application.Abstractions.Search;
-using MyLife.Domain.CommandInterface;
-using MyLife.Domain.Contracts;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Search;
+using AqLife.Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
 
-namespace MyLife.Application.Search
+namespace AqLife.Application.Search
 {
     /// <summary>
     /// BaseSearch 是一个抽象类，提供了通用的搜索逻辑，允许子类通过映射查询条件和构建基础查询来实现特定的搜索功能。它使用策略模式来选择适当的搜索策略，并执行最终的查询操作。

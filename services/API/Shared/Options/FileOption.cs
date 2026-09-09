@@ -1,4 +1,4 @@
-﻿namespace MyLife.Shared.Options
+﻿namespace AqLife.Shared.Options
 {
     public class FilePolicyOption
     {
@@ -13,5 +13,5 @@
         public FilePolicyOption() { }
     }
 
-    public enum FileStatus{Draft,Scheduled,Published }
+    public enum FileStatus { Draft, Scheduled, Published }
 }

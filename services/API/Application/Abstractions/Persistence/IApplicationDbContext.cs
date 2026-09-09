@@ -1,17 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Domain.Entities;
+﻿using AqLife.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace MyLife.Application.Abstractions.Persistence
+namespace AqLife.Application.Abstractions.Persistence
 {
     public interface IApplicationDbContext
     {
-        public DbSet<FileMetaEntity> File { get;  }
-        public DbSet<CorpusEntity> Corpus { get;  }
-        public DbSet<AccountEntity> Accounts { get;  }
-        public DbSet<SubscriptionEntity> Subscription { get;  }
-        public DbSet<TodoEntity> Todo { get;  }
-        public DbSet<TagEntity> Tags { get;  }
-        public DbSet<FileTagEntity> BlogTags { get;  }
+        public DbSet<FileMetaEntity> File { get; }
+        public DbSet<CorpusEntity> Corpus { get; }
+        public DbSet<AccountEntity> Accounts { get; }
+        public DbSet<SubscriptionEntity> Subscription { get; }
+        public DbSet<TodoEntity> Todo { get; }
+        public DbSet<TagEntity> Tags { get; }
+        public DbSet<FileTagEntity> BlogTags { get; }
 
 
         Task<int> SaveChangesAsync(

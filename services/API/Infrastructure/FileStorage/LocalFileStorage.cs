@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Options;
-using MyLife.Application.Abstractions.FileStorage;
-using MyLife.Shared.Options;
+﻿using AqLife.Application.Abstractions.FileStorage;
+using AqLife.Shared.Options;
+using Microsoft.Extensions.Options;
 
-namespace MyLife.Infrastructure.FileStorage
+namespace AqLife.Infrastructure.FileStorage
 {
     public class LocalFileStorage(IOptions<FilePolicyOption> policy) : IFileStorage
     {

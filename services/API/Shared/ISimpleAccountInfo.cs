@@ -1,4 +1,4 @@
-﻿namespace MyLife.Shared
+﻿namespace AqLife.Shared
 {
     public interface ISimpleAccountInfo
     {

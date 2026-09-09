@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Validators;
-using MyLife.Domain.Command;
-using MyLife.Shared.Utils;
-using MyLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Validators;
+using AqLife.Domain.Command;
+using AqLife.Shared.Utils;
+using Microsoft.EntityFrameworkCore;
 
-namespace MyLife.Application.Business.Account.Validator
+namespace AqLife.Application.Business.Account.Validator
 {
     /// <summary>
     /// 登录检查

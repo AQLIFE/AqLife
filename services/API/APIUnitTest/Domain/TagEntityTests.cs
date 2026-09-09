@@ -1,18 +1,13 @@
-﻿using MyLife.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AqLife.Domain.Entities;
 
-namespace APIUnitTest.Domain
+namespace AqLife.APIUnitTest.Domain
 {
     public class TagEntityTests
     {
         [Fact]
         public void UpdateProfile_ShouldUpdateTag()
         {
-            TagEntity tag = new("测试标签1",true);
+            TagEntity tag = new("测试标签1", true);
             Assert.Equal("测试标签1", tag.Name);
             Assert.True(tag.IsCategory);
             tag.CancelCategory();

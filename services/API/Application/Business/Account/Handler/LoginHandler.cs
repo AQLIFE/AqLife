@@ -1,11 +1,10 @@
-﻿using MediatR;
-using MyLife.Application.Abstractions.Authentication;
-using MyLife.Application.Business.Account.Search;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.Exceptions;
+﻿using AqLife.Application.Abstractions.Authentication;
+using AqLife.Application.Business.Account.Search;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using MediatR;
 
-namespace MyLife.Application.Business.Account.Handler
+namespace AqLife.Application.Business.Account.Handler
 {
     // 解耦 LoginHandler 与 Service 业务类,通过Search 业务类来获取数据,并通过 IJwtProvider 来生成 Token
     public class LoginHandler(ITokenProvider<AccountEntity> provider, AccountSearch search) : IRequestHandler<LoginCommand, string>

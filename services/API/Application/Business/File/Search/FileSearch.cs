@@ -1,16 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Search;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using AqLife.Shared.IView;
+using AqLife.Shared.Tools;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Abstractions.Persistence;
-using MyLife.Application.Abstractions.Search;
-using MyLife.Application.Mappers;
-using MyLife.Application.Search;
-using MyLife.Domain.Command;
-using MyLife.Domain.Entities;
-using MyLife.Shared.IView;
-using MyLife.Shared.Tools;
+using AqLife.Application.Mappers;
 
 
-namespace MyLife.Application.Business.File.Search;
+namespace AqLife.Application.Business.File.Search;
 
 public enum FileAccessMode
 {

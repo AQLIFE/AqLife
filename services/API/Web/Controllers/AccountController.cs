@@ -1,12 +1,12 @@
 ﻿
+using AqLife.Domain.Command;
+using AqLife.Shared.IView;
+using AqLife.Shared.Tools;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyLife.Domain.Command;
-using MyLife.Shared.IView;
-using MyLife.Shared.Tools;
 
-namespace MyLife.Web.Controllers
+namespace AqLife.Web.Controllers
 {
     [ApiController, Route("[controller]"), Authorize]
     public class AccountController(IMediator mediator) : ControllerBase

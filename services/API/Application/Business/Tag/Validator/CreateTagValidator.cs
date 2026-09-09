@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLife.Application.Validators;
-using MyLife.Domain.Command;
-using MyLife.Application.Abstractions.Persistence;
-namespace MyLife.Application.Business.Tag.Validator
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Validators;
+using AqLife.Domain.Command;
+using Microsoft.EntityFrameworkCore;
+namespace AqLife.Application.Business.Tag.Validator
 {
 
     public class CreateTagValidator(IApplicationDbContext storage) : AbstractValidator<CreateTagCommand>
