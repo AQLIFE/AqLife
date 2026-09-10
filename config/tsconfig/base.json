@@ -25,6 +25,8 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     
+    "allowImportingTsExtensions": true,
+    
     "paths": {
         "@aqlife/*": ["../../packages/*/src", "../../packages/*"]
     }
