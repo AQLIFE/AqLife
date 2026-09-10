@@ -21,20 +21,14 @@ import { mapValues } from '../runtime';
 export interface CorpusDto {
     /**
      * 
-     * @type {string}
-     * @memberof CorpusDto
      */
     uid?: string;
     /**
      * 
-     * @type {string}
-     * @memberof CorpusDto
      */
     corpusContent?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof CorpusDto
      */
     createDate?: string | null;
 }
@@ -57,8 +51,8 @@ export function CorpusDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'corpusContent': json['corpusContent'] == null ? undefined : json['corpusContent'],
-        'createDate': json['createDate'] == null ? undefined : json['createDate'],
+        'corpusContent': json['corpusContent'] === undefined ? undefined : json['corpusContent'] === null ? null : json['corpusContent'],
+        'createDate': json['createDate'] === undefined ? undefined : json['createDate'] === null ? null : json['createDate'],
     };
 }
 

@@ -21,8 +21,6 @@ import { mapValues } from '../runtime';
 export interface CreateCorpusCommand {
     /**
      * 
-     * @type {string}
-     * @memberof CreateCorpusCommand
      */
     content?: string | null;
 }
@@ -44,7 +42,7 @@ export function CreateCorpusCommandFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-        'content': json['content'] == null ? undefined : json['content'],
+        'content': json['content'] === undefined ? undefined : json['content'] === null ? null : json['content'],
     };
 }
 

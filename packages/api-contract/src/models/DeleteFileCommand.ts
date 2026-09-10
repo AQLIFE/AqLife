@@ -21,8 +21,6 @@ import { mapValues } from '../runtime';
 export interface DeleteFileCommand {
     /**
      * 
-     * @type {string}
-     * @memberof DeleteFileCommand
      */
     uid?: string;
 }

@@ -40,22 +40,37 @@ import {
 } from '../models/SubscriptionDto';
 
 export interface ApiAccountAvatarPatchRequest {
+    /**
+     * 
+     */
     avatar?: Blob;
 }
 
 export interface ApiAccountLoginPostRequest {
+    /**
+     * 
+     */
     loginCommand?: LoginCommand;
 }
 
 export interface ApiAccountPostRequest {
+    /**
+     * 
+     */
     createAccountCommand?: CreateAccountCommand;
 }
 
 export interface ApiAccountProfilePatchRequest {
+    /**
+     * 
+     */
     accountProfile?: AccountProfile;
 }
 
 export interface ApiAccountSubscriptionsPutRequest {
+    /**
+     * 
+     */
     subscriptionDto?: Array<SubscriptionDto>;
 }
 

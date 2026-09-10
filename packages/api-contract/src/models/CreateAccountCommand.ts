@@ -21,26 +21,18 @@ import { mapValues } from '../runtime';
 export interface CreateAccountCommand {
     /**
      * 
-     * @type {string}
-     * @memberof CreateAccountCommand
      */
     name?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof CreateAccountCommand
      */
     desc?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof CreateAccountCommand
      */
     pwd?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof CreateAccountCommand
      */
     serverKey?: string | null;
 }
@@ -62,10 +54,10 @@ export function CreateAccountCommandFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-        'name': json['name'] == null ? undefined : json['name'],
-        'desc': json['desc'] == null ? undefined : json['desc'],
-        'pwd': json['pwd'] == null ? undefined : json['pwd'],
-        'serverKey': json['serverKey'] == null ? undefined : json['serverKey'],
+        'name': json['name'] === undefined ? undefined : json['name'] === null ? null : json['name'],
+        'desc': json['desc'] === undefined ? undefined : json['desc'] === null ? null : json['desc'],
+        'pwd': json['pwd'] === undefined ? undefined : json['pwd'] === null ? null : json['pwd'],
+        'serverKey': json['serverKey'] === undefined ? undefined : json['serverKey'] === null ? null : json['serverKey'],
     };
 }
 
