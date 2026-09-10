@@ -14,7 +14,8 @@
       "@aqlife/api-contract": ["../../packages/api-contract/src/index.ts"],
       "@aqlife/api-client": ["../../packages/api-client/src/index.ts"],
       "@aqlife/domain": ["../../packages/domain/src/index.ts"],
-      "@aqlife/icons": ["../../packages/icons/src/index.ts"]
+      "@aqlife/icons": ["../../packages/icons/src/index.ts"],
+      "@aqlife/ui-shared":["../../packages/ui-shared/src/index.ts"]
     }
   }
 }
