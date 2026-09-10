@@ -1,0 +1,161 @@
+# @aqlife/api-contract@1.0
+
+A TypeScript SDK client for the localhost API.
+
+## Usage
+
+First, install the SDK from npm.
+
+```bash
+npm install @aqlife/api-contract --save
+```
+
+Next, try it out.
+
+
+```ts
+import {
+  Configuration,
+  AccountApi,
+} from '@aqlife/api-contract';
+import type { ApiAccountAvatarPatchRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new AccountApi();
+
+  const body = {
+    // Blob (optional)
+    avatar: BINARY_DATA_HERE,
+  } satisfies ApiAccountAvatarPatchRequest;
+
+  try {
+    const data = await api.apiAccountAvatarPatch(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+
+## Documentation
+
+### API Endpoints
+
+All URIs are relative to *http://localhost*
+
+| Class | Method | HTTP request | Description
+| ----- | ------ | ------------ | -------------
+*AccountApi* | [**apiAccountAvatarPatch**](docs/AccountApi.md#apiaccountavatarpatch) | **PATCH** /api/Account/avatar | 
+*AccountApi* | [**apiAccountDelete**](docs/AccountApi.md#apiaccountdelete) | **DELETE** /api/Account | 
+*AccountApi* | [**apiAccountGet**](docs/AccountApi.md#apiaccountget) | **GET** /api/Account | 
+*AccountApi* | [**apiAccountLoginPost**](docs/AccountApi.md#apiaccountloginpost) | **POST** /api/Account/login | 
+*AccountApi* | [**apiAccountPost**](docs/AccountApi.md#apiaccountpost) | **POST** /api/Account | 
+*AccountApi* | [**apiAccountProfilePatch**](docs/AccountApi.md#apiaccountprofilepatch) | **PATCH** /api/Account/profile | 
+*AccountApi* | [**apiAccountSubscriptionsPut**](docs/AccountApi.md#apiaccountsubscriptionsput) | **PUT** /api/Account/subscriptions | 
+*CorpusApi* | [**apiCorpusDelete**](docs/CorpusApi.md#apicorpusdelete) | **DELETE** /api/Corpus | 
+*CorpusApi* | [**apiCorpusGet**](docs/CorpusApi.md#apicorpusget) | **GET** /api/Corpus | 
+*CorpusApi* | [**apiCorpusPost**](docs/CorpusApi.md#apicorpuspost) | **POST** /api/Corpus | 
+*CorpusApi* | [**apiCorpusRandomGet**](docs/CorpusApi.md#apicorpusrandomget) | **GET** /api/Corpus/random | 
+*CorpusApi* | [**apiCorpusSearchGet**](docs/CorpusApi.md#apicorpussearchget) | **GET** /api/Corpus/search | 
+*FileApi* | [**apiFileDelete**](docs/FileApi.md#apifiledelete) | **DELETE** /api/File | 
+*FileApi* | [**apiFileDownloadGet**](docs/FileApi.md#apifiledownloadget) | **GET** /api/File/download | 
+*FileApi* | [**apiFileGet**](docs/FileApi.md#apifileget) | **GET** /api/File | 
+*FileApi* | [**apiFilePatch**](docs/FileApi.md#apifilepatch) | **PATCH** /api/File | 
+*FileApi* | [**apiFilePreviewGet**](docs/FileApi.md#apifilepreviewget) | **GET** /api/File/preview | 
+*FileApi* | [**apiFilePublishPost**](docs/FileApi.md#apifilepublishpost) | **POST** /api/File/Publish | 
+*FileApi* | [**apiFilePublishScheduledPost**](docs/FileApi.md#apifilepublishscheduledpost) | **POST** /api/File/PublishScheduled | 
+*FileApi* | [**apiFileTagPatch**](docs/FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag | 
+*FileApi* | [**apiFileUploadPost**](docs/FileApi.md#apifileuploadpost) | **POST** /api/File/Upload | 
+*TagApi* | [**apiTagDelete**](docs/TagApi.md#apitagdelete) | **DELETE** /api/Tag | 
+*TagApi* | [**apiTagGet**](docs/TagApi.md#apitagget) | **GET** /api/Tag | 
+*TagApi* | [**apiTagPatch**](docs/TagApi.md#apitagpatch) | **PATCH** /api/Tag | 
+*TagApi* | [**apiTagPost**](docs/TagApi.md#apitagpost) | **POST** /api/Tag | 
+*TodoApi* | [**apiTodoDelete**](docs/TodoApi.md#apitododelete) | **DELETE** /api/Todo | 
+*TodoApi* | [**apiTodoGet**](docs/TodoApi.md#apitodoget) | **GET** /api/Todo | 
+*TodoApi* | [**apiTodoPatch**](docs/TodoApi.md#apitodopatch) | **PATCH** /api/Todo | 
+*TodoApi* | [**apiTodoPost**](docs/TodoApi.md#apitodopost) | **POST** /api/Todo | 
+*TodoApi* | [**apiTodoSearchGet**](docs/TodoApi.md#apitodosearchget) | **GET** /api/Todo/search | 
+
+
+### Models
+
+- [AccountDto](docs/AccountDto.md)
+- [AccountProfile](docs/AccountProfile.md)
+- [CorpusDto](docs/CorpusDto.md)
+- [CreateAccountCommand](docs/CreateAccountCommand.md)
+- [CreateCorpusCommand](docs/CreateCorpusCommand.md)
+- [CreateTagCommand](docs/CreateTagCommand.md)
+- [CreateTodoCommand](docs/CreateTodoCommand.md)
+- [DeleteCorepusCommand](docs/DeleteCorepusCommand.md)
+- [DeleteFileCommand](docs/DeleteFileCommand.md)
+- [DeleteTagCommand](docs/DeleteTagCommand.md)
+- [DeleteTodoCommand](docs/DeleteTodoCommand.md)
+- [FileDto](docs/FileDto.md)
+- [LoginCommand](docs/LoginCommand.md)
+- [PublishFileCommand](docs/PublishFileCommand.md)
+- [SubscriptionDto](docs/SubscriptionDto.md)
+- [TagDto](docs/TagDto.md)
+- [TodoDto](docs/TodoDto.md)
+- [TodoStatus](docs/TodoStatus.md)
+- [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
+- [UpdateTagCommand](docs/UpdateTagCommand.md)
+- [UpdateTodoCommand](docs/UpdateTodoCommand.md)
+
+### Authorization
+
+Endpoints do not require authorization.
+
+
+## About
+
+This TypeScript SDK client supports the [Fetch API](https://fetch.spec.whatwg.org/)
+and is automatically generated by the
+[OpenAPI Generator](https://openapi-generator.tech) project:
+
+- API version: `1.0`
+- Package version: `1.0`
+- Generator version: `7.25.0`
+- Build package: `org.openapitools.codegen.languages.TypeScriptFetchClientCodegen`
+
+The generated npm module supports the following:
+
+- Environments
+  * Node.js
+  * Webpack
+  * Browserify
+- Language levels
+  * ES5 - you must have a Promises/A+ library installed
+  * ES6
+- Module systems
+  * CommonJS
+  * ES6 module system
+
+
+## Development
+
+### Building
+
+To build the TypeScript source code, you need to have Node.js and npm installed.
+After cloning the repository, navigate to the project directory and run:
+
+```bash
+npm install
+npm run build
+```
+
+### Publishing
+
+Once you've built the package, you can publish it to npm:
+
+```bash
+npm publish
+```
+
+## License
+
+[]()
