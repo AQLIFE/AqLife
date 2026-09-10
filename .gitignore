@@ -109,7 +109,7 @@ services/API/APIUnitTest/appsettings.Test.Local.json
 .env.*
 !.env.example
 !.env.*.example
-*.csproj.iscache
+*.csproj.lscache
 
 # --- 本地工具 / 个人草稿 ---
 /APIFOX/
