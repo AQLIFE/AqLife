@@ -94,3 +94,5 @@ run/
 
 # EF 迁移：若需纳入版本管理，删除下一行并在 README 中说明流程
 # API/Data/Migrations/
+
+*.csproj.lscache
