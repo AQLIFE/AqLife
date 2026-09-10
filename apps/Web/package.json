@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^24.0.4 || >=22.12.0"
+    "node": "^24.0.4 || >=24.12.0"
   },
   "scripts": {
     "dev": "vite --host --mode dev",
@@ -21,37 +21,31 @@
     "@aqlife/domain": "*",
     "@aqlife/icons": "*",
     "@element-plus/icons-vue": "^2.3.2",
-    "element-plus": "^2.10.5",
-    "highlight": "^0.2.4",
+    "element-plus": "^2.14.2",
     "markdown-it": "^14.1.1",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-highlightjs": "^4.3.0",
-    "markdown-it-mermaid": "^0.2.0",
-    "marked": "^16.3.0",
     "mermaid": "^11.12.0",
-    "dompurify": "^3.2.6",
-    "pinia": "^3.0.3",
-    "shiki": "^4.2.0",
-    "vue": "^3.5.18",
-    "vue-markdown-render": "^2.3.0",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.38",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",
     "unplugin-icons": "^22.1.0",
-    "@types/node": "^22.19.19",
+    "@types/node": "^26.1.1",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitejs/plugin-vue-jsx": "^5.1.1",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.6.0",
-    "eslint": "^9.31.0",
-    "eslint-plugin-vue": "~10.3.0",
-    "jiti": "^2.4.2",
-    "npm-run-all2": "^8.0.4",
-    "prettier": "3.6.2",
+    "eslint": "^10.5.0",
+    "eslint-plugin-vue": "~10.9.2",
+    "jiti": "^2.7.0",
+    "npm-run-all2": "^9.0.2",
+    "prettier": "3.8.4",
     "typescript": "^6.0.3",
-    "vite": "^7.0.6",
-    "vite-plugin-vue-devtools": "^8.0.0",
-    "vue-tsc": "^3.0.4"
+    "vite": "^8.0.16",
+    "vite-plugin-vue-devtools": "^8.1.2",
+    "vue-tsc": "^3.3.5"
   }
 }

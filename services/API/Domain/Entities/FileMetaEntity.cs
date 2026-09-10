@@ -60,6 +60,7 @@ namespace AqLife.Domain.Entities
 
         public void Publish()
         {
+            Status = FileStatus.Published;
             this.PublishAt = DateTime.UtcNow;
         }
 

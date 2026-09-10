@@ -134,7 +134,7 @@ import {
 } from 'element-plus'
 import { FileApi, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { onBeforeMount, ref, reactive, computed, onBeforeUnmount } from 'vue'
+import { onBeforeMount, ref, reactive, computed } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
 import { useActionStore, OperationalState } from '@/stores/useActionStore'
 import FileUpload from '@/components/FileUpload.vue'
@@ -284,7 +284,6 @@ onBeforeMount(async () => {
 
 function handleUploadFile() {
   actionStore.OState = OperationalState.Upload
-  // console.log(actionStore.OState)
 }
 const router = useRouter()
 function handleAddFile(){

@@ -12,7 +12,7 @@
       </template>
     </ElPageHeader>
 
-    <div id="mdRender">
+    <!-- <div id="mdRender">
       <template v-for="(node, index) in rNode" :key="index">
         <CodeBlock v-if="node.type === 'component' && node.component === 'CodeBlock'" :info="node.content"
           :infoType="node.info" />
@@ -24,7 +24,8 @@
 
         <div v-else-if="node.type === 'html'" v-html="node.content"></div>
       </template>
-    </div>
+    </div> -->
+    <MarkdownRender :markdown="sourceMarkdown"/>
   </ElCol>
 </template>
 
@@ -35,16 +36,12 @@ import { FileApi, type ApiFileDownloadGetRequest, type FileDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { ref, computed, onBeforeMount,watch } from 'vue'
 import { mdRenderOption, renderNodes } from '@aqlife/domain'
-import CodeBlock from '@/components/CodeBlock.vue'
-import MermaidPreview from '@/components/MermaidPreview.vue'
-import TablePreview from '@/components/TablePreview.vue'
-import TipPreview from '@/components/TipPreview.vue'
 import { useArticleStore } from '@/stores/articleStore'
 import { extractToc } from '@/services/markdownParser'
 import { ArrowLeft, Share } from '@element-plus/icons-vue'
+import {MarkdownRender}from '@aqlife/ui-shared'
+
 const articleStore = useArticleStore()
-
-
 const route = useRoute()
 useRouter();
 const fileApi = new FileApi(apiConfiguration)
@@ -56,8 +53,7 @@ watch(sourceMarkdown, (value: string) => {
   articleStore.toc = extractToc(tokens.value)
 })
 const tokens = computed(() => mdRenderOption.parse(sourceMarkdown.value, {}))
-
-const rNode = computed(()=>renderNodes(tokens.value))
+const rNode  = computed(()=>renderNodes(tokens.value))
 
 async function getPreview(params: ApiFileDownloadGetRequest) {
   try {

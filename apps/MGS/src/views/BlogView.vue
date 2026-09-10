@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { ElCol, ElRow, ElPageHeader, ElMessage, ElLoading } from 'element-plus';
-import { ArrowLeft, Lock, Unlock, Upload } from '@element-plus/icons-vue';
-import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { ElPageHeader, ElMessage } from 'element-plus';
+import { Lock, Unlock, Upload } from '@element-plus/icons-vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as monaco from 'monaco-editor'
-import { marked } from 'marked'
 import { useRouter } from 'vue-router';
 import { getArticleTitle } from '@aqlife/domain';
 import { FileApi } from '@/api';
 import { apiConfiguration } from '@/services/api';
 import { OperationalState, useActionStore } from '@/stores/useActionStore';
-// import {mdRenderOption}
+import {MarkdownRender} from '@aqlife/ui-shared'
 
 const container = ref<HTMLElement>()
 
@@ -21,7 +20,7 @@ const markdown = ref(`# Hello World
 - Vue 3
 `)
 
-const errorMessage = '没有匹配的博文哦'
+// const errorMessage = '没有匹配的博文哦'
 
 let editor: monaco.editor.IStandaloneCodeEditor | undefined
 const readOnly = ref(true)
@@ -128,7 +127,8 @@ async function handleUploadNewBlog() {
     <div ref="container" class="editor" />
 
     <!-- 右侧 Preview -->
-    <div class="preview markdown-body" v-html="marked(markdown)" />
+    <!-- <div class="preview " v-html="marked(markdown)" /> -->
+    <MarkdownRender :markdown="markdown"/>
   </div>
 </template>
 
