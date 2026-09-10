@@ -1,21 +1,22 @@
 info:
-  name: post /api/Account/login
+  name: post /api/File/Publish
   type: http
-  seq: 4
+  seq: 8
   tags:
-    - Account
+    - File
 
 http:
   method: POST
-  url: "{{baseUrl}}/api/Account/login"
+  url: "{{baseUrl}}/api/File/Publish"
   body:
     type: json
     data: |-
       {
-        "accountName": "XVD@Ez-1V",
-        "secretKey": "9689QQAI"
+        "uid": "d78e4228-4d2f-4d06-a034-f1d2d34c4c2f"
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{token}}"
 
 runtime:
   variables:
@@ -32,14 +33,13 @@ examples:
   - name: 200 Response
     description: OK
     request:
-      url: "{{baseUrl}}/api/Account/login"
+      url: "{{baseUrl}}/api/File/Publish"
       method: POST
       body:
         type: json
         data: |-
           {
-            "accountName": "",
-            "secretKey": ""
+            "uid": ""
           }
     response:
       status: 200
@@ -53,14 +53,13 @@ examples:
   - name: 200 Response
     description: OK
     request:
-      url: "{{baseUrl}}/api/Account/login"
+      url: "{{baseUrl}}/api/File/Publish"
       method: POST
       body:
         type: json
         data: |-
           {
-            "accountName": "",
-            "secretKey": ""
+            "uid": ""
           }
     response:
       status: 200
@@ -74,14 +73,13 @@ examples:
   - name: 200 Response
     description: OK
     request:
-      url: "{{baseUrl}}/api/Account/login"
+      url: "{{baseUrl}}/api/File/Publish"
       method: POST
       body:
         type: json
         data: |-
           {
-            "accountName": "",
-            "secretKey": ""
+            "uid": ""
           }
     response:
       status: 200
