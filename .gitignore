@@ -42,7 +42,7 @@ project.fragment.lock.json
 *.nuget.props
 *.nuget.targets
 *.nupkg
-**/packages/
+
 !**/packages/build/
 
 # --- Node / Monorepo ---
