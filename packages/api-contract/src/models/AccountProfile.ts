@@ -21,14 +21,10 @@ import { mapValues } from '../runtime';
 export interface AccountProfile {
     /**
      * 
-     * @type {string}
-     * @memberof AccountProfile
      */
     name?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof AccountProfile
      */
     desc?: string | null;
 }
@@ -50,8 +46,8 @@ export function AccountProfileFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
         
-        'name': json['name'] == null ? undefined : json['name'],
-        'desc': json['desc'] == null ? undefined : json['desc'],
+        'name': json['name'] === undefined ? undefined : json['name'] === null ? null : json['name'],
+        'desc': json['desc'] === undefined ? undefined : json['desc'] === null ? null : json['desc'],
     };
 }
 

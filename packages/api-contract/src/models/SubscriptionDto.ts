@@ -21,26 +21,18 @@ import { mapValues } from '../runtime';
 export interface SubscriptionDto {
     /**
      * 
-     * @type {string}
-     * @memberof SubscriptionDto
      */
     aliasName?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof SubscriptionDto
      */
     subscriptionLink?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof SubscriptionDto
      */
     subscriptionPlatform?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof SubscriptionDto
      */
     subscriptionIcon?: string;
 }
@@ -62,9 +54,9 @@ export function SubscriptionDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'aliasName': json['aliasName'] == null ? undefined : json['aliasName'],
-        'subscriptionLink': json['subscriptionLink'] == null ? undefined : json['subscriptionLink'],
-        'subscriptionPlatform': json['subscriptionPlatform'] == null ? undefined : json['subscriptionPlatform'],
+        'aliasName': json['aliasName'] === undefined ? undefined : json['aliasName'] === null ? null : json['aliasName'],
+        'subscriptionLink': json['subscriptionLink'] === undefined ? undefined : json['subscriptionLink'] === null ? null : json['subscriptionLink'],
+        'subscriptionPlatform': json['subscriptionPlatform'] === undefined ? undefined : json['subscriptionPlatform'] === null ? null : json['subscriptionPlatform'],
         'subscriptionIcon': json['subscriptionIcon'] == null ? undefined : json['subscriptionIcon'],
     };
 }

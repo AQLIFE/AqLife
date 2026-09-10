@@ -21,14 +21,10 @@ import { mapValues } from '../runtime';
 export interface LoginCommand {
     /**
      * 
-     * @type {string}
-     * @memberof LoginCommand
      */
     accountName?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof LoginCommand
      */
     secretKey?: string | null;
 }
@@ -50,8 +46,8 @@ export function LoginCommandFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         
-        'accountName': json['accountName'] == null ? undefined : json['accountName'],
-        'secretKey': json['secretKey'] == null ? undefined : json['secretKey'],
+        'accountName': json['accountName'] === undefined ? undefined : json['accountName'] === null ? null : json['accountName'],
+        'secretKey': json['secretKey'] === undefined ? undefined : json['secretKey'] === null ? null : json['secretKey'],
     };
 }
 

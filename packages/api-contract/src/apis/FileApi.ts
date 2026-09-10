@@ -35,41 +35,77 @@ import {
 } from '../models/UpdateFileTagCommand';
 
 export interface ApiFileDeleteRequest {
+    /**
+     * 
+     */
     deleteFileCommand?: DeleteFileCommand;
 }
 
 export interface ApiFileDownloadGetRequest {
+    /**
+     * 
+     */
     uID?: string;
 }
 
 export interface ApiFileGetRequest {
+    /**
+     * 
+     */
     uID?: string;
+    /**
+     * 
+     */
     title?: string;
 }
 
 export interface ApiFilePatchRequest {
+    /**
+     * 
+     */
     uID?: string;
+    /**
+     * 
+     */
     file?: Blob;
 }
 
 export interface ApiFilePreviewGetRequest {
+    /**
+     * 
+     */
     uID?: string;
 }
 
 export interface ApiFilePublishPostRequest {
+    /**
+     * 
+     */
     publishFileCommand?: PublishFileCommand;
 }
 
 export interface ApiFilePublishScheduledPostRequest {
+    /**
+     * 
+     */
     scheduledTime?: string;
+    /**
+     * 
+     */
     file?: Blob;
 }
 
 export interface ApiFileTagPatchRequest {
+    /**
+     * 
+     */
     updateFileTagCommand?: UpdateFileTagCommand;
 }
 
 export interface ApiFileUploadPostRequest {
+    /**
+     * 
+     */
     file?: Array<Blob>;
 }
 

@@ -29,50 +29,34 @@ import {
 export interface FileDto {
     /**
      * 
-     * @type {string}
-     * @memberof FileDto
      */
     uid?: string;
     /**
      * 
-     * @type {string}
-     * @memberof FileDto
      */
     fileName?: string | null;
     /**
      * 
-     * @type {Array<TagDto>}
-     * @memberof FileDto
      */
     tags?: Array<TagDto> | null;
     /**
      * 
-     * @type {number}
-     * @memberof FileDto
      */
     fileSize?: number;
     /**
      * 
-     * @type {string}
-     * @memberof FileDto
      */
     fileHash?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof FileDto
      */
     uploadTime?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof FileDto
      */
     fileType?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof FileDto
      */
     fileIntroduction?: string | null;
 }
@@ -95,13 +79,13 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'fileName': json['fileName'] == null ? undefined : json['fileName'],
-        'tags': json['tags'] == null ? undefined : ((json['tags'] as Array<any>).map(TagDtoFromJSON)),
+        'fileName': json['fileName'] === undefined ? undefined : json['fileName'] === null ? null : json['fileName'],
+        'tags': json['tags'] === undefined ? undefined : json['tags'] === null ? null : ((json['tags'] as Array<any>).map(TagDtoFromJSON)),
         'fileSize': json['fileSize'] == null ? undefined : json['fileSize'],
-        'fileHash': json['fileHash'] == null ? undefined : json['fileHash'],
-        'uploadTime': json['uploadTime'] == null ? undefined : json['uploadTime'],
-        'fileType': json['fileType'] == null ? undefined : json['fileType'],
-        'fileIntroduction': json['fileIntroduction'] == null ? undefined : json['fileIntroduction'],
+        'fileHash': json['fileHash'] === undefined ? undefined : json['fileHash'] === null ? null : json['fileHash'],
+        'uploadTime': json['uploadTime'] === undefined ? undefined : json['uploadTime'] === null ? null : json['uploadTime'],
+        'fileType': json['fileType'] === undefined ? undefined : json['fileType'] === null ? null : json['fileType'],
+        'fileIntroduction': json['fileIntroduction'] === undefined ? undefined : json['fileIntroduction'] === null ? null : json['fileIntroduction'],
     };
 }
 

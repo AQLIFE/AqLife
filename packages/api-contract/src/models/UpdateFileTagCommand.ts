@@ -21,14 +21,10 @@ import { mapValues } from '../runtime';
 export interface UpdateFileTagCommand {
     /**
      * 
-     * @type {string}
-     * @memberof UpdateFileTagCommand
      */
     uid?: string;
     /**
      * 
-     * @type {Array<string>}
-     * @memberof UpdateFileTagCommand
      */
     tags?: Array<string> | null;
 }
@@ -51,7 +47,7 @@ export function UpdateFileTagCommandFromJSONTyped(json: any, ignoreDiscriminator
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'tags': json['tags'] == null ? undefined : json['tags'],
+        'tags': json['tags'] === undefined ? undefined : json['tags'] === null ? null : json['tags'],
     };
 }
 

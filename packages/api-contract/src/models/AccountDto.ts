@@ -29,26 +29,18 @@ import {
 export interface AccountDto {
     /**
      * 
-     * @type {string}
-     * @memberof AccountDto
      */
     name?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof AccountDto
      */
     desc?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof AccountDto
      */
     avatar?: string | null;
     /**
      * 
-     * @type {Array<SubscriptionDto>}
-     * @memberof AccountDto
      */
     subscriptions?: Array<SubscriptionDto> | null;
 }
@@ -70,10 +62,10 @@ export function AccountDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     }
     return {
         
-        'name': json['name'] == null ? undefined : json['name'],
-        'desc': json['desc'] == null ? undefined : json['desc'],
-        'avatar': json['avatar'] == null ? undefined : json['avatar'],
-        'subscriptions': json['subscriptions'] == null ? undefined : ((json['subscriptions'] as Array<any>).map(SubscriptionDtoFromJSON)),
+        'name': json['name'] === undefined ? undefined : json['name'] === null ? null : json['name'],
+        'desc': json['desc'] === undefined ? undefined : json['desc'] === null ? null : json['desc'],
+        'avatar': json['avatar'] === undefined ? undefined : json['avatar'] === null ? null : json['avatar'],
+        'subscriptions': json['subscriptions'] === undefined ? undefined : json['subscriptions'] === null ? null : ((json['subscriptions'] as Array<any>).map(SubscriptionDtoFromJSON)),
     };
 }
 

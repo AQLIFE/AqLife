@@ -566,7 +566,7 @@ async function example() {
 
   const body = {
     // Array<Blob> (optional)
-    file: /path/to/file.txt,
+    file: [new Blob(['example file content'], { type: 'application/octet-stream' })],
   } satisfies ApiFileUploadPostRequest;
 
   try {

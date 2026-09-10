@@ -35,19 +35,34 @@ import {
 } from '../models/UpdateTagCommand';
 
 export interface ApiTagDeleteRequest {
+    /**
+     * 
+     */
     deleteTagCommand?: DeleteTagCommand;
 }
 
 export interface ApiTagGetRequest {
+    /**
+     * 
+     */
     uID?: string;
+    /**
+     * 
+     */
     tag?: string;
 }
 
 export interface ApiTagPatchRequest {
+    /**
+     * 
+     */
     updateTagCommand?: UpdateTagCommand;
 }
 
 export interface ApiTagPostRequest {
+    /**
+     * 
+     */
     createTagCommand?: CreateTagCommand;
 }
 

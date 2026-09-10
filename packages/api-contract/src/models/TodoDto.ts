@@ -21,56 +21,38 @@ import { mapValues } from '../runtime';
 export interface TodoDto {
     /**
      * 
-     * @type {string}
-     * @memberof TodoDto
      */
     uid?: string;
     /**
      * 
-     * @type {string}
-     * @memberof TodoDto
      */
     ftid?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof TodoDto
      */
     desc?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof TodoDto
      */
     status?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof TodoDto
      */
     createdAt?: string;
     /**
      * 
-     * @type {string}
-     * @memberof TodoDto
      */
     completedAt?: string | null;
     /**
      * 
-     * @type {number}
-     * @memberof TodoDto
      */
     priority?: number;
     /**
      * 
-     * @type {Array<TodoDto>}
-     * @memberof TodoDto
      */
     todoList?: Array<TodoDto> | null;
     /**
      * 
-     * @type {boolean}
-     * @memberof TodoDto
      */
     hasChildren?: boolean;
 }
@@ -93,13 +75,13 @@ export function TodoDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): T
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'ftid': json['ftid'] == null ? undefined : json['ftid'],
-        'desc': json['desc'] == null ? undefined : json['desc'],
-        'status': json['status'] == null ? undefined : json['status'],
+        'ftid': json['ftid'] === undefined ? undefined : json['ftid'] === null ? null : json['ftid'],
+        'desc': json['desc'] === undefined ? undefined : json['desc'] === null ? null : json['desc'],
+        'status': json['status'] === undefined ? undefined : json['status'] === null ? null : json['status'],
         'createdAt': json['createdAt'] == null ? undefined : json['createdAt'],
-        'completedAt': json['completedAt'] == null ? undefined : json['completedAt'],
+        'completedAt': json['completedAt'] === undefined ? undefined : json['completedAt'] === null ? null : json['completedAt'],
         'priority': json['priority'] == null ? undefined : json['priority'],
-        'todoList': json['todoList'] == null ? undefined : ((json['todoList'] as Array<any>).map(TodoDtoFromJSON)),
+        'todoList': json['todoList'] === undefined ? undefined : json['todoList'] === null ? null : ((json['todoList'] as Array<any>).map(TodoDtoFromJSON)),
         'hasChildren': json['hasChildren'] == null ? undefined : json['hasChildren'],
     };
 }

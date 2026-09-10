@@ -21,26 +21,18 @@ import { mapValues } from '../runtime';
 export interface TagDto {
     /**
      * 
-     * @type {string}
-     * @memberof TagDto
      */
     uid?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof TagDto
      */
     name?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof TagDto
      */
     aliasName?: string | null;
     /**
      * 
-     * @type {boolean}
-     * @memberof TagDto
      */
     isCategory?: boolean;
 }
@@ -62,9 +54,9 @@ export function TagDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): Ta
     }
     return {
         
-        'uid': json['uid'] == null ? undefined : json['uid'],
-        'name': json['name'] == null ? undefined : json['name'],
-        'aliasName': json['aliasName'] == null ? undefined : json['aliasName'],
+        'uid': json['uid'] === undefined ? undefined : json['uid'] === null ? null : json['uid'],
+        'name': json['name'] === undefined ? undefined : json['name'] === null ? null : json['name'],
+        'aliasName': json['aliasName'] === undefined ? undefined : json['aliasName'] === null ? null : json['aliasName'],
         'isCategory': json['isCategory'] == null ? undefined : json['isCategory'],
     };
 }
