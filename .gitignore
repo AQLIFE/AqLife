@@ -42,7 +42,6 @@ project.fragment.lock.json
 *.nuget.props
 *.nuget.targets
 *.nupkg
-
 !**/packages/build/
 
 # --- Node / Monorepo ---
@@ -95,15 +94,30 @@ services/API/Web/Configurations/appsettings.*.json
 !services/API/Web/Configurations/appsettings.*.example.json
 services/API/APIUnitTest/appsettings.Test.Local.json
 
+# 用户机密 / 环境变量
 **/secrets.json
 .env
 .env.*
 !.env.example
 !.env.*.example
+*.csproj.lscache
 
 # --- 本地工具 / 个人草稿 ---
 /APIFOX/
 run/
+
+# 可选：本地 OpenAPI 生成缓存（若存在）
+.openapitools/
+
+# =============================================================================
+# 其他（保留原仓库意图）
+# =============================================================================
+.editorconfig
+
+# EF 迁移：若需纳入版本管理，删除下一行并在 README 中说明流程
+# API/Data/Migrations/
+
+*.csproj.lscache
 API/API.mermaid
 项目结构.md
 *.http.user

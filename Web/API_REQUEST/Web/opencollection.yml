@@ -23,7 +23,7 @@ extensions:
     openapi:
       - sourceUrl: http://192.168.0.100:5110/swagger/v1/swagger.json
         groupBy: tags
-        lastSyncDate: 2026-08-23T08:09:11.978Z
-        specHash: 0d96eaa5e8b3cee4291848aea843162e
+        lastSyncDate: 2026-09-10T11:57:43.435Z
+        specHash: a5c0972f2dcfca01672435d33bbdfcf1
         autoCheck: true
         autoCheckInterval: 5
