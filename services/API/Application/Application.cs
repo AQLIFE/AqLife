@@ -1,26 +1,27 @@
 ﻿using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Behaviors;
+using AqLife.Application.Business;
+using AqLife.Application.Business.Account;
 using AqLife.Application.Business.Account.Search;
+using AqLife.Application.Business.Corpus;
 using AqLife.Application.Business.Corpus.Search;
+using AqLife.Application.Business.File;
 using AqLife.Application.Business.File.Search;
 using AqLife.Application.Business.File.Service;
 using AqLife.Application.Business.File.Validator;
+using AqLife.Application.Business.Tag;
 using AqLife.Application.Business.Tag.Search;
+using AqLife.Application.Business.Todo;
 using AqLife.Application.Business.Todo.Search;
+using AqLife.Application.Mappers;
 using AqLife.Application.Search;
+using AqLife.Application.Services;
 using AqLife.Application.Validators;
 using AqLife.Domain.Contracts;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Tools;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using AqLife.Application.Business;
-using AqLife.Application.Business.Tag;
-using AqLife.Application.Business.File;
-using AqLife.Application.Business.Account;
-using AqLife.Application.Mappers;
-using AqLife.Application.Business.Corpus;
-using AqLife.Application.Business.Todo;
 
 namespace AqLife.Application
 {
@@ -89,6 +90,10 @@ namespace AqLife.Application
             services.AddSingleton<AccountMapper>();
             services.AddSingleton<QueryMapper>();
             services.AddSingleton<CorpusMapper>();
+
+            services.AddScoped<IBlogPublishService, BlogPublishService>();
+            services.AddScoped<BlogSearch>();
+            services.AddHostedService<ScheduledPublishWorker>();// 注册后台任务
 
 
             return services;

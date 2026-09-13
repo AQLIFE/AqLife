@@ -41,7 +41,7 @@ namespace AqLife.Web.Controllers
         /// <param name="command"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        [HttpPost("PublishScheduled"), ServiceFilter(typeof(FileUploadFilter))]
+        [HttpPatch("Publish"), ServiceFilter(typeof(FileUploadFilter))]
         public async Task<IEnumerable<Guid>> PublishScheduledFile([FromForm] PublishScheduledCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
 
@@ -54,6 +54,10 @@ namespace AqLife.Web.Controllers
         [HttpPost("Publish"), ServiceFilter(typeof(FileUploadFilter))]
         public async Task<Guid> PublishScheduledFile(PublishFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
+        
+        [HttpPatch("schedule")]
+        public async Task<Guid> ScheduleFile(ScheduledBlogCommand command, CancellationToken ct)
+            =>await mediator.Send(command, ct);
 
 
         [HttpPatch, ServiceFilter(typeof(FileUploadFilter))]
@@ -67,5 +71,9 @@ namespace AqLife.Web.Controllers
         [HttpDelete]
         public async Task DeleteFile(DeleteFileCommand command, CancellationToken ct)
             => await mediator.Send(command, ct);// 已实现
+
+        [HttpPatch("CancelSchedule")]
+        public async Task CancelSchedule(CancelScheduledBlogPostCommand command, CancellationToken ct)
+            => await mediator.Send(command, ct);
     }
 }

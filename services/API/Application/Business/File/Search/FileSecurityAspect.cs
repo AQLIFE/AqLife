@@ -13,7 +13,7 @@ namespace AqLife.Application.Business.File.Search
             return mode switch
             {
                 FileAccessMode.Preview => await ApplyPreviewPolicy(queryable, isAuthenticated),
-                FileAccessMode.Standard => queryable.Where(e => options.Value.AllowedDownload.Contains(e.Extension) && e.Status == FileStatus.Published),
+                FileAccessMode.Standard => queryable.Where(e => options.Value.AllowedDownload.Contains(e.Extension) && e.PublishStatus == FileStatus.Published),
                 _ => queryable
             };
         }
@@ -26,7 +26,7 @@ namespace AqLife.Application.Business.File.Search
             AccountEntity author = await storage.Accounts.Include(e => e.Subscriptions).SingleAsync(e => e.IsValid);
             var validGuid = author.Subscriptions.Select(e => e.SubscriptionIcon).ToList();
             validGuid.Add(author.Avatar);
-            return queryable.Where(e => validGuid.Contains(e.UID) || (options.Value.AllowedDownload.Contains(e.Extension) && e.Status == FileStatus.Published));
+            return queryable.Where(e => validGuid.Contains(e.UID) || (options.Value.AllowedDownload.Contains(e.Extension) && e.PublishStatus == FileStatus.Published));
         }
 
     }

@@ -10,9 +10,9 @@ namespace AqLife.Shared.IView
         string Desc,
         [Required(ErrorMessage = "Status is required")]
         string Status,
-        DateTime CreatedAt,
+        DateTimeOffset CreatedAt,
 
-        DateTime? CompletedAt,// 任务完成时间，默认为空，只有当任务状态为Completed时才会有值
+        DateTimeOffset? CompletedAt,// 任务完成时间，默认为空，只有当任务状态为Completed时才会有值
 
         int Priority,// 任务优先级,数值越大优先级越高，默认为0
         ICollection<TodoDto> TodoList,

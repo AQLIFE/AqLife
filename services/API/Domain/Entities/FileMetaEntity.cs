@@ -1,4 +1,5 @@
 ﻿using AqLife.Domain.Contracts;
+using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel;
@@ -22,12 +23,12 @@ namespace AqLife.Domain.Entities
         [Column, Required(ErrorMessage = "文件哈希不能为空")]
         public string FileHash { private set; get; }
         [Column]
-        public DateTime UploadTime { private set; get; } = DateTime.UtcNow;
+        public DateTimeOffset UploadTime { private set; get; } = DateTimeOffset.UtcNow;
         [Column]
-        public DateTime? PublishAt { get; private set; } = null;
+        public DateTimeOffset? PublishAt { get; private set; } = null;
 
         [Column]
-        public FileStatus Status { private set; get; } = FileStatus.Draft;
+        public FileStatus PublishStatus { private set; get; } = FileStatus.Draft;
 
         [NotMapped]
         public string StorageName => UID + Extension;
@@ -51,17 +52,46 @@ namespace AqLife.Domain.Entities
             FileSize = (ulong)file.Length;
             FileHash = hash;
         }
-        public FileMetaEntity(IFormFile file, string hash, DateTime ScheduledTime) : this(file, hash)
+        public FileMetaEntity(IFormFile file, string hash, DateTimeOffset ScheduledTime) : this(file, hash)
         {
             PublishAt = ScheduledTime;
-            this.Status = FileStatus.Scheduled;
+            this.PublishStatus = FileStatus.Scheduled;
         }
 
 
         public void Publish()
         {
-            Status = FileStatus.Published;
-            this.PublishAt = DateTime.UtcNow;
+            if (PublishStatus is not (FileStatus.Draft or FileStatus.Scheduled))
+            {
+                throw new DomainLegalityException($"Cannot publish.");
+            }
+            PublishStatus = FileStatus.Published;
+            this.PublishAt = DateTimeOffset.UtcNow;
+        }
+
+        public void Schedule(DateTimeOffset scheduledTime)
+        {
+            if (PublishStatus != FileStatus.Draft)// 只有草稿状态的文件才能被预定
+            {
+                throw new DomainLegalityException("Only draft posts can be scheduled.");
+            }
+
+            if (scheduledTime <= DateTimeOffset.UtcNow)// 预定时间必须在当前时间之后
+            {
+                throw new DomainLegalityException("Scheduled time must be in the future.");
+            }
+            if (PublishStatus == FileStatus.Published)
+                return;
+
+            PublishAt = scheduledTime;
+            PublishStatus = FileStatus.Scheduled;
+        }
+
+        public void CancelSchedule()
+        {
+            if (PublishStatus == FileStatus.Draft) return;
+            PublishAt = null;
+            PublishStatus = FileStatus.Draft;
         }
 
         public void SetFileIntroduction(string content)

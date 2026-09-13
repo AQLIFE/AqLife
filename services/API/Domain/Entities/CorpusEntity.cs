@@ -13,7 +13,7 @@ namespace AqLife.Domain.Entities
         [Column]
         public string CorpusContent { get; private set; } = string.Empty;
         [Column]
-        public DateTime CreateDate { get; init; } = DateTime.UtcNow;
+        public DateTimeOffset CreateDate { get; init; } = DateTimeOffset.UtcNow;
 
         public CorpusEntity() { }
         public CorpusEntity(string content) { CorpusContent = content; }
