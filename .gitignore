@@ -122,3 +122,4 @@ API/API.mermaid
 项目结构.md
 *.http.user
 *.http.local
+services/API/Web/Configurations/appsettings.Development.json
