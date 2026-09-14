@@ -1,19 +1,25 @@
 <template>
-  <ElUpload ref="uploadRef" :on-exceed="handleExceed"  v-model:file-list="fileList" action="#" :limit="1" :disabled="disabled" :show-file-list="false" :auto-upload="false" @change="handleChange" :accept="props.accept">
+  <ElUpload ref="uploadRef" @exceed="handleExceed" @change="handleChange" v-model:file-list="PrivateFileQueue"
+  action="#" :limit="1" :disabled="disabled" :show-file-list="false" :auto-upload="false" :accept="props.accept">
     <ElImage :src="src??''" :style="{ width: iconSize, height:iconSize }">
       <template #error>
         <ElIcon :style="{ fontSize: props.iconSize }">
-          <Plus />
+          <slot>
+            <Plus />
+          </slot>
         </ElIcon>
       </template>
     </ElImage>
+    <template #tip>
+      <slot name="tip">仅允许{{ accept }}类型文件上传</slot>
+    </template>
   </ElUpload>
 </template>
 
 <script lang="ts" setup>
 import { Plus } from '@element-plus/icons-vue'
 import { ref } from 'vue'
-import { ElImage, ElMessage, ElUpload, ElIcon, type UploadFile, type UploadRawFile, genFileId, type UploadInstance } from 'element-plus'
+import { ElImage, ElMessage, ElUpload, ElIcon, type UploadFile, type UploadRawFile, genFileId, type UploadInstance, type UploadUserFile } from 'element-plus'
 const props = defineProps({
   disabled: {
     type: Boolean,
@@ -36,29 +42,25 @@ const props = defineProps({
     required:false
   }
 })
-const modelValue = defineModel<File | null>('file')
-
-  const fileList = ref([])
-const uploadRef = ref<UploadInstance>()
 const emit = defineEmits(['change'])
+const modelValue = defineModel<File|null>('file')// 交由外部组件跟踪的文件
 
-function handleExceed(files: File[]) {
-  URL.revokeObjectURL(props.src as string)
+const PrivateFileQueue = ref<UploadUserFile[]>([])
+const uploadRef = ref<UploadInstance>()
+
+function handleExceed(files: File[]):void {
+  // URL.revokeObjectURL(props.src as string) 取消该职能设置
   const file = files as UploadRawFile[]
   file[0].uid = genFileId() // 生成新 ID 触发更新
   uploadRef.value!.handleStart(file[0]) // 手动启动新文件的处理流程，这会触发 handleChange
 }
 
-function handleChange(file: UploadFile) {
-  if(props.src!='')
-    URL.revokeObjectURL(props.src as string)
+function handleChange(uploadFile: UploadFile):void {
+  // if(props.src!='')
+  //   URL.revokeObjectURL(props.src as string)
 
-  modelValue.value = file.raw as File
-  emit('change', file)
-  ElMessage.info(`Selected file: ${file.name}`)
+  modelValue.value = uploadFile.raw
+  emit('change', uploadFile)
+  ElMessage.info(`Selected file: ${uploadFile.name}`)
 }
 </script>
-
-<style lang="css" scoped>
-
-</style>

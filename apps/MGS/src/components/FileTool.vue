@@ -1,21 +1,14 @@
 <template>
-  <ElDrawer v-model="drawerStatus" :title="fileDto?.fileName" with-header :show-close="false" @close="close">
+  <ElDrawer v-model="drawerStatus" :title="fileDto?.fileName" with-header :show-close="false">
 
     <ElDescriptions border :column="1">
       <ElDescriptionsItem label="预览">
         <ElImage v-if="isImageType(fileDto!.fileType!)" :src="useFileStore().previewUrl.get(fileDto!.uid!)"
           class="image" />
-        <ElUpload v-else :disabled="isImageType(fileDto!.fileType!)" v-model:file-list="fileList"
-          :accept="fileDto!.fileType" :limit="1" :auto-upload="false">
-          <ElImage class="image" src="">
-            <template #error>
-              <ElIcon>
-                <component :is="mgsIconRegistry[markdown]" />
-              </ElIcon>
-            </template>
-          </ElImage>
-          <template #tip> 仅允许{{ fileDto?.fileType }}类型文件上传 </template>
-        </ElUpload>
+        <ImageUpload  v-else  :file="PrivateFileQueue">
+          <component :is="mgsIconRegistry[MgsIconName.Markdown]" />
+          <template #tip>可上传同名的文件用于进行更新</template>
+        </ImageUpload>
       </ElDescriptionsItem>
 
       <ElDescriptionsItem label="标签">
@@ -30,30 +23,25 @@
 </template>
 
 <script setup lang="ts">
-import { isImageType, type FileListItemViewModel } from '@aqlife/domain'
+import { isImageType } from '@aqlife/domain'
 import TagSelect from './TagSelect.vue'
 import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
-import { useTagStore } from '@/stores/uuseTagStore'
 import { useFileStore } from '@/stores/useFileStore'
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { FileApi, type FileDto, type TagDto } from '@/api'
-import { UploadFilled, Files, Plus } from '@element-plus/icons-vue'
-import { normalizeExtension } from '@aqlife/domain'
 import ImageUpload from '@/components/ImageUpload.vue'
 import {
   ElDescriptions,
   ElImage,
   ElButton,
-  ElIcon,
   ElDescriptionsItem,
-  type UploadUserFile,
-  type UploadFile,
   ElMessage,
 } from 'element-plus'
-import { defaultFilePolicy } from '@aqlife/domain'
 import { OperationalState, useActionStore } from '@/stores/useActionStore.ts'
 import { apiConfiguration } from '@/services/api.ts'
 import { useRouter } from 'vue-router'
+const actionStore = useActionStore()
+const router = useRouter()
 
 const fileDto = defineModel<FileDto>()// 主要是为了获取文件类型来决定组件渲染方式
 const props = defineProps<{
@@ -61,16 +49,20 @@ const props = defineProps<{
 }>()
 
 // 防止tag修改渗透,仅允许在update事件成功以后,由update回调至fileDto
-const fileList = reactive<UploadUserFile[]>([])// 暂时忽略
-const markdown = MgsIconName.Markdown
-const actionStore = useActionStore()
+const PrivateFileQueue = ref<File|null>(null)// 暂时忽略
 
-const drawerStatus = computed(() => actionStore.OState == OperationalState.Update)
-const selectedTags = ref<TagDto[]>(props.initialTags ? [...props.initialTags] : [])
 
-function close() {
-  if(actionStore.OState === OperationalState.Add)actionStore.OState = OperationalState.None
-}
+const drawerStatus = computed({
+  get: () => actionStore.OState === OperationalState.Update,
+
+  set: (value: boolean) => {
+    if (!value) {
+      actionStore.OState = OperationalState.None
+    }
+  }
+})
+const selectedTags = ref<TagDto[]>(props.initialTags ?? [])
+
 
 async function commit() {
   if (!fileDto.value?.uid) {
@@ -118,7 +110,6 @@ async function commit() {
       // 同步给本地 Model 并关闭弹窗
       fileDto.value = updatedDto
       ElMessage.success('文件 Tag 已同步更新')
-      close()
     }
   } catch (error) {
     // 捕获并处理业务异常，如数据库连接异常或请求事务失败 [cite: 8, 10]
@@ -127,7 +118,7 @@ async function commit() {
   }
 }
 
-const router = useRouter()
+
 function preview(){
   actionStore.OState = OperationalState.View
   actionStore.cacheViewGuid = fileDto.value?.uid ?? ''

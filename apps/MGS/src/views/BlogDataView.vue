@@ -170,9 +170,9 @@ const handleFilter = (value: string, row: any, column: any) => {
   // 确保这里的判断逻辑与你后端 FileMetaEntity 的 Extension 字段对齐 [cite: 9]
   return row[property] === value
 }
-const activeRow = (row: any) => {
+const activeRow = (row: FileDto) => {
   actionStore.OState = OperationalState.Update
-  activeDto.value = row as FileDto
+  activeDto.value = row
   // drawerStatus.value = !drawerStatus.value
 }
 
