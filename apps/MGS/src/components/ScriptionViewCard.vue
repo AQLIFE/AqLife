@@ -4,26 +4,26 @@
       <ImageUpload :disabled="!isEdit" iconSize="8vw" :src="preview(item.subscriptionIcon)" v-model:file="fileModel" />
     </template>
     <ElCol>
-      <ElInput v-model="item.aliasName" :class="isEdit ? '' : 'noneBorder'" placeholder="name" :prefix-icon="User"
+      <ElInput v-model="item.aliasName!" :class="isEdit ? '' : 'noneBorder'" placeholder="name" :prefix-icon="User"
         :disabled="!isEdit" />
     </ElCol>
 
     <ElCol>
-      <ElInput v-model="item.subscriptionPlatform" :class="isEdit ? '' : 'noneBorder'" placeholder="platform"
+      <ElInput v-model="item.subscriptionPlatform!" :class="isEdit ? '' : 'noneBorder'" placeholder="platform"
         :prefix-icon="Platform" :disabled="!isEdit" />
     </ElCol>
 
     <ElCol>
-      <ElInput v-model="item.subscriptionLink" :class="isEdit ? '' : 'noneBorder'" placeholder="link"
-        :prefix-icon="Link" type="url" :disabled="!isEdit" />
+      <ElInput v-model="props.item.subscriptionLink!" :class="isEdit ? '' : 'noneBorder'" placeholder="link"
+        :prefix-icon="Link" type="url" :disabled="!isEdit"/>
     </ElCol>
   </ElCard>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ElCard, ElCol, ElInput, ElUpload, ElImage, ElIcon } from 'element-plus'
-import { User, Platform, Link, Plus } from '@element-plus/icons-vue'
+import { ElCard, ElCol, ElInput } from 'element-plus'
+import { User, Platform, Link } from '@element-plus/icons-vue'
 import type { SubscriptionDto } from '@/api'
 import ImageUpload from './ImageUpload.vue';
 import { useFileStore } from '@/stores/useFileStore.ts';

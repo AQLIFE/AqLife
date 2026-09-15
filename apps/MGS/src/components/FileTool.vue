@@ -1,23 +1,40 @@
 <template>
   <ElDrawer v-model="drawerStatus" :title="fileDto?.fileName" with-header :show-close="false">
-
-    <ElDescriptions border :column="1">
-      <ElDescriptionsItem label="预览">
+    <ElDescriptions border :column="1" label-width="120px">
+      <ElDescriptionsItem label="预览" align="center">
         <ElImage v-if="isImageType(fileDto!.fileType!)" :src="useFileStore().previewUrl.get(fileDto!.uid!)"
           class="image" />
-        <ImageUpload  v-else  :file="PrivateFileQueue">
-          <component :is="mgsIconRegistry[MgsIconName.Markdown]" />
-          <template #tip>可上传同名的文件用于进行更新</template>
+        <ImageUpload v-else v-model:file="PrivateFileQueue" :accept="fileDto!.fileType!">
+          <component :is="mgsIconRegistry[MgsIconName.Markdown]"/>
+          <template #tip>
+            <span :class="{ 'upload-tip-error': fileValidationMessage }">
+              {{
+                fileValidationMessage ||
+              '可上传同名的文件用于进行更新'
+              }}
+            </span>
+          </template>
         </ImageUpload>
       </ElDescriptionsItem>
 
       <ElDescriptionsItem label="标签">
         <TagSelect v-model:tag-list="selectedTags" />
       </ElDescriptionsItem>
+      <ElDescriptionsItem label="发布状态">
+        <ElSegmented v-model="test" :options="demo">
+          <template #default="scope">
+            <ElIcon><component :is="scope.item.icon"/></ElIcon>
+            <div>{{ scope.item.label }}</div>
+          </template>
+        </ElSegmented>
+      </ElDescriptionsItem>
+      <ElDescriptionsItem label="预定发布时间" v-if="test==publishStatus.Scheduled">
+        <ElDatePicker/>
+      </ElDescriptionsItem>
     </ElDescriptions>
     <template #footer>
       <ElButton type="success" @click="preview" v-if="!isImageType(fileDto!.fileType!)">Preview</ElButton>
-      <ElButton type="warning" @click="commit">Update</ElButton>
+      <ElButton type="warning" @click="update" :disabled="!canUpdateFile">Update</ElButton>
     </template>
   </ElDrawer>
 </template>
@@ -27,10 +44,12 @@ import { isImageType } from '@aqlife/domain'
 import TagSelect from './TagSelect.vue'
 import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
 import { useFileStore } from '@/stores/useFileStore'
-import { computed, ref } from 'vue'
+import { computed, ref, watch, type Component, type Ref } from 'vue'
 import { FileApi, type FileDto, type TagDto } from '@/api'
 import ImageUpload from '@/components/ImageUpload.vue'
 import {
+ElSegmented,
+ElDatePicker,
   ElDescriptions,
   ElImage,
   ElButton,
@@ -40,17 +59,43 @@ import {
 import { OperationalState, useActionStore } from '@/stores/useActionStore.ts'
 import { apiConfiguration } from '@/services/api.ts'
 import { useRouter } from 'vue-router'
+import { FileTagUpdateWorkflow } from '@/workflow/fileflow/FileTagUpdateWorkFlow.ts'
+import { FileContentUpdateWrkflow } from '@/workflow/fileflow/FileContentUpdateWorkflow.ts'
+import { Brush, Promotion, Timer } from '@element-plus/icons-vue'
+
+enum publishStatus {Draft,Scheduled,Published}
+const demo:{label:string,value:publishStatus,icon:Component}[] = [
+  {label:'草稿',icon:Brush,value:publishStatus.Draft},
+  {label:'预约',icon:Timer,value:publishStatus.Scheduled},
+  {label:'发布',icon:Promotion,value:publishStatus.Published}
+]
+const test = ref(publishStatus.Scheduled)
+
 const actionStore = useActionStore()
 const router = useRouter()
 
 const fileDto = defineModel<FileDto>()// 主要是为了获取文件类型来决定组件渲染方式
-const props = defineProps<{
-  initialTags?: TagDto[]
-}>()
 
 // 防止tag修改渗透,仅允许在update事件成功以后,由update回调至fileDto
-const PrivateFileQueue = ref<File|null>(null)// 暂时忽略
+const PrivateFileQueue = ref<File | null>(null)// 暂时忽略
+const fileValidationMessage = computed(() => {
+  const file = PrivateFileQueue.value
+  const original = fileDto.value
 
+  if (!file || !original) {
+    return ''
+  }
+
+  if (file.name !== original.fileName) {
+    return `只能上传与原文件同名的文件：${original.fileName};你上传的文件叫做${PrivateFileQueue.value?.name}`
+  }
+
+  return ''
+})
+const canUpdateFile = computed(() => {
+  return PrivateFileQueue.value !== null &&
+    fileValidationMessage.value === ''
+})
 
 const drawerStatus = computed({
   get: () => actionStore.OState === OperationalState.Update,
@@ -61,69 +106,48 @@ const drawerStatus = computed({
     }
   }
 })
-const selectedTags = ref<TagDto[]>(props.initialTags ?? [])
+const selectedTags: Ref<TagDto[]> = ref<TagDto[]>([])
+watch(
+  () => fileDto.value?.uid,
+  () => {
+    selectedTags.value = fileDto.value?.tags ?? []
+  },
+  { immediate: true }
+)
 
-
-async function commit() {
-  if (!fileDto.value?.uid) {
-    ElMessage.error('无法定位文件 UID')
-    return
-  }
-
+async function update() {
+  if(!PrivateFileQueue.value || !fileDto.value)return
   try {
     const fileApi = new FileApi(apiConfiguration)
+    const updateFileTag = new FileTagUpdateWorkflow(fileDto.value,fileApi,useFileStore())
+    const updateFile = new FileContentUpdateWrkflow(fileDto.value,PrivateFileQueue.value,fileApi,useFileStore())
+    updateFile.run()
+    updateFileTag.run()
 
-    // A. 提取标签 UID 集合（只要是文件就可以更新） [cite: 16]
-    const tagUids: string[] = selectedTags.value
-      .map((tag) => tag.uid)
-      .filter((uid): uid is string => !!uid)
-
-    // B. 执行标签 Patch 关联
-    const updatedGuid = await fileApi.apiFileTagPatch({
-      updateFileTagCommand: { uid: fileDto.value.uid, tags: tagUids },
-    })
-
-    // C. 检查是否有新文件内容需要覆盖（解绑类型限制，有文件即更新）
-    // if (fileList.length > 0) {
-    //   const blobs = fileList
-    //     .map((f) => f.raw)
-    //     .filter((raw): raw is  => !!raw)
-
-    //   if (blobs.length > 0) {
-    //     // 执行文件流上传/更新契约 [cite: 11]
-    //     await fileApi.apiFileUploadPost({ file: blobs })
-    //   }
-    // }
-
-    // D. 状态同步：获取最新 DTO 并刷新全局 Store [cite: 9]
-    const latestDtos = await fileApi.apiFileGet({ uID: updatedGuid })
-    if (latestDtos && latestDtos.length > 0) {
-      const updatedDto = latestDtos[0]
-
-      // 找到 Store 中的旧对象并替换，确保表格即时刷新 [cite: 11]
-      const store = useFileStore()
-      const index = store.fileList.findIndex((f:FileDto) => f.uid === updatedGuid)
-      if (index !== -1) {
-        store.fileList[index] = updatedDto
-      }
-
-      // 同步给本地 Model 并关闭弹窗
-      fileDto.value = updatedDto
-      ElMessage.success('文件 Tag 已同步更新')
-    }
   } catch (error) {
-    // 捕获并处理业务异常，如数据库连接异常或请求事务失败 [cite: 8, 10]
     ElMessage.error('更新失败，请检查文件状态或网络连接')
     console.error('Commit Error:', error)
   }
 }
 
-
-function preview(){
+function preview() {
   actionStore.OState = OperationalState.View
   actionStore.cacheViewGuid = fileDto.value?.uid ?? ''
   router.push('/blog/view')
 }
+
+watch(
+  PrivateFileQueue,
+  (file) => {
+    if (!file || !fileDto.value) return
+
+    if (file.name !== fileDto.value.fileName) {
+      ElMessage.warning(
+        `文件名不匹配，只允许上传：${fileDto.value.fileName}`
+      )
+    }
+  }
+)
 </script>
 
 <style lang="css" scoped>
@@ -141,5 +165,9 @@ function preview(){
   width: clac(100% - 20px);
   overflow: hidden;
   padding: 20px;
+}
+
+.upload-tip-error {
+  color: var(--el-color-danger);
 }
 </style>

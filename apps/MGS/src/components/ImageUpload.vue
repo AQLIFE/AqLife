@@ -1,6 +1,6 @@
 <template>
   <ElUpload ref="uploadRef" @exceed="handleExceed" @change="handleChange" v-model:file-list="PrivateFileQueue"
-  action="#" :limit="1" :disabled="disabled" :show-file-list="false" :auto-upload="false" :accept="props.accept">
+  action="#" :limit="1" :disabled="disabled" :show-file-list="false" :auto-upload="false" :accept="props.accept" title="点击图标上传">
     <ElImage :src="src??''" :style="{ width: iconSize, height:iconSize }">
       <template #error>
         <ElIcon :style="{ fontSize: props.iconSize }">
@@ -11,7 +11,7 @@
       </template>
     </ElImage>
     <template #tip>
-      <slot name="tip">仅允许{{ accept }}类型文件上传</slot>
+      <slot name="tip"></slot>
     </template>
   </ElUpload>
 </template>
@@ -59,8 +59,9 @@ function handleChange(uploadFile: UploadFile):void {
   // if(props.src!='')
   //   URL.revokeObjectURL(props.src as string)
 
+  console.log("old=>"+modelValue.value?.name,'\t',"new=>"+uploadFile.name)
   modelValue.value = uploadFile.raw
   emit('change', uploadFile)
-  ElMessage.info(`Selected file: ${uploadFile.name}`)
+  ElMessage.success(`Selected file: ${uploadFile.name}`)
 }
 </script>
