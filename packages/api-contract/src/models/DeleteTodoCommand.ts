@@ -21,6 +21,8 @@ import { mapValues } from '../runtime';
 export interface DeleteTodoCommand {
     /**
      * 
+     * @type {string}
+     * @memberof DeleteTodoCommand
      */
     uid?: string;
 }

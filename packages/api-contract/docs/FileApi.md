@@ -4,16 +4,83 @@ All URIs are relative to *http://localhost*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**apiFileCancelSchedulePatch**](FileApi.md#apifilecancelschedulepatch) | **PATCH** /api/File/CancelSchedule |  |
 | [**apiFileDelete**](FileApi.md#apifiledelete) | **DELETE** /api/File |  |
 | [**apiFileDownloadGet**](FileApi.md#apifiledownloadget) | **GET** /api/File/download |  |
 | [**apiFileGet**](FileApi.md#apifileget) | **GET** /api/File |  |
 | [**apiFilePatch**](FileApi.md#apifilepatch) | **PATCH** /api/File |  |
 | [**apiFilePreviewGet**](FileApi.md#apifilepreviewget) | **GET** /api/File/preview |  |
+| [**apiFilePublishPatch**](FileApi.md#apifilepublishpatch) | **PATCH** /api/File/Publish |  |
 | [**apiFilePublishPost**](FileApi.md#apifilepublishpost) | **POST** /api/File/Publish |  |
-| [**apiFilePublishScheduledPost**](FileApi.md#apifilepublishscheduledpost) | **POST** /api/File/PublishScheduled |  |
+| [**apiFileSchedulePatch**](FileApi.md#apifileschedulepatch) | **PATCH** /api/File/schedule |  |
 | [**apiFileTagPatch**](FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag |  |
 | [**apiFileUploadPost**](FileApi.md#apifileuploadpost) | **POST** /api/File/Upload |  |
 
+
+
+## apiFileCancelSchedulePatch
+
+> apiFileCancelSchedulePatch(cancelScheduledBlogPostCommand)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FileApi,
+} from '@aqlife/api-contract';
+import type { ApiFileCancelSchedulePatchRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new FileApi();
+
+  const body = {
+    // CancelScheduledBlogPostCommand (optional)
+    cancelScheduledBlogPostCommand: ...,
+  } satisfies ApiFileCancelSchedulePatchRequest;
+
+  try {
+    const data = await api.apiFileCancelSchedulePatch(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **cancelScheduledBlogPostCommand** | [CancelScheduledBlogPostCommand](CancelScheduledBlogPostCommand.md) |  | [Optional] |
+
+### Return type
+
+`void` (Empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## apiFileDelete
@@ -347,6 +414,74 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
+## apiFilePublishPatch
+
+> Array&lt;string&gt; apiFilePublishPatch(scheduledTime, file)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FileApi,
+} from '@aqlife/api-contract';
+import type { ApiFilePublishPatchRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new FileApi();
+
+  const body = {
+    // string (optional)
+    scheduledTime: 2013-10-20T19:20:30+01:00,
+    // Blob (optional)
+    file: BINARY_DATA_HERE,
+  } satisfies ApiFilePublishPatchRequest;
+
+  try {
+    const data = await api.apiFilePublishPatch(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **scheduledTime** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **file** | `Blob` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+**Array<string>**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `multipart/form-data`
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
 ## apiFilePublishPost
 
 > string apiFilePublishPost(publishFileCommand)
@@ -412,9 +547,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## apiFilePublishScheduledPost
+## apiFileSchedulePatch
 
-> Array&lt;string&gt; apiFilePublishScheduledPost(scheduledTime, file)
+> string apiFileSchedulePatch(scheduledBlogCommand)
 
 
 
@@ -425,21 +560,19 @@ import {
   Configuration,
   FileApi,
 } from '@aqlife/api-contract';
-import type { ApiFilePublishScheduledPostRequest } from '@aqlife/api-contract';
+import type { ApiFileSchedulePatchRequest } from '@aqlife/api-contract';
 
 async function example() {
   console.log("🚀 Testing @aqlife/api-contract SDK...");
   const api = new FileApi();
 
   const body = {
-    // string (optional)
-    scheduledTime: 2013-10-20T19:20:30+01:00,
-    // Blob (optional)
-    file: BINARY_DATA_HERE,
-  } satisfies ApiFilePublishScheduledPostRequest;
+    // ScheduledBlogCommand (optional)
+    scheduledBlogCommand: ...,
+  } satisfies ApiFileSchedulePatchRequest;
 
   try {
-    const data = await api.apiFilePublishScheduledPost(body);
+    const data = await api.apiFileSchedulePatch(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -455,12 +588,11 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **scheduledTime** | `string` |  | [Optional] [Defaults to `undefined`] |
-| **file** | `Blob` |  | [Optional] [Defaults to `undefined`] |
+| **scheduledBlogCommand** | [ScheduledBlogCommand](ScheduledBlogCommand.md) |  | [Optional] |
 
 ### Return type
 
-**Array<string>**
+**string**
 
 ### Authorization
 
@@ -468,7 +600,7 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: `multipart/form-data`
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 
@@ -566,7 +698,7 @@ async function example() {
 
   const body = {
     // Array<Blob> (optional)
-    file: [new Blob(['example file content'], { type: 'application/octet-stream' })],
+    file: /path/to/file.txt,
   } satisfies ApiFileUploadPostRequest;
 
   try {

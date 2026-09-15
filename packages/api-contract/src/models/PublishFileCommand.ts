@@ -21,6 +21,8 @@ import { mapValues } from '../runtime';
 export interface PublishFileCommand {
     /**
      * 
+     * @type {string}
+     * @memberof PublishFileCommand
      */
     uid?: string;
 }

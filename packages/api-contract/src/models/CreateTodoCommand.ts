@@ -21,14 +21,20 @@ import { mapValues } from '../runtime';
 export interface CreateTodoCommand {
     /**
      * 
+     * @type {string}
+     * @memberof CreateTodoCommand
      */
     desc?: string | null;
     /**
      * 
+     * @type {number}
+     * @memberof CreateTodoCommand
      */
     priority?: number;
     /**
      * 
+     * @type {string}
+     * @memberof CreateTodoCommand
      */
     ftid?: string | null;
 }
@@ -50,9 +56,9 @@ export function CreateTodoCommandFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'desc': json['desc'] === undefined ? undefined : json['desc'] === null ? null : json['desc'],
+        'desc': json['desc'] == null ? undefined : json['desc'],
         'priority': json['priority'] == null ? undefined : json['priority'],
-        'ftid': json['ftid'] === undefined ? undefined : json['ftid'] === null ? null : json['ftid'],
+        'ftid': json['ftid'] == null ? undefined : json['ftid'],
     };
 }
 

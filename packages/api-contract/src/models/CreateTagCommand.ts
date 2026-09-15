@@ -21,14 +21,20 @@ import { mapValues } from '../runtime';
 export interface CreateTagCommand {
     /**
      * 
+     * @type {string}
+     * @memberof CreateTagCommand
      */
     name?: string | null;
     /**
      * 
+     * @type {string}
+     * @memberof CreateTagCommand
      */
     aliasName?: string | null;
     /**
      * 
+     * @type {boolean}
+     * @memberof CreateTagCommand
      */
     isCategory?: boolean;
 }
@@ -50,8 +56,8 @@ export function CreateTagCommandFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-        'name': json['name'] === undefined ? undefined : json['name'] === null ? null : json['name'],
-        'aliasName': json['aliasName'] === undefined ? undefined : json['aliasName'] === null ? null : json['aliasName'],
+        'name': json['name'] == null ? undefined : json['name'],
+        'aliasName': json['aliasName'] == null ? undefined : json['aliasName'],
         'isCategory': json['isCategory'] == null ? undefined : json['isCategory'],
     };
 }

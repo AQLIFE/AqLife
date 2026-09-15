@@ -29,18 +29,26 @@ import {
 export interface UpdateTodoCommand {
     /**
      * 
+     * @type {string}
+     * @memberof UpdateTodoCommand
      */
     uid?: string;
     /**
      * 
+     * @type {string}
+     * @memberof UpdateTodoCommand
      */
     desc?: string | null;
     /**
      * 
+     * @type {TodoStatus}
+     * @memberof UpdateTodoCommand
      */
     status?: TodoStatus;
     /**
      * 
+     * @type {number}
+     * @memberof UpdateTodoCommand
      */
     priority?: number;
 }
@@ -65,7 +73,7 @@ export function UpdateTodoCommandFromJSONTyped(json: any, ignoreDiscriminator: b
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'desc': json['desc'] === undefined ? undefined : json['desc'] === null ? null : json['desc'],
+        'desc': json['desc'] == null ? undefined : json['desc'],
         'status': json['status'] == null ? undefined : TodoStatusFromJSON(json['status']),
         'priority': json['priority'] == null ? undefined : json['priority'],
     };
