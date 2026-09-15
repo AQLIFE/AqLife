@@ -21,7 +21,7 @@ namespace AqLife.Domain.Entities
         public ulong FileSize { private set; get; } = 0u;
 
         [Column, Required(ErrorMessage = "文件哈希不能为空")]
-        public string FileHash { private set; get; }
+        public string FileHash { private set; get; } = string.Empty;
         [Column]
         public DateTimeOffset UploadTime { private set; get; } = DateTimeOffset.UtcNow;
         [Column]

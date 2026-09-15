@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Validators;
+﻿using AqLife.Application.Business.File.Search;
+using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Shared.Options;
 using Microsoft.Extensions.Options;
@@ -11,7 +12,7 @@ namespace AqLife.Application.Business.File.Validator;
 /// 不允许更新非 MD 文件
 /// </summary>
 /// <param name="options"></param>
-public class FileUploadValidtor(IOptions<FilePolicyOption> options) : AbstractValidator<UpdateFileCommand>
+public class FileUpdateValidtor(IOptions<FilePolicyOption> options) : AbstractValidator<UpdateFileCommand>
 {
     private protected override string ErrorMessage { init; get; } = "不允许更新非 MD 文件";
     private protected override async Task<bool> IsValidAsync(UpdateFileCommand command, CancellationToken ct)
@@ -23,6 +24,18 @@ public class FileUploadValidtor(IOptions<FilePolicyOption> options) : AbstractVa
             string ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!options.Value.AllowedDownload.Contains(ext)) return false;
         }
+        return true;
+    }
+}
+
+
+public class FileNameConsistencyValidtor(FileSearch search) : AbstractValidator<UpdateFileCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "更新文件名必须与原文件一致";
+    private protected override async Task<bool> IsValidAsync(UpdateFileCommand command, CancellationToken ct)
+    {
+        var fileCache = await search.SearchAsync(new FileQuery(command.UID),ct);
+        if(command.File.Name != fileCache.First().FileName) return false;
         return true;
     }
 }

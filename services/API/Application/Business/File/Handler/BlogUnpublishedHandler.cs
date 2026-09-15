@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace AqLife.Application.Business.File.Handler
 {
-    public class BlogUnpublishedHandler(BlogSearch search,FileMapper fileMapper,TimeProvider timeProvider) : IRequestHandler<BlogUnpublishQuery, IEnumerable<FileDto>>
+    public class BlogUnpublishedHandler(BlogSearch search,FileViewMapper fileMapper,TimeProvider timeProvider) : IRequestHandler<BlogUnpublishQuery, IEnumerable<FileDto>>
     {
         public async Task<IEnumerable<FileDto>> Handle(BlogUnpublishQuery query, CancellationToken ct)
         {

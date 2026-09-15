@@ -1,10 +1,17 @@
-﻿namespace AqLife.Shared.IView
+﻿using AqLife.Shared.Options;
+using System.Text.Json.Serialization;
+
+namespace AqLife.Shared.IView
 {
     public record FileDto
     (
         Guid UID,
         string FileName,
         IEnumerable<TagDto>? Tags,
+        [property:JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        FileStatus? PublishStatus,
+        [property:JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        DateTimeOffset? PublishAt,
         ulong FileSize = 0u,
         string FileHash = "",
         string UploadTime = "",

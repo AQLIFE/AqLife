@@ -7,7 +7,7 @@ using AqLife.Application.Business.File;
 
 namespace AqLife.Application.Business.File.Handler
 {
-    public class FileQueryHandler(FileSearch search, FileMapper mapper, IFileStorage fileStorage) : IRequestHandler<FileQuery, IEnumerable<FileDto>>
+    public class FileQueryHandler(FileSearch search, FileViewMapper mapper, IFileStorage fileStorage) : IRequestHandler<FileQuery, IEnumerable<FileDto>>
     {
         public async Task<IEnumerable<FileDto>> Handle(FileQuery query, CancellationToken ct)
         {

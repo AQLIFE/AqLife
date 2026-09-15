@@ -90,6 +90,7 @@ namespace AqLife.Application
             services.AddSingleton<AccountMapper>();
             services.AddSingleton<QueryMapper>();
             services.AddSingleton<CorpusMapper>();
+            services.AddSingleton<FileViewMapper>();
 
             services.AddScoped<IBlogPublishService, BlogPublishService>();
             services.AddScoped<BlogSearch>();
