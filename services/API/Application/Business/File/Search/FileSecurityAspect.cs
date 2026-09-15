@@ -12,14 +12,14 @@ namespace AqLife.Application.Business.File.Search
         {
             return mode switch
             {
-                FileAccessMode.Preview => await ApplyPreviewPolicy(queryable, isAuthenticated),
                 FileAccessMode.Standard => queryable.Where(e => options.Value.AllowedDownload.Contains(e.Extension) && e.PublishStatus == FileStatus.Published),
                 _ => queryable
             };
         }
 
 
-        // 内部实现预览逻辑（订阅检查等）[cite: 11]
+        // 内部实现预览逻辑（订阅检查等）
+        [Obsolete("功能逻辑取消,业务需求更替,后续不再使用")]
         private async Task<IQueryable<FileMetaEntity>> ApplyPreviewPolicy(IQueryable<FileMetaEntity> queryable, bool isAuthenticated)
         {
             if (isAuthenticated) return queryable;

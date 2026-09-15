@@ -6,12 +6,10 @@ using MediatR;
 
 namespace AqLife.Application.Business.File.Handler
 {
-    public class PreviewFileHandler(FileReader fileReader, PreviewContext previewContext) : IRequestHandler<PreviewFileQuery, FilePreviewModel>
+    public class PreviewFileHandler(FileReader fileReader) : IRequestHandler<PreviewFileQuery, FilePreviewModel>
     {
         public async Task<FilePreviewModel> Handle(PreviewFileQuery query, CancellationToken ct)
-        {
-            previewContext.IsPreview = true;
-            return await fileReader.ReadAsync(query.UID, ct);
-        }
+            => await fileReader.ReadAsync(query.UID, ct);
+
     }
 }

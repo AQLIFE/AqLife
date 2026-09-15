@@ -15,6 +15,7 @@ namespace AqLife.Application.Business.File.Search;
 public enum FileAccessMode
 {
     Standard, // 默认模式：应用 AllowedDownload 扩展名过滤 [cite: 34]
+    [Obsolete("被文件发布机制取代,里程碑式进展,后续不再使用单独的检索逻辑")]
     Preview,  // 预览模式：绕过扩展名检查，应用订阅/头像权限检查 [cite: 11]
     Internal  // 内部模式：全量数据，用于后台管理
 }
@@ -26,7 +27,6 @@ public readonly record struct FileSearchCriteria(
 ) : ISearchCriteria;
 
 public class FileSearch(
-    PreviewContext previewContext,
     QueryMapper queryMapper,
     FileSecurityAspect fileSecurity,
     IApplicationDbContext storage, IHttpContextAccessor httpContext,
@@ -39,8 +39,7 @@ public class FileSearch(
     protected override async Task<IQueryable<FileMetaEntity>> BuildBaseQueryAsync(IQueryable<FileMetaEntity> queryable, FileQuery query)
     {
         queryable = queryable.Include(e => e.FileTags).ThenInclude(x => x.Tag);
-        FileAccessMode mode = previewContext.IsPreview ? FileAccessMode.Preview : FileAccessMode.Standard;
-        if (IsValid) mode = FileAccessMode.Internal;
+        FileAccessMode mode = IsValid ? FileAccessMode.Internal : FileAccessMode.Standard;
         return await fileSecurity.ApplyAccessPolicy(queryable, mode, IsValid);
     }
 }

@@ -62,7 +62,7 @@ namespace AqLife.Application
             //services.AddScoped(typeof(ISearchStrategy<,>), typeof(FilteredSearchStrategyBase<,>));// 被继承
 
             services.AddScoped<FileSecurityAspect>();// FileSearch 依赖
-            services.AddScoped<PreviewContext>();
+            //services.AddScoped<PreviewContext>();
             services.AddScoped<UploadContext>();// UploadContext 提供给 FileService
             services.AddScoped<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>, FilteredFilesSearchStrategy>();// FileSearch 专属策略
             services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();// Tag的策略
