@@ -12,7 +12,7 @@ namespace AqLife.Application.Business.File.Search
         {
             return mode switch
             {
-                FileAccessMode.Standard => queryable.Where(e => options.Value.AllowedDownload.Contains(e.Extension) && e.PublishStatus == FileStatus.Published),
+                FileAccessMode.Standard => queryable.Where(e => e.PublishStatus == FileStatus.Published),
                 _ => queryable
             };
         }

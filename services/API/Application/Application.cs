@@ -57,16 +57,23 @@ namespace AqLife.Application
                 }
             }
 
-            // 3. 注册核心业务 Service [cite: 197, 198]
-            services.AddScoped(typeof(ISearchStrategy<,>), typeof(AllSearchStrategyBase<,>));// 被继承
-            //services.AddScoped(typeof(ISearchStrategy<,>), typeof(FilteredSearchStrategyBase<,>));// 被继承
 
             services.AddScoped<FileSecurityAspect>();// FileSearch 依赖
             //services.AddScoped<PreviewContext>();
             services.AddScoped<UploadContext>();// UploadContext 提供给 FileService
+            services.AddScoped<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>, AllFilesSearchStrategy>();// FileSearch 专属策略:All
+            services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, AllTagSearchStrategy>();// TagSearch 专属策略:All
+            services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, AllTodoSearchStrategy>();// TodoSearch 专属策略:All
+            services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, DefaultAccount>();// AccountSearch 专属策略:All
+            
+            services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, ValidAccount>();// AccountSearch 专属策略
             services.AddScoped<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>, FilteredFilesSearchStrategy>();// FileSearch 专属策略
-            services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();// Tag的策略
-            services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, FilterTodoSearchStrategy>();// Tag的策略
+            services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();  // Tag  的策略
+            services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, FilterTodoSearchStrategy>();// Todo 的策略
+
+
+            //services.AddScoped(typeof(ISearchStrategy<,>), typeof(AllSearchStrategyBase<,>));// 业务需要具体化
+            //services.AddScoped(typeof(ISearchStrategy<,>), typeof(FilteredSearchStrategyBase<,>));// 被继承
 
             // 注册所有 Query 业务类
             services.AddScoped<AccountSearch>();
