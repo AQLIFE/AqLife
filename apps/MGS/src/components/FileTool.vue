@@ -1,6 +1,10 @@
 <template>
   <ElDrawer v-model="drawerStatus" :title="fileDto?.fileName" with-header :show-close="false">
     <ElDescriptions border :column="1" label-width="120px">
+      <ElDescriptionsItem label="ID" align="center">
+        {{ fileDto?.uid }}
+      </ElDescriptionsItem>
+
       <ElDescriptionsItem label="预览" align="center">
         <ElImage v-if="isImageType(fileDto!.fileType!)" :src="useFileStore().previewUrl.get(fileDto!.uid!)"
           class="image" />
@@ -20,16 +24,22 @@
       <ElDescriptionsItem label="标签">
         <TagSelect v-model:tag-list="selectedTags" />
       </ElDescriptionsItem>
+
       <ElDescriptionsItem label="发布状态">
-        <ElSegmented v-model="test" :options="demo">
+        <ElSegmented v-model="fileDto!.publishStatus" :options="demo">
           <template #default="scope">
             <ElIcon><component :is="scope.item.icon"/></ElIcon>
             <div>{{ scope.item.label }}</div>
           </template>
         </ElSegmented>
       </ElDescriptionsItem>
-      <ElDescriptionsItem label="预定发布时间" v-if="test==publishStatus.Scheduled">
-        <ElDatePicker/>
+
+      <ElDescriptionsItem label="预定发布时间" v-if="fileDto?.publishStatus!=publishStatus.Draft">
+        <ElDatePicker :disabled="fileDto?.publishStatus==publishStatus.Published" v-model="fileDto!.publishAt"/>
+      </ElDescriptionsItem>
+
+      <ElDescriptionsItem label="文件类型">
+        {{ fileDto?.fileType }}
       </ElDescriptionsItem>
     </ElDescriptions>
     <template #footer>
@@ -69,7 +79,7 @@ const demo:{label:string,value:publishStatus,icon:Component}[] = [
   {label:'预约',icon:Timer,value:publishStatus.Scheduled},
   {label:'发布',icon:Promotion,value:publishStatus.Published}
 ]
-const test = ref(publishStatus.Scheduled)
+// const test = ref(publishStatus.Scheduled)
 
 const actionStore = useActionStore()
 const router = useRouter()

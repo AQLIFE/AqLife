@@ -63,78 +63,35 @@
       </ElCol>
     </ElRow>
     <ElTable :data="tableData" highlight-current-row @row-click="activeRow" style="height:100%;">
-      <ElTableColumn :prop="tableColumns[0]" :label="columnMap[tableColumns[0]]">
-        <template #default="scope">
-          <ElImage v-if="isImageType(scope.row.fileType)" class="image" :src="fileStore.previewUrl.get(scope.row.uid)">
-            <template #error>加载中...</template>
-          </ElImage>
-          <ElImage v-else class="image" style="font-size: 5vw;">
-            <template #error>
-              <ElIcon>
-                <component :is="mgsIconRegistry[markdown]" />
-              </ElIcon>
-            </template>
-          </ElImage>
-          <ElCol>{{ scope.row.uid }}</ElCol>
+      <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label" :width="column.width" :sortable="column.sortable">
+        <template #default="{row}">
+          <component v-if="column.renderer" :is="column.renderer" :row="row" :value="row[column.prop]"/>
+          <template v-else>{{ row[column.prop] }}</template>
         </template>
       </ElTableColumn>
-      <!-- <ElTableColumn :prop="tableColumns[0]" :label="columnMap[tableColumns[0]]" /> -->
-      <ElTableColumn :prop="tableColumns[1]" :label="columnMap[tableColumns[1]]" />
-      <ElTableColumn :prop="tableColumns[2]" :label="columnMap[tableColumns[2]]">
-        <template #default="scope">
-          <template v-if="scope.row.tags.length > 0 && scope.row.tags != undefined">
-            <ElTag v-for="(tag, tagKey) in scope.row.tags" :key="tagKey" class="gap">{{ tag.name }}</ElTag>
-          </template>
-          <ElTag v-else>
-            <ElIcon>
-              <Plus />
-            </ElIcon>
-          </ElTag>
-        </template>
-
-      </ElTableColumn>
-      <ElTableColumn :prop="tableColumns[3]" :label="columnMap[tableColumns[3]]" sortable>
-        <template #default="scope">
-          <ElText v-if="scope.row.fileSize >= 1024">{{ (scope.row.fileSize as number / 1024).toFixed(3) }} KB</ElText>
-          <ElText v-else-if="scope.row.fileSize < 1024">{{ scope.row.fileSize }} B</ElText>
-        </template>
-      </ElTableColumn>
-      <ElTableColumn :prop="tableColumns[4]" :label="columnMap[tableColumns[4]]" />
-      <ElTableColumn :prop="tableColumns[5]" :label="columnMap[tableColumns[5]]" sortable />
-      <ElTableColumn :prop="tableColumns[6]" :label="columnMap[tableColumns[6]]" :filters="extensionFilters"
-        :filter-method="handleFilter" />
-
       </ElTable>
 
-    <FileUpload v-model:file-list="UploadContext.fileList"
-      v-model:tags="UploadContext.tags" />
-    <FileTool  :initial-tags="activeDto.tags!"
-      v-model:model-value="activeDto" />
+    <FileUpload v-model:file-list="UploadContext.fileList" v-model:tags="UploadContext.tags" />
+    <FileTool  :initial-tags="activeDto.tags!" v-model:model-value="activeDto" />
     <!-- 防止tag修改渗透,仅允许在update事件成功以后,由update回调至fileDto -->
   </ElCol>
 </template>
 
 <script setup lang="ts">
-import { isImageType } from '@aqlife/domain'
-import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
 import {
   ElTable,
   ElSlider,
   ElDatePicker,
-  ElTag,
-  ElText,
   ElTableColumn,
-  ElImage,
   ElInput,
   ElSelect,
   ElOption,
   ElButton,
-  ElIcon,
   type UploadUserFile,
 } from 'element-plus'
 import { FileApi, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { onBeforeMount, ref, reactive, computed } from 'vue'
+import { onBeforeMount, ref, reactive, computed, type Component } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
 import { useActionStore, OperationalState } from '@/stores/useActionStore'
 import FileUpload from '@/components/FileUpload.vue'
@@ -142,15 +99,73 @@ import FileTool from '@/components/FileTool.vue'
 import { Plus,Upload } from '@element-plus/icons-vue'
 import { defaultFilePolicy } from '@aqlife/domain'
 import { useRouter } from 'vue-router'
+import FilePreviewCell from '@/components/FilePreviewCell.vue'
+import TagsCell from '@/components/TagsCell.vue'
+import FileSizeCell from './FileSizeCell.vue'
+import PublishStatusCell from './PublishStatusCell.vue'
 
-// 子组件参数
-const searchField = ref<string | null>(null)
+// 组件核心
+type FileTableColumn = {
+  prop: keyof FileDto
+  label: string,
+  renderer?:Component,
+  sortable?: boolean,
+  width?:number|string,
+  fixed?:'left'|'right'
+}
+
+const tableColumns: FileTableColumn[] = [
+  {
+    prop: 'uid',
+    label: 'ID & 预览',
+    renderer:FilePreviewCell,
+    width:'130',
+    fixed:'left'
+  },
+  {
+    prop: 'fileName',
+    label: '文件名',
+    width:200
+  },
+  {
+    prop: 'tags',
+    label: '标签',
+    renderer:TagsCell,
+    width:400
+  },
+  {
+    prop: 'publishStatus',
+    label: '发布状态',
+    renderer:PublishStatusCell,
+    width:80
+  },
+  {
+    prop: 'fileSize',
+    label: '文件大小',
+    renderer: FileSizeCell,
+    sortable: true,
+    width:120
+  },
+  {
+    prop: 'uploadTime',
+    label: '上传时间',
+    width:120,
+    sortable:true
+  },
+  {
+    prop: 'fileHash',
+    label: '文件哈希',
+  },
+]
+
+// 检索参数
+const searchField = ref<keyof FileDto | null>(null)
 const searchText = ref<string>('')
 const searchTerm = ref<string>('')
 const selectedTags = ref<TagDto[]>([])
 const sizeRange = ref<number[]>([0, 100])
 const dateRange = ref<string[] | null>(null)
-const markdown = MgsIconName.Markdown
+
 const UploadContext = reactive<{ fileList: UploadUserFile[]; tags: TagDto[] }>({
   fileList: [],
   tags: [],
@@ -176,17 +191,12 @@ const activeRow = (row: FileDto) => {
   // drawerStatus.value = !drawerStatus.value
 }
 
-const tableColumns = computed(() => {
-  if (!fileStore.fileList || fileStore.fileList.length === 0) {
-    return []
-  }
-  return Object.keys(fileStore.fileList[0])
-})
+
 
 const searchFieldOptions = computed(() =>
-  tableColumns.value.slice(0, 2).map(column => ({
-    label: columnMap[column] ?? column,
-    value: column,
+  tableColumns.slice(0, 2).map(column => ({
+    label: column.label,
+    value: column.prop,
   })),
 )
 
@@ -265,16 +275,6 @@ const filteredFileList = computed(() =>
 
 const tableData = computed(() => (filterDisabled.value ? [] : filteredFileList.value))
 
-// 3. 映射表：把英文 key 转换成中文表头（非必须，如果不配置则默认显示 key 名字）
-const columnMap: Record<string, string> = {
-  uid: 'ID & 预览',
-  fileName: '文件名',
-  fileSize: '文件大小',
-  fileHash: '文件哈希',
-  uploadTime: '上传时间',
-  fileType: '文件类型',
-  tags: '标签',
-}
 
 onBeforeMount(async () => {
   await fileStore.fetchAllFiles(fileApi)
@@ -299,10 +299,6 @@ function handleAddFile(){
   width: 5vw;
   height: 5vw;
   /* font-size: 5vw; */
-}
-
-.gap {
-  margin-right: 10px;
 }
 
 .dataview {

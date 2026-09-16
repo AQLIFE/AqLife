@@ -2,6 +2,7 @@
 using AqLife.Application.Search;
 using AqLife.Domain.Contracts;
 using AqLife.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace AqLife.Application.Business.File.Search
 {
-    public sealed class AllFilesSearchStrategy
+    public sealed class AllFilesSearchStrategy(IHttpContextAccessor httpContext)
     : AllSearchStrategyBase<FileMetaEntity, EntitySearchCriteria>
     {
         public override async Task<IEnumerable<FileMetaEntity>> ExecuteAsync(
@@ -19,6 +20,7 @@ namespace AqLife.Application.Business.File.Search
             EntitySearchCriteria criteria,
             CancellationToken ct = default)
         {
+            if(httpContext.HttpContext?.User.Identity?.IsAuthenticated!=true)
             queryable = queryable.Where(e =>e.Extension.Contains(".md"));
 
             return await queryable.ToListAsync(ct);
