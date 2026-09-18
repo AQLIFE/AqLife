@@ -21,6 +21,8 @@ import { mapValues } from '../runtime';
 export interface DeleteTagCommand {
     /**
      * 
+     * @type {string}
+     * @memberof DeleteTagCommand
      */
     uid?: string;
 }

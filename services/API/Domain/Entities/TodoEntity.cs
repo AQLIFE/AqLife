@@ -22,11 +22,11 @@ namespace AqLife.Domain.Entities
         public TodoStatus Status { get; private set; } = TodoStatus.Initial;
 
         [Column]
-        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
         // 任务完成时间，默认为空，只有当任务状态为Completed时才会有值
         [Column]
-        public DateTime? CompletedAt { get; private set; }
+        public DateTimeOffset? CompletedAt { get; private set; }
 
         // 任务优先级,数值越大优先级越高，
         // 预定于规则: 0 : 完成 ,1 - 正无穷 : 合法语义区间 , -1 : 该待办已废弃
@@ -71,7 +71,7 @@ namespace AqLife.Domain.Entities
         public void Completed()
         {
 
-            CompletedAt = DateTime.UtcNow;
+            CompletedAt = DateTimeOffset.UtcNow;
             Priority = 0;
         }
 

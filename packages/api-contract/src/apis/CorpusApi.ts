@@ -30,27 +30,15 @@ import {
 } from '../models/DeleteCorepusCommand';
 
 export interface ApiCorpusDeleteRequest {
-    /**
-     * 
-     */
     deleteCorepusCommand?: DeleteCorepusCommand;
 }
 
 export interface ApiCorpusPostRequest {
-    /**
-     * 
-     */
     createCorpusCommand?: CreateCorpusCommand;
 }
 
 export interface ApiCorpusSearchGetRequest {
-    /**
-     * 
-     */
     uID?: string;
-    /**
-     * 
-     */
     content?: string;
 }
 

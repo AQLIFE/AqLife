@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { FileApi, FileDto } from '@/api'
 import { isImageType } from '@aqlife/domain'
 
+export type FileStore = ReturnType<typeof useFileStore>
 export const useFileStore = defineStore('file', () => {
   const fileList = ref<FileDto[]>([])
   const previewUrl = reactive<Map<String,string>>(new Map<string, string>())

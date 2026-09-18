@@ -9,6 +9,8 @@ Name | Type
 `uid` | string
 `fileName` | string
 `tags` | [Array&lt;TagDto&gt;](TagDto.md)
+`publishStatus` | [FileStatus](FileStatus.md)
+`publishAt` | string
 `fileSize` | number
 `fileHash` | string
 `uploadTime` | string
@@ -25,6 +27,8 @@ const example = {
   "uid": null,
   "fileName": null,
   "tags": null,
+  "publishStatus": null,
+  "publishAt": null,
   "fileSize": null,
   "fileHash": null,
   "uploadTime": null,

@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { FileStatus } from './FileStatus';
+import {
+    FileStatusFromJSON,
+    FileStatusFromJSONTyped,
+    FileStatusToJSON,
+    FileStatusToJSONTyped,
+} from './FileStatus';
 import type { TagDto } from './TagDto';
 import {
     TagDtoFromJSON,
@@ -29,37 +36,67 @@ import {
 export interface FileDto {
     /**
      * 
+     * @type {string}
+     * @memberof FileDto
      */
     uid?: string;
     /**
      * 
+     * @type {string}
+     * @memberof FileDto
      */
     fileName?: string | null;
     /**
      * 
+     * @type {Array<TagDto>}
+     * @memberof FileDto
      */
     tags?: Array<TagDto> | null;
     /**
      * 
+     * @type {FileStatus}
+     * @memberof FileDto
+     */
+    publishStatus?: FileStatus;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileDto
+     */
+    publishAt?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileDto
      */
     fileSize?: number;
     /**
      * 
+     * @type {string}
+     * @memberof FileDto
      */
     fileHash?: string | null;
     /**
      * 
+     * @type {string}
+     * @memberof FileDto
      */
     uploadTime?: string | null;
     /**
      * 
+     * @type {string}
+     * @memberof FileDto
      */
     fileType?: string | null;
     /**
      * 
+     * @type {string}
+     * @memberof FileDto
      */
     fileIntroduction?: string | null;
 }
+
+
 
 /**
  * Check if a given object implements the FileDto interface.
@@ -79,13 +116,15 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'fileName': json['fileName'] === undefined ? undefined : json['fileName'] === null ? null : json['fileName'],
-        'tags': json['tags'] === undefined ? undefined : json['tags'] === null ? null : ((json['tags'] as Array<any>).map(TagDtoFromJSON)),
+        'fileName': json['fileName'] == null ? undefined : json['fileName'],
+        'tags': json['tags'] == null ? undefined : ((json['tags'] as Array<any>).map(TagDtoFromJSON)),
+        'publishStatus': json['publishStatus'] == null ? undefined : FileStatusFromJSON(json['publishStatus']),
+        'publishAt': json['publishAt'] == null ? undefined : json['publishAt'],
         'fileSize': json['fileSize'] == null ? undefined : json['fileSize'],
-        'fileHash': json['fileHash'] === undefined ? undefined : json['fileHash'] === null ? null : json['fileHash'],
-        'uploadTime': json['uploadTime'] === undefined ? undefined : json['uploadTime'] === null ? null : json['uploadTime'],
-        'fileType': json['fileType'] === undefined ? undefined : json['fileType'] === null ? null : json['fileType'],
-        'fileIntroduction': json['fileIntroduction'] === undefined ? undefined : json['fileIntroduction'] === null ? null : json['fileIntroduction'],
+        'fileHash': json['fileHash'] == null ? undefined : json['fileHash'],
+        'uploadTime': json['uploadTime'] == null ? undefined : json['uploadTime'],
+        'fileType': json['fileType'] == null ? undefined : json['fileType'],
+        'fileIntroduction': json['fileIntroduction'] == null ? undefined : json['fileIntroduction'],
     };
 }
 
@@ -103,6 +142,8 @@ export function FileDtoToJSONTyped(value?: FileDto | null, ignoreDiscriminator: 
         'uid': value['uid'],
         'fileName': value['fileName'],
         'tags': value['tags'] == null ? undefined : ((value['tags'] as Array<any>).map(TagDtoToJSON)),
+        'publishStatus': FileStatusToJSON(value['publishStatus']),
+        'publishAt': value['publishAt'],
         'fileSize': value['fileSize'],
         'fileHash': value['fileHash'],
         'uploadTime': value['uploadTime'],

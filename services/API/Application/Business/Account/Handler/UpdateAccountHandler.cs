@@ -14,7 +14,7 @@ namespace AqLife.Application.Business.Account.Handler
         public async Task<string> Handle(UpdateAccountProfileCommand command, CancellationToken ct)
         {
             AccountEntity account = await storage.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
-            account.UpdateProfile(command.Name, command.Desc);
+            account.UpdateProfile(command.Name, command.Desc??string.Empty);
             return account.LoginName;
         }
     }

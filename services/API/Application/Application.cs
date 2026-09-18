@@ -1,26 +1,27 @@
 ﻿using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Behaviors;
+using AqLife.Application.Business;
+using AqLife.Application.Business.Account;
 using AqLife.Application.Business.Account.Search;
+using AqLife.Application.Business.Corpus;
 using AqLife.Application.Business.Corpus.Search;
+using AqLife.Application.Business.File;
 using AqLife.Application.Business.File.Search;
 using AqLife.Application.Business.File.Service;
 using AqLife.Application.Business.File.Validator;
+using AqLife.Application.Business.Tag;
 using AqLife.Application.Business.Tag.Search;
+using AqLife.Application.Business.Todo;
 using AqLife.Application.Business.Todo.Search;
+using AqLife.Application.Mappers;
 using AqLife.Application.Search;
+using AqLife.Application.Services;
 using AqLife.Application.Validators;
 using AqLife.Domain.Contracts;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Tools;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using AqLife.Application.Business;
-using AqLife.Application.Business.Tag;
-using AqLife.Application.Business.File;
-using AqLife.Application.Business.Account;
-using AqLife.Application.Mappers;
-using AqLife.Application.Business.Corpus;
-using AqLife.Application.Business.Todo;
 
 namespace AqLife.Application
 {
@@ -56,16 +57,23 @@ namespace AqLife.Application
                 }
             }
 
-            // 3. 注册核心业务 Service [cite: 197, 198]
-            services.AddScoped(typeof(ISearchStrategy<,>), typeof(AllSearchStrategyBase<,>));// 被继承
-            //services.AddScoped(typeof(ISearchStrategy<,>), typeof(FilteredSearchStrategyBase<,>));// 被继承
 
             services.AddScoped<FileSecurityAspect>();// FileSearch 依赖
-            services.AddScoped<PreviewContext>();
+            //services.AddScoped<PreviewContext>();
             services.AddScoped<UploadContext>();// UploadContext 提供给 FileService
+            services.AddScoped<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>, AllFilesSearchStrategy>();// FileSearch 专属策略:All
+            services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, AllTagSearchStrategy>();// TagSearch 专属策略:All
+            services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, AllTodoSearchStrategy>();// TodoSearch 专属策略:All
+            services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, DefaultAccount>();// AccountSearch 专属策略:All
+            
+            services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, ValidAccount>();// AccountSearch 专属策略
             services.AddScoped<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>, FilteredFilesSearchStrategy>();// FileSearch 专属策略
-            services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();// Tag的策略
-            services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, FilterTodoSearchStrategy>();// Tag的策略
+            services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();  // Tag  的策略
+            services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, FilterTodoSearchStrategy>();// Todo 的策略
+
+
+            //services.AddScoped(typeof(ISearchStrategy<,>), typeof(AllSearchStrategyBase<,>));// 业务需要具体化
+            //services.AddScoped(typeof(ISearchStrategy<,>), typeof(FilteredSearchStrategyBase<,>));// 被继承
 
             // 注册所有 Query 业务类
             services.AddScoped<AccountSearch>();
@@ -89,6 +97,11 @@ namespace AqLife.Application
             services.AddSingleton<AccountMapper>();
             services.AddSingleton<QueryMapper>();
             services.AddSingleton<CorpusMapper>();
+            services.AddSingleton<FileViewMapper>();
+
+            services.AddScoped<IBlogPublishService, BlogPublishService>();
+            services.AddScoped<BlogSearch>();
+            services.AddHostedService<ScheduledPublishWorker>();// 注册后台任务
 
 
             return services;

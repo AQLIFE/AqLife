@@ -21,18 +21,26 @@ import { mapValues } from '../runtime';
 export interface UpdateTagCommand {
     /**
      * 
+     * @type {string}
+     * @memberof UpdateTagCommand
      */
     uid?: string;
     /**
      * 
+     * @type {string}
+     * @memberof UpdateTagCommand
      */
     tagName?: string | null;
     /**
      * 
+     * @type {string}
+     * @memberof UpdateTagCommand
      */
     aliasName?: string | null;
     /**
      * 
+     * @type {boolean}
+     * @memberof UpdateTagCommand
      */
     isCategory?: boolean;
 }
@@ -55,8 +63,8 @@ export function UpdateTagCommandFromJSONTyped(json: any, ignoreDiscriminator: bo
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'tagName': json['tagName'] === undefined ? undefined : json['tagName'] === null ? null : json['tagName'],
-        'aliasName': json['aliasName'] === undefined ? undefined : json['aliasName'] === null ? null : json['aliasName'],
+        'tagName': json['tagName'] == null ? undefined : json['tagName'],
+        'aliasName': json['aliasName'] == null ? undefined : json['aliasName'],
         'isCategory': json['isCategory'] == null ? undefined : json['isCategory'],
     };
 }

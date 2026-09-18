@@ -35,38 +35,20 @@ import {
 } from '../models/UpdateTodoCommand';
 
 export interface ApiTodoDeleteRequest {
-    /**
-     * 
-     */
     deleteTodoCommand?: DeleteTodoCommand;
 }
 
 export interface ApiTodoPatchRequest {
-    /**
-     * 
-     */
     updateTodoCommand?: UpdateTodoCommand;
 }
 
 export interface ApiTodoPostRequest {
-    /**
-     * 
-     */
     createTodoCommand?: CreateTodoCommand;
 }
 
 export interface ApiTodoSearchGetRequest {
-    /**
-     * 
-     */
     uID?: string;
-    /**
-     * 
-     */
     desc?: string;
-    /**
-     * 
-     */
     isTree?: boolean;
 }
 

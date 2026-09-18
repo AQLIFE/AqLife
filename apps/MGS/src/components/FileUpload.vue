@@ -42,29 +42,24 @@ import { isImageType } from '@aqlife/domain'
 import { useActionStore } from '@/stores/useActionStore.ts'
 import TagSelect from './TagSelect.vue'
 import { MgsIconName,mgsIconRegistry } from '@aqlife/icons'
-import { computed, onBeforeMount, reactive, ref, type Ref } from 'vue'
-import { FileApi, TagApi, type FileDto, type TagDto } from '@/api'
-import { UploadFilled, Files, Plus, Delete } from '@element-plus/icons-vue'
+import { computed } from 'vue'
+import { FileApi, type FileDto, type TagDto } from '@/api'
+import { UploadFilled, Delete } from '@element-plus/icons-vue'
 
 import {
   ElDescriptions,
   ElImage,
-  ElOption,
   ElButton,
-  ElInput,
   ElIcon,
-  ElSelect,
-  ElOptionGroup,
   ElDescriptionsItem,
   type UploadUserFile,
-  type UploadFile,
   ElMessage,
   ElLoading,
   type UploadRawFile,
 } from 'element-plus'
 import { defaultFilePolicy } from '@aqlife/domain'
 import { apiConfiguration } from '@/services/api'
-import { useTagStore } from '@/stores/uuseTagStore'
+// import { useTagStore } from '@/stores/uuseTagStore'
 import { OperationalState } from '@/stores/useActionStore.ts'
 import { useFileStore } from '@/stores/useFileStore.ts'
 
@@ -96,10 +91,6 @@ const selectDisabled = computed(() => fileList.value.length <= 0)
 function remove(index:number){
   fileList.value.splice(index,1)
   ElMessage.success('移除文件成功')
-}
-
-function close(){
-  actionStore.OState = OperationalState.None
 }
 
 async function commit() {

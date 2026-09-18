@@ -13,6 +13,6 @@ namespace AqLife.Application.Business.Corpus
 
         public CorpusEntity ToEntity(CreateCorpusCommand command) => new(command.Content);
 
-        public string Convert(DateTime dateTime) => dateTime.ToString();
+        public string Convert(DateTimeOffset dateTime) => dateTime.ToString();
     }
 }

@@ -17,6 +17,5 @@ namespace AqLife.Application.Search
             TSearchCriteria c,
             CancellationToken ct = default)
         => await queryable.ToListAsync(ct);
-
     }
 }

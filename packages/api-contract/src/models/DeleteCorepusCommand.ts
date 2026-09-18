@@ -21,6 +21,8 @@ import { mapValues } from '../runtime';
 export interface DeleteCorepusCommand {
     /**
      * 
+     * @type {string}
+     * @memberof DeleteCorepusCommand
      */
     uid?: string;
 }

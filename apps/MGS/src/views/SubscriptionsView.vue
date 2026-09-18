@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ElRow, ElCol, ElMessage } from 'element-plus'
 import { useAccountStore } from '@/stores/useAccountStore'
-import { computed, onBeforeMount, ref, watch, type Ref } from 'vue'
+import { computed,ref } from 'vue'
 import { AccountApi, FileApi, type SubscriptionDto } from '@/api'
 import SubscriptionAddCard from '@/components/SubscriptionAddCard.vue'
 import ScriptionCard from '@/components/ScriptionViewCard.vue'

@@ -1,6 +1,8 @@
 # =============================================================================
-# OS / Editor
+# AqLife Monorepo — 单一 .gitignore（全仓库生效）
 # =============================================================================
+
+# --- OS ---
 .DS_Store
 Thumbs.db
 Desktop.ini
@@ -29,23 +31,14 @@ $RECYCLE.BIN/
 *.csproj.lscache
 *.sln.lscache
 
-.vscode/*
-!.vscode/extensions.json
-.idea/
-.vs/
-
-# =============================================================================
-# .NET
-# =============================================================================
+# --- .NET / API ---
 [Bb]in/
 [Oo]bj/
 [Dd]ebug/
 [Rr]elease/
-*.user
-*.rsuser
+artifacts/
 project.lock.json
 project.fragment.lock.json
-artifacts/
 *.nuget.props
 *.nuget.targets
 *.nupkg
@@ -83,9 +76,7 @@ lerna-debug.log*
 /test-results/
 **/TestResults/
 
-# =============================================================================
-# Logs & runtime output
-# =============================================================================
+# --- 日志与运行时输出 ---
 logs/
 **/logs/
 *.log
@@ -131,3 +122,4 @@ API/API.mermaid
 项目结构.md
 *.http.user
 *.http.local
+services/API/Web/Configurations/appsettings.Development.json

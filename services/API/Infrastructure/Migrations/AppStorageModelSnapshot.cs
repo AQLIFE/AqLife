@@ -109,7 +109,7 @@ namespace AqLife.Data.Migrations
                     b.Property<DateTime?>("PublishAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("PublishStatus")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UploadTime")
