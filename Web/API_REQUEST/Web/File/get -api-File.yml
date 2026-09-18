@@ -7,16 +7,19 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/File?Title=md"
+  url: "{{baseUrl}}/api/File"
   params:
     - name: UID
-      value: dbe0c64a-7e12-44fe-89f8-cd92cbcaf4d7
+      value: 9d11ce57-4116-42c3-8b7e-30488b902eda
       type: query
       disabled: true
     - name: Title
       value: md
       type: query
-  auth: inherit
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
 
 settings:
   encodeUrl: true

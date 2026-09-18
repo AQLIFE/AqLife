@@ -9,14 +9,15 @@ http:
   method: POST
   url: "{{baseUrl}}/api/File/Publish"
   body:
-    type: json
-    data: |-
-      {
-        "uid": "dbe0c64a-7e12-44fe-89f8-cd92cbcaf4d7"
-      }
-  auth:
-    type: bearer
-    token: "{{token}}"
+    type: multipart-form
+    data:
+      - name: File
+        type: file
+        value: []
+      - name: ScheduledTime
+        type: text
+        value: ""
+  auth: inherit
 
 runtime:
   variables:
