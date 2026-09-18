@@ -10,14 +10,16 @@ http:
   url: "{{baseUrl}}/api/File"
   params:
     - name: UID
-      value: ""
+      value: 9d11ce57-4116-42c3-8b7e-30488b902eda
       type: query
       disabled: true
     - name: Title
-      value: ""
+      value: md
       type: query
       disabled: true
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{token}}"
 
 settings:
   encodeUrl: true
