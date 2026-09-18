@@ -14,10 +14,10 @@
 
 import * as runtime from '../runtime';
 import {
-    type CancelScheduledBlogPostCommand,
-    CancelScheduledBlogPostCommandFromJSON,
-    CancelScheduledBlogPostCommandToJSON,
-} from '../models/CancelScheduledBlogPostCommand';
+    type CancelScheduledFileCommand,
+    CancelScheduledFileCommandFromJSON,
+    CancelScheduledFileCommandToJSON,
+} from '../models/CancelScheduledFileCommand';
 import {
     type DeleteFileCommand,
     DeleteFileCommandFromJSON,
@@ -29,15 +29,10 @@ import {
     FileDtoToJSON,
 } from '../models/FileDto';
 import {
-    type PublishFileCommand,
-    PublishFileCommandFromJSON,
-    PublishFileCommandToJSON,
-} from '../models/PublishFileCommand';
-import {
-    type ScheduledBlogCommand,
-    ScheduledBlogCommandFromJSON,
-    ScheduledBlogCommandToJSON,
-} from '../models/ScheduledBlogCommand';
+    type ScheduledFileCommand,
+    ScheduledFileCommandFromJSON,
+    ScheduledFileCommandToJSON,
+} from '../models/ScheduledFileCommand';
 import {
     type UpdateFileTagCommand,
     UpdateFileTagCommandFromJSON,
@@ -45,7 +40,7 @@ import {
 } from '../models/UpdateFileTagCommand';
 
 export interface ApiFileCancelSchedulePatchRequest {
-    cancelScheduledBlogPostCommand?: CancelScheduledBlogPostCommand;
+    cancelScheduledFileCommand?: CancelScheduledFileCommand;
 }
 
 export interface ApiFileDeleteRequest {
@@ -70,17 +65,13 @@ export interface ApiFilePreviewGetRequest {
     uID?: string;
 }
 
-export interface ApiFilePublishPatchRequest {
-    scheduledTime?: string;
-    file?: Blob;
-}
-
 export interface ApiFilePublishPostRequest {
-    publishFileCommand?: PublishFileCommand;
+    file?: Blob;
+    scheduledTime?: string;
 }
 
 export interface ApiFileSchedulePatchRequest {
-    scheduledBlogCommand?: ScheduledBlogCommand;
+    scheduledFileCommand?: ScheduledFileCommand;
 }
 
 export interface ApiFileTagPatchRequest {
@@ -100,7 +91,7 @@ export interface ApiFileUploadPostRequest {
 export interface FileApiInterface {
     /**
      * Creates request options for apiFileCancelSchedulePatch without sending the request
-     * @param {CancelScheduledBlogPostCommand} [cancelScheduledBlogPostCommand] 
+     * @param {CancelScheduledFileCommand} [cancelScheduledFileCommand] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -108,16 +99,16 @@ export interface FileApiInterface {
 
     /**
      * 
-     * @param {CancelScheduledBlogPostCommand} [cancelScheduledBlogPostCommand] 
+     * @param {CancelScheduledFileCommand} [cancelScheduledFileCommand] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
-    apiFileCancelSchedulePatchRaw(requestParameters: ApiFileCancelSchedulePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+    apiFileCancelSchedulePatchRaw(requestParameters: ApiFileCancelSchedulePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
 
     /**
      */
-    apiFileCancelSchedulePatch(requestParameters: ApiFileCancelSchedulePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    apiFileCancelSchedulePatch(requestParameters: ApiFileCancelSchedulePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
     /**
      * Creates request options for apiFileDelete without sending the request
@@ -229,31 +220,9 @@ export interface FileApiInterface {
     apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
     /**
-     * Creates request options for apiFilePublishPatch without sending the request
-     * @param {string} [scheduledTime] 
-     * @param {Blob} [file] 
-     * @throws {RequiredError}
-     * @memberof FileApiInterface
-     */
-    apiFilePublishPatchRequestOpts(requestParameters: ApiFilePublishPatchRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * 
-     * @param {string} [scheduledTime] 
-     * @param {Blob} [file] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof FileApiInterface
-     */
-    apiFilePublishPatchRaw(requestParameters: ApiFilePublishPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>>;
-
-    /**
-     */
-    apiFilePublishPatch(requestParameters: ApiFilePublishPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>>;
-
-    /**
      * Creates request options for apiFilePublishPost without sending the request
-     * @param {PublishFileCommand} [publishFileCommand] 
+     * @param {Blob} [file] 
+     * @param {string} [scheduledTime] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -261,20 +230,21 @@ export interface FileApiInterface {
 
     /**
      * 
-     * @param {PublishFileCommand} [publishFileCommand] 
+     * @param {Blob} [file] 
+     * @param {string} [scheduledTime] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
-    apiFilePublishPostRaw(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+    apiFilePublishPostRaw(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>>;
 
     /**
      */
-    apiFilePublishPost(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+    apiFilePublishPost(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>>;
 
     /**
      * Creates request options for apiFileSchedulePatch without sending the request
-     * @param {ScheduledBlogCommand} [scheduledBlogCommand] 
+     * @param {ScheduledFileCommand} [scheduledFileCommand] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -282,7 +252,7 @@ export interface FileApiInterface {
 
     /**
      * 
-     * @param {ScheduledBlogCommand} [scheduledBlogCommand] 
+     * @param {ScheduledFileCommand} [scheduledFileCommand] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -360,23 +330,28 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: CancelScheduledBlogPostCommandToJSON(requestParameters['cancelScheduledBlogPostCommand']),
+            body: CancelScheduledFileCommandToJSON(requestParameters['cancelScheduledFileCommand']),
         };
     }
 
     /**
      */
-    async apiFileCancelSchedulePatchRaw(requestParameters: ApiFileCancelSchedulePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiFileCancelSchedulePatchRaw(requestParameters: ApiFileCancelSchedulePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const requestOptions = await this.apiFileCancelSchedulePatchRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
     }
 
     /**
      */
-    async apiFileCancelSchedulePatch(requestParameters: ApiFileCancelSchedulePatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.apiFileCancelSchedulePatchRaw(requestParameters, initOverrides);
+    async apiFileCancelSchedulePatch(requestParameters: ApiFileCancelSchedulePatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiFileCancelSchedulePatchRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -602,9 +577,9 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
     }
 
     /**
-     * Creates request options for apiFilePublishPatch without sending the request
+     * Creates request options for apiFilePublishPost without sending the request
      */
-    async apiFilePublishPatchRequestOpts(requestParameters: ApiFilePublishPatchRequest): Promise<runtime.RequestOpts> {
+    async apiFilePublishPostRequestOpts(requestParameters: ApiFilePublishPostRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -625,51 +600,13 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             formParams = new URLSearchParams();
         }
 
-        if (requestParameters['scheduledTime'] != null) {
-            formParams.append('ScheduledTime', requestParameters['scheduledTime'] as any);
-        }
-
         if (requestParameters['file'] != null) {
             formParams.append('File', requestParameters['file'] as any);
         }
 
-
-        let urlPath = `/api/File/Publish`;
-
-        return {
-            path: urlPath,
-            method: 'PATCH',
-            headers: headerParameters,
-            query: queryParameters,
-            body: formParams,
-        };
-    }
-
-    /**
-     */
-    async apiFilePublishPatchRaw(requestParameters: ApiFilePublishPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>> {
-        const requestOptions = await this.apiFilePublishPatchRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse<any>(response);
-    }
-
-    /**
-     */
-    async apiFilePublishPatch(requestParameters: ApiFilePublishPatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>> {
-        const response = await this.apiFilePublishPatchRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for apiFilePublishPost without sending the request
-     */
-    async apiFilePublishPostRequestOpts(requestParameters: ApiFilePublishPostRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
+        if (requestParameters['scheduledTime'] != null) {
+            formParams.append('ScheduledTime', requestParameters['scheduledTime'] as any);
+        }
 
 
         let urlPath = `/api/File/Publish`;
@@ -679,26 +616,22 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PublishFileCommandToJSON(requestParameters['publishFileCommand']),
+            body: formParams,
         };
     }
 
     /**
      */
-    async apiFilePublishPostRaw(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+    async apiFilePublishPostRaw(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>> {
         const requestOptions = await this.apiFilePublishPostRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<string>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async apiFilePublishPost(requestParameters: ApiFilePublishPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+    async apiFilePublishPost(requestParameters: ApiFilePublishPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>> {
         const response = await this.apiFilePublishPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -721,7 +654,7 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: ScheduledBlogCommandToJSON(requestParameters['scheduledBlogCommand']),
+            body: ScheduledFileCommandToJSON(requestParameters['scheduledFileCommand']),
         };
     }
 

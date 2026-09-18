@@ -2,7 +2,7 @@ import type { FileApi, FileDto, UpdateTodoCommand } from "@/api"
 import type { FileStore } from "@/stores/useFileStore"
 
 type UpdateFileCommand = { uID: string, file: Blob }
-export class FileContentUpdateWrkflow {
+export class FileContentUpdateWorkflow {
 
   constructor(
     private readonly file: FileDto,
@@ -11,7 +11,7 @@ export class FileContentUpdateWrkflow {
     private readonly store: FileStore
   ) { }
 
-  async run() {
+  async run(): Promise<FileDto> {
     this.PreCheck()
     const command = this.buildCommand()
     const result = await this.execute(command)
@@ -19,13 +19,14 @@ export class FileContentUpdateWrkflow {
     const dto = await this.validate(result)
 
     this.commit(dto)
+    return dto
   }
 
   /**
    * flow 初始化检查
    */
   private PreCheck() {
-    if (this.uploadFile.name !== this.file.fileName) {
+    if (this.uploadFile.name !== (this.file.fileName!+this.file.fileType)) {
       throw new Error(
         `只能上传与原文件同名的文件：${this.file.fileName}`
       )

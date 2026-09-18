@@ -6,10 +6,14 @@ import { isImageType } from '@aqlife/domain'
 export type FileStore = ReturnType<typeof useFileStore>
 export const useFileStore = defineStore('file', () => {
   const fileList = ref<FileDto[]>([])
-  const previewUrl = reactive<Map<String,string>>(new Map<string, string>())
+  const previewUrl = reactive<Map<String, string>>(new Map<string, string>())
   const isInitialized = ref(false)
 
-  // 将复杂的加载逻辑封装为 Action [cite: 145]
+  /**
+   * 拉取全部文件至最新
+   * @param fileApi 文件API
+   * @returns 无返回
+   */
   async function fetchAllFiles(fileApi: FileApi) {
     if (isInitialized.value) return // 缓存命中，直接返回 [cite: 3]
 
@@ -32,12 +36,49 @@ export const useFileStore = defineStore('file', () => {
     await Promise.all(tasks)
     isInitialized.value = true
   }
-  // 提供清理方法，防止内存泄漏 [cite: 139]
+  /**
+   * 提供清理方法，防止内存泄漏
+   */
   function clearCache() {
     previewUrl.forEach(url => URL.revokeObjectURL(url))
     previewUrl.clear()
     isInitialized.value = false
   }
+  /**
+   * 更新Store存储的 File
+   * @param file 需要更新的'文件'
+   */
+  function replaceFile(file: FileDto) {
+    const index = fileList.value.findIndex(
+      x => x.uid === file.uid
+    )
 
-  return { fileList, previewUrl, fetchAllFiles, clearCache }
+    if (index === -1) {
+      throw new Error('File not found')
+    }
+
+    fileList.value[index] = file
+  }
+  /**
+   * 移除Store内的特定文件
+   * @param uid 文件ID
+   */
+  function removeFile(uid: string) {
+    const index = fileList.value.findIndex(
+      x => x.uid === uid
+    )
+
+    if (index !== -1) {
+      fileList.value.splice(index, 1)
+    }
+
+    const preview = previewUrl.get(uid)
+
+    if (preview) {
+      URL.revokeObjectURL(preview)
+      previewUrl.delete(uid)
+    }
+  }
+
+  return { fileList, previewUrl, fetchAllFiles, clearCache,replaceFile,removeFile }
 })

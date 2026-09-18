@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace AqLife.Application.Business.File.Handler
 {
-    public class CancelScheduledBlogPostHandler(IApplicationDbContext appStorage) :IRequestHandler<CancelScheduledBlogPostCommand, Guid>
+    public class CancelScheduledFileHandler(IApplicationDbContext appStorage) :IRequestHandler<CancelScheduledFileCommand, Guid>
     {
-        public async Task<Guid> Handle(CancelScheduledBlogPostCommand command,CancellationToken ct)
+        public async Task<Guid> Handle(CancelScheduledFileCommand command,CancellationToken ct)
         {
             FileMetaEntity entity = await appStorage.File.FindAsync(command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法操作");
             entity.CancelSchedule();

@@ -8,16 +8,8 @@ namespace AqLife.Application.Business.File.Service
 {
     public class FileWriter(IApplicationDbContext appStorage, IFileStorage fileStorage, UploadContext uploadContext)
     {
-        //public async Task<Guid> WriteAsync(IFormFile file,string hash,CancellationToken ct)
-        //{
-        //    FileMetaEntity meta = new (file, hash);
 
-        //    await fileStorage.SaveAsync(file.OpenReadStream(), storageFileName, ct);
-        //    await appStorage.File.AddAsync(meta, ct);
-        //    return meta.UID;
-        //}
-
-        public async Task<List<Guid>> WriteAsync(IEnumerable<IFormFile> files, CancellationToken ct, DateTime? publishAt = null)
+        public async Task<List<Guid>> WriteAsync(IEnumerable<IFormFile> files, CancellationToken ct, DateTimeOffset? publishAt = null)
         {
             List<IFormFile> fileList = files.ToList();
 

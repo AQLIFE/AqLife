@@ -68,7 +68,6 @@ All URIs are relative to *http://localhost*
 *FileApi* | [**apiFileGet**](docs/FileApi.md#apifileget) | **GET** /api/File | 
 *FileApi* | [**apiFilePatch**](docs/FileApi.md#apifilepatch) | **PATCH** /api/File | 
 *FileApi* | [**apiFilePreviewGet**](docs/FileApi.md#apifilepreviewget) | **GET** /api/File/preview | 
-*FileApi* | [**apiFilePublishPatch**](docs/FileApi.md#apifilepublishpatch) | **PATCH** /api/File/Publish | 
 *FileApi* | [**apiFilePublishPost**](docs/FileApi.md#apifilepublishpost) | **POST** /api/File/Publish | 
 *FileApi* | [**apiFileSchedulePatch**](docs/FileApi.md#apifileschedulepatch) | **PATCH** /api/File/schedule | 
 *FileApi* | [**apiFileTagPatch**](docs/FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag | 
@@ -88,7 +87,7 @@ All URIs are relative to *http://localhost*
 
 - [AccountDto](docs/AccountDto.md)
 - [AccountProfile](docs/AccountProfile.md)
-- [CancelScheduledBlogPostCommand](docs/CancelScheduledBlogPostCommand.md)
+- [CancelScheduledFileCommand](docs/CancelScheduledFileCommand.md)
 - [CorpusDto](docs/CorpusDto.md)
 - [CreateAccountCommand](docs/CreateAccountCommand.md)
 - [CreateCorpusCommand](docs/CreateCorpusCommand.md)
@@ -101,8 +100,7 @@ All URIs are relative to *http://localhost*
 - [FileDto](docs/FileDto.md)
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
-- [PublishFileCommand](docs/PublishFileCommand.md)
-- [ScheduledBlogCommand](docs/ScheduledBlogCommand.md)
+- [ScheduledFileCommand](docs/ScheduledFileCommand.md)
 - [SubscriptionDto](docs/SubscriptionDto.md)
 - [TagDto](docs/TagDto.md)
 - [TodoDto](docs/TodoDto.md)

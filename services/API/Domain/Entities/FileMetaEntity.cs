@@ -40,18 +40,22 @@ namespace AqLife.Domain.Entities
         public FileMetaEntity() { }
 
         /// <summary>
-        /// 快速拼装一个 FileMetaEntity 实例, 通过 IFormFile 获取文件的基本信息, 并生成一个新的脱敏文件名
-        /// 需要注意 在后续业务逻辑中 手动设置 FileHash 属性, 因为它需要在文件保存后通过计算得到, 不能在构造函数中完成
+        /// 构造草稿文件
         /// </summary>
         /// <param name="file">源文件</param>
         public FileMetaEntity(IFormFile file, string hash)
         {
             FileName = Path.GetFileNameWithoutExtension(file.FileName) ?? string.Empty;
-            //DesensitizationName = Guid.NewGuid().ToString();
             Extension = Path.GetExtension(file.FileName).ToLowerInvariant() ?? string.Empty;
             FileSize = (ulong)file.Length;
             FileHash = hash;
         }
+        /// <summary>
+        /// 构造预定文件
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="hash"></param>
+        /// <param name="ScheduledTime"></param>
         public FileMetaEntity(IFormFile file, string hash, DateTimeOffset ScheduledTime) : this(file, hash)
         {
             PublishAt = ScheduledTime;

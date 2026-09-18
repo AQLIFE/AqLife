@@ -35,31 +35,6 @@ namespace AqLife.Web.Controllers
         public async Task<IEnumerable<Guid>> UploadFile([FromForm] CreateFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
 
-        /// <summary>
-        /// 上传文件并设置延时发布
-        /// </summary>
-        /// <param name="command"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
-        [HttpPatch("Publish"), ServiceFilter(typeof(FileUploadFilter))]
-        public async Task<IEnumerable<Guid>> PublishScheduledFile([FromForm] PublishScheduledCommand command, CancellationToken ct)
-        => await mediator.Send(command, ct);// 已实现
-
-        /// <summary>
-        /// 手动发布特定文件
-        /// </summary>
-        /// <param name="command"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
-        [HttpPost("Publish"), ServiceFilter(typeof(FileUploadFilter))]
-        public async Task<Guid> PublishScheduledFile(PublishFileCommand command, CancellationToken ct)
-        => await mediator.Send(command, ct);// 已实现
-        
-        [HttpPatch("schedule")]
-        public async Task<Guid> ScheduleFile(ScheduledBlogCommand command, CancellationToken ct)
-            =>await mediator.Send(command, ct);
-
-
         [HttpPatch, ServiceFilter(typeof(FileUploadFilter))]
         public async Task<Guid> UpdateFile([FromForm] UpdateFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
@@ -73,7 +48,21 @@ namespace AqLife.Web.Controllers
             => await mediator.Send(command, ct);// 已实现
 
         [HttpPatch("CancelSchedule")]
-        public async Task CancelSchedule(CancelScheduledBlogPostCommand command, CancellationToken ct)
+        public async Task<Guid> CancelSchedule(CancelScheduledFileCommand command, CancellationToken ct)
             => await mediator.Send(command, ct);
+        /// <summary>
+        /// 上传文件并设置延时发布
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        [HttpPost("Publish"), ServiceFilter(typeof(FileUploadFilter))]
+        public async Task<IEnumerable<Guid>> PublishScheduledFile([FromForm] PublishFileCommand command, CancellationToken ct)
+        => await mediator.Send(command, ct);// 已实现
+
+        [HttpPatch("schedule")]
+        public async Task<Guid> ScheduleFile(ScheduledFileCommand command, CancellationToken ct)
+            => await mediator.Send(command, ct);
+
     }
 }

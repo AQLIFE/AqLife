@@ -4,12 +4,13 @@ import type { FileStore } from '@/stores/useFileStore.ts'
 export class FileTagUpdateWorkflow {
   constructor(
     private readonly file: FileDto,
+    private readonly value: TagDto[],
     private readonly api: FileApi,
     private readonly store: FileStore
   ) { }
-  async run() {
+  async run():Promise<FileDto> {
 
-    const tagIds = this.extractTags(this.file.tags!)
+    const tagIds = this.extractTags(this.value)
 
     const command = this.buildCommand(tagIds)
 
@@ -18,6 +19,7 @@ export class FileTagUpdateWorkflow {
     const validateDto = await this.validate(result)
 
     this.commit(validateDto)
+    return validateDto;
   }
 
   private extractTags(tags: TagDto[]): string[] {

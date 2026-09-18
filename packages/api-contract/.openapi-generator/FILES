@@ -4,7 +4,7 @@ README.md
 docs/AccountApi.md
 docs/AccountDto.md
 docs/AccountProfile.md
-docs/CancelScheduledBlogPostCommand.md
+docs/CancelScheduledFileCommand.md
 docs/CorpusApi.md
 docs/CorpusDto.md
 docs/CreateAccountCommand.md
@@ -19,8 +19,7 @@ docs/FileApi.md
 docs/FileDto.md
 docs/FileStatus.md
 docs/LoginCommand.md
-docs/PublishFileCommand.md
-docs/ScheduledBlogCommand.md
+docs/ScheduledFileCommand.md
 docs/SubscriptionDto.md
 docs/TagApi.md
 docs/TagDto.md
@@ -40,7 +39,7 @@ src/apis/index.ts
 src/index.ts
 src/models/AccountDto.ts
 src/models/AccountProfile.ts
-src/models/CancelScheduledBlogPostCommand.ts
+src/models/CancelScheduledFileCommand.ts
 src/models/CorpusDto.ts
 src/models/CreateAccountCommand.ts
 src/models/CreateCorpusCommand.ts
@@ -53,8 +52,7 @@ src/models/DeleteTodoCommand.ts
 src/models/FileDto.ts
 src/models/FileStatus.ts
 src/models/LoginCommand.ts
-src/models/PublishFileCommand.ts
-src/models/ScheduledBlogCommand.ts
+src/models/ScheduledFileCommand.ts
 src/models/SubscriptionDto.ts
 src/models/TagDto.ts
 src/models/TodoDto.ts

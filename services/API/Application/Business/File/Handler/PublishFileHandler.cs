@@ -11,32 +11,19 @@ namespace AqLife.Application.Business.File.Handler
     /// 上传并设置发布时间
     /// </summary>
     /// <param name="fileWriter"></param>
-    public class PublishFileHandler(FileWriter fileWriter) : IRequestHandler<PublishScheduledCommand, IEnumerable<Guid>>
+    public class PublishFileHandler(FileWriter fileWriter) : IRequestHandler<PublishFileCommand, IEnumerable<Guid>>
     {
-        public async Task<IEnumerable<Guid>> Handle(PublishScheduledCommand command, CancellationToken ct)
+        public async Task<IEnumerable<Guid>> Handle(PublishFileCommand command, CancellationToken ct)
         => await fileWriter.WriteAsync(command.GetFiles(), publishAt: command.ScheduledTime, ct: ct);
     }
 
-    /// <summary>
-    /// 手动发布 : 事务依赖,自动保存和回滚
-    /// </summary>
-    /// <param name="context"></param>
-    public class ManualPublishFileHandler(IApplicationDbContext context) : IRequestHandler<PublishFileCommand, Guid>
+    public class ScheduledBlogHandler(IApplicationDbContext context) : IRequestHandler<ScheduledFileCommand,Guid>
     {
-        public async Task<Guid> Handle(PublishFileCommand command, CancellationToken ct)
+        public async Task<Guid> Handle(ScheduledFileCommand command,CancellationToken ct)
         {
             FileMetaEntity file = await context.File.FindAsync([command.UID], ct) ?? throw new ResourceNotFoundException("不存在的文件");
-            file.Publish();
-            return file.UID;
-        }
-    }
-
-    public class ScheduledBlogHandler(IApplicationDbContext context) : IRequestHandler<ScheduledBlogCommand,Guid>
-    {
-        public async Task<Guid> Handle(ScheduledBlogCommand command,CancellationToken ct)
-        {
-            FileMetaEntity file = await context.File.FindAsync([command.UID], ct) ?? throw new ResourceNotFoundException("不存在的文件");
-            file.Schedule(command.ScheduledAt);
+            if (command.ScheduledAt is DateTimeOffset offset) file.Schedule( offset );
+            else file.Publish();
             return command.UID;
         }
     }
