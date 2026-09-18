@@ -75,14 +75,8 @@ import {
 import { OperationalState, useActionStore } from '@/stores/useActionStore.ts'
 import { apiConfiguration } from '@/services/api.ts'
 import { useRouter } from 'vue-router'
-import { FileTagUpdateWorkflow } from '@/workflow/fileflow/FileTagUpdateWorkFlow.ts'
-// import { FileContentUpdateWrkflow } from '@/workflow/fileflow/FileContentUpdateWorkflow.ts'
 import { Brush, Promotion, Timer } from '@element-plus/icons-vue'
-import { FileDeleteWorkflow } from '@/workflow/fileflow/FileDeleteWorkflow.ts'
-import { FilePublishWorkflow } from '@/workflow/fileflow/FilePublishWorkflow.ts'
-import { FileDraftWorkflow } from '@/workflow/fileflow/FileDraftWorkflow.ts'
-import { FileScheduledWorkflow } from '@/workflow/fileflow/FilescheduledWorkflow.ts'
-import { FileContentUpdateWorkflow } from '@/workflow/fileflow/FileContentUpdateWorkflow.ts'
+import { FileDraftWorkflow,FileContentUpdateWorkflow,FilePublishWorkflow,FileDeleteWorkflow,FileTagUpdateWorkflow,FileScheduledWorkflow } from '../workflow/index.ts'
 
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
