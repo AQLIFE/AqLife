@@ -7,16 +7,15 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/File"
+  url: "{{baseUrl}}/api/File?Title=md"
   params:
     - name: UID
-      value: ""
+      value: dbe0c64a-7e12-44fe-89f8-cd92cbcaf4d7
       type: query
       disabled: true
     - name: Title
-      value: ""
+      value: md
       type: query
-      disabled: true
   auth: inherit
 
 settings:

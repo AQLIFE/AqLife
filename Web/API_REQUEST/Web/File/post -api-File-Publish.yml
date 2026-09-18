@@ -12,7 +12,7 @@ http:
     type: json
     data: |-
       {
-        "uid": "d78e4228-4d2f-4d06-a034-f1d2d34c4c2f"
+        "uid": "dbe0c64a-7e12-44fe-89f8-cd92cbcaf4d7"
       }
   auth:
     type: bearer
