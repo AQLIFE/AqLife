@@ -21,11 +21,20 @@ namespace AqLife.Application.Business.File.Service
         {
             FileMetaEntity fileInfo = (await fileSearch.SearchAsync(query: new FileQuery(UID: id), ct)).FirstOrDefault() ?? throw new ResourceNotFoundException("不存在文件记录");
 
-            if (!fileStorage.Exists(fileInfo.StorageName)) throw new ResourceNotFoundException("源文件丢失,请联系管理员:" + fileInfo.FileName);
+            //if (!await fileStorage.ExistsAsync(fileInfo.StorageKey, ct)) throw new ResourceNotFoundException("源文件丢失,请联系管理员:" + fileInfo.FileName);
 
-            Stream stream = fileStorage.OpenRead(fileInfo.StorageName);
-            var contentType = GetFileMimeType(fileInfo.StorageName);
+            Stream stream = await fileStorage.OpenReadAsync(fileInfo.StorageKey, ct);
+            var contentType = GetFileMimeType(fileInfo.StorageKey);
             return new FileDownloadModel(stream, contentType, fileInfo.FileName);
+        }
+
+        public async Task<string> GetContentAsync(string fileName,CancellationToken ct)
+        {
+            await using var stream = await fileStorage.OpenReadAsync(fileName, ct);
+
+            using var reader = new StreamReader(stream);
+
+            return  await reader.ReadToEndAsync(ct);
         }
     }
 }

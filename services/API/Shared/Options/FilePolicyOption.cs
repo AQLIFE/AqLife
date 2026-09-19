@@ -1,6 +1,6 @@
 ﻿namespace AqLife.Shared.Options
 {
-    public class FilePolicyOption
+    public sealed class FilePolicyOption
     {
         public int MaxFileSize { set; get; }
         public int StorageUnit { set; get; } = 0;

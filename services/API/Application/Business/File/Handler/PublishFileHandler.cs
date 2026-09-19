@@ -16,6 +16,10 @@ namespace AqLife.Application.Business.File.Handler
         public async Task<IEnumerable<Guid>> Handle(PublishFileCommand command, CancellationToken ct)
         => await fileWriter.WriteAsync(command.GetFiles(), publishAt: command.ScheduledTime, ct: ct);
     }
+    /// <summary>
+    /// 若没有指定发布时间，则立即发布；若指定了发布时间，则设置为定时发布
+    /// </summary>
+    /// <param name="context"></param>
 
     public class ScheduledBlogHandler(IApplicationDbContext context) : IRequestHandler<ScheduledFileCommand,Guid>
     {

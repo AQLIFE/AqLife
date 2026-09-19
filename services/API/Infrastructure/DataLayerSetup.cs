@@ -1,3 +1,5 @@
+using Amazon.Runtime;
+using Amazon.S3;
 using AqLife.Application.Abstractions.Authentication;
 using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Persistence;
@@ -9,6 +11,9 @@ using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace AqLife.Infrastructure
 {
@@ -25,10 +30,37 @@ namespace AqLife.Infrastructure
 
             return services;
         }
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IHostEnvironment environment)
         {
             services.AddScoped<IApplicationDbContext, AppStorage>();
-            services.AddScoped<IFileStorage, LocalFileStorage>();
+            if (environment.IsProduction()) { 
+                
+                services.AddSingleton<IAmazonS3>(sp =>
+                {
+                    var options = sp
+                        .GetRequiredService<IOptions<R2Options>>()
+                        .Value;
+
+                    var credentials = new BasicAWSCredentials(
+                        options.AccessKey,
+                        options.SecretKey);
+
+                    return new AmazonS3Client(
+                        credentials,
+                        new AmazonS3Config
+                        {
+                            ServiceURL = options.Endpoint,
+                            ForcePathStyle = true
+                        });
+                });
+                services.AddScoped<IFileStorage, R2FileStorage>();
+            }
+            else
+            {
+                services.AddScoped<IFileStorage, LocalFileStorage>();
+                Log.Warning(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, "使用默认 Dev 环境");
+
+            }
             services.AddScoped<ITokenProvider<AccountEntity>, TokenProvider>();
 
             return services;

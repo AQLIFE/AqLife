@@ -17,12 +17,14 @@ namespace AqLife.Web.Extensions
         {
             Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, "正在绑定文件存储策略...");
 
-            var section = builder.Configuration.GetSection("FilePolicy");
+            var filePolicySection = builder.Configuration.GetSection("FilePolicy");
+            var r2OptionSection = builder.Configuration.GetSection("R2");
 
-            var filePolicy = section.Get<FilePolicyOption>() ?? throw new ConfigurationNotFoundException("配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
+            var filePolicy = filePolicySection.Get<FilePolicyOption>() ?? throw new ConfigurationNotFoundException("配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
 
             EnsureStorageDirectoryCreated(builder.Environment.ContentRootPath, filePolicy.StoragePath);
-            builder.Services.AddOptions<FilePolicyOption>().Bind(section).ValidateOnStart();
+            builder.Services.AddOptions<FilePolicyOption>().Bind(filePolicySection).ValidateOnStart();
+            builder.Services.AddOptions<R2Options>().Bind(r2OptionSection).ValidateOnStart();
             return builder;
         }
 

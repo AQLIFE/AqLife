@@ -6,6 +6,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.File.Service
 {
+    /// <summary>
+    /// 同时写入数据库和物理文件存储,如果写入失败,则回滚物理文件存储
+    /// </summary>
+    /// <param name="appStorage"></param>
+    /// <param name="fileStorage"></param>
+    /// <param name="uploadContext"></param>
     public class FileWriter(IApplicationDbContext appStorage, IFileStorage fileStorage, UploadContext uploadContext)
     {
 
@@ -34,9 +40,9 @@ namespace AqLife.Application.Business.File.Service
                     }
 
                     var meta = publishAt is null ? new FileMetaEntity(file, hash) : new FileMetaEntity(file, hash, publishAt.Value);
-                    await fileStorage.SaveAsync(file.OpenReadStream(), meta.StorageName, ct);
+                    await fileStorage.SaveAsync(file.OpenReadStream(), meta.StorageKey, ct);
 
-                    savedFiles.Add(meta.StorageName);
+                    savedFiles.Add(meta.StorageKey);
 
                     newMetas.Add(meta);
                     result.Add(meta.UID);

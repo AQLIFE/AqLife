@@ -83,11 +83,10 @@ namespace AqLife.Application
             services.AddScoped<TodoSearch>();
 
             // 注册具体Command 实际业务类
-            //services.AddScoped<IFileStorage, LocalFileStorage>();
+            //services.AddScoped<IFileStorage, LocalFileStorage>(); 来自 AqLife.Infrastructure
             services.AddScoped<FileReader>();
             services.AddScoped<FileWriter>();
             services.AddScoped<FileDeleter>();
-            //services.AddScoped<FileService>();
 
             // 4. 注册所有 Mapper [cite: 198]
             services.AddSingleton<TodoMapper>();

@@ -4,10 +4,11 @@ using AqLife.Domain.Command;
 using AqLife.Shared.IView;
 using MediatR;
 using AqLife.Application.Business.File;
+using AqLife.Application.Business.File.Service;
 
 namespace AqLife.Application.Business.File.Handler
 {
-    public class FileQueryHandler(FileSearch search, FileViewMapper mapper, IFileStorage fileStorage) : IRequestHandler<FileQuery, IEnumerable<FileDto>>
+    public class FileQueryHandler(FileSearch search, FileViewMapper mapper, FileReader fileReader) : IRequestHandler<FileQuery, IEnumerable<FileDto>>
     {
         public async Task<IEnumerable<FileDto>> Handle(FileQuery query, CancellationToken ct)
         {
@@ -17,7 +18,7 @@ namespace AqLife.Application.Business.File.Handler
             {
                 if (item.Extension == ".md")
                 {
-                    string content = (await fileStorage.GetContent(item.StorageName));
+                    string content = (await fileReader.GetContentAsync(item.StorageKey, ct));
                     item.SetFileIntroduction(content.Length <= 300 ? content : content[..300]);
                 }
             }

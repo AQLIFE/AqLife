@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.StaticFiles;
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddUserSecrets<Program>();
+
 builder.Services.AddSwaggerGen();
 builder.AddSerilog().AddConfiguration().AddFilePolicy().AddJwtPolicy();
-builder.Services.AddApplicationLayer().AddInfrastructure();
+builder.Services.AddApplicationLayer().AddInfrastructure(builder.Environment);
 builder.Services.AddGlobalExceptionPolicy(builder.Environment).AddDataLayer(builder.Configuration).AddRouteAdapter();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();// 框架内置服务
 builder.Services.AddHttpContextAccessor();// 框架内置服务
@@ -44,7 +46,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-//app.UseStaticFiles();
+
 app.MapControllers();
 
 

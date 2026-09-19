@@ -2,13 +2,12 @@
 {
     public interface IFileStorage
     {
-        Task SaveAsync(Stream content, string fileName, CancellationToken ct);
+        Task SaveAsync(Stream content, string key, CancellationToken ct =default);
 
-        Task<bool> DeleteAsync(string fileName, CancellationToken ct);
+        Task<bool> DeleteAsync(string key, CancellationToken ct = default);
 
-        bool Exists(string fileName);
+        //Task<bool> ExistsAsync(string key, CancellationToken ct = default);
 
-        Stream OpenRead(string fileName);
-        Task<string> GetContent(string fileName);
+        Task<Stream> OpenReadAsync(string key, CancellationToken ct = default);
     }
 }

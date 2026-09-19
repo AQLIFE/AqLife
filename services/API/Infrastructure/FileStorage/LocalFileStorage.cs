@@ -4,6 +4,10 @@ using Microsoft.Extensions.Options;
 
 namespace AqLife.Infrastructure.FileStorage
 {
+    /// <summary>
+    /// 本地文件存储实现, 主要用于开发环境, 生产环境请使用云存储
+    /// </summary>
+    /// <param name="policy"></param>
     public class LocalFileStorage(IOptions<FilePolicyOption> policy) : IFileStorage
     {
         private string GetPath(string fileName) => Path.Combine(policy.Value.StoragePath, fileName);
@@ -18,7 +22,7 @@ namespace AqLife.Infrastructure.FileStorage
         public async Task SaveAsync(Stream content, string fileName, CancellationToken ct)
         {
             string LocalPath = GetPath(fileName);
-            if (Directory.Exists(policy.Value.StoragePath)) Directory.CreateDirectory(policy.Value.StoragePath);
+            if (!Directory.Exists(policy.Value.StoragePath)) Directory.CreateDirectory(policy.Value.StoragePath);
             await using var stream = new FileStream(LocalPath, FileMode.Create, FileAccess.Write, FileShare.None);
             await content.CopyToAsync(stream, ct);
         }
@@ -31,16 +35,18 @@ namespace AqLife.Infrastructure.FileStorage
             return Task.FromResult(true);
         }
 
-        public bool Exists(string fileName) => File.Exists(GetPath(fileName));
+        //public Task<bool> ExistsAsync(string fileName, CancellationToken ct) => Task.FromResult(File.Exists(GetPath(fileName)));
 
-        public Stream OpenRead(string fileName)
+        public Task<Stream> OpenReadAsync(string fileName, CancellationToken ct)
         {
             string LocalPath = GetPath(fileName);
             if (!File.Exists(LocalPath)) throw new FileNotFoundException("文件丢失");
-            return new FileStream(LocalPath, FileMode.Open, FileAccess.Read);
+            return Task.FromResult<Stream>(new FileStream(LocalPath, FileMode.Open, FileAccess.Read));
         }
 
-        public async Task<string> GetContent(string fileName)
+        [Obsolete("废弃,若需要读取文件内容,请使用 FileReader.GetContent")]
+
+        public async Task<string> GetContent(string fileName, CancellationToken ct)
         {
             string LocalPath = GetPath(fileName);
             if (!File.Exists(LocalPath)) throw new FileNotFoundException("文件丢失");

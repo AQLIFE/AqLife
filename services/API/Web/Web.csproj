@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>AqLife.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <UserSecretsId>f995a876-25ce-4f67-a9ad-560213f79782</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

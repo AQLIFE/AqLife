@@ -12,7 +12,7 @@ namespace AqLife.Application.Business.File.Service
             {
                 if (id == Guid.Empty) continue;
                 FileMetaEntity file = await storage.File.FindAsync([id], ct) ?? throw new ResourceNotFoundException("文件不存在");
-                await fileStorage.DeleteAsync(file.StorageName, ct);
+                await fileStorage.DeleteAsync(file.StorageKey, ct);
                 storage.File.Remove(file);
             }
         }

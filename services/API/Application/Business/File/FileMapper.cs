@@ -13,7 +13,7 @@ namespace AqLife.Application.Business.File
     {
         //[MapperIgnoreSource(nameof(FileMetaEntity.PublishAt))]
         //[MapperIgnoreSource(nameof(FileMetaEntity.PublishStatus)]
-        [MapperIgnoreSource(nameof(FileMetaEntity.StorageName))]
+        [MapperIgnoreSource(nameof(FileMetaEntity.StorageKey))]
         [MapProperty(nameof(FileMetaEntity.Extension), nameof(FileDto.FileType))]
         [MapProperty(nameof(FileMetaEntity.FileTags), nameof(FileDto.Tags))]
         public partial FileDto ToDto(FileMetaEntity source);

@@ -15,6 +15,8 @@ namespace AqLife.Domain.Entities
         public Guid UID { get; init; } = Guid.NewGuid();
         [Column, Description("仅存储文件名,不含后缀"), StringLength(64)]
         public string FileName { get; private set; } = string.Empty;
+        //[Column,Description("StorageKey")]
+        //public string StorageKey { get; private set; } = string.Empty;
         [Column]
         public string Extension { get; private set; } = string.Empty;
         [Column]
@@ -31,7 +33,7 @@ namespace AqLife.Domain.Entities
         public FileStatus PublishStatus { private set; get; } = FileStatus.Draft;
 
         [NotMapped]
-        public string StorageName => UID + Extension;
+        public string StorageKey => UID + Extension;
         [NotMapped]
         public string FileIntroduction { private set; get; } = string.Empty;
 

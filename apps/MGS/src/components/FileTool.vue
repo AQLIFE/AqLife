@@ -76,7 +76,20 @@ import { OperationalState, useActionStore } from '@/stores/useActionStore.ts'
 import { apiConfiguration } from '@/services/api.ts'
 import { useRouter } from 'vue-router'
 import { Brush, Promotion, Timer } from '@element-plus/icons-vue'
-import { FileDraftWorkflow,FileContentUpdateWorkflow,FilePublishWorkflow,FileDeleteWorkflow,FileTagUpdateWorkflow,FileScheduledWorkflow } from '../workflow/index.ts'
+import { FileDraftWorkflow,FileContentUpdateWorkflow,FilePublishWorkflow,FileDeleteWorkflow,FileTagUpdateWorkflow,FileScheduledWorkflow } from '@/workflow/index.ts'
+//src/workflow/index.ts:4:15 - error TS1261: Already included file name 'F:/Code/Mylife/AqLife/apps/MGS/src/workflow/fileflow/FilescheduledWorkflow.ts' differs from file name 'F:/Code/Mylife/AqLife/apps/MGS/src/workflow/fileflow/FileScheduledWorkflow.ts' only in casing.
+//   The file is in the program because:
+//     Imported via './fileflow/FilescheduledWorkflow' from file 'F:/Code/Mylife/AqLife/apps/MGS/src/workflow/index.ts'
+//     Matched by include pattern 'src/**/*' in 'F:/Code/Mylife/AqLife/apps/MGS/tsconfig.app.json'
+
+// 4 export * from './fileflow/FilescheduledWorkflow'
+//                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//   tsconfig.app.json:3:27
+//     3   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+//                                 ~~~~~~~~~~
+//     File is matched by include pattern specified here.
+
 
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()

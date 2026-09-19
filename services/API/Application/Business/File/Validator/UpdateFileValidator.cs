@@ -30,7 +30,7 @@ public class FileUpdateValidtor(IOptions<FilePolicyOption> options) : AbstractVa
 }
 
 
-public class FileNameConsistencyValidtor(FileSearch search,ILogger<FileNameConsistencyValidtor> logger) : AbstractValidator<UpdateFileCommand>
+public class FileNameConsistencyValidtor(FileSearch search/*,ILogger<FileNameConsistencyValidtor> logger*/) : AbstractValidator<UpdateFileCommand>
 {
     private protected override string ErrorMessage { init; get; } = "更新文件名必须与原文件一致";
     private protected override async Task<bool> IsValidAsync(UpdateFileCommand command, CancellationToken ct)
