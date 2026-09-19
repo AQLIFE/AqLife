@@ -3,6 +3,7 @@ using AqLife.Infrastructure;
 using AqLife.Infrastructure.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting.Internal;
 
 namespace AqLife.APIUnitTest.Application
 {
@@ -16,6 +17,11 @@ namespace AqLife.APIUnitTest.Application
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("appsettings.Test.json", optional: false)
                 .Build();
+            var environment = new HostingEnvironment
+            {
+                EnvironmentName = "Test",
+                ApplicationName = typeof(IntegrationTestFixture).Assembly.GetName().Name
+            };
 
             var services = new ServiceCollection();
             services.AddLogging();
@@ -25,7 +31,7 @@ namespace AqLife.APIUnitTest.Application
 
             services.AddDataLayer(configuration);
 
-            services.AddInfrastructure();
+            services.AddInfrastructure(environment);
             Services = services.BuildServiceProvider();
 
         }
