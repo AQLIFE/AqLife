@@ -36,58 +36,76 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { FullScreen } from '@element-plus/icons-vue'
 import mermaid from 'mermaid'
 import { ElButton, ElDialog } from 'element-plus'
-import { nextTick, onMounted, ref } from 'vue'
+import {
+  nextTick,
+  onBeforeUnmount,
+  ref,
+  watch,
+} from 'vue'
+
 const props = defineProps<{
   info: string
   infoType: string
 }>()
+
 const isFullscreen = ref(false)
 const svgHtml = ref('')
-// const svgCode = ref(''); // 存储生成的 SVG 代码
-
 const hasError = ref(false)
-const uniqueChartId = `mermaid-svg-${Math.floor(Math.random() * 10000000)}`
+
+let renderTimer: ReturnType<typeof setTimeout> | undefined
+let renderVersion = 0
+
 mermaid.initialize({
-  startOnLoad: false, // 🔒 必须关闭：禁止全局扫描，改由我们手动精准控制
-  securityLevel: 'loose', // 允许一些交互或相对宽松的标签渲染
-  theme: 'default', // 主题配置：'default' | 'dark' | 'forest' | 'neutral'
+  startOnLoad: false,
+  securityLevel: 'loose',
+  theme: 'default',
 })
 
 const drawDiagram = async () => {
-  if (!props.info) return
+  const codeText = props.info.trim()
+
+  if (!codeText) {
+    svgHtml.value = ''
+    hasError.value = false
+    return
+  }
+
+  const currentVersion = ++renderVersion
+  const chartId = `mermaid-${Date.now()}-${currentVersion}`
 
   try {
     hasError.value = false
 
-    // 清理掉首尾的多余换行符
-    const codeText = props.info.trim()
+    const { svg } = await mermaid.render(
+      chartId,
+      codeText,
+    )
 
-    /**
-     * 🚨 核心避坑点 2：调用官方最底层、最干净的异步 render API
-     * mermaid.render(id, text) 会在后台计算好布局，直接返回生成的 SVG 字符串
-     * { svg } 就是我们要的 HTML 片段
-     */
-    const { svg } = await mermaid.render(uniqueChartId, codeText)
+    // 旧请求完成得比新请求晚，丢弃
+    if (currentVersion !== renderVersion) {
+      return
+    }
 
-    // 渲染成功，喂给 Vue 的 v-html
     svgHtml.value = svg
   } catch (error) {
+    // 旧请求的错误同样忽略
+    if (currentVersion !== renderVersion) {
+      return
+    }
+
     console.error('Mermaid 渲染发生错误:', error)
+
     hasError.value = true
     svgHtml.value = ''
 
-    /**
-     * 🚨 核心避坑点 3：Mermaid 的异常拦截清理
-     * 当 Mermaid 遇到语法错误渲染失败时，它会在浏览器的 <body> 尾部残留一个
-     * 带有恶意错误信息的临时绑定节点（如 #dmermaid-svg-xxxx）。
-     * 为了不污染全局 DOM 树，失败时我们手动去把它捞出来删掉。
-     */
     nextTick(() => {
-      const badElement = document.getElementById(`d${uniqueChartId}`)
+      const badElement = document.getElementById(`d${chartId}`)
+
       if (badElement) {
         badElement.remove()
       }
@@ -95,8 +113,31 @@ const drawDiagram = async () => {
   }
 }
 
-onMounted(() => {
-  drawDiagram()
+watch(
+  () => props.info,
+  () => {
+    // 清除上一次 debounce
+    if (renderTimer) {
+      clearTimeout(renderTimer)
+    }
+
+    // 用户停止输入 300ms 后再渲染
+    renderTimer = setTimeout(() => {
+      drawDiagram()
+    }, 300)
+  },
+  {
+    immediate: true,
+  },
+)
+
+onBeforeUnmount(() => {
+  if (renderTimer) {
+    clearTimeout(renderTimer)
+  }
+
+  // 让正在进行的旧 render 失效
+  renderVersion++
 })
 </script>
 <style scoped>

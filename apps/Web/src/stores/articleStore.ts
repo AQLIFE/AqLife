@@ -1,12 +1,17 @@
 // stores/articleStore.ts
 
+import type { TocNode } from '@aqlife/domain'
 import { defineStore } from 'pinia'
-import { ref,type Ref } from 'vue'
-import { type TocNode } from '@/services/markdownParser'
+import { ref } from 'vue'
 
 export const useArticleStore = defineStore('article', () => {
-    const markdown =ref('')
-    const blogTitle: Ref<string> = ref('')
-    const toc = ref<TocNode[]>()
-    return {markdown,toc,blogTitle}
+  const markdown = ref('')
+  const blogTitle = ref('')
+  const toc = ref<TocNode[]>([])
+
+  return {
+    markdown,
+    blogTitle,
+    toc,
+  }
 })

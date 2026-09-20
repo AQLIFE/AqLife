@@ -1,66 +1,105 @@
 <template>
-  <ElCol class="preview">
-    <ElPageHeader :icon="ArrowLeft" @back="$router.push('/blog')" class="header">
+  <ElCol class="blog-preview">
+    <ElPageHeader
+      class="header"
+      :icon="ArrowLeft"
+      @back="router.push('/blog')"
+    >
       <template #content>
-        <span>{{articleStore.blogTitle}}</span>
-        <template v-if="fileMeta[0]">
-          <ElTag style="margin: 0px 20px;" v-for="item,index in fileMeta[0].tags" :key="index">{{ item.name }}</ElTag>
-        </template>
+        <div class="article-header">
+          <span class="article-title">
+            {{ articleStore.blogTitle }}
+          </span>
+
+          <div
+            v-if="articleTags.length"
+            class="article-tags"
+          >
+            <ElTag
+              v-for="tag in articleTags"
+              :key="tag.uid!"
+            >
+              {{ tag.name }}
+            </ElTag>
+          </div>
+        </div>
       </template>
+
       <template #extra>
-        <ElButton :icon="Share" link/>
+        <ElButton
+          :icon="Share"
+          link
+          title="分享文章"
+        />
       </template>
     </ElPageHeader>
 
-    <!-- <div id="mdRender">
-      <template v-for="(node, index) in rNode" :key="index">
-        <CodeBlock v-if="node.type === 'component' && node.component === 'CodeBlock'" :info="node.content"
-          :infoType="node.info" />
-
-        <MermaidPreview v-else-if="node.type === 'component' && node.component === 'MermaidPreview'"
-          :info="node.content" :info-type="node.info" />
-        <TipPreview v-else-if="node.type == 'blockquote'" :quoteTokens="node.tokens" />
-        <TablePreview v-else-if="node.type === 'table'" :tableTokens="node.tokens" />
-
-        <div v-else-if="node.type === 'html'" v-html="node.content"></div>
-      </template>
-    </div> -->
-    <MarkdownRender :markdown="sourceMarkdown"/>
+    <div class="markdown-content">
+      <MarkdownRender :markdown="sourceMarkdown" />
+    </div>
   </ElCol>
 </template>
 
-<script lang="ts" setup>
-import { ElCol, ElPageHeader,ElButton, ElTag } from 'element-plus'
-import { useRoute, useRouter } from 'vue-router'
-import { FileApi, type ApiFileDownloadGetRequest, type FileDto } from '@/api'
+<script setup lang="ts">
+import {
+  ElButton,
+  ElCol,
+  ElPageHeader,
+  ElTag,
+} from 'element-plus'
+import {
+  ArrowLeft,
+  Share,
+} from '@element-plus/icons-vue'
+import {
+  onBeforeUnmount,
+  ref,
+  computed,
+  watch,
+} from 'vue'
+import {
+  useRoute,
+  useRouter,
+} from 'vue-router'
+
+import {
+  FileApi,
+  type ApiFileDownloadGetRequest,
+  type FileDto,
+} from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { ref, computed, onBeforeMount,watch } from 'vue'
-import { mdRenderOption, renderNodes } from '@aqlife/domain'
 import { useArticleStore } from '@/stores/articleStore'
-import { extractToc } from '@/services/markdownParser'
-import { ArrowLeft, Share } from '@element-plus/icons-vue'
-import {MarkdownRender}from '@aqlife/ui-shared'
+import { MarkdownRender } from '@aqlife/ui-shared'
+import { extractToc } from '@aqlife/domain'
+
+const route = useRoute()
+const router = useRouter()
 
 const articleStore = useArticleStore()
-const route = useRoute()
-useRouter();
 const fileApi = new FileApi(apiConfiguration)
 
-const sourceMarkdown = ref<string>('')
+const sourceMarkdown = ref('')
+const fileMeta = ref<FileDto[]>([])
 
-watch(sourceMarkdown, (value: string) => {
-  articleStore.markdown = value
-  articleStore.toc = extractToc(tokens.value)
-})
-const tokens = computed(() => mdRenderOption.parse(sourceMarkdown.value, {}))
-const rNode  = computed(()=>renderNodes(tokens.value))
+const articleTags = computed(() =>
+  fileMeta.value[0]?.tags ?? [],
+)
 
-async function getPreview(params: ApiFileDownloadGetRequest) {
+let requestVersion = 0
+
+async function getPreview(
+  params: ApiFileDownloadGetRequest,
+): Promise<string> {
   try {
-    const responseWrapper = await fileApi.apiFilePreviewGetRaw(params)
+    const responseWrapper =
+      await fileApi.apiFilePreviewGetRaw(params)
+
     const response = responseWrapper.raw
 
-    if (response.status === 204) return ''
+    if (response.status === 204) {
+      return ''
+    }
+
     if (!response.ok) {
       console.error(await response.text())
       return ''
@@ -68,40 +107,108 @@ async function getPreview(params: ApiFileDownloadGetRequest) {
 
     return await response.text()
   } catch (error) {
-    console.error('网络请求发生严重异常:', error)
+    console.error('获取文章内容失败:', error)
     return ''
   }
 }
-const fileMeta = ref<FileDto[]>([])
-onBeforeMount(async () => {
-  sourceMarkdown.value = await getPreview({ uID: route.params.id as string })
-  fileMeta.value = await fileApi.apiFileGet({ uID: route.params.id as string })
-  if (fileMeta.value[0] != undefined) articleStore.blogTitle = fileMeta.value[0].fileName!
-})
-watch(()=>route.params.id,
-async()=>{
-  sourceMarkdown.value = await getPreview({ uID: route.params.id as string })
-  fileMeta.value = await fileApi.apiFileGet({ uID: route.params.id as string })
-  if (fileMeta.value[0] != undefined) articleStore.blogTitle = fileMeta.value[0].fileName!
+
+async function loadArticle(id: string) {
+  const currentVersion = ++requestVersion
+
+  const [markdown, meta] = await Promise.all([
+    getPreview({ uID: id }),
+    fileApi.apiFileGet({ uID: id }),
+  ])
+
+  // 如果期间路由已经切换，丢弃旧请求结果
+  if (currentVersion !== requestVersion) {
+    return
+  }
+
+  sourceMarkdown.value = markdown
+  fileMeta.value = meta
+
+  const file = meta[0]
+
+  if (file) {
+    articleStore.blogTitle = file.fileName ?? ''
+  }
+}
+
+watch(
+  () => sourceMarkdown.value,
+  markdown => {
+    articleStore.markdown = markdown
+    articleStore.toc = extractToc(markdown)
+  },
+  {
+    immediate: true,
+  },
+)
+
+watch(
+  () => route.params.id,
+  id => {
+    if (typeof id !== 'string' || !id) {
+      return
+    }
+
+    loadArticle(id)
+  },
+  {
+    immediate: true,
+  },
+)
+
+onBeforeUnmount(() => {
+  requestVersion++
 })
 </script>
 
-<style lang="css" scoped>
-.preview{
+<style scoped>
+.blog-preview {
   display: grid;
+
   height: 100vh;
-  grid-template-rows: auto 1fr;
-}
-.header{
-  height:50px;
-  line-height: 50px;
-}
-#mdRender {
-  grid-column: 1/2;
-  overflow-x:scroll;
+  min-height: 0;
+
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
-#mdRender::-webkit-scrollbar {
+.header {
+  height: 50px;
+  line-height: 50px;
+}
+
+.article-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  min-width: 0;
+}
+
+.article-title {
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.article-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.markdown-content {
+  min-height: 0;
+
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.markdown-content::-webkit-scrollbar {
   display: none;
 }
 </style>

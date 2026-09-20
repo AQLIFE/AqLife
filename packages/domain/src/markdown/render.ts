@@ -17,44 +17,93 @@ export const mdRenderOption = new MarkdownIt({
 const renderTokens = (token: Token) =>
   mdRenderOption.renderer.render([token], mdRenderOption.options, {})
 
-export function renderNodes (sourceToken:Token[]){
-  const nodes: any[] = []
-  const allTokens = sourceToken
 
-  for (let i = 0; i < allTokens.length; i++) {
-    const token = allTokens[i]
-    console.log(i, token.type, token.tag, token.level, token.content)
+export function buildMarkdownRenderNodes(tokens: Token[]) {
+  const nodes: any[] = []
+  let htmlBuffer = ''
+
+  function flushHtml() {
+    if (!htmlBuffer) return
+
+    nodes.push({
+      type: 'html',
+      content: htmlBuffer,
+    })
+
+    htmlBuffer = ''
+  }
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i]
 
     if (token.type === 'fence') {
+      flushHtml()
+
       nodes.push({
         type: 'component',
-        component: token.info === 'mermaid' ? 'MermaidPreview' : 'CodeBlock',
+        component: token.info === 'mermaid'
+          ? 'MermaidPreview'
+          : 'CodeBlock',
         content: token.content,
         info: token.info,
       })
-    } else if (token.type === 'blockquote_open') {
+
+      continue
+    }
+
+    if (token.type === 'blockquote_open') {
+      flushHtml()
+
       const quoteGroup = []
       let j = i
-      while (j < allTokens.length && allTokens[j].type !== 'blockquote_close') {
-        quoteGroup.push(allTokens[j])
+
+      while (
+        j < tokens.length &&
+        tokens[j].type !== 'blockquote_close'
+      ) {
+        quoteGroup.push(tokens[j])
         j++
       }
-      quoteGroup.push(allTokens[j])
-      nodes.push({ type: 'blockquote', tokens: quoteGroup })
+
+      quoteGroup.push(tokens[j])
+
+      nodes.push({
+        type: 'blockquote',
+        tokens: quoteGroup,
+      })
+
       i = j
-    } else if (token.type === 'table_open') {
-      const tableGroup = []
-      while (i < allTokens.length - 1 && allTokens[i].type !== 'table_close') {
-        tableGroup.push(allTokens[i++])
-      }
-      tableGroup.push(allTokens[i])
-      nodes.push({ type: 'table', tokens: tableGroup })
-    } else {
-      
-      const html = renderTokens(token)
-      nodes.push({ type: 'html', content: html })
+      continue
     }
+
+    if (token.type === 'table_open') {
+      flushHtml()
+
+      const tableGroup = []
+
+      while (
+        i < tokens.length - 1 &&
+        tokens[i].type !== 'table_close'
+      ) {
+        tableGroup.push(tokens[i++])
+      }
+
+      tableGroup.push(tokens[i])
+
+      nodes.push({
+        type: 'table',
+        tokens: tableGroup,
+      })
+
+      continue
+    }
+
+    // 普通 token：不要立刻生成 node
+    htmlBuffer += renderTokens(token)
   }
+
+  flushHtml()
+
   return nodes
 }
 

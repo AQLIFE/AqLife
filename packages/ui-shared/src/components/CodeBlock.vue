@@ -1,13 +1,31 @@
 <template>
-  <div class="code">
-    <div class="codeHeader">
-      <div class="codeType">{{ props.infoType || 'text' }}</div>
-      <div class="codeTitle"></div>
-      <div class="copyButton" title="点此复制以下代码" @click="onCopy">Copy</div>
-    </div>
+  <div class="code-block">
+    <header class="code-block__header">
+      <span class="code-block__language">
+        {{ language }}
+      </span>
 
-    <div class="codeContent">
-      <pre><code class="hljs" v-html="highlightedHTML"></code></pre>
+      <span class="code-block__title">
+        {{ title }}
+      </span>
+
+      <div class="code-block__actions">
+        <button
+          class="code-block__copy"
+          type="button"
+          title="复制代码"
+          @click="onCopy"
+        >
+          {{ copied ? 'Copied' : 'Copy' }}
+        </button>
+      </div>
+    </header>
+
+    <div class="code-block__body">
+      <pre><code
+        class="hljs"
+        v-html="highlightedHTML"
+      /></pre>
     </div>
   </div>
 </template>
@@ -23,24 +41,28 @@ import 'highlight.js/styles/atom-one-dark.css'
 // 1. 接收从父组件传来的纯文本代码和语言类型
 const props = defineProps<{
   info: string
-  infoType: string
+  infoType?: string
+  title?: string
 }>()
+
+const language = computed(() =>
+  props.infoType?.trim() || 'text'
+)
 
 const copied = ref(false)
 
 // 2. 核心：利用 highlight.js 将纯文本转换为带颜色标签的 HTML
 const highlightedHTML = computed(() => {
   const lang = props.infoType
-  const code = props.info || ''
+  const code = (props.info || '').replace(/\r?\n$/, '')
 
-  // 检查 highlight.js 是否支持该语言，支持则高亮，不支持则返回纯文本
   if (lang && hljs.getLanguage(lang)) {
     try {
       return hljs.highlight(code, { language: lang }).value
     } catch {}
   }
-  // 降级处理：如果没有匹配语言，转义防止 XSS 后直接输出
-  return hljs.highlightAuto(code).value // 或者简单的文本转义
+
+  return hljs.highlightAuto(code).value
 })
 
 // 3. 复制功能稍作调整：直接复制传进来的 RawCode 纯文本
@@ -65,50 +87,75 @@ const onCopy = async () => {
 </script>
 
 <style scoped>
-/* 你的原有样式保持不变 */
-.code {
-  background-color: var(--back_color_lv1);
-  border-radius: 8px;
-  overflow: hidden;
+.code-block {
   margin: 1rem 0;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
-.codeHeader {
+.code-block__header {
   display: flex;
-  flex-direction: row;
-  line-height: 40px;
-  background-color: #2d2d2d; /* 稍微深一点的头部颜色 */
+  align-items: center;
+
+  min-height: 40px;
+
+  background-color: #2d2d2d;
   color: #ccc;
+
   font-size: 0.9rem;
 }
 
-.codeHeader .codeType {
-  padding: 0 1vw;
+.code-block__language {
+  padding: 0 1rem;
+
+  font-weight: 500;
   text-transform: uppercase;
 }
 
-.codeHeader .codeTitle {
-  flex-grow: 1;
+.code-block__title {
+  flex: 1;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.codeHeader .copyButton {
-  padding: 0 1vw;
+.code-block__actions {
+  display: flex;
+  align-items: center;
+}
+
+.code-block__copy {
+  padding: 0 1rem;
+
+  border: 0;
+  background: transparent;
+  color: #ccc;
+
   cursor: pointer;
-  transition: color 0.2s;
 }
 
-.codeHeader .copyButton:hover {
+.code-block__copy:hover {
   color: #fff;
 }
 
-.codeContent {
-  background-color: var(--back_color_lv3);
-  margin: 0;
+.code-block__body {
+  background-color: #282c34;
 }
 
-.codeContent pre {
+.code-block__body pre {
   margin: 0;
-  padding: 1rem;
+  padding: 0;
+
   overflow-x: auto;
+}
+
+.code-block__body :deep(code.hljs) {
+  display: block;
+
+  box-sizing: border-box;
+  padding: 1rem;
+
+  background: transparent;
 }
 </style>

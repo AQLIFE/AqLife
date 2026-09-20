@@ -58,6 +58,7 @@ onMounted(async () => {
       value: markdown.value,
       language: 'markdown',
       theme: 'vs',
+      fontFamily: 'Cascadia Code PL',
       automaticLayout: true,
       minimap: {
         enabled: false,
@@ -127,18 +128,11 @@ async function handleUploadNewBlog() {
     <div ref="container" class="editor" />
 
     <!-- 右侧 Preview -->
-    <!-- <div class="preview " v-html="marked(markdown)" /> -->
     <MarkdownRender :markdown="markdown"/>
   </div>
 </template>
 
 <style lang="css" scoped>
-.header {
-  grid-column: 1 / 3;
-  height: 50px;
-  line-height: 50px;
-}
-
 .markdown-editor {
   display: grid;
 
@@ -147,23 +141,18 @@ async function handleUploadNewBlog() {
   grid-template-columns: 1fr 1fr;
   text-align: left;
   height: 100vh;
+  font-family: 'Cascadia Code PL', monospace;
+}
+
+.header {
+  grid-column: 1 / 3;
+  height: 50px;
+  line-height: 50px;
 }
 
 .editor {
   min-width: 0;
   height: 100%;
-}
-
-.preview {
-  min-width: 0;
-  height: 100%;
-
-  overflow: auto;
-
-  padding: 24px;
-  box-sizing: border-box;
-
-  border-left: 1px solid #ddd;
 }
 
 /* Markdown 基础样式 */

@@ -18,8 +18,14 @@ import CodeBlock from './CodeBlock.vue'
 import TipPreview from './TipPreview.vue'
 import TablePreview from './TablePreview.vue'
 import MermaidPreview from './MermaidPreview.vue';
-import { mdRenderOption, renderNodes } from '@aqlife/domain'
+import { mdRenderOption, buildMarkdownRenderNodes } from '@aqlife/domain'
 
 const props = defineProps<{ markdown: string }>()
-const rNode = computed(() => renderNodes(mdRenderOption.parse(props.markdown, {})))
+const rNode = computed(() => {
+    const parsed = mdRenderOption.parse(props.markdown, {})
+    const rendered = buildMarkdownRenderNodes(parsed)
+    // console.log('parsed:', parsed)
+    // console.log('rendered:', rendered)
+    return rendered
+})
 </script>
