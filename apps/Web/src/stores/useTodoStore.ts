@@ -1,6 +1,6 @@
 import { TodoApi, type TodoDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { handle } from '@/utils/request'
+import { handle } from '@aqlife/domain'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
