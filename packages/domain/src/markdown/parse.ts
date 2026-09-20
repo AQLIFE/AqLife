@@ -1,5 +1,5 @@
 import { mdRenderOption } from "./render"
-import { HeadingLevel, TocNode } from "./type"
+import { type HeadingLevel,type TocNode } from "./type"
 
 
 function createHeadingAnchor(
