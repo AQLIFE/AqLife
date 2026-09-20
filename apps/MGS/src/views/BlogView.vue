@@ -152,7 +152,7 @@ async function handleUploadNewBlog() {
 
 .editor {
   min-width: 0;
-  height: 100%;
+  max-height: calc(100vh - 52px);
 }
 
 /* Markdown 基础样式 */

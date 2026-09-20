@@ -29,3 +29,13 @@ const rNode = computed(() => {
     return rendered
 })
 </script>
+
+<style scoped>
+#mdRender{
+    max-height: calc(100vh - 52px);
+    overflow-x:hidden;
+}
+#mdRender ::-webkit-scrollbar-button{
+    display: none;
+}
+</style>
