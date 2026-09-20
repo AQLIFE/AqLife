@@ -59,7 +59,7 @@ import { isImageType } from '@aqlife/domain'
 import TagSelect from './TagSelect.vue'
 import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
 import { useFileStore } from '@/stores/useFileStore'
-import { computed, ref, watch, type Component, type Ref } from 'vue'
+import { computed, ref, watch, type Ref } from 'vue'
 import { FileApi, type FileDto, type TagDto } from '@/api'
 import ImageUpload from '@/components/ImageUpload.vue'
 import {
@@ -75,21 +75,8 @@ import {
 import { OperationalState, useActionStore } from '@/stores/useActionStore.ts'
 import { apiConfiguration } from '@/services/api.ts'
 import { useRouter } from 'vue-router'
-import { Brush, Promotion, Timer } from '@element-plus/icons-vue'
 import { FileDraftWorkflow,FileContentUpdateWorkflow,FilePublishWorkflow,FileDeleteWorkflow,FileTagUpdateWorkflow,FileScheduledWorkflow } from '@/workflow/index.ts'
-//src/workflow/index.ts:4:15 - error TS1261: Already included file name 'F:/Code/Mylife/AqLife/apps/MGS/src/workflow/fileflow/FilescheduledWorkflow.ts' differs from file name 'F:/Code/Mylife/AqLife/apps/MGS/src/workflow/fileflow/FileScheduledWorkflow.ts' only in casing.
-//   The file is in the program because:
-//     Imported via './fileflow/FilescheduledWorkflow' from file 'F:/Code/Mylife/AqLife/apps/MGS/src/workflow/index.ts'
-//     Matched by include pattern 'src/**/*' in 'F:/Code/Mylife/AqLife/apps/MGS/tsconfig.app.json'
-
-// 4 export * from './fileflow/FilescheduledWorkflow'
-//                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-//   tsconfig.app.json:3:27
-//     3   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
-//                                 ~~~~~~~~~~
-//     File is matched by include pattern specified here.
-
+import { publishStatusOptions, publishStatus } from '@/types/TableFilterOption.ts'
 
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
@@ -187,14 +174,10 @@ async function onTagsChanged(value: TagDto[] | undefined) {
   }
 }
 //================================发布状态
-enum publishStatus { Draft, Scheduled, Published }
-const demo: { label: string, value: publishStatus, icon: Component }[] = [
-  { label: '草稿', icon: Brush, value: publishStatus.Draft },
-  { label: '预约', icon: Timer, value: publishStatus.Scheduled },
-  { label: '发布', icon: Promotion, value: publishStatus.Published }
-]
+
+
 const segmentedOptions = computed(() =>
-  demo.map(item => ({
+  publishStatusOptions.map(item => ({
     ...item,
     disabled:
       item.value === publishStatus.Scheduled &&

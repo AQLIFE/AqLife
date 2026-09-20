@@ -63,7 +63,9 @@
       </ElCol>
     </ElRow>
     <ElTable :data="tableData" highlight-current-row @row-click="activeRow" style="height:100%;">
-      <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label" :width="column.width" :sortable="column.sortable">
+      <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label"
+      :width="column.width" :sortable="column.sortable" :filters="column.filter?.options.map(option=>({text:option.label,value:option.value.toString() }))" :filter-method="column.filter?(value, row) => `${row[column.prop]}` === value:undefined" :filter-multiple="column.filter?.multiple ?? false"
+>
         <template #default="{row}">
           <component v-if="column.renderer" :is="column.renderer" :row="row" :value="row[column.prop]"/>
           <template v-else>{{ row[column.prop] }}</template>
@@ -97,12 +99,12 @@ import { useActionStore, OperationalState } from '@/stores/useActionStore'
 import FileUpload from '@/components/FileUpload.vue'
 import FileTool from '@/components/FileTool.vue'
 import { Plus,Upload } from '@element-plus/icons-vue'
-import { defaultFilePolicy } from '@aqlife/domain'
 import { useRouter } from 'vue-router'
 import FilePreviewCell from '@/components/FilePreviewCell.vue'
 import TagsCell from '@/components/TagsCell.vue'
 import FileSizeCell from './FileSizeCell.vue'
 import PublishStatusCell from './PublishStatusCell.vue'
+import { publishStatusOptions, type TableFilterOption } from '@/types/TableFilterOption.ts'
 
 // 组件核心
 type FileTableColumn = {
@@ -111,8 +113,13 @@ type FileTableColumn = {
   renderer?:Component,
   sortable?: boolean,
   width?:number|string,
-  fixed?:'left'|'right'
+  fixed?:'left'|'right',
+  filter?: {
+    options: TableFilterOption[]
+    multiple?: boolean
+  }
 }
+
 
 const tableColumns: FileTableColumn[] = [
   {
@@ -131,13 +138,15 @@ const tableColumns: FileTableColumn[] = [
     prop: 'tags',
     label: '标签',
     renderer:TagsCell,
-    width:400
+    width:380
   },
   {
     prop: 'publishStatus',
     label: '发布状态',
     renderer:PublishStatusCell,
-    width:80
+    width:120,
+    sortable:true,
+    filter:{options:publishStatusOptions,multiple:true}
   },
   {
     prop: 'fileSize',
@@ -158,6 +167,10 @@ const tableColumns: FileTableColumn[] = [
   },
 ]
 
+// const adatar = computed(()=>{
+//   return column.filter?.options.map(option=>({text:option.label,value:option.value}))
+// })
+
 // 检索参数
 const searchField = ref<keyof FileDto | null>(null)
 const searchText = ref<string>('')
@@ -176,15 +189,23 @@ const fileStore = useFileStore()
 const actionStore = useActionStore()
 const activeDto = ref<FileDto>({})
 
-const extensionFilters = defaultFilePolicy.allowedUpload.map(ext => ({
-  text: ext.toUpperCase(),
-  value: ext
-}))
-const handleFilter = (value: string, row: any, column: any) => {
-  const property = column['property']
-  // 确保这里的判断逻辑与你后端 FileMetaEntity 的 Extension 字段对齐 [cite: 9]
-  return row[property] === value
-}
+// const extensionFilters = defaultFilePolicy.allowedUpload.map(ext => ({
+//   text: ext.toUpperCase(),
+//   value: ext
+// }))
+// const handleFilter = (value: any, row: any, column: TableColumnCtx<FileDto>) => {
+//   const property = column['property']
+//   // 确保这里的判断逻辑与你后端 FileMetaEntity 的 Extension 字段对齐 [cite: 9]
+//   return row[property] === value
+// }
+// function handleFilter(column: FileTableColumn) {
+//   return (
+//     value: unknown,
+//     row: FileDto
+//   ) => {
+//     return row[column.prop] === value
+//   }
+// }
 const activeRow = (row: FileDto) => {
   actionStore.OState = OperationalState.Update
   activeDto.value = row

@@ -20,7 +20,7 @@ namespace AqLife.APIUnitTest.Application
             var environment = new HostingEnvironment
             {
                 EnvironmentName = "Test",
-                ApplicationName = typeof(IntegrationTestFixture).Assembly.GetName().Name
+                ApplicationName = typeof(IntegrationTestFixture).Assembly.GetName().Name!
             };
 
             var services = new ServiceCollection();
