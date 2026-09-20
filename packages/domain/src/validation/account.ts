@@ -13,7 +13,6 @@ export function validateAccountName(name?: string | null): ValidationResult {
 
 export function validateSecretKey(secret?: string | null): ValidationResult {
   const value = secret?.trim() ?? ''
-  console.log(value)
   if (value===''||value==null||value==undefined) return validationFail('系统密钥不能为空')
   if (/\s/.test(value)) return validationFail('系统密钥不能包含空格')
   return validationOk()

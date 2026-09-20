@@ -2,6 +2,31 @@ import MarkdownIt from 'markdown-it'
 import anchor from 'markdown-it-anchor'
 import { type Token } from 'markdown-it/index.js'
 
+export interface MarkdownLinkContext {
+  href: string
+  text: string
+  token: Token
+}
+
+export type MarkdownLinkResolver = (
+  context: MarkdownLinkContext,
+) => Promise<MarkdownLinkResult | null>
+
+export type MarkdownLinkResult =
+  | {
+    type: 'image'
+    src: string
+    alt: string
+  }
+  | {
+    type: 'markdown'
+    href: string
+  }
+  | {
+    type: 'link'
+    href: string
+  }
+
 export const mdRenderOption = new MarkdownIt({
   html: true,
   breaks: true,
@@ -15,15 +40,37 @@ export const mdRenderOption = new MarkdownIt({
 })
 
 const renderTokens = (token: Token) =>
-  mdRenderOption.renderer.render([token], mdRenderOption.options, {})
+  mdRenderOption.renderer.render(
+    [token],
+    mdRenderOption.options,
+    {},
+  )
 
+function getLinkText(tokens: Token[]): string {
+  return tokens
+    .filter(token => token.type === 'text')
+    .map(token => token.content)
+    .join('')
+}
 
-export function buildMarkdownRenderNodes(tokens: Token[]) {
+function getLinkChildren(
+  token: Token,
+): Token[] {
+  return token.children ?? []
+}
+
+export async function buildMarkdownRenderNodes(
+  tokens: Token[],
+  resolveLink?: MarkdownLinkResolver,
+): Promise<any[]> {
   const nodes: any[] = []
+
   let htmlBuffer = ''
 
-  function flushHtml() {
-    if (!htmlBuffer) return
+  async function flushHtml() {
+    if (!htmlBuffer) {
+      return
+    }
 
     nodes.push({
       type: 'html',
@@ -35,9 +82,15 @@ export function buildMarkdownRenderNodes(tokens: Token[]) {
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
+    console.log(token.type === 'inline' &&
+      token.children &&
+      resolveLink && token.content.startsWith('[demo]')?token.content:'')
 
+    /*
+     * fenced code
+     */
     if (token.type === 'fence') {
-      flushHtml()
+      await flushHtml()
 
       nodes.push({
         type: 'component',
@@ -51,8 +104,11 @@ export function buildMarkdownRenderNodes(tokens: Token[]) {
       continue
     }
 
+    /*
+     * blockquote
+     */
     if (token.type === 'blockquote_open') {
-      flushHtml()
+      await flushHtml()
 
       const quoteGroup = []
       let j = i
@@ -65,7 +121,9 @@ export function buildMarkdownRenderNodes(tokens: Token[]) {
         j++
       }
 
-      quoteGroup.push(tokens[j])
+      if (j < tokens.length) {
+        quoteGroup.push(tokens[j])
+      }
 
       nodes.push({
         type: 'blockquote',
@@ -76,8 +134,11 @@ export function buildMarkdownRenderNodes(tokens: Token[]) {
       continue
     }
 
+    /*
+     * table
+     */
     if (token.type === 'table_open') {
-      flushHtml()
+      await flushHtml()
 
       const tableGroup = []
 
@@ -98,29 +159,149 @@ export function buildMarkdownRenderNodes(tokens: Token[]) {
       continue
     }
 
-    // 普通 token：不要立刻生成 node
+
+    /*
+     * inline token
+     *
+     * 例如：
+     *
+     * [demo](http://test.net/api/file/preview?UID=xxx)
+     *
+     * markdown-it 会把真正的 link_open / link_close
+     * 放到 token.children 中。
+     */
+    if (
+      token.type === 'inline' &&
+      token.children &&
+      resolveLink
+    ) {
+      const children = getLinkChildren(token)
+      console.log(children)
+
+      let hasInternalLink = false
+      for (let j = 0; j < children.length; j++) {
+        const child = children[j]
+
+        if (child.type !== 'link_open') {
+          continue
+        }
+
+        const href = child.attrGet('href')
+        
+
+        if (!href) {
+          continue
+        }
+
+        let linkCloseIndex = j + 1
+
+        while (
+          linkCloseIndex < children.length &&
+          children[linkCloseIndex].type !== 'link_close'
+        ) {
+          linkCloseIndex++
+        }
+
+        const linkChildren = children.slice(
+          j + 1,
+          linkCloseIndex,
+        )
+
+        const text = getLinkText(linkChildren)
+
+        const result = await resolveLink({
+          href,
+          text,
+          token: child,
+        })
+        console.log("result=>",result)
+
+        if (!result) {
+          continue
+        }
+
+        hasInternalLink = true
+
+        await flushHtml()
+
+        nodes.push({
+          type: 'resolved-link',
+          result,
+          text,
+        })
+
+        /*
+         * 这里只处理当前 link。
+         *
+         * 剩余普通 inline token 继续进入 HTML。
+         */
+        // const before = children.slice(0, j)
+
+        // const after = children.slice(
+        //   linkCloseIndex + 1,
+        // )
+
+        // if (before.length > 0) {
+        //   nodes.push({
+        //     type: 'html',
+        //     content: mdRenderOption.renderer.renderInline(
+        //       before,
+        //       {},
+        //     ),
+        //   })
+        // }
+
+        // if (after.length > 0) {
+        //   nodes.push({
+        //     type: 'html',
+        //     content: mdRenderOption.renderer.renderInline(
+        //       after,
+        //       {},
+        //     ),
+        //   })
+        // }
+
+        break
+      }
+
+      if (hasInternalLink) {
+        continue
+      }
+    }
+
+    /*
+     * 普通 token
+     */
     htmlBuffer += renderTokens(token)
   }
 
-  flushHtml()
+  await flushHtml()
 
   return nodes
 }
 
-export function getArticleTitle(content: string): string {
+export function getArticleTitle(
+  content: string,
+): string {
   const tokens = mdRenderOption.parse(content, {})
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
 
-    if (token.type === 'heading_open' && token.tag === 'h1') {
+    if (
+      token.type === 'heading_open' &&
+      token.tag === 'h1'
+    ) {
       const titleToken = tokens[i + 1]
 
       if (titleToken?.type === 'inline') {
-        return sanitizeFileName(titleToken.content)
+        return sanitizeFileName(
+          titleToken.content,
+        )
       }
     }
   }
+
   return '未命名文章'
 }
 

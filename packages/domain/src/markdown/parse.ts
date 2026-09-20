@@ -60,3 +60,17 @@ export const extractToc = (markdown: string): TocNode[] => {
 
   return result
 }
+
+export function extractFileUid(url: URL): string | null {
+    const queryUid = url.searchParams.get('UID')
+
+    if (queryUid) {
+        return queryUid
+    }
+
+    const match = url.pathname.match(
+        /\/api\/file\/preview\/([0-9a-f-]{36})$/i
+    )
+
+    return match?.[1] ?? null
+}

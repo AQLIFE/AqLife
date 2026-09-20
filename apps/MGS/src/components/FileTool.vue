@@ -300,7 +300,7 @@ async function changeToScheduled(value: FileDto) {
 }
 //================================属性监听
 async function onFileChanged(value: File | undefined | null) {
-  console.log(value?.name,value?.size)
+  // console.log(value?.name,value?.size)
   if (!value || !fileDto.value) return
 
   if (value.name !== (fileDto.value.fileName!+fileDto.value.fileType)) {

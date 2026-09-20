@@ -123,7 +123,7 @@ onBeforeMount(()=>{
 {
     SearchHistory.value.forEach(async item => {
         item.tags =( await fileApi.apiFileGet({uID:item.uid}))[0].tags
-        console.log(item.tags)
+        // console.log(item.tags)
     });
 }
 })

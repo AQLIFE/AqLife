@@ -35,7 +35,7 @@
     </ElPageHeader>
 
     <div class="markdown-content">
-      <MarkdownRender :markdown="sourceMarkdown" />
+      <MarkdownRender :markdown="sourceMarkdown" :baseurl="baseurl"/>
     </div>
   </ElCol>
 </template>
@@ -77,6 +77,7 @@ const router = useRouter()
 
 const articleStore = useArticleStore()
 const fileApi = new FileApi(apiConfiguration)
+const baseurl = import.meta.env.VITE_API
 
 const sourceMarkdown = ref('')
 const fileMeta = ref<FileDto[]>([])

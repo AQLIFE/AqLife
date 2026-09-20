@@ -1,6 +1,6 @@
 import { AccountApi, type AccountDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { handle } from '@/utils/request'
+import { handle } from '@aqlife/domain'
 import { defineStore } from 'pinia'
 import { ref, type Ref } from 'vue'
 
@@ -15,6 +15,7 @@ export const useAuthorInfoStore = defineStore('author-info', () => {
 
   const api = new AccountApi(apiConfiguration)
   const getUser = async () => {
+    
     const [response, status] = await handle(api.apiAccountGetRaw())
     try {
       const data = await response?.value()

@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Validators;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Validators;
 using AqLife.Domain.CommandInterface;
 using AqLife.Shared.Options;
 using AqLife.Shared.Tools;
@@ -40,7 +41,7 @@ namespace AqLife.Application.Business.File.Validator
     /// </summary>
     /// <param name="storage"></param>
     /// <param name="context"></param>
-    public class FileDuplicateValidator<T>(UploadContext context) : AbstractValidator<T> where T : IHasFormFiles
+    public class FileDuplicateValidator<T>(UploadContext context,IApplicationDbContext dbContext) : AbstractValidator<T> where T : IHasFormFiles
     {
         private protected override string ErrorMessage { init; get; } = "文件重复";
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
@@ -51,6 +52,10 @@ namespace AqLife.Application.Business.File.Validator
             {
                 var tempHash = await CalculateHashAsync(file);
                 context.FileHashes.Add(file, tempHash);
+                if( dbContext.File.Any(e=>e.FileHash == tempHash))
+                {
+                    return false;
+                }
             }
             return true;
 

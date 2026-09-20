@@ -8,7 +8,7 @@ import { getArticleTitle } from '@aqlife/domain';
 import { FileApi } from '@/api';
 import { apiConfiguration } from '@/services/api';
 import { OperationalState, useActionStore } from '@/stores/useActionStore';
-import {MarkdownRender} from '@aqlife/ui-shared'
+import { MarkdownRender } from '@aqlife/ui-shared'
 
 const container = ref<HTMLElement>()
 
@@ -95,6 +95,7 @@ onBeforeUnmount(() => {
 
 const router = useRouter()
 const loading = ref<boolean>(false)
+const baseurl = import.meta.env.VITE_API
 
 async function handleUploadNewBlog() {
   loading.value = true
@@ -109,7 +110,7 @@ async function handleUploadNewBlog() {
   )
   const guid = await fileApi.apiFileUploadPostRaw({ file: [blog] })
   if (guid.raw.status == 200) ElMessage.success('上传成功')
-  console.log(guid.raw.body)
+  // console.log(guid.raw.body)
   loading.value = false
 }
 
@@ -128,7 +129,7 @@ async function handleUploadNewBlog() {
     <div ref="container" class="editor" />
 
     <!-- 右侧 Preview -->
-    <MarkdownRender :markdown="markdown"/>
+    <MarkdownRender :markdown="markdown" :baseurl="baseurl"/>
   </div>
 </template>
 
