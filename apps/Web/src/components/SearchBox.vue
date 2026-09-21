@@ -1,201 +1,588 @@
 <template>
-    <ElCard shadow="hover" class="card" title="按下Ctrl+Q快速聚焦到搜索框">
+  <div class="search-box">
+    <!-- 搜索区域 -->
+    <div class="search-panel">
+      <ElSelect
+        ref="inputRef"
+        v-model="selectedValue"
+        class="search-select"
+        filterable
+        remote
+        clearable
+        :remote-method="remoteSearch"
+        :loading="loading"
+        :debounce="350"
+        :remote-show-suffix="true"
+        :default-first-option="true"
+        no-match-text="不存在该博文"
+        :suffix-icon="Search"
+        placeholder="你想搜点什么"
+        @change="handleSelect"
+      >
+        <template #prefix>
+          <span class="shortcut">
+            <ElIcon>
+              <component :is="webIconRegistry[keyIcon]" />
+            </ElIcon>
 
-        <ElSelect v-model="selectedValue" filterable remote clearable :remote-method="remoteSearch" placeholder="你想搜点什么"
-            :loading="loading" :debounce="350" :remote-show-suffix="true" no-match-text="不存在该博文"
-            :default-first-option="true" :suffix-icon="Search" ref="inputRef" @change="handleSelect">
-            <template #prefix>
-                <ElCol style="height: 50px;line-height: 50px;">
-                    <span class="key">
-                        <ElIcon>
-                            <component :is="webIconRegistry[keyIcon]" />
-                        </ElIcon>
-                        Ctrl+Q
-                    </span>
-                </ElCol>
-            </template>
-            <ElOption v-for="item in result" :key="item.uid" :label="item.fileName" :value="item.uid" />
-        </ElSelect>
-        <ElCol class="search-history">
-            <ElCol class="header">搜索历史</ElCol>
-            <ElCol class="content" v-if="SearchHistory.length >= 1">
-                <ElRow v-for="item, index in SearchHistory" :key="index" style="padding: 10px;">
-                    <ElCol :span="12">
-                        <ElButton class="none" :icon="webIconRegistry[Markdown]" @click="router.push({path:`/preview/${item.uid}`})" link>{{ item.fileName }}</ElButton>
-                    </ElCol>
-                    <ElCol :span="10">
-                        <ElTag v-for="tag, index in item.tags" :key="index" :type="tag.isCategory?'success':'info'" style="height:100%;">{{tag.name}}</ElTag>
-                    </ElCol>
-                    <ElCol :span="2">
-                        <ElButton @click="deleteSH(index)" :icon="Delete"/>
-                    </ElCol>
-                </ElRow>
-            </ElCol>
-            <ElCol v-else class="content">
-                还没有搜索记录哦
-            </ElCol>
-        </ElCol>
-    </ElCard>
+            <span>Ctrl+Q</span>
+          </span>
+        </template>
+
+        <ElOption
+          v-for="item in result"
+          :key="item.uid"
+          :label="item.fileName!"
+          :value="item.uid!"
+        />
+      </ElSelect>
+    </div>
+
+    <!-- 搜索历史 -->
+    <section class="history-panel">
+      <div class="history-header">
+        <span>搜索历史</span>
+
+        <span
+          v-if="SearchHistory.length"
+          class="history-count"
+        >
+          {{ SearchHistory.length }}
+        </span>
+      </div>
+
+      <div
+        v-if="SearchHistory.length"
+        class="history-list"
+      >
+        <div
+          v-for="(item, index) in SearchHistory"
+          :key="item.uid ?? index"
+          class="history-item"
+        >
+          <ElButton
+            class="history-title"
+            :icon="webIconRegistry[Markdown]"
+            link
+            @click="router.push({ path: `/preview/${item.uid}` })"
+          >
+            <span>{{ item.fileName }}</span>
+          </ElButton>
+
+          <div
+            v-if="item.tags?.length"
+            class="history-tags"
+          >
+            <ElTag
+              v-for="tag in item.tags"
+              :key="tag.uid!"
+              size="small"
+              :type="tag.isCategory ? 'success' : 'info'"
+            >
+              {{ tag.name }}
+            </ElTag>
+          </div>
+
+          <ElButton
+            class="delete-button"
+            :icon="Delete"
+            text
+            @click="deleteSH(index)"
+          />
+        </div>
+      </div>
+
+      <div
+        v-else
+        class="history-empty"
+      >
+        还没有搜索记录哦
+      </div>
+    </section>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ElCol, ElCard, ElIcon, ElSelect, ElButton, ElTag, ElRow } from 'element-plus';
-import { Delete, Search } from '@element-plus/icons-vue';
-import { onBeforeMount, onMounted, onUnmounted, ref } from 'vue';
-import { FileApi, type FileDto } from '@/api';
-import { apiConfiguration } from '@/services/api';
-import { WebIconName, webIconRegistry } from '@aqlife/icons'
-import { useRouter } from 'vue-router';
+import {
+  ElButton,
+  ElIcon,
+  ElOption,
+  ElSelect,
+  ElTag,
+} from 'element-plus'
+
+import {
+  Delete,
+  Search,
+} from '@element-plus/icons-vue'
+
+import {
+  onBeforeMount,
+  onMounted,
+  onUnmounted,
+  ref,
+} from 'vue'
+
+import {
+  FileApi,
+  type FileDto,
+} from '@/api'
+
+import { apiConfiguration } from '@/services/api'
+
+import {
+  WebIconName,
+  webIconRegistry,
+} from '@aqlife/icons'
+
+import { useRouter } from 'vue-router'
+
 
 const router = useRouter()
-const keyIcon = WebIconName.Key;
-const Markdown = WebIconName.Markdown;
-const loading = ref(false);
-const selectedValue = ref<string>(''); // 存储当前选中的 UID
-const result = ref<FileDto[]>([]);
-const inputRef = ref();
-const SearchHistory = ref<FileDto[]>([]); // 搜索历史
-const fileApi = new FileApi(apiConfiguration);
 
-// const Preview = (uid:string|undefined)=>`/preview/${uid}`
-const HISTORY_STORAGE_KEY = 'AQLIFE_SEARCH_HISTORY';
+const fileApi = new FileApi(apiConfiguration)
 
-// 1. 处理选择逻辑：将结果追加到历史记录
+const keyIcon = WebIconName.Key
+const Markdown = WebIconName.Markdown
+
+const HISTORY_STORAGE_KEY = 'AQLIFE_SEARCH_HISTORY'
+
+const loading = ref(false)
+
+const selectedValue = ref<string>('')
+
+const result = ref<FileDto[]>([])
+
+const inputRef = ref()
+
+const SearchHistory = ref<FileDto[]>([])
+
+
+/**
+ * 处理搜索结果选择
+ */
 function handleSelect(uid: string) {
-    if (!uid) return;
+  if (!uid) return
 
-    // 从当前搜索结果中找到对应的完整对象
-    const selectedItem = result.value.find(item => item.uid === uid);
+  const selectedItem = result.value.find(
+    item => item.uid === uid,
+  )
 
-    if (selectedItem) {
-        // 去重逻辑：如果已存在则先移除，再插入到最前面（保证时间顺序）
-        const index = SearchHistory.value.findIndex(h => h.uid === uid);
-        if (index !== -1) {
-            SearchHistory.value.splice(index, 1);
-        }
-        SearchHistory.value.unshift(selectedItem);
+  if (!selectedItem) return
 
-        // 限制历史记录上限，例如只保留最新的 20 条
-        if (SearchHistory.value.length > 20) {
-            SearchHistory.value.pop();
-        }
-    }
+  const index = SearchHistory.value.findIndex(
+    item => item.uid === uid,
+  )
+
+  if (index !== -1) {
+    SearchHistory.value.splice(index, 1)
+  }
+
+  SearchHistory.value.unshift(selectedItem)
+
+  if (SearchHistory.value.length > 20) {
+    SearchHistory.value.pop()
+  }
 }
-function deleteSH(index:number){
-    SearchHistory.value.splice(index,1)
+
+
+/**
+ * 删除搜索历史
+ */
+function deleteSH(index: number) {
+  SearchHistory.value.splice(index, 1)
 }
+
+
+/**
+ * 远程搜索
+ */
 async function remoteSearch(query: string) {
-    if (query) {
-        loading.value = true;
-        try {
-            // 修正：搜索应使用 query 参数而非选中的 v-model 值
-            const response = await fileApi.apiFileGet({ title: query });
-            result.value = response.filter(item =>
-                item.fileName?.toLowerCase().includes(query.toLowerCase())
-            );
-        } finally {
-            loading.value = false;
-        }
-    } else {
-        result.value = [];
-    }
-}
-onMounted(() => {
-    // 2. 初始化时：从本地存储读取历史记录
-    const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
-    if (savedHistory) {
-        try {
-            SearchHistory.value = JSON.parse(savedHistory);
-        } catch (e) {
-            console.error('解析搜索历史失败', e);
-        }
-    }
+  if (!query) {
+    result.value = []
+    return
+  }
 
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'q' && (e.metaKey || e.ctrlKey)) {
-            e.preventDefault();
-            inputRef.value.focus();
-        }
-    });
-});
-onBeforeMount(()=>{
-    if(SearchHistory.value.length>=1)
-{
-    SearchHistory.value.forEach(async item => {
-        item.tags =( await fileApi.apiFileGet({uID:item.uid}))[0].tags
-        // console.log(item.tags)
-    });
+  loading.value = true
+
+  try {
+    const response = await fileApi.apiFileGet({
+      title: query,
+    })
+
+    result.value = response.filter(item =>
+      item.fileName
+        ?.toLowerCase()
+        .includes(query.toLowerCase()),
+    )
+  } finally {
+    loading.value = false
+  }
 }
+
+
+/**
+ * 加载搜索历史
+ */
+function loadSearchHistory() {
+  const savedHistory =
+    localStorage.getItem(HISTORY_STORAGE_KEY)
+
+  if (!savedHistory) return
+
+  try {
+    SearchHistory.value = JSON.parse(savedHistory)
+  } catch (error) {
+    console.error(
+      '解析搜索历史失败',
+      error,
+    )
+  }
+}
+
+
+/**
+ * 补充搜索历史中的标签
+ */
+async function loadHistoryTags() {
+  if (!SearchHistory.value.length) return
+
+  await Promise.all(
+    SearchHistory.value.map(async item => {
+      if (!item.uid) return
+
+      try {
+        const response =
+          await fileApi.apiFileGet({
+            uID: item.uid,
+          })
+
+        item.tags = response[0]?.tags ?? []
+      } catch (error) {
+        console.error(
+          '加载搜索历史标签失败',
+          error,
+        )
+      }
+    }),
+  )
+}
+
+
+/**
+ * Ctrl + Q 聚焦搜索框
+ */
+function handleGlobalKeydown(
+  event: KeyboardEvent,
+) {
+  if (
+    event.key.toLowerCase() === 'q' &&
+    (event.ctrlKey || event.metaKey)
+  ) {
+    event.preventDefault()
+
+    inputRef.value?.focus?.()
+  }
+}
+
+
+/**
+ * 持久化搜索历史
+ */
+function saveSearchHistory() {
+  if (SearchHistory.value.length === 0) {
+    localStorage.removeItem(
+      HISTORY_STORAGE_KEY,
+    )
+
+    return
+  }
+
+  localStorage.setItem(
+    HISTORY_STORAGE_KEY,
+    JSON.stringify(SearchHistory.value),
+  )
+}
+
+
+onBeforeMount(() => {
+  loadSearchHistory()
 })
-// 3. 组件卸载时：持久化写入 LocalStorage
+
+
+onMounted(() => {
+  loadHistoryTags()
+
+  window.addEventListener(
+    'keydown',
+    handleGlobalKeydown,
+  )
+})
+
+
 onUnmounted(() => {
-    if (SearchHistory.value.length > 0) {
-        // 由于在 handleSelect 中已经去重，这里直接序列化存储
-        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(SearchHistory.value));
-    }
-});
+  saveSearchHistory()
+
+  window.removeEventListener(
+    'keydown',
+    handleGlobalKeydown,
+  )
+})
 </script>
 
+
 <style scoped>
+.search-box {
+  width: 100%;
+  height: 100%;
 
-.search-history{
-    background-color: var(--back_color_lv1);
-}
-.search-history>.header {
-    display: flex;
-    justify-content: center;
-}
-.search-history >.content{
-    padding: 5px 20px;
-}
+  min-width: 0;
+  min-height: 0;
 
-.el-input {
-    height: 6vh;
-    line-height: 6vh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+
+  overflow: hidden;
+
+  background: #fafafa;
 }
 
-.el-input :deep(.el-input__wrapper) {
-    border: 0px none;
-    box-shadow: none !important;
-    /* background-color: var(--back_color_lv1) !important; */
+
+/* =========================
+   搜索区域
+   ========================= */
+
+.search-panel {
+  min-width: 0;
+
+  padding: 12px;
 }
 
-.el-input :depp(.el-input__wrapper)>* {
-    /* background-color: var(--back_color_lv1); */
-    padding-left: 1vw;
+.search-select {
+  width: 100%;
+  
+  border:1px solid #ddd;
 }
 
-.el-input :deep(.el-input__wrapper:hover) {
-    box-shadow: none !important;
-    border: none;
+
+/* Element Plus Select */
+
+.search-select :deep(.el-select__wrapper) {
+  min-height: 44px;
+
+  border: 1px solid transparent;
+
+  box-shadow: none;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
-.el-input :deep(.el-input__wrapper:focus) {
-    box-shadow: none !important;
-    border: none;
+.search-select :deep(.el-select__wrapper:hover) {
+  border-color: var(--Focus);
+
+  box-shadow: none;
 }
 
-.el-input :deep(.el-input-group__append) {
-    background-color: white !important;
-    box-shadow: none !important;
-    ;
+.search-select :deep(.el-select__wrapper.is-focused) {
+  border-color: var(--Focus);
+
+  box-shadow: none;
 }
 
-.card {
-    border: 1px solid transparent;
-    transition: box-shadow 0.2s, border-color 0.2s;
+
+/* Ctrl + Q */
+
+.shortcut {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  padding: 4px 8px;
+
+  border: 1px dashed var(--back_color_lv3);
+
+  border-radius: 6px !important;
+
+  background-color: white;
+
+  color: var(--back_color_lv5);
+
+  font-size: 12px;
+
+  line-height: 1;
 }
 
-.card:hover,
-.el-input__wrapper :deep(.el-input__inner:focus) {
-    border: 1px solid rgb(78, 142, 47);
-    transition: box-shadow 0.2s, border-color 0.2s;
+
+/* =========================
+   搜索历史
+   ========================= */
+
+.history-panel {
+  min-width: 0;
+  min-height: 0;
+
+  display: grid;
+
+  grid-template-rows: auto minmax(0, 1fr);
+
+  overflow: hidden;
 }
 
-.key {
-    border: 1px dashed var(--back_color_lv2);
-    border-radius: 25px !important;
-    padding: 5px 10px;
-    background-color: white;
+
+/* 标题 */
+
+.history-header {
+  height: 40px;
+
+  padding: 0 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  background: #fafafa;
+
+  font-size: 13px;
+}
+
+.history-count {
+  padding: 2px 7px;
+
+  border-radius: 10px !important;
+
+  background-color: var(--back_color_lv2);
+
+  font-size: 11px;
+}
+
+
+/* 历史列表 */
+
+.history-list {
+  min-height: 0;
+
+  padding: 4px 8px 12px;
+
+  overflow-x: hidden;
+
+  overflow-y: auto;
+}
+
+.history-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background-color: var(--back_color_lv3);
+}
+
+
+/* 单条历史 */
+
+.history-item {
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) auto;
+
+  grid-template-rows: auto auto;
+
+  column-gap: 4px;
+
+  padding: 8px;
+
+  transition:
+    background-color 0.15s;
+}
+
+.history-item:hover {
+  background-color: var(--back_color_lv2);
+}
+
+
+/* 标题 */
+
+.history-title {
+  min-width: 0;
+
+  grid-column: 1;
+
+  justify-content: flex-start;
+
+  padding: 4px 0;
+
+  margin: 0;
+
+  overflow: hidden;
+
+  color: inherit;
+}
+
+.history-title :deep(.el-button__text) {
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+/* 标签 */
+
+.history-tags {
+  min-width: 0;
+
+  grid-column: 1;
+
+  display: flex;
+
+  gap: 4px;
+
+  overflow: hidden;
+}
+
+.history-tags .el-tag {
+  flex-shrink: 0;
+}
+
+
+/* 删除按钮 */
+
+.delete-button {
+  grid-column: 2;
+
+  grid-row: 1 / 3;
+
+  align-self: center;
+
+  margin: 0;
+}
+
+
+/* 空状态 */
+
+.history-empty {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: center;
+
+  padding-top: 24px;
+  padding-bottom:24px;
+
+  background: #fafafa;
+  color:#909399;
+
+  font-size: 13px;
 }
 </style>

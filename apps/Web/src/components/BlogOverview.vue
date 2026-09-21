@@ -13,7 +13,7 @@ onBeforeMount(async()=>{
 </script>
 
 <template>
-    <ElCard shadow="hover" style="padding: 20px;">
+    <ElCard shadow="never" style="padding: 20px;">
         <ElText>博文概览</ElText>
         <ElDivider/>
         <ElCol v-for="item,index in category" :key="index">
@@ -21,7 +21,7 @@ onBeforeMount(async()=>{
             <ElText>100</ElText>
         </ElCol>       
     </ElCard>
-    <ElCard style="padding: 20px;" shadow="hover">
+    <ElCard style="padding: 20px;" shadow="never">
          <ElText>最新发布</ElText>
         <ElDivider/>
         <ElCol v-for="item,index in category" :key="index" >

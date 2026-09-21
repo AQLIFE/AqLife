@@ -1,5 +1,5 @@
 <template>
-  <ElCol class="blog-preview">
+  <div class="blog-preview">
     <ElPageHeader
       class="header"
       :icon="ArrowLeft"
@@ -37,13 +37,12 @@
     <div class="markdown-content">
       <MarkdownRender :markdown="sourceMarkdown" :baseurl="baseurl"/>
     </div>
-  </ElCol>
+  </div>
 </template>
 
 <script setup lang="ts">
 import {
   ElButton,
-  ElCol,
   ElPageHeader,
   ElTag,
 } from 'element-plus'
@@ -170,15 +169,18 @@ onBeforeUnmount(() => {
 .blog-preview {
   display: grid;
 
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   min-height: 0;
 
   grid-template-rows: auto minmax(0, 1fr);
 }
 
-.header {
+.header :deep(.el-page-header__header) {
   height: 50px;
-  line-height: 50px;
+  min-height: 50px;
+  border-bottom: 1px solid #ddd;
+  padding:0 20px;
 }
 
 .article-header {
@@ -203,13 +205,11 @@ onBeforeUnmount(() => {
 }
 
 .markdown-content {
+  min-width: 0;
   min-height: 0;
 
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: auto;
-}
-
-.markdown-content::-webkit-scrollbar {
-  display: none;
+  scrollbar-width: none;
 }
 </style>

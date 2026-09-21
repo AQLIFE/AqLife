@@ -6,6 +6,7 @@ import BlogPreview from '@/views/BlogPreview.vue'
 import WishlistView from '@/views/WishlistView.vue'
 import { WebIconName } from '@aqlife/icons'
 import { SidebarType } from '@/types/sidebarType'
+import Unavailable from '@/views/Unavailable.vue'
 
 export const routes = [
   {
@@ -66,6 +67,17 @@ export const routes = [
       navIcon: WebIconName.Wish,
       showInNav: true,
       order: 4,
+      sidebarType: SidebarType.None,
+    },
+  },
+  {
+    path: '/unavailable',
+    component: Unavailable,
+    meta: {
+      navTitle: '无效账户',
+      navIcon: WebIconName.Error,
+      showInNav: false,
+      order: 6,
       sidebarType: SidebarType.None,
     },
   },

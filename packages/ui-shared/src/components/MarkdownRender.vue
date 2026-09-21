@@ -1,5 +1,5 @@
 <template>
-    <div id="mdRender" class="preview">
+    <div id="mdRender">
         <template v-for="(node, index) in rNode" :key="index">
             <CodeBlock v-if="node.type === 'component' && node.component === 'CodeBlock'" :info="node.content"
                 :infoType="node.info" />
@@ -148,7 +148,7 @@ async function resolveInternalLink(
   return {
     type: 'link',
     href,
-  }
+}
 }
 
 function buildPreviewUrl(
@@ -176,11 +176,6 @@ function buildPreviewUrl(
 
 <style scoped>
 #mdRender {
-    max-height: calc(100vh - 52px);
-    overflow-x: hidden;
-}
-
-#mdRender ::-webkit-scrollbar-button {
-    display: none;
+  padding: 0 20px;
 }
 </style>

@@ -1,90 +1,196 @@
 <script setup lang="ts">
-// import { ElCol, ElContainer, ElHeader, ElMain, ElRow } from 'element-plus';
 import { RouterView, useRoute } from 'vue-router'
 import NavigationBar from '@/components/NavigationBar.vue'
-import DevPlanCard from './components/DevPlanCard.vue'
+import DevPlan from './components/DevPlanCard.vue'
 import FAuthorCard from '@/components/skeletons/FAuthorCard.vue'
 import SearchBox from '@/components/SearchBox.vue'
 import { SidebarType } from '@/types/sidebarType'
-import { useAuthorInfoStore } from './stores/useAuthorInfoStore.ts'
 import TOC from './components/TOC.vue'
 import BlogOverview from '@/components/BlogOverview.vue'
-import ADemo from './components/ADemo.vue'
+import { computed, type Component } from 'vue'
+
 const route = useRoute()
-const accountStore = useAuthorInfoStore()
+const sideManager = computed(():Component|null=>{
+  if(route.meta.sidebarType == SidebarType.Preview)return TOC;
+  if(route.meta.sidebarType == SidebarType.About)return DevPlan;
+  return null
+})
+
 </script>
 
 <template>
-  <div id="baseLayout" v-loading="!accountStore.userInfo.subscriptions">
-    <div id="tools">
-      <div class="template">
-        <SearchBox />
+  <div id="baseLayout">
+    <aside id="tools">
+     <div class="tools-search">
+      <SearchBox/>
+     </div>
+     <div class="tools-content">
+      <component :is="sideManager"/>
+     </div>
+    </aside>
+    <main id="content">
+      <div id="navigation">
+        <NavigationBar/>
       </div>
-      <div class="template">
-        <!-- <CalendarSelector /> -->
-         <TOC v-if="route.meta.sidebarType == SidebarType.Preview"/>
-         <ADemo v-else/>
+      <div id="mainViewport">
+        <RouterView/>
       </div>
-    </div>
-    <div id="content">
-      <div class="template"><NavigationBar /></div>
-      <div class="template"><RouterView /></div>
-    </div>
-    <div id="account">
-      <div class="template">
-        <FAuthorCard />
+    </main>
+    <aside id="account">
+      <div class="account-author">
+        <FAuthorCard/>
       </div>
-      <div class="template">
-        <DevPlanCard v-if="route.meta.sidebarType === SidebarType.About" />
-        <BlogOverview v-else/>
+      <div class="account-content">
+        <BlogOverview/>
       </div>
-    </div>
+    </aside>
   </div>
 </template>
 
 <style scoped>
 #baseLayout {
-  background-color: var(--back_color_lv1);
-  width: inherit;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
   display: grid;
-  grid-template-columns: 20vw 1fr 20vw;
+
+  grid-template-columns:
+    20vw minmax(0, 1fr) 20vw;
+
   overflow: hidden;
+
+  background-color: var(--back_color_lv1);
+
   -webkit-user-drag: none;
   overscroll-behavior: none;
 }
 
-/*---------------------tools------------------------ */
+
+/* =========================================================
+   左侧
+   ========================================================= */
+
 #tools {
+  min-width: 0;
+  min-height: 0;
+
   display: grid;
-  grid-template-rows: auto 1fr;
-  /* 设置 三行独立高度*/
+  border-right: 1px solid #ddd;
+  grid-template-rows:
+    auto minmax(0, 1fr);
+
+  overflow: hidden;
+  background: #fafafa;
 }
 
-#tools > .el-row {
-  align-content: flex-start;
+
+/* 搜索框 */
+
+.tools-search {
+  min-width: 0;
+
+  overflow: hidden;
+  border-bottom: 1px solid #ddd;
 }
 
-/*---------------------tools------------------------ */
-/*---------------------content------------------------ */
 
-#content {
-  display: grid;
-  grid-template-rows: auto 1fr; /* 第一行导航栏自适应，第二行占满剩余空间 */
-  height: 100vh; /* 确保和父级等高 */
+/* TOC / ADemo */
+
+.tools-content {
+  min-width: 0;
+  min-height: 0;
+
   overflow: hidden;
 }
 
-#content > .template:nth-child(2) {
-  height: 100%;
-  overflow: hidden; /* 让内部的 BlogView 自己处理滚动 */
+
+/* =========================================================
+   中间
+   ========================================================= */
+
+#content {
+  min-width: 0;
+  min-height: 0;
+
+  display: grid;
+
+  grid-template-rows:
+    60px minmax(0, 1fr);
+    
+
+  overflow: hidden;
+
+  background-color: var(--topColor);
 }
 
-/*---------------------content------------------------ */
-/*---------------------account------------------------ */
+
+/* =========================================================
+   NavigationBar
+   ========================================================= */
+
+#navigation {
+  min-width: 0;
+
+  height: 60px;
+
+  overflow: hidden;
+
+  background-color: var(--topColor);
+  border-bottom:1px solid #ddd;
+}
+
+
+/* =========================================================
+   RouterView 容器
+   ========================================================= */
+
+#mainViewport {
+  min-width: 0;
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   右侧
+   ========================================================= */
+
 #account {
-  grid-template-rows: 1fr 2fr;
+  min-width: 0;
+  min-height: 0;
+
+  display: grid;
+
+  grid-template-rows:
+    auto 1fr;
+
+  overflow: hidden;
+  background: #fafafa;
+  border-left: 1px solid #ddd;
 }
 
-/*---------------------account------------------------ */
+
+/* 作者 */
+
+.account-author {
+  min-width: 0;
+  min-height: 0;
+
+  overflow: hidden;
+  border-bottom:1px solid #ddd;
+}
+
+
+/* BlogOverview / DevPlanCard */
+
+.account-content {
+  min-width: 0;
+  min-height: 0;
+
+  overflow: hidden;
+}
 </style>
