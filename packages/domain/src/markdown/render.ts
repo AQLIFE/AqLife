@@ -82,9 +82,6 @@ export async function buildMarkdownRenderNodes(
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
-    console.log(token.type === 'inline' &&
-      token.children &&
-      resolveLink && token.content.startsWith('[demo]')?token.content:'')
 
     /*
      * fenced code
@@ -176,7 +173,6 @@ export async function buildMarkdownRenderNodes(
       resolveLink
     ) {
       const children = getLinkChildren(token)
-      console.log(children)
 
       let hasInternalLink = false
       for (let j = 0; j < children.length; j++) {
@@ -214,7 +210,6 @@ export async function buildMarkdownRenderNodes(
           text,
           token: child,
         })
-        console.log("result=>",result)
 
         if (!result) {
           continue
@@ -229,38 +224,6 @@ export async function buildMarkdownRenderNodes(
           result,
           text,
         })
-
-        /*
-         * 这里只处理当前 link。
-         *
-         * 剩余普通 inline token 继续进入 HTML。
-         */
-        // const before = children.slice(0, j)
-
-        // const after = children.slice(
-        //   linkCloseIndex + 1,
-        // )
-
-        // if (before.length > 0) {
-        //   nodes.push({
-        //     type: 'html',
-        //     content: mdRenderOption.renderer.renderInline(
-        //       before,
-        //       {},
-        //     ),
-        //   })
-        // }
-
-        // if (after.length > 0) {
-        //   nodes.push({
-        //     type: 'html',
-        //     content: mdRenderOption.renderer.renderInline(
-        //       after,
-        //       {},
-        //     ),
-        //   })
-        // }
-
         break
       }
 

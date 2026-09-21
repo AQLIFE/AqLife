@@ -1,12 +1,11 @@
 <template>
-  <ElRow id="Home">{{ corpus }}</ElRow>
+  <div id="Home">{{ corpus }}</div>
 </template>
 
 <script setup lang="ts">
 import { onBeforeMount, ref, type Ref } from 'vue'
 import { CorpusApi } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { ElRow } from 'element-plus'
 
 const corpusAPI = new CorpusApi(apiConfiguration)
 const corpus: Ref<string|undefined> = ref()
@@ -17,7 +16,11 @@ onBeforeMount(async () => {
 </script>
 
 <style scoped>
-/* #Home {
-    flex-grow: 1;
-} */
+#Home {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height:100%;
+  /* text-align: center;    */
+}
 </style>

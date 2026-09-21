@@ -108,6 +108,7 @@ async function resolveInternalLink(
     return null
   }
   if (!isSameOrigin(url)) {
+    console.error('非可信地址')
     return null
   }
 
@@ -117,7 +118,7 @@ async function resolveInternalLink(
     console.error('没找到ID')
     return null
   }
-  console.log("File=>",uid)
+  
   const files = await fileApi.apiFileGet({
     uID: uid,
   })
@@ -130,7 +131,7 @@ async function resolveInternalLink(
 
   if (isImageType(file.fileType ?? '')) {
     const str =buildPreviewUrl(uid)
-    console.log("str",str)
+    
     return {
       type: 'image',
       src: str,

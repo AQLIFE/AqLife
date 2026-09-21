@@ -65,7 +65,8 @@ namespace AqLife.Application
             services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, AllTagSearchStrategy>();// TagSearch 专属策略:All
             services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, AllTodoSearchStrategy>();// TodoSearch 专属策略:All
             services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, DefaultAccount>();// AccountSearch 专属策略:All
-            
+            services.AddScoped<ISearchStrategy<CorpusEntity, EntitySearchCriteria>, AllCorpusSearchStrategy>();// AccountSearch 专属策略:All
+
             services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, ValidAccount>();// AccountSearch 专属策略
             services.AddScoped<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>, FilteredFilesSearchStrategy>();// FileSearch 专属策略
             services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();  // Tag  的策略

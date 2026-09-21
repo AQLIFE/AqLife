@@ -1,14 +1,7 @@
 <template>
-  <ElCard
-    class="author-card"
-    shadow="never"
-  >
+  <div class="author-card">
     <div class="profile">
-      <ElImage
-        v-if="userInfo?.avatar"
-        :src="previewRequest(userInfo.avatar)"
-        class="avatar"
-      >
+      <ElImage v-if="userInfo?.avatar" :src="previewRequest(userInfo.avatar)" class="avatar">
         <template #error>
           <ElIcon class="avatar-error">
             <Picture />
@@ -27,26 +20,13 @@
       </div>
     </div>
 
-    <div
-      v-if="userInfo?.subscriptions?.length"
-      class="subscriptions"
-    >
-      <ElLink
-        v-for="item in userInfo.subscriptions"
-        :key="item.subscriptionPlatform!"
-        class="subscription"
-        target="_blank"
-        underline="never"
-        :href="item.subscriptionLink ?? ''"
-      >
-        <ElImage
-          :src="
-            item.subscriptionIcon
-              ? previewRequest(item.subscriptionIcon)
-              : ''
-          "
-          class="subscription-icon"
-        >
+    <div v-if="userInfo?.subscriptions?.length" class="subscriptions">
+      <ElLink v-for="item in userInfo.subscriptions" :key="item.subscriptionPlatform!" class="subscription"
+        target="_blank" underline="never" :href="item.subscriptionLink ?? ''">
+        <ElImage :src="item.subscriptionIcon
+            ? previewRequest(item.subscriptionIcon)
+            : ''
+          " class="subscription-icon">
           <template #error>
             <ElIcon>
               <Picture />
@@ -55,12 +35,11 @@
         </ElImage>
       </ElLink>
     </div>
-  </ElCard>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import {
-  ElCard,
   ElImage,
   ElIcon,
   ElLink,
