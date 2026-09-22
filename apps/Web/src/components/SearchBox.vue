@@ -344,7 +344,7 @@ onUnmounted(() => {
 
   overflow: hidden;
 
-  background: #fafafa;
+  /* background: #fafafa; */
 }
 
 
@@ -355,40 +355,41 @@ onUnmounted(() => {
 .search-panel {
   min-width: 0;
 
-  padding: 12px;
+  padding: 14px 12px 10px;
 }
 
 .search-select {
   width: 100%;
-  
-  border:1px solid #ddd;
 }
 
 
 /* Element Plus Select */
 
 .search-select :deep(.el-select__wrapper) {
-  min-height: 44px;
+  min-height: 42px;
+
+  background: var(--el-fill-color-light);
 
   border: 1px solid transparent;
+
+  border-radius: 7px;
 
   box-shadow: none;
 
   transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .search-select :deep(.el-select__wrapper:hover) {
-  border-color: var(--Focus);
-
-  box-shadow: none;
+  background: var(--el-fill-color);
+  border-color: var(--el-border-color);
 }
 
 .search-select :deep(.el-select__wrapper.is-focused) {
-  border-color: var(--Focus);
-
-  box-shadow: none;
+  background: var(--el-bg-color);
+  border-color: var(--el-color-primary);
+  box-shadow: 0 0 0 2px var(--el-color-primary-light-9);
 }
 
 
@@ -399,19 +400,19 @@ onUnmounted(() => {
 
   align-items: center;
 
-  gap: 4px;
+  gap: 3px;
 
-  padding: 4px 8px;
+  padding: 3px 5px;
 
-  border: 1px dashed var(--back_color_lv3);
+  border: 1px solid var(--el-border-color-lighter);
 
-  border-radius: 6px !important;
+  border-radius: 4px !important;
 
-  background-color: white;
+  background: transparent;
 
-  color: var(--back_color_lv5);
+  color: var(--el-text-color-placeholder);
 
-  font-size: 12px;
+  font-size: 11px;
 
   line-height: 1;
 }
@@ -438,7 +439,7 @@ onUnmounted(() => {
 .history-header {
   height: 40px;
 
-  padding: 0 16px;
+  padding: 0 14px;
 
   display: flex;
 
@@ -446,9 +447,13 @@ onUnmounted(() => {
 
   justify-content: space-between;
 
-  background: #fafafa;
+  background: transparent;
 
-  font-size: 13px;
+  color: var(--el-text-color-secondary);
+
+  font-size: 12px;
+
+  font-weight: 500;
 }
 
 .history-count {
@@ -456,7 +461,7 @@ onUnmounted(() => {
 
   border-radius: 10px !important;
 
-  background-color: var(--back_color_lv2);
+  /* background-color: var(--back_color_lv2); */
 
   font-size: 11px;
 }
@@ -487,6 +492,7 @@ onUnmounted(() => {
 
 .history-item {
   min-width: 0;
+  border-radius: 6px;
 
   display: grid;
 
@@ -503,7 +509,7 @@ onUnmounted(() => {
 }
 
 .history-item:hover {
-  background-color: var(--back_color_lv2);
+  background-color: var(--el-fill-color-light);
 }
 
 
@@ -580,7 +586,7 @@ onUnmounted(() => {
   padding-top: 24px;
   padding-bottom:24px;
 
-  background: #fafafa;
+  /* background: #fafafa; */
   color:#909399;
 
   font-size: 13px;

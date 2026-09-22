@@ -1,9 +1,25 @@
 <template>
-  <ElRow class="layout" :gutter="10" v-loading="isLodding">
-    <ElCol v-for="item in blogStore.cacheBlogList" :key="item.uid" :span="12">
-      <BlogCard  :blog="item"/>
-    </ElCol>
-  </ElRow>
+  <div class="blog-page">
+    <header class="blog-page-header">
+      <div>
+        <div class="blog-page-eyebrow">
+          ARTICLES
+        </div>
+
+        <h1 class="blog-page-title">
+          文章
+        </h1>
+      </div>
+
+      <span class="blog-page-count">
+        {{ blogStore.cacheBlogList.length }}
+      </span>
+    </header>
+
+    <div class="blog-grid" v-loading="isLoading" element-loading-text="正在加载文章...">
+      <BlogCard v-for="item in blogStore.cacheBlogList" :key="item.uid" :blog="item" />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -11,57 +27,87 @@ import { FileApi } from '@/api'
 import BlogCard from '@/components/BlogCard.vue'
 import { apiConfiguration } from '@/services/api'
 import { useBlogStore } from '@/stores/useBlogStore'
-import { ElRow, ElCol, ElMessage } from 'element-plus'
-import { onBeforeMount,ref } from 'vue'
-
+import { ElMessage } from 'element-plus'
+import { onBeforeMount, ref } from 'vue'
 const blogStore = useBlogStore()
-const isLodding = ref<boolean>(!blogStore.cacheBlogList)
+
+const isLoading = ref(false)
+
 onBeforeMount(async () => {
-  const fileApi = new FileApi(apiConfiguration)
+  if (blogStore.cacheBlogList.length > 0) {
+    return
+  }
+
+  isLoading.value = true
+
   try {
-    
-    if(blogStore.cacheBlogList.length === 0)
-      blogStore.cacheBlogList = await fileApi.apiFileGet()
-    // else ElMessage.success('使用缓存')
-    } catch {
-      blogStore.cacheBlogList = []
-      ElMessage.warning('请求数据失败')
-    }
+    const fileApi = new FileApi(apiConfiguration)
+
+    blogStore.cacheBlogList = await fileApi.apiFileGet()
+  } catch {
+    blogStore.cacheBlogList = []
+
+    ElMessage.warning('请求数据失败')
+  } finally {
+    isLoading.value = false
+  }
 })
 </script>
 
 <style lang="css" scoped>
-.layout {
+.blog-page {
+  width: 100%;
   height: 100%;
-  /* 自动填满 #content 分配给它的 1fr 空间 */
-  overflow-y: auto;
-  /* 开启内部滚动 */
-  align-content: start;
-  /*避免头部遮挡*/
-  justify-content: flex-start;
+
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  padding: 28px 32px 32px;
+
+  box-sizing: border-box;
+}
+.blog-page-header {
+  flex: 0 0 auto;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  margin-bottom: 22px;
 }
 
-.layout::-webkit-scrollbar {
-  display: none;
+.blog-page-eyebrow {
+  margin-bottom: 5px;
+
+  color: var(--el-color-primary);
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 0.12em;
 }
 
-.el-card {
-  margin-bottom: 10px;
+.blog-page-title {
+  margin: 0;
+
+  color: var(--el-text-color-primary);
+
+  font-size: 24px;
+  font-weight: 650;
+
+  line-height: 1.3;
 }
 
-.el-card .header {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  text-align: start;
-}
+.blog-page-count {
+  color: var(--el-text-color-placeholder);
 
-.el-card .el-tree {
-  padding-left: 10px;
-}
-
-.el-card__footer > div {
   font-size: 12px;
-  text-align: right;
-  color: var(--back_color_lv2);
 }
 </style>

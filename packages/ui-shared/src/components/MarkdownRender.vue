@@ -52,7 +52,7 @@ interface MarkdownRenderProps {
 const props = defineProps<MarkdownRenderProps>()
 
 const rNode = ref<any[]>([])
-
+const loading = ref(false)
 watch(
     () => props.markdown,
     () => {
@@ -63,16 +63,18 @@ watch(
     },
 )
 async function renderMarkdown() {
-    const parsed = mdRenderOption.parse(
-        props.markdown,
-        {},
-    )
+  loading.value = true
 
-    rNode.value =
-        await buildMarkdownRenderNodes(
-            parsed,
-            resolveInternalLink,
-        )
+  try {
+    const parsed = mdRenderOption.parse(props.markdown, {})
+
+    rNode.value = await buildMarkdownRenderNodes(
+      parsed,
+      resolveInternalLink,
+    )
+  } finally {
+    loading.value = false
+  }
 }
 
 const fileApi = new FileApi(apiConfiguration)
@@ -173,6 +175,9 @@ function buildPreviewUrl(
 
     return base.toString()
 }
+defineExpose({
+  loading,
+})
 </script>
 
 <style scoped>

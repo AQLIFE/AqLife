@@ -19,8 +19,8 @@ const sideManager = computed(() => {
             return {
                 component: TocTree,
                 props: {
-                    items: articleStore.toc[0],
-                    blogTitle: articleStore.blogTitle,
+                    items: articleStore.toc,
+                    title: articleStore.blogTitle,
                 },
             }
 
@@ -77,7 +77,7 @@ const sideManager = computed(() => {
   display: grid;
 
   grid-template-columns:
-    20vw minmax(0, 1fr) 20vw;
+    300px minmax(0, 1fr) 300px;
 
   overflow: hidden;
 
@@ -97,12 +97,12 @@ const sideManager = computed(() => {
   min-height: 0;
 
   display: grid;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid var(--el-border-color-lighter);
   grid-template-rows:
     auto minmax(0, 1fr);
 
   overflow: hidden;
-  background: #fafafa;
+  /* background: #fafafa; */
 }
 
 
@@ -112,7 +112,7 @@ const sideManager = computed(() => {
   min-width: 0;
 
   overflow: hidden;
-  border-bottom: 1px solid #ddd;
+  /* border-bottom: 1px solid #ddd; */
 }
 
 
@@ -142,7 +142,7 @@ const sideManager = computed(() => {
 
   overflow: hidden;
 
-  background-color: var(--topColor);
+  /* background-color: var(--topColor); */
 }
 
 
@@ -157,8 +157,8 @@ const sideManager = computed(() => {
 
   overflow: hidden;
 
-  background-color: var(--topColor);
-  border-bottom:1px solid #ddd;
+  /* background-color: var(--topColor); */
+  border-bottom:1px solid var(--el-border-color-lighter);
 }
 
 
@@ -188,8 +188,8 @@ const sideManager = computed(() => {
     auto 1fr;
 
   overflow: hidden;
-  background: #fafafa;
-  border-left: 1px solid #ddd;
+  /* background: #fafafa; */
+  border-left: 1px solid var(--el-border-color-lighter);
 }
 
 
@@ -200,7 +200,7 @@ const sideManager = computed(() => {
   min-height: 0;
 
   overflow: hidden;
-  border-bottom:1px solid #ddd;
+  /* border-bottom:1px solid #ddd; */
 }
 
 

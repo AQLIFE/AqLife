@@ -20,7 +20,7 @@
       </template>
     </ElPageHeader>
 
-    <div class="markdown-content">
+    <div class="markdown-content" ref="markdownContainer" v-loading="markdownRenderRef?.loading">
       <MarkdownRender :markdown="sourceMarkdown" :baseurl="baseurl" />
     </div>
   </div>
@@ -41,6 +41,7 @@ import {
   ref,
   computed,
   watch,
+  onMounted,
 } from 'vue'
 import {
   useRoute,
@@ -57,6 +58,7 @@ import { useArticleStore } from '@/stores/articleStore'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import { extractTocTree } from '@aqlife/domain'
 
+
 const route = useRoute()
 const router = useRouter()
 const articleStore = useArticleStore()
@@ -68,8 +70,13 @@ const fileMeta = ref<FileDto | null>()
 const articleTags = computed(() =>
   fileMeta.value?.tags ?? [],
 )
-
+const markdownContainer = ref<HTMLElement | null>(null)
 let requestVersion = 0
+
+
+const markdownRenderRef = ref<{
+  loading: boolean
+} | null>(null)
 
 async function getPreview(
   params: ApiFileDownloadGetRequest,
@@ -142,8 +149,93 @@ watch(
     immediate: true,
   },
 )
+let scrollFrame: number | null = null
+
+function updateActiveAnchor() {
+  const container = markdownContainer.value
+
+  if (!container) {
+    return
+  }
+
+  const headings = Array.from(
+    container.querySelectorAll<HTMLElement>(
+      'h2[id], h3[id], h4[id], h5[id], h6[id]',
+    ),
+  )
+
+  if (!headings.length) {
+    articleStore.activeAnchor = ''
+    return
+  }
+
+  const containerTop = container.getBoundingClientRect().top
+
+  const visibleHeadings = headings.filter(heading => {
+    const rect = heading.getBoundingClientRect()
+
+    return (
+      rect.bottom > containerTop &&
+      rect.top < container.getBoundingClientRect().bottom
+    )
+  })
+
+  if (!visibleHeadings.length) {
+    return
+  }
+
+  let closest = visibleHeadings[0]
+  let closestDistance = Math.abs(
+    closest.getBoundingClientRect().top - containerTop,
+  )
+
+  for (const heading of visibleHeadings.slice(1)) {
+    const distance = Math.abs(
+      heading.getBoundingClientRect().top - containerTop,
+    )
+
+    if (distance < closestDistance) {
+      closest = heading
+      closestDistance = distance
+    }
+  }
+
+  articleStore.activeAnchor = closest.id
+}
+
+function handleMarkdownScroll() {
+  if (scrollFrame !== null) {
+    return
+  }
+
+  scrollFrame = requestAnimationFrame(() => {
+    scrollFrame = null
+    updateActiveAnchor()
+  })
+}
+
+onMounted(() => {
+  markdownContainer.value?.addEventListener(
+    'scroll',
+    handleMarkdownScroll,
+    { passive: true },
+  )
+
+  updateActiveAnchor()
+})
+
 onBeforeUnmount(() => {
   requestVersion++
+
+  markdownContainer.value?.removeEventListener(
+    'scroll',
+    handleMarkdownScroll,
+  )
+
+  if (scrollFrame !== null) {
+    cancelAnimationFrame(scrollFrame)
+    scrollFrame = null
+  }
 })
 </script>
 

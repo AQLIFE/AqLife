@@ -78,7 +78,7 @@ const previewRequest = (guid: string) =>
 
   overflow: hidden;
 
-  background-color: var(--topColor);
+  /* background-color: var(--topColor); */
 }
 
 

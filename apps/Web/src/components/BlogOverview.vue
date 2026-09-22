@@ -1,60 +1,112 @@
 <script setup lang="ts">
 import { useTagStore } from '@/stores/tagStore';
 import { computed, onBeforeMount } from 'vue';
-import { ElText, ElDivider, ElButton } from 'element-plus';
+import { ElButton } from 'element-plus';
 import { TagApi } from '@/api';
 import { apiConfiguration } from '@/services/api';
-import { View,Timer } from '@element-plus/icons-vue';
+import { View, Timer } from '@element-plus/icons-vue';
 
 const category = computed(() => useTagStore().tagList.filter(e => e.isCategory))
-const tagApi = new TagApi(apiConfiguration)
 onBeforeMount(async () => {
+    const tagApi = new TagApi(apiConfiguration)
     if (useTagStore().tagList.length == 0) useTagStore().tagList = await tagApi.apiTagGet()
 })
 </script>
 
 <template>
-    <div>
-        <div class="node">
-            <ElText>博文概览</ElText>
-            <ElDivider />
-            <div v-for="item, index in category" :key="index" class="node-item">
-                <ElButton type="info" link>{{ item.name }}</ElButton>
-                <div><ElText>100</ElText></div>
+    <div class="overview">
+
+        <section class="overview-section">
+            <h3 class="overview-title">
+                博文概览
+            </h3>
+
+            <div v-for="item in category" :key="item.uid!" class="overview-item">
+                <ElButton type="info" link>
+                    {{ item.name }}
+                </ElButton>
+
+                <span>
+                    100
+                </span>
             </div>
-        </div>
-        <div class="node">
-            <ElText>最新发布</ElText>
-            <ElDivider />
-            <div v-for="item, index in category" :key="index" class="node-item">
-                <ElButton  link>{{ item.name }}</ElButton>
-                <div>
-                    <ElIcon><Timer/></ElIcon>
-                    <ElText>2026-09-11</ElText>
-                </div>
+        </section>
+
+
+        <section class="overview-section">
+            <h3 class="overview-title">
+                最新发布
+            </h3>
+
+            <div v-for="item in category" :key="item.uid!" class="overview-item">
+                <ElButton type="info" link>
+                    {{ item.name }}
+                </ElButton>
+
+                <span>
+                    2026-09-11
+                </span>
             </div>
-        </div>
-        <div class="node">
-            <ElText>最多阅览</ElText>
-            <ElDivider />
-            <div v-for="item, index in category" :key="index" class="node-item">
-                <ElButton  link>{{ item.name }}</ElButton>
-                <div>
-                    <ElIcon><View/></ElIcon>
-                    <ElText>8000+</ElText>
-                </div>
+        </section>
+
+
+        <section class="overview-section">
+            <h3 class="overview-title">
+                最多阅览
+            </h3>
+
+            <div v-for="item in category" :key="item.uid!" class="overview-item">
+                <ElButton type="info" link>
+                    {{ item.name }}
+                </ElButton>
+
+                <span>
+                    100
+                </span>
             </div>
-        </div>
+        </section>
+
     </div>
 </template>
 
 <style lang="css" scoped>
-.node {
-    padding: 20px;
+.overview {
+    padding: 24px 20px;
 }
 
-.node .node-item{
+.overview-section {
+    padding: 0 0 28px;
+}
+
+.overview-section+.overview-section {
+    padding-top: 4px;
+}
+
+.overview-title {
+    margin: 0 0 14px;
+
+    color: var(--el-text-color-secondary);
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+.overview-item {
+    min-height: 26px;
+
     display: flex;
+
+    align-items: center;
+
     justify-content: space-between;
+
+    color: var(--el-text-color-secondary);
+
+    font-size: 12px;
+}
+
+.overview-item+.overview-item {
+    margin-top: 2px;
 }
 </style>
