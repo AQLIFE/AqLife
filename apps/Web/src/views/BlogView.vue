@@ -128,5 +128,6 @@ onBeforeMount(async () => {
   padding: 2px;
 
   box-sizing: border-box;
+  scrollbar-width: none;
 }
 </style>

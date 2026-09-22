@@ -112,6 +112,7 @@ function handleClick() {
   position: relative;
   overflow: hidden;
   cursor: pointer;
+  min-height:230px;
 
   border-radius: 7px;
   border: 1px solid var(--el-border-color-lighter);
@@ -138,7 +139,7 @@ function handleClick() {
 }
 
 .blog-card-content {
-  min-height: 235px;
+  /* min-height: 300px; */
 
   display: flex;
   flex-direction: column;
