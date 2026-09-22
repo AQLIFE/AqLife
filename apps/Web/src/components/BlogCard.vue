@@ -110,18 +110,11 @@ function handleClick() {
 <style scoped>
 .blog-card {
   position: relative;
-
-  /* width: 100%;
-  height: 100%; */
-
   overflow: hidden;
-
   cursor: pointer;
 
   border-radius: 7px;
-
   border: 1px solid var(--el-border-color-lighter);
-
   background: var(--el-bg-color);
 
   transition:
@@ -129,96 +122,80 @@ function handleClick() {
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
+
 .blog-card:hover {
   transform: translateY(-2px);
 
   border-color: var(--el-border-color);
 
   box-shadow:
-    0 6px 18px
-    rgb(0 0 0 / 5%);
+    0 6px 18px rgb(0 0 0 / 5%);
 }
-.blog-card:hover {
-  transform: translateY(-2px);
 
-  border-color: var(--el-border-color);
-
-  box-shadow:
-    0 6px 18px
-    rgb(0 0 0 / 5%);
-}
 .blog-card :deep(.el-card__body) {
-  height: 100%;
-
+  /* height: 100%; */
   padding: 0;
 }
 
 .blog-card-content {
   min-height: 235px;
 
-  height: 100%;
-
   display: flex;
-
   flex-direction: column;
 
   padding: 22px 24px 16px;
-
   box-sizing: border-box;
 }
+
 .blog-card-type {
   margin-bottom: 8px;
 
   color: var(--el-color-primary);
 
   font-size: 11px;
-
   font-weight: 600;
 
   letter-spacing: 0.08em;
 }
+
 .blog-card-title {
   margin: 0 0 12px;
 
   color: var(--el-text-color-primary);
 
   font-size: 18px;
-
   font-weight: 650;
 
   line-height: 1.45;
 
   display: -webkit-box;
-
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 
   overflow: hidden;
 }
+
 .blog-card-introduction {
   margin: 0;
 
   color: var(--el-text-color-secondary);
 
   font-size: 13px;
-
   line-height: 1.75;
 
   display: -webkit-box;
-
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 
   overflow: hidden;
 }
+
 .blog-card-tags {
   display: flex;
 
   flex-wrap: wrap;
 
   gap: 5px;
-
-  margin-top: auto;
 
   padding-top: 16px;
 }
@@ -231,21 +208,20 @@ function handleClick() {
   display: flex;
 
   align-items: center;
-
   justify-content: space-between;
 
-  margin-top: 16px;
+  margin-top: auto;
 
   padding-top: 11px;
 
   border-top:
-    1px solid
-    var(--el-border-color-lighter);
+    1px solid var(--el-border-color-lighter);
 
   color: var(--el-text-color-secondary);
 
   font-size: 11px;
 }
+
 .blog-card-date {
   display: flex;
 
@@ -253,6 +229,7 @@ function handleClick() {
 
   gap: 5px;
 }
+
 .blog-card-meta {
   display: flex;
 
@@ -261,7 +238,7 @@ function handleClick() {
   gap: 12px;
 }
 
-.blog-card-meta > span {
+.blog-card-meta>span {
   display: flex;
 
   align-items: center;
@@ -280,8 +257,6 @@ function handleClick() {
 .blog-card:hover .blog-card-arrow {
   color: var(--el-color-primary);
 
-  transform:
-    translateX(3px);
+  transform: translateX(3px);
 }
-
 </style>

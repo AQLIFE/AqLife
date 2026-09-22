@@ -1,6 +1,6 @@
 <template>
   <ElCol class="dataview">
-    <ElRow :gutter="20" style="padding:20px 0;">
+    <ElRow :gutter="10" class="filter-bar">
       <ElCol :span="5">
         <ElInput v-model="searchText" :disabled="filterDisabled || !searchField" @keyup.enter="onSearchEnter">
           <template #prepend>
@@ -57,12 +57,12 @@
           :disabled="filterDisabled"
         />
       </ElCol>
-      <ElCol :span="3">
+      <ElCol :span="4">
         <ElButton style="width: inherit;" :icon="Upload" @click="handleUploadFile" type="warning"/>
         <ElButton style="width: inherit;" :icon="Plus" @click="handleAddFile" type="success"/>
       </ElCol>
     </ElRow>
-    <ElTable :data="tableData" highlight-current-row @row-click="activeRow" style="height:100%;">
+    <ElTable :data="tableData" highlight-current-row @row-click="activeRow" height="calc(100% - 50px)" class="data-table">
       <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label"
       :width="column.width" :sortable="column.sortable" :filters="column.filter?.options.map(option=>({text:option.label,value:option.value.toString() }))" :filter-method="column.filter?(value, row) => `${row[column.prop]}` === value:undefined" :filter-multiple="column.filter?.multiple ?? false"
 >
@@ -138,7 +138,7 @@ const tableColumns: FileTableColumn[] = [
     prop: 'tags',
     label: '标签',
     renderer:TagsCell,
-    width:380
+    width:350
   },
   {
     prop: 'publishStatus',
@@ -167,10 +167,6 @@ const tableColumns: FileTableColumn[] = [
   },
 ]
 
-// const adatar = computed(()=>{
-//   return column.filter?.options.map(option=>({text:option.label,value:option.value}))
-// })
-
 // 检索参数
 const searchField = ref<keyof FileDto | null>(null)
 const searchText = ref<string>('')
@@ -189,27 +185,9 @@ const fileStore = useFileStore()
 const actionStore = useActionStore()
 const activeDto = ref<FileDto>({})
 
-// const extensionFilters = defaultFilePolicy.allowedUpload.map(ext => ({
-//   text: ext.toUpperCase(),
-//   value: ext
-// }))
-// const handleFilter = (value: any, row: any, column: TableColumnCtx<FileDto>) => {
-//   const property = column['property']
-//   // 确保这里的判断逻辑与你后端 FileMetaEntity 的 Extension 字段对齐 [cite: 9]
-//   return row[property] === value
-// }
-// function handleFilter(column: FileTableColumn) {
-//   return (
-//     value: unknown,
-//     row: FileDto
-//   ) => {
-//     return row[column.prop] === value
-//   }
-// }
 const activeRow = (row: FileDto) => {
   actionStore.OState = OperationalState.Update
   activeDto.value = row
-  // drawerStatus.value = !drawerStatus.value
 }
 
 
@@ -325,9 +303,16 @@ function handleAddFile(){
 .dataview {
   height: inherit;
   overflow-y: scroll;
+  scrollbar-width: none;
+}
+.filter-bar {
+  padding:10px 10px 0 10px;
+  width:100%;height:50px;
+  flex: 0 0 auto;
 }
 
-.dataview::-webkit-scrollbar {
-  display: none;
+.data-table {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 </style>

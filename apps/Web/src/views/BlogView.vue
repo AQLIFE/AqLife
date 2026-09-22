@@ -110,4 +110,23 @@ onBeforeMount(async () => {
 
   font-size: 12px;
 }
+.blog-grid {
+  flex: 1 1 auto;
+
+  min-width: 0;
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  align-content: start;
+
+  gap: 16px;
+
+  overflow-y: auto;
+
+  padding: 2px;
+
+  box-sizing: border-box;
+}
 </style>

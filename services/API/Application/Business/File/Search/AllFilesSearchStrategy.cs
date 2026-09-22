@@ -21,7 +21,7 @@ namespace AqLife.Application.Business.File.Search
             CancellationToken ct = default)
         {
             if(httpContext.HttpContext?.User.Identity?.IsAuthenticated!=true)
-            queryable = queryable.Where(e =>e.Extension.Contains(".md"));
+            queryable = queryable.OrderByDescending(e => e.UploadTime).Where(e =>e.Extension.Contains(".md"));// 以发布时间排序，优先显示已发布的文件,默认最新
 
             return await queryable.ToListAsync(ct);
         }

@@ -36,15 +36,7 @@ onBeforeMount(async () => {
     lodding.value =false
   }
 })
-// onMounted(async ()=>{
 
-//    const response = await request.apiAccountGetRaw()
-//   if (response.raw.status == 200) {
-//     const account = await response.value()
-//     accountStore.systemAccount = account;
-//     lodding.value=false
-//   }
-// })
 </script>
 
 <template>
@@ -66,7 +58,11 @@ onBeforeMount(async () => {
 <style lang="css" scoped>
 .aside {
   border-right: 1px dotted gainsboro;
-  align-content: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
   height: 100vh;
 }
 
