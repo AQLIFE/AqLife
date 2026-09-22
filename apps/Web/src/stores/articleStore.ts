@@ -12,6 +12,6 @@ export const useArticleStore = defineStore('article', () => {
   return {
     markdown,
     blogTitle,
-    toc,
+    toc
   }
 })

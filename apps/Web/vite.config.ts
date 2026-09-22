@@ -10,5 +10,10 @@ export default mergeConfig(
   createAqlifeViteConfig(appRoot),
   defineConfig({
     plugins: [vueDevTools()],
-  }),
+    server: {
+      allowedHosts: [
+        '.trycloudflare.com',
+      ]
+    }
+  })
 )

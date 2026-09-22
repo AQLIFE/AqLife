@@ -1,19 +1,38 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router'
 import NavigationBar from '@/components/NavigationBar.vue'
-import DevPlan from './components/DevPlanCard.vue'
+import DevPlan from './components/DevPlan.vue'
 import FAuthorCard from '@/components/skeletons/FAuthorCard.vue'
 import SearchBox from '@/components/SearchBox.vue'
 import { SidebarType } from '@/types/sidebarType'
-import TOC from './components/TOC.vue'
 import BlogOverview from '@/components/BlogOverview.vue'
-import { computed, type Component } from 'vue'
+import { computed } from 'vue'
+import TocTree from './components/TocTree.vue'
+import { useArticleStore } from './stores/articleStore.ts'
 
+const articleStore = useArticleStore()
 const route = useRoute()
-const sideManager = computed(():Component|null=>{
-  if(route.meta.sidebarType == SidebarType.Preview)return TOC;
-  if(route.meta.sidebarType == SidebarType.About)return DevPlan;
-  return null
+const sideManager = computed(() => {
+  console.log(route.meta.sidebarType)
+    switch (route.meta.sidebarType) {
+        case SidebarType.Preview:
+            return {
+                component: TocTree,
+                props: {
+                    items: articleStore.toc[0],
+                    blogTitle: articleStore.blogTitle,
+                },
+            }
+
+        case SidebarType.About:
+            return {
+                component: DevPlan,
+                props: {},
+            }
+
+        default:
+            return null
+    }
 })
 
 </script>
@@ -25,7 +44,7 @@ const sideManager = computed(():Component|null=>{
       <SearchBox/>
      </div>
      <div class="tools-content">
-      <component :is="sideManager"/>
+      <component :is="sideManager?.component" v-bind="sideManager?.props"/>
      </div>
     </aside>
     <main id="content">

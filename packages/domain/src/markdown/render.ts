@@ -33,10 +33,7 @@ export const mdRenderOption = new MarkdownIt({
   linkify: true,
   typographer: true,
 }).use(anchor, {
-  permalink: true,
-  permalinkSymbol: '#',
   level: 2,
-  permalinkBefore: true,
 })
 
 const renderTokens = (token: Token) =>

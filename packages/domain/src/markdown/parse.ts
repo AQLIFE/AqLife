@@ -1,38 +1,17 @@
 import { mdRenderOption } from "./render"
-import { type HeadingLevel,type TocNode } from "./type"
+import { type TocItem, type HeadingLevel, type TocNode } from "./type"
 
-
-function createHeadingAnchor(
-  title: string,
-  usedAnchors: Set<string>,
-) {
-  const base = title
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-
-  let anchor = base
-  let index = 1
-
-  while (usedAnchors.has(anchor)) {
-    anchor = `${base}-${index++}`
-  }
-
-  usedAnchors.add(anchor)
-
-  return anchor
-}
 
 function isHeadingLevel(value: number): value is HeadingLevel {
-  return value >= 1 && value <= 6
+  return value > 1 && value <= 6
 }
 
-export const extractToc = (markdown: string): TocNode[] => {
+const extractToc = (markdown: string): TocItem[] => {
   const tokens = mdRenderOption.parse(markdown, {})
-  const result: TocNode[] = []
-  const usedAnchors = new Set<string>()
+  const result: TocItem[] = []
 
   tokens.forEach((token, index) => {
+   
     if (token.type !== 'heading_open') {
       return
     }
@@ -49,12 +28,10 @@ export const extractToc = (markdown: string): TocNode[] => {
       return
     }
 
-    const title = titleToken.content
-
     result.push({
       level,
-      title,
-      anchor: createHeadingAnchor(title, usedAnchors),
+      title: titleToken.content,
+      anchor: token.attrGet('id') ?? '',
     })
   })
 
@@ -62,15 +39,51 @@ export const extractToc = (markdown: string): TocNode[] => {
 }
 
 export function extractFileUid(url: URL): string | null {
-    const queryUid = url.searchParams.get('UID')
+  const queryUid = url.searchParams.get('UID')
 
-    if (queryUid) {
-        return queryUid
+  if (queryUid) {
+    return queryUid
+  }
+
+  const match = url.pathname.match(
+    /\/api\/file\/preview\/([0-9a-f-]{36})$/i
+  )
+
+  return match?.[1] ?? null
+}
+
+
+export const buildTocTree = (items: TocItem[]): TocNode[] => {
+  const result: TocNode[] = []
+  const stack: TocNode[] = []
+
+  for (const item of items) {
+    const node: TocNode = {
+      ...item,
+      children: [],
     }
 
-    const match = url.pathname.match(
-        /\/api\/file\/preview\/([0-9a-f-]{36})$/i
-    )
+    while (
+      stack.length > 0 &&
+      stack[stack.length - 1].level >= node.level
+    ) {
+      stack.pop()
+    }
 
-    return match?.[1] ?? null
+    if (stack.length === 0) {
+      result.push(node)
+    } else {
+      stack[stack.length - 1].children.push(node)
+    }
+
+    stack.push(node)
+  }
+
+  return result
+}
+
+export const extractTocTree = (markdown: string): TocNode[] => {
+  const items = extractToc(markdown)
+
+  return buildTocTree(items)
 }

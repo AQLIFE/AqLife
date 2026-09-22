@@ -1,24 +1,14 @@
 <template>
   <div class="blog-preview">
-    <ElPageHeader
-      class="header"
-      :icon="ArrowLeft"
-      @back="router.push('/blog')"
-    >
+    <ElPageHeader class="header" :icon="ArrowLeft" @back="router.push('/blog')">
       <template #content>
         <div class="article-header">
           <span class="article-title">
-            {{ articleStore.blogTitle }}
+            {{ fileMeta?.fileName }}
           </span>
 
-          <div
-            v-if="articleTags.length"
-            class="article-tags"
-          >
-            <ElTag
-              v-for="tag in articleTags"
-              :key="tag.uid!"
-            >
+          <div v-if="articleTags.length" class="article-tags">
+            <ElTag v-for="tag in articleTags" :key="tag.uid!">
               {{ tag.name }}
             </ElTag>
           </div>
@@ -26,16 +16,12 @@
       </template>
 
       <template #extra>
-        <ElButton
-          :icon="Share"
-          link
-          title="分享文章"
-        />
+        <ElButton :icon="Share" link title="分享文章" />
       </template>
     </ElPageHeader>
 
     <div class="markdown-content">
-      <MarkdownRender :markdown="sourceMarkdown" :baseurl="baseurl"/>
+      <MarkdownRender :markdown="sourceMarkdown" :baseurl="baseurl" />
     </div>
   </div>
 </template>
@@ -69,20 +55,18 @@ import {
 import { apiConfiguration } from '@/services/api'
 import { useArticleStore } from '@/stores/articleStore'
 import { MarkdownRender } from '@aqlife/ui-shared'
-import { extractToc } from '@aqlife/domain'
+import { extractTocTree } from '@aqlife/domain'
 
 const route = useRoute()
 const router = useRouter()
-
 const articleStore = useArticleStore()
 const fileApi = new FileApi(apiConfiguration)
 const baseurl = import.meta.env.VITE_API
-
 const sourceMarkdown = ref('')
-const fileMeta = ref<FileDto[]>([])
+const fileMeta = ref<FileDto | null>()
 
 const articleTags = computed(() =>
-  fileMeta.value[0]?.tags ?? [],
+  fileMeta.value?.tags ?? [],
 )
 
 let requestVersion = 0
@@ -126,7 +110,7 @@ async function loadArticle(id: string) {
   }
 
   sourceMarkdown.value = markdown
-  fileMeta.value = meta
+  fileMeta.value = meta[0]
 
   const file = meta[0]
 
@@ -134,17 +118,6 @@ async function loadArticle(id: string) {
     articleStore.blogTitle = file.fileName ?? ''
   }
 }
-
-watch(
-  () => sourceMarkdown.value,
-  markdown => {
-    articleStore.markdown = markdown
-    articleStore.toc = extractToc(markdown)
-  },
-  {
-    immediate: true,
-  },
-)
 
 watch(
   () => route.params.id,
@@ -159,7 +132,16 @@ watch(
     immediate: true,
   },
 )
-
+watch(
+  () => sourceMarkdown.value,
+  markdown => {
+    articleStore.markdown = markdown
+    articleStore.toc = extractTocTree(markdown)
+  },
+  {
+    immediate: true,
+  },
+)
 onBeforeUnmount(() => {
   requestVersion++
 })
@@ -180,7 +162,7 @@ onBeforeUnmount(() => {
   height: 50px;
   min-height: 50px;
   border-bottom: 1px solid #ddd;
-  padding:0 20px;
+  padding: 0 20px;
 }
 
 .article-header {

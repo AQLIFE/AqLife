@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElImage } from 'element-plus'
 
 // 接收来自父组件表格的 uid

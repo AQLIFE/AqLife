@@ -7,8 +7,8 @@ import { apiConfiguration } from '@/services/api';
 import { View,Timer } from '@element-plus/icons-vue';
 
 const category = computed(() => useTagStore().tagList.filter(e => e.isCategory))
+const tagApi = new TagApi(apiConfiguration)
 onBeforeMount(async () => {
-    const tagApi = new TagApi(apiConfiguration)
     if (useTagStore().tagList.length == 0) useTagStore().tagList = await tagApi.apiTagGet()
 })
 </script>
