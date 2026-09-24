@@ -58,21 +58,19 @@ import { useArticleStore } from '@/stores/articleStore'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import { extractTocTree } from '@aqlife/domain'
 
-
 const route = useRoute()
 const router = useRouter()
 const articleStore = useArticleStore()
 const fileApi = new FileApi(apiConfiguration)
 const baseurl = import.meta.env.VITE_API
 const sourceMarkdown = ref('')
-const fileMeta = ref<FileDto | null>()
+const fileMeta = ref<FileDto | null>(null)
 
 const articleTags = computed(() =>
   fileMeta.value?.tags ?? [],
 )
 const markdownContainer = ref<HTMLElement | null>(null)
 let requestVersion = 0
-
 
 const markdownRenderRef = ref<{
   loading: boolean
@@ -106,23 +104,35 @@ async function getPreview(
 async function loadArticle(id: string) {
   const currentVersion = ++requestVersion
 
-  const [markdown, meta] = await Promise.all([
-    getPreview({ uID: id }),
-    fileApi.apiFileGet({ uID: id }),
-  ])
+  try {
+    const [markdown, meta] = await Promise.all([
+      getPreview({ uID: id }),
+      fileApi.apiFileGet({ uID: id }),
+    ])
 
-  // 如果期间路由已经切换，丢弃旧请求结果
-  if (currentVersion !== requestVersion) {
-    return
-  }
+    if (currentVersion !== requestVersion) {
+      return
+    }
 
-  sourceMarkdown.value = markdown
-  fileMeta.value = meta.items![0]
+    const file = meta.items?.[0] ?? null
 
-  const file = meta.items![0]
+    sourceMarkdown.value = markdown
+    fileMeta.value = file
 
-  if (file) {
-    articleStore.blogTitle = file.fileName ?? ''
+    if (file) {
+      articleStore.blogTitle = file.fileName ?? ''
+    } else {
+      articleStore.blogTitle = ''
+    }
+  } catch (error) {
+    if (currentVersion !== requestVersion) {
+      return
+    }
+
+    console.error('获取文章信息失败:', error)
+    sourceMarkdown.value = ''
+    fileMeta.value = null
+    articleStore.blogTitle = ''
   }
 }
 

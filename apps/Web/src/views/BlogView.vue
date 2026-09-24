@@ -29,9 +29,33 @@ import { apiConfiguration } from '@/services/api'
 import { useBlogStore } from '@/stores/fileStore'
 import { ElMessage } from 'element-plus'
 import { onBeforeMount, ref } from 'vue'
-const blogStore = useBlogStore()
 
+const blogStore = useBlogStore()
 const isLoading = ref(false)
+
+async function loadBlogs() {
+  const fileApi = new FileApi(apiConfiguration)
+  const files = []
+  let page = 1
+  const pageSize = 50
+
+  while (true) {
+    const result = await fileApi.apiFileGet({
+      page,
+      pageSize,
+    })
+
+    files.push(...(result.items ?? []))
+
+    if (!result.hasMore) {
+      break
+    }
+
+    page = result.page + 1
+  }
+
+  blogStore.setBlogList(files)
+}
 
 onBeforeMount(async () => {
   if (blogStore.cacheBlogList.length > 0) {
@@ -41,12 +65,9 @@ onBeforeMount(async () => {
   isLoading.value = true
 
   try {
-    const fileApi = new FileApi(apiConfiguration)
-    const result = await fileApi.apiFileGet()
-    if(result.items)blogStore.cacheBlogList = result.items
+    await loadBlogs()
   } catch {
-    blogStore.cacheBlogList = []
-
+    blogStore.clearBlogList()
     ElMessage.warning('请求数据失败')
   } finally {
     isLoading.value = false

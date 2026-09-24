@@ -1,10 +1,23 @@
 import type { FileDto } from '@/api'
 import { defineStore } from 'pinia'
-import { reactive, ref, type Ref } from 'vue'
+import { ref } from 'vue'
 
 export const useBlogStore = defineStore('blog', () => {
-  const isShow: Ref<boolean> = ref(false)
-  const cacheBlogList = reactive<FileDto[]>([])
+  const isShow = ref(false)
+  const cacheBlogList = ref<FileDto[]>([])
 
-  return { isShow,cacheBlogList }
+  function setBlogList(files: FileDto[]) {
+    cacheBlogList.value = files
+  }
+
+  function clearBlogList() {
+    cacheBlogList.value = []
+  }
+
+  return {
+    isShow,
+    cacheBlogList,
+    setBlogList,
+    clearBlogList,
+  }
 })

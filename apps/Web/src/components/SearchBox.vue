@@ -210,11 +210,14 @@ async function remoteSearch(query: string) {
       title: query,
     })
 
-    result.value = response.items!.filter(item =>
+    result.value = (response.items ?? []).filter(item =>
       item.fileName
         ?.toLowerCase()
         .includes(query.toLowerCase()),
     )
+  } catch (error) {
+    console.error('搜索文章失败:', error)
+    result.value = []
   } finally {
     loading.value = false
   }
@@ -257,7 +260,7 @@ async function loadHistoryTags() {
             uID: item.uid,
           })
 
-        item.tags = response.items![0].tags ?? []
+        item.tags = response.items?.[0]?.tags ?? []
       } catch (error) {
         console.error(
           '加载搜索历史标签失败',
