@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;
@@ -15,7 +15,7 @@ namespace AqLife.Application.Services
         public async Task<Guid> PublishAsync(Guid guid,CancellationToken ct)
         {
             FileMetaEntity blog = await context.File.FindAsync([guid],ct) ?? throw new ResourceNotFoundException("File not found");
-            blog.Publish();
+            blog.PublishMeta.Publish();
             await context.SaveChangesAsync(ct);
             return guid;
         }

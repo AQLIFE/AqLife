@@ -55,7 +55,8 @@ const tagApi = new TagApi(apiConfiguration)
 
 onBeforeMount(async () => {
   if (tagStore.tags.length === 0) {
-    tagStore.tags = await tagApi.apiTagGet()
+    const result =await tagApi.apiTagGet()
+    if(result.items)tagStore.tags = result.items
   }
   proxyTags.value = [...tagStore.tags]
 })

@@ -18,7 +18,8 @@ export const useFileStore = defineStore('file', () => {
     if (isInitialized.value) return // 缓存命中，直接返回 [cite: 3]
 
     // 1. 获取元数据
-    fileList.value = await fileApi.apiFileGet()
+    const result =await fileApi.apiFileGet()
+    if(result.items)fileList.value = result.items
 
     // 2. 并行获取所有预览图，提升加载速度 [cite: 9]
     const tasks = fileList.value.map(async (item) => {

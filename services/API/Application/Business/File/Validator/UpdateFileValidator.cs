@@ -49,7 +49,7 @@ public class FilePublishStatusValidtor(FileSearch search) : AbstractValidator<Sc
     private protected override async Task<bool> IsValidAsync(ScheduledFileCommand command, CancellationToken ct)
     {
         var fileCache = await search.SearchAsync(new FileQuery(command.UID), ct);
-        return !(fileCache.First().PublishStatus == FileStatus.Published && command.ScheduledAt < DateTimeOffset.UtcNow);
+        return !(fileCache.First().PublishMeta.PublishStatus == FileStatus.Published && command.ScheduledAt < DateTimeOffset.UtcNow);
         // 考虑到 command.ScheduledAt 可以为null ,当它等于null时,这个表达式通过
         // 若不等于null,则参与运算,小于当前系统时间则拦截,反之通过
     }

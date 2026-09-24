@@ -117,9 +117,9 @@ async function loadArticle(id: string) {
   }
 
   sourceMarkdown.value = markdown
-  fileMeta.value = meta[0]
+  fileMeta.value = meta.items![0]
 
-  const file = meta[0]
+  const file = meta.items![0]
 
   if (file) {
     articleStore.blogTitle = file.fileName ?? ''

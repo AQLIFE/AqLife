@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { useTagStore } from '@/stores/tagStore';
-import { computed, onBeforeMount } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
 import { ElButton } from 'element-plus';
-import { TagApi } from '@/api';
+import { TagApi, type BlogCategoryStatistics } from '@/api';
 import { apiConfiguration } from '@/services/api';
 import { View, Timer } from '@element-plus/icons-vue';
+
+const BlogCategoryView = ref<BlogCategoryStatistics[]>([])
 
 const category = computed(() => useTagStore().tagList.filter(e => e.isCategory))
 onBeforeMount(async () => {
     const tagApi = new TagApi(apiConfiguration)
-    if (useTagStore().tagList.length == 0) useTagStore().tagList = await tagApi.apiTagGet()
+    if (useTagStore().tagList.length == 0) useTagStore().tagList = await (await tagApi.apiTagGet()).items??[]
+    if(BlogCategoryView.value.length==0) BlogCategoryView.value = await tagApi.apiTagOverviewGet()
 })
 </script>
 
@@ -21,34 +24,16 @@ onBeforeMount(async () => {
                 博文概览
             </h3>
 
-            <div v-for="item in category" :key="item.uid!" class="overview-item">
+            <div v-for="item in BlogCategoryView" :key="item.uid!" class="overview-item">
                 <ElButton type="info" link>
-                    {{ item.name }}
+                    {{ item.categoryName }}
                 </ElButton>
 
                 <span>
-                    100
+                    {{ item.categoryCount }}
                 </span>
             </div>
         </section>
-
-
-        <section class="overview-section">
-            <h3 class="overview-title">
-                最新发布
-            </h3>
-
-            <div v-for="item in category" :key="item.uid!" class="overview-item">
-                <ElButton type="info" link>
-                    {{ item.name }}
-                </ElButton>
-
-                <span>
-                    2026-09-11
-                </span>
-            </div>
-        </section>
-
 
         <section class="overview-section">
             <h3 class="overview-title">

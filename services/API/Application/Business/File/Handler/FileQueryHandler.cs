@@ -5,16 +5,18 @@ using AqLife.Shared.IView;
 using MediatR;
 using AqLife.Application.Business.File;
 using AqLife.Application.Business.File.Service;
+using AqLife.Application.Mappers;
+using AqLife.Domain.Entities.File;
 
 namespace AqLife.Application.Business.File.Handler
 {
-    public class FileQueryHandler(FileSearch search, FileViewMapper mapper, FileReader fileReader) : IRequestHandler<FileQuery, IEnumerable<FileDto>>
+    public class FileQueryHandler(FileSearch search,PageResultMapper<FileMetaEntity,FileDto> mapper, FileReader fileReader) : IRequestHandler<FileQuery, PageResult<FileDto>>
     {
-        public async Task<IEnumerable<FileDto>> Handle(FileQuery query, CancellationToken ct)
+        public async Task<PageResult<FileDto>> Handle(FileQuery query, CancellationToken ct)
         {
-            var result = await search.SearchAsync(query, ct);
+            var result = await search.SearchPageAsync(query, ct);
 
-            foreach (var item in result)
+            foreach (var item in result.Items)
             {
                 if (item.Extension == ".md")
                 {
@@ -22,7 +24,7 @@ namespace AqLife.Application.Business.File.Handler
                     item.SetFileIntroduction(content.Length <= 300 ? content : content[..300]);
                 }
             }
-            return result?.Select(e => mapper.ToDto(e)) ?? [];
+            return mapper.ToDto(result);
         }
     }
 }

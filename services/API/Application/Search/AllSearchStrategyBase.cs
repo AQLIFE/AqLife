@@ -12,10 +12,10 @@ namespace AqLife.Application.Search
         public virtual bool IsMatch(TSearchCriteria c)
             => c.UID is null && string.IsNullOrWhiteSpace(c.Keyword);
 
-        public virtual async Task<IEnumerable<TEntity>> ExecuteAsync(
+        public virtual async Task<IQueryable<TEntity>> ExecuteAsync(
             IQueryable<TEntity> queryable,
             TSearchCriteria c,
             CancellationToken ct = default)
-        => await queryable.ToListAsync(ct);
+        => queryable;
     }
 }

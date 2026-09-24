@@ -35,19 +35,19 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, ref, watch } from 'vue';
-import CodeBlock from './CodeBlock.vue'
+import CodeBlock from './MarkdownCode.vue'
 import TipPreview from './TipPreview.vue'
 import TablePreview from './TablePreview.vue'
 import MermaidPreview from './MermaidPreview.vue';
 import { mdRenderOption, buildMarkdownRenderNodes, type MarkdownLinkResult, isImageType, extractFileUid, type MarkdownLinkContext } from '@aqlife/domain'
-import { FileApi } from '@/api';
 import InternalImage from './InternalImage.vue'
-import { apiConfiguration } from '@/services/api.ts';
+import type { FileApi } from '@/api';
 
 
 interface MarkdownRenderProps {
     markdown: string
     baseurl?: string
+    fileApi:FileApi
 }
 const props = defineProps<MarkdownRenderProps>()
 
@@ -76,8 +76,6 @@ async function renderMarkdown() {
     loading.value = false
   }
 }
-
-const fileApi = new FileApi(apiConfiguration)
 
 function isSameOrigin(target: URL): boolean {
   if (!props.baseurl) {
@@ -121,11 +119,11 @@ async function resolveInternalLink(
     return null
   }
   
-  const files = await fileApi.apiFileGet({
+  const files = await props.fileApi.apiFileGet({
     uID: uid,
   })
 
-  const file = files[0]
+  const file = files.items![0]
 
   if (!file) {
     return null

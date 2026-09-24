@@ -1,6 +1,7 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.File;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,8 +24,8 @@ namespace AqLife.Application.Business.File.Handler
             {
                 entity.FileTags.Add(new FileTagEntity
                 {
-                    FileId = command.UID,
-                    TagId = tag.UID,
+                   File = entity,
+                   Tag = tag
                 });
             }
             return command.UID;

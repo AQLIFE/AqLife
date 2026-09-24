@@ -1,5 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Contracts;
+using AqLife.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Search
@@ -14,16 +15,16 @@ namespace AqLife.Application.Search
     {
         public virtual bool IsMatch(TSearchCriteria c)
             => c.UID is not null || !string.IsNullOrWhiteSpace(c.Keyword);
-        public async Task<IEnumerable<TEntity>> ExecuteAsync(
+        public virtual async Task<IQueryable<TEntity>> ExecuteAsync(
             IQueryable<TEntity> queryable,
             TSearchCriteria c,
             CancellationToken ct = default)
         {
             if (c.UID is Guid id)
-                queryable = queryable.Where(e => e.UID == id);
+                return queryable.Where(e => e.UID == id);
             else if (!string.IsNullOrWhiteSpace(c.Keyword))
-                queryable = ApplyKeywordFilter(queryable, c.Keyword.Trim());
-            return await queryable.ToListAsync(ct);
+                return ApplyKeywordFilter(queryable, c.Keyword.Trim());
+            else throw new RequestFailException("不合规的操作，该请求不应被处理");
         }
         protected abstract IQueryable<TEntity> ApplyKeywordFilter(
             IQueryable<TEntity> queryable, string keyword);

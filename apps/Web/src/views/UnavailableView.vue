@@ -30,7 +30,7 @@
 
 
 <script setup lang="ts">
-import { useAuthorInfoStore } from '@/stores/useAuthorInfoStore';
+import { useAuthorInfoStore } from '@/stores/accountStore';
 const author = useAuthorInfoStore()
 async function retry(): Promise<void> { await author.getUser() }
 

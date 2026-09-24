@@ -1,9 +1,10 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Business.File.Service;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.File.Handler
 {
@@ -25,9 +26,9 @@ namespace AqLife.Application.Business.File.Handler
     {
         public async Task<Guid> Handle(ScheduledFileCommand command,CancellationToken ct)
         {
-            FileMetaEntity file = await context.File.FindAsync([command.UID], ct) ?? throw new ResourceNotFoundException("不存在的文件");
-            if (command.ScheduledAt is DateTimeOffset offset) file.Schedule( offset );
-            else file.Publish();
+            FileMetaEntity file = await context.File.Include(e => e.PublishMeta).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("不存在的文件");
+            if (command.ScheduledAt is DateTimeOffset offset) file.PublishMeta.Schedule( offset );
+            else file.PublishMeta.Publish();
             return command.UID;
         }
     }

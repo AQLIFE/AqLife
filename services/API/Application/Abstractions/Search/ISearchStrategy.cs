@@ -7,7 +7,7 @@ namespace AqLife.Application.Abstractions.Search
     {
         // 判断当前 Query 是否匹配该策略
         bool IsMatch(TSearchCriteria criteria);
-        Task<IEnumerable<TEntity>> ExecuteAsync(
+        Task<IQueryable<TEntity>> ExecuteAsync(
             IQueryable<TEntity> queryable,
             TSearchCriteria criteria,
             CancellationToken ct = default);

@@ -21,7 +21,7 @@ namespace AqLife.Application.Business.Account
     }
 
     [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)] // 添加这一行
-    public partial class AccountMapper(SubscriptionMapper subMapper)
+    public partial class AccountMapper(IViewMapper<SubscriptionEntity, SubscriptionDto> subMapper)
         : IViewMapper<AccountEntity, AccountDto>, ICreateMapper<AccountEntity, CreateAccountCommand>
     {
         [MapperIgnoreSource(nameof(AccountEntity.UID))]
@@ -32,7 +32,6 @@ namespace AqLife.Application.Business.Account
         public AccountEntity ToEntity(CreateAccountCommand command) => new(command.Name, command.Desc, command.Pwd);
 
         private SubscriptionDto Convert(SubscriptionEntity entity) => subMapper.ToDto(entity);
-        //private SubscriptionEntity Convert(SubscriptionDto dto) => subMapper.ToEntity(dto);
 
         private string Convert(Guid id) => id.ToString();
         private Guid Convert(string id) => Guid.TryParse(id, out var guid) ? guid : Guid.Empty; // string -> Guid

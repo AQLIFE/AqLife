@@ -10,12 +10,9 @@ namespace AqLife.Web.Controllers
     [ApiController, Authorize]
     public class TodoController(IMediator mediator) : ControllerBase
     {
-        [HttpGet, AllowAnonymous]
-        public async Task<IEnumerable<TodoDto>?> GetAllAsync(CancellationToken ct)
-            => await mediator.Send(new TodoQuery(), ct);
 
-        [HttpGet("search"), AllowAnonymous]
-        public async Task<IEnumerable<TodoDto>?> SearchAsync([FromQuery] TodoQuery query, CancellationToken ct)
+        [HttpGet, AllowAnonymous]
+        public async Task<PageResult<TodoDto>?> SearchAsync([FromQuery] TodoQuery query, CancellationToken ct)
             => await mediator.Send(query, ct);
 
         [HttpPost]

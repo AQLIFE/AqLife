@@ -1,4 +1,5 @@
 ﻿using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.File;
 using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Abstractions.Persistence

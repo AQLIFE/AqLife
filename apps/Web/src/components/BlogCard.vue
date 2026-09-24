@@ -42,7 +42,7 @@
               <View />
             </ElIcon>
 
-            800
+            {{ blog.viewCount }}
           </span>
 
           <ElIcon class="blog-card-arrow">

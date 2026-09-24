@@ -2,12 +2,12 @@
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
 using AqLife.Shared.Tools;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using AqLife.Application.Mappers;
+using AqLife.Domain.Entities.File;
 
 
 namespace AqLife.Application.Business.File.Search;
@@ -36,10 +36,12 @@ public class FileSearch(
     private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
     protected override EntitySearchCriteria MapToCriteria(FileQuery query)
         => queryMapper.ToCriteria(query);
+    protected override IQueryable<FileMetaEntity> ApplyDefaultOrder(IQueryable<FileMetaEntity> queryble)
+    => queryble.Include(t=>t.PublishMeta).OrderBy(e => e.PublishMeta.PublishAt);
     protected override async Task<IQueryable<FileMetaEntity>> BuildBaseQueryAsync(IQueryable<FileMetaEntity> queryable, FileQuery query)
     {
-        queryable = queryable.Include(e => e.FileTags).ThenInclude(x => x.Tag);
+        queryable = queryable.Include(e=>e.PublishMeta).Include(e=>e.InteractionMeta).Include(e =>e.FileTags).ThenInclude(x => x.Tag);
         FileAccessMode mode = IsValid ? FileAccessMode.Internal : FileAccessMode.Standard;
-        return await fileSecurity.ApplyAccessPolicy(queryable, mode, IsValid);
+        return await fileSecurity.ApplyAccessPolicy(queryable, mode);
     }
 }

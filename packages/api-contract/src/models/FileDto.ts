@@ -94,6 +94,12 @@ export interface FileDto {
      * @memberof FileDto
      */
     fileIntroduction?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileDto
+     */
+    viewCount?: number;
 }
 
 
@@ -125,6 +131,7 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
         'uploadTime': json['uploadTime'] == null ? undefined : json['uploadTime'],
         'fileType': json['fileType'] == null ? undefined : json['fileType'],
         'fileIntroduction': json['fileIntroduction'] == null ? undefined : json['fileIntroduction'],
+        'viewCount': json['viewCount'] == null ? undefined : json['viewCount'],
     };
 }
 
@@ -149,6 +156,7 @@ export function FileDtoToJSONTyped(value?: FileDto | null, ignoreDiscriminator: 
         'uploadTime': value['uploadTime'],
         'fileType': value['fileType'],
         'fileIntroduction': value['fileIntroduction'],
+        'viewCount': value['viewCount'],
     };
 }
 

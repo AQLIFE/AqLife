@@ -61,34 +61,34 @@ All URIs are relative to *http://localhost*
 *CorpusApi* | [**apiCorpusGet**](docs/CorpusApi.md#apicorpusget) | **GET** /api/Corpus | 
 *CorpusApi* | [**apiCorpusPost**](docs/CorpusApi.md#apicorpuspost) | **POST** /api/Corpus | 
 *CorpusApi* | [**apiCorpusRandomGet**](docs/CorpusApi.md#apicorpusrandomget) | **GET** /api/Corpus/random | 
-*CorpusApi* | [**apiCorpusSearchGet**](docs/CorpusApi.md#apicorpussearchget) | **GET** /api/Corpus/search | 
 *FileApi* | [**apiFileCancelSchedulePatch**](docs/FileApi.md#apifilecancelschedulepatch) | **PATCH** /api/File/CancelSchedule | 
 *FileApi* | [**apiFileDelete**](docs/FileApi.md#apifiledelete) | **DELETE** /api/File | 
 *FileApi* | [**apiFileDownloadGet**](docs/FileApi.md#apifiledownloadget) | **GET** /api/File/download | 
 *FileApi* | [**apiFileGet**](docs/FileApi.md#apifileget) | **GET** /api/File | 
 *FileApi* | [**apiFilePatch**](docs/FileApi.md#apifilepatch) | **PATCH** /api/File | 
 *FileApi* | [**apiFilePreviewGet**](docs/FileApi.md#apifilepreviewget) | **GET** /api/File/preview | 
-*FileApi* | [**apiFilePublishPost**](docs/FileApi.md#apifilepublishpost) | **POST** /api/File/Publish | 
 *FileApi* | [**apiFileSchedulePatch**](docs/FileApi.md#apifileschedulepatch) | **PATCH** /api/File/schedule | 
 *FileApi* | [**apiFileTagPatch**](docs/FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag | 
 *FileApi* | [**apiFileUploadPost**](docs/FileApi.md#apifileuploadpost) | **POST** /api/File/Upload | 
 *TagApi* | [**apiTagDelete**](docs/TagApi.md#apitagdelete) | **DELETE** /api/Tag | 
 *TagApi* | [**apiTagGet**](docs/TagApi.md#apitagget) | **GET** /api/Tag | 
+*TagApi* | [**apiTagOverviewGet**](docs/TagApi.md#apitagoverviewget) | **GET** /api/Tag/overview | 
 *TagApi* | [**apiTagPatch**](docs/TagApi.md#apitagpatch) | **PATCH** /api/Tag | 
 *TagApi* | [**apiTagPost**](docs/TagApi.md#apitagpost) | **POST** /api/Tag | 
 *TodoApi* | [**apiTodoDelete**](docs/TodoApi.md#apitododelete) | **DELETE** /api/Todo | 
 *TodoApi* | [**apiTodoGet**](docs/TodoApi.md#apitodoget) | **GET** /api/Todo | 
 *TodoApi* | [**apiTodoPatch**](docs/TodoApi.md#apitodopatch) | **PATCH** /api/Todo | 
 *TodoApi* | [**apiTodoPost**](docs/TodoApi.md#apitodopost) | **POST** /api/Todo | 
-*TodoApi* | [**apiTodoSearchGet**](docs/TodoApi.md#apitodosearchget) | **GET** /api/Todo/search | 
 
 
 ### Models
 
 - [AccountDto](docs/AccountDto.md)
 - [AccountProfile](docs/AccountProfile.md)
+- [BlogCategoryStatistics](docs/BlogCategoryStatistics.md)
 - [CancelScheduledFileCommand](docs/CancelScheduledFileCommand.md)
 - [CorpusDto](docs/CorpusDto.md)
+- [CorpusDtoPageResult](docs/CorpusDtoPageResult.md)
 - [CreateAccountCommand](docs/CreateAccountCommand.md)
 - [CreateCorpusCommand](docs/CreateCorpusCommand.md)
 - [CreateTagCommand](docs/CreateTagCommand.md)
@@ -98,12 +98,15 @@ All URIs are relative to *http://localhost*
 - [DeleteTagCommand](docs/DeleteTagCommand.md)
 - [DeleteTodoCommand](docs/DeleteTodoCommand.md)
 - [FileDto](docs/FileDto.md)
+- [FileDtoPageResult](docs/FileDtoPageResult.md)
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
 - [ScheduledFileCommand](docs/ScheduledFileCommand.md)
 - [SubscriptionDto](docs/SubscriptionDto.md)
 - [TagDto](docs/TagDto.md)
+- [TagDtoPageResult](docs/TagDtoPageResult.md)
 - [TodoDto](docs/TodoDto.md)
+- [TodoDtoPageResult](docs/TodoDtoPageResult.md)
 - [TodoStatus](docs/TodoStatus.md)
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
 - [UpdateTagCommand](docs/UpdateTagCommand.md)

@@ -12,7 +12,7 @@ namespace AqLife.Web.Controllers
     public class FileController(IMediator mediator) : ControllerBase
     {
         [HttpGet, AllowAnonymous]
-        public async Task<IEnumerable<FileDto>> SearchFile([FromQuery] FileQuery query, CancellationToken ct)
+        public async Task<PageResult<FileDto>> SearchFile([FromQuery] FileQuery query, CancellationToken ct)
         => await mediator.Send(query, ct);// 已实现
 
         [HttpGet("preview"), AllowAnonymous]
@@ -50,15 +50,15 @@ namespace AqLife.Web.Controllers
         [HttpPatch("CancelSchedule")]
         public async Task<Guid> CancelSchedule(CancelScheduledFileCommand command, CancellationToken ct)
             => await mediator.Send(command, ct);
-        /// <summary>
-        /// 上传文件并设置延时发布
-        /// </summary>
-        /// <param name="command"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
-        [HttpPost("Publish"), ServiceFilter(typeof(FileUploadFilter))]
-        public async Task<IEnumerable<Guid>> PublishScheduledFile([FromForm] PublishFileCommand command, CancellationToken ct)
-        => await mediator.Send(command, ct);// 已实现
+        ///// <summary>
+        ///// 上传文件并设置延时发布
+        ///// </summary>
+        ///// <param name="command"></param>
+        ///// <param name="ct"></param>
+        ///// <returns></returns>
+        //[HttpPost("Publish"), ServiceFilter(typeof(FileUploadFilter))]
+        //public async Task<IEnumerable<Guid>> PublishScheduledFile([FromForm] PublishFileCommand command, CancellationToken ct)
+        //=> await mediator.Send(command, ct);// 已实现
 
         [HttpPatch("schedule")]
         public async Task<Guid> ScheduleFile(ScheduledFileCommand command, CancellationToken ct)

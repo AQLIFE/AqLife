@@ -26,7 +26,7 @@
 import { FileApi } from '@/api'
 import BlogCard from '@/components/BlogCard.vue'
 import { apiConfiguration } from '@/services/api'
-import { useBlogStore } from '@/stores/useBlogStore'
+import { useBlogStore } from '@/stores/fileStore'
 import { ElMessage } from 'element-plus'
 import { onBeforeMount, ref } from 'vue'
 const blogStore = useBlogStore()
@@ -42,8 +42,8 @@ onBeforeMount(async () => {
 
   try {
     const fileApi = new FileApi(apiConfiguration)
-
-    blogStore.cacheBlogList = await fileApi.apiFileGet()
+    const result = await fileApi.apiFileGet()
+    if(result.items)blogStore.cacheBlogList = result.items
   } catch {
     blogStore.cacheBlogList = []
 

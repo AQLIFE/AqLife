@@ -17,6 +17,9 @@ namespace AqLife.Application.Business.Todo.Search
         protected override EntitySearchCriteria MapToCriteria(TodoQuery query)
         => queryMapper.ToCriteria(query);
 
+        protected override IQueryable<TodoEntity> ApplyDefaultOrder(IQueryable<TodoEntity> queryble)
+        => queryble.OrderBy(e => e.CreatedAt);
+
         protected override async Task<IQueryable<TodoEntity>> BuildBaseQueryAsync(IQueryable<TodoEntity> queryable, TodoQuery query)
        => query.IsTree ? queryable.Where(t => t.FTID == null).Include(e => e.Children) : queryable;
     }

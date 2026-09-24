@@ -12,12 +12,12 @@ namespace AqLife.Application.Business.Tag.Search
     public sealed class AllTagSearchStrategy
         : AllSearchStrategyBase<TagEntity, EntitySearchCriteria>
     {
-        public override async Task<IEnumerable<TagEntity>> ExecuteAsync(
+        public override async Task<IQueryable<TagEntity>> ExecuteAsync(
             IQueryable<TagEntity> queryable,
             EntitySearchCriteria criteria,
             CancellationToken ct = default)
         {
-            return await queryable.ToListAsync(ct);
+            return queryable;
         }
     }
 }

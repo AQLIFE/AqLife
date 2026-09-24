@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Abstractions.Search;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Behaviors;
 using AqLife.Application.Business;
 using AqLife.Application.Business.Account;
@@ -17,10 +18,14 @@ using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Application.Services;
 using AqLife.Application.Validators;
+using AqLife.Domain.Command;
 using AqLife.Domain.Contracts;
 using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.File;
+using AqLife.Shared.IView;
 using AqLife.Shared.Tools;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AqLife.Application
@@ -90,14 +95,57 @@ namespace AqLife.Application
             services.AddScoped<FileDeleter>();
 
             // 4. 注册所有 Mapper [cite: 198]
+            //==========================================================================TodoMapper
             services.AddSingleton<TodoMapper>();
+            services.AddSingleton<IViewMapper<TodoEntity, TodoDto>>(sp =>
+                sp.GetRequiredService<TodoMapper>());
+
+            services.AddSingleton<ICreateMapper<TodoEntity, CreateTodoCommand>>(sp =>
+                sp.GetRequiredService<TodoMapper>());
+            //==========================================================================TagMapper
             services.AddSingleton<TagMapper>();
-            services.AddSingleton<FileMapper>();
+            services.AddSingleton<IViewMapper<TagEntity, TagDto>>(sp =>
+                sp.GetRequiredService<TagMapper>());
+
+            services.AddSingleton<ICreateMapper<TagEntity, CreateTagCommand>>(sp =>
+                sp.GetRequiredService<TagMapper>());
+            //==========================================================================SUBMapper
             services.AddSingleton<SubscriptionMapper>();
+
+            services.AddSingleton<IViewMapper<SubscriptionEntity, SubscriptionDto>>(sp =>
+                sp.GetRequiredService<SubscriptionMapper>());
+
+            services.AddSingleton<ICreateMapper<SubscriptionEntity, ISubscription>>(sp =>
+                sp.GetRequiredService<SubscriptionMapper>());
+            //==========================================================================AccountMapper
             services.AddSingleton<AccountMapper>();
-            services.AddSingleton<QueryMapper>();
+            services.AddSingleton<IViewMapper<AccountEntity, AccountDto>>(sp =>
+                sp.GetRequiredService<AccountMapper>());
+
+            services.AddSingleton<ICreateMapper<AccountEntity, CreateAccountCommand>>(sp =>
+                sp.GetRequiredService<AccountMapper>());
+            //==========================================================================CorpusMapper
             services.AddSingleton<CorpusMapper>();
-            services.AddSingleton<FileViewMapper>();
+            services.AddSingleton<IViewMapper<CorpusEntity, CorpusDto>>(sp =>
+                sp.GetRequiredService<CorpusMapper>());
+
+            services.AddSingleton<ICreateMapper<CorpusEntity, CreateCorpusCommand>>(sp =>
+                sp.GetRequiredService<CorpusMapper>());
+            //==========================================================================FileMapper
+            services.AddSingleton<FileMapper>();
+
+            services.AddScoped<FileMappingService>();
+            services.AddSingleton<IViewMapper<FileMetaEntity, FileDto>>(sp =>
+                sp.GetRequiredService<FileMappingService>());
+
+            services.AddScoped<ICreateMapper<FileMetaEntity, IFormFile>>(sp =>
+                sp.GetRequiredService<FileMappingService>());
+
+            //==========================================================================OtherMapper
+            
+            
+            services.AddSingleton<QueryMapper>();
+            services.AddScoped(typeof(PageResultMapper<,>));
 
             services.AddScoped<IBlogPublishService, BlogPublishService>();
             services.AddScoped<BlogSearch>();

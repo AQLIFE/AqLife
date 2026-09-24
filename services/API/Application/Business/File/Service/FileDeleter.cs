@@ -1,6 +1,6 @@
 ﻿using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Persistence;
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 namespace AqLife.Application.Business.File.Service
 {

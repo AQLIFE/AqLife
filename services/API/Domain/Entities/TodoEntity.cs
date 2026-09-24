@@ -42,18 +42,22 @@ namespace AqLife.Domain.Entities
         [NotMapped]
         public bool HasChildren => Children != null && Children.Count > 0;
 
-        public TodoEntity(string content, int priority)
+        
+        public TodoEntity() { }
+        public TodoEntity(string desc)
         {
-            Desc = content;
+            Desc = desc;
+        }
+        public TodoEntity(string desc, int priority) : this(desc)
+        {
             Priority = priority;
         }
-        public TodoEntity() { }
-        public TodoEntity(string content)
+        public TodoEntity(string desc, int priority,Guid? ftid) : this(desc,priority)
         {
-            Desc = content;
+            SetParent(ftid);
         }
 
-        public void SetParent(Guid parentId)
+        public void SetParent(Guid? parentId)
         {
             if (parentId == Guid.Empty)
                 throw new DomainLegalityException("父任务 ID 不能为 Empty");

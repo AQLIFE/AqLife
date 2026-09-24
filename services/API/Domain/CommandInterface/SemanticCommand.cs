@@ -22,3 +22,9 @@ public interface IUpdateCommand<T> : ICommand<T> { }
 /// 注意：这里继承顶层的 ICommand<Unit>，完美避开 Guid 冲突
 /// </summary>
 public interface IDeleteCommand : ICommand<Unit> { }
+
+public interface IPageQuery
+{
+    public int Page { get; init; }
+    public int PageSize { get; init; }
+}

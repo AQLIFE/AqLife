@@ -49,7 +49,7 @@ async function commit() {
 
     const tempUid = await tagApi.apiTagPost({ createTagCommand: { name: tempTag.value } })
     const tempTagDto = await tagApi.apiTagGet({ uID: tempUid })
-    tagSelectList.value.push(tempTagDto[0])
+    tagSelectList.value.push(tempTagDto.items![0])
     cancel()
   } catch {
     ElMessage.error('创建永久Tag 失败')
@@ -69,7 +69,8 @@ function cancel() {
 }
 // 提供选择列表
 onBeforeMount(async () => {
-  tagSelectList.value = await tagApi.apiTagGet()
+  const result = await tagApi.apiTagGet()
+  if(result.items)tagSelectList.value = result.items
 })
 
 </script>

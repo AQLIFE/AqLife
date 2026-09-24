@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Business.File.Search;
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.File;
 
 namespace AqLife.Application.Business.File.Abstractions
 {
@@ -7,7 +7,6 @@ namespace AqLife.Application.Business.File.Abstractions
     {
         Task<IQueryable<FileMetaEntity>> ApplyAccessPolicy(
             IQueryable<FileMetaEntity> queryable,
-            FileAccessMode mode,
-            bool isAuthenticated);
+            FileAccessMode mode);
     }
 }

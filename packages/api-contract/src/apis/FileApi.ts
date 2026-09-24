@@ -24,10 +24,10 @@ import {
     DeleteFileCommandToJSON,
 } from '../models/DeleteFileCommand';
 import {
-    type FileDto,
-    FileDtoFromJSON,
-    FileDtoToJSON,
-} from '../models/FileDto';
+    type FileDtoPageResult,
+    FileDtoPageResultFromJSON,
+    FileDtoPageResultToJSON,
+} from '../models/FileDtoPageResult';
 import {
     type ScheduledFileCommand,
     ScheduledFileCommandFromJSON,
@@ -54,6 +54,8 @@ export interface ApiFileDownloadGetRequest {
 export interface ApiFileGetRequest {
     uID?: string;
     title?: string;
+    page?: number;
+    pageSize?: number;
 }
 
 export interface ApiFilePatchRequest {
@@ -63,11 +65,6 @@ export interface ApiFilePatchRequest {
 
 export interface ApiFilePreviewGetRequest {
     uID?: string;
-}
-
-export interface ApiFilePublishPostRequest {
-    file?: Blob;
-    scheduledTime?: string;
 }
 
 export interface ApiFileSchedulePatchRequest {
@@ -156,6 +153,8 @@ export interface FileApiInterface {
      * Creates request options for apiFileGet without sending the request
      * @param {string} [uID] 
      * @param {string} [title] 
+     * @param {number} [page] 
+     * @param {number} [pageSize] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -165,15 +164,17 @@ export interface FileApiInterface {
      * 
      * @param {string} [uID] 
      * @param {string} [title] 
+     * @param {number} [page] 
+     * @param {number} [pageSize] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
-    apiFileGetRaw(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<FileDto>>>;
+    apiFileGetRaw(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FileDtoPageResult>>;
 
     /**
      */
-    apiFileGet(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<FileDto>>;
+    apiFileGet(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileDtoPageResult>;
 
     /**
      * Creates request options for apiFilePatch without sending the request
@@ -218,29 +219,6 @@ export interface FileApiInterface {
     /**
      */
     apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
-
-    /**
-     * Creates request options for apiFilePublishPost without sending the request
-     * @param {Blob} [file] 
-     * @param {string} [scheduledTime] 
-     * @throws {RequiredError}
-     * @memberof FileApiInterface
-     */
-    apiFilePublishPostRequestOpts(requestParameters: ApiFilePublishPostRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * 
-     * @param {Blob} [file] 
-     * @param {string} [scheduledTime] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof FileApiInterface
-     */
-    apiFilePublishPostRaw(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>>;
-
-    /**
-     */
-    apiFilePublishPost(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>>;
 
     /**
      * Creates request options for apiFileSchedulePatch without sending the request
@@ -444,6 +422,14 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             queryParameters['Title'] = requestParameters['title'];
         }
 
+        if (requestParameters['page'] != null) {
+            queryParameters['Page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['pageSize'] != null) {
+            queryParameters['PageSize'] = requestParameters['pageSize'];
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
 
@@ -459,16 +445,16 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
     /**
      */
-    async apiFileGetRaw(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<FileDto>>> {
+    async apiFileGetRaw(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FileDtoPageResult>> {
         const requestOptions = await this.apiFileGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(FileDtoFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => FileDtoPageResultFromJSON(jsonValue));
     }
 
     /**
      */
-    async apiFileGet(requestParameters: ApiFileGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<FileDto>> {
+    async apiFileGet(requestParameters: ApiFileGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileDtoPageResult> {
         const response = await this.apiFileGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -573,66 +559,6 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
      */
     async apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
         const response = await this.apiFilePreviewGetRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for apiFilePublishPost without sending the request
-     */
-    async apiFilePublishPostRequestOpts(requestParameters: ApiFilePublishPostRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const consumes: runtime.Consume[] = [
-            { contentType: 'multipart/form-data' },
-        ];
-        // @ts-ignore: canConsumeForm may be unused
-        const canConsumeForm = runtime.canConsumeForm(consumes);
-
-        let formParams: { append(param: string, value: any): any };
-        let useForm = false;
-        // use FormData to transmit files using content-type "multipart/form-data"
-        useForm = canConsumeForm;
-        if (useForm) {
-            formParams = new FormData();
-        } else {
-            formParams = new URLSearchParams();
-        }
-
-        if (requestParameters['file'] != null) {
-            formParams.append('File', requestParameters['file'] as any);
-        }
-
-        if (requestParameters['scheduledTime'] != null) {
-            formParams.append('ScheduledTime', requestParameters['scheduledTime'] as any);
-        }
-
-
-        let urlPath = `/api/File/Publish`;
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: formParams,
-        };
-    }
-
-    /**
-     */
-    async apiFilePublishPostRaw(requestParameters: ApiFilePublishPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>> {
-        const requestOptions = await this.apiFilePublishPostRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse<any>(response);
-    }
-
-    /**
-     */
-    async apiFilePublishPost(requestParameters: ApiFilePublishPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>> {
-        const response = await this.apiFilePublishPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

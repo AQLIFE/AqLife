@@ -35,7 +35,7 @@ import {
 
 import {
     useAuthorInfoStore,
-} from '@/stores/useAuthorInfoStore'
+} from '@/stores/accountStore'
 
 import AuthorCard from '@/components/AuthorCard.vue'
 

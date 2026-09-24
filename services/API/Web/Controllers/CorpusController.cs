@@ -10,12 +10,7 @@ namespace AqLife.Web.Controllers
     public class CorpusController(IMediator mediator) : ControllerBase
     {
         [HttpGet]
-        public async Task<IEnumerable<CorpusDto>?> AllAsync(CancellationToken ct)
-            => await mediator.Send(new CorpusQuery(), ct);
-
-
-        [HttpGet("search")]
-        public async Task<IEnumerable<CorpusDto>?> SearchAsync([FromQuery] CorpusQuery query, CancellationToken ct)
+        public async Task<PageResult<CorpusDto>?> SearchAsync([FromQuery] CorpusQuery query, CancellationToken ct)
             => await mediator.Send(query, ct);
 
         [HttpGet("random"), AllowAnonymous]

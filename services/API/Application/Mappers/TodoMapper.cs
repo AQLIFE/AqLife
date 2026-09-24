@@ -1,6 +1,7 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;
 using Riok.Mapperly.Abstractions;
 
@@ -18,16 +19,6 @@ namespace AqLife.Application.Business.Todo
         [MapperIgnoreTarget(nameof(TodoEntity.CreatedAt))]
         [MapperIgnoreTarget(nameof(TodoEntity.Children))]
         public partial TodoEntity ToEntity(CreateTodoCommand command);
-
-        //public TodoStatus Convert(string status)
-        //=> status switch
-        //{
-        //    "Initial" => TodoStatus.Initial,
-        //    "Wait" => TodoStatus.Wait,
-        //    "Execute" => TodoStatus.Execute,
-        //    "Completed" => TodoStatus.Completed,
-        //    _ => throw new ArgumentException("无效的待办状态", nameof(status))
-        //};
 
         public string Convert(TodoStatus status)
            => status.ToString();

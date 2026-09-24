@@ -2,8 +2,10 @@
 /* eslint-disable */
 export * from './AccountDto';
 export * from './AccountProfile';
+export * from './BlogCategoryStatistics';
 export * from './CancelScheduledFileCommand';
 export * from './CorpusDto';
+export * from './CorpusDtoPageResult';
 export * from './CreateAccountCommand';
 export * from './CreateCorpusCommand';
 export * from './CreateTagCommand';
@@ -13,12 +15,15 @@ export * from './DeleteFileCommand';
 export * from './DeleteTagCommand';
 export * from './DeleteTodoCommand';
 export * from './FileDto';
+export * from './FileDtoPageResult';
 export * from './FileStatus';
 export * from './LoginCommand';
 export * from './ScheduledFileCommand';
 export * from './SubscriptionDto';
 export * from './TagDto';
+export * from './TagDtoPageResult';
 export * from './TodoDto';
+export * from './TodoDtoPageResult';
 export * from './TodoStatus';
 export * from './UpdateFileTagCommand';
 export * from './UpdateTagCommand';

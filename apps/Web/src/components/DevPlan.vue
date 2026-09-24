@@ -2,15 +2,19 @@
 import { TodoApi } from '@/api';
 // import { devPlanTasks } from '@/data/devPlanTasks'
 import { apiConfiguration } from '@/services/api';
-import { useTodoStore } from '@/stores/useTodoStore';
+import { useTodoStore } from '@/stores/todoStore';
 import { Plus } from '@element-plus/icons-vue';
 import { ElButton, ElRow,ElCol } from 'element-plus'
 import { onBeforeMount,ref } from 'vue';
 const todoStore = useTodoStore()
 const devPlanTitle = '开发计划'
 const todoApi = new TodoApi(apiConfiguration)
+
 onBeforeMount(async ()=>{
-   if(todoStore.todoList.length==0)todoStore.todoList = await todoApi.apiTodoGet()
+   if(todoStore.todoList.length==0){
+    const result  = await todoApi.apiTodoGet()
+    if(result.items)todoStore.todoList = result.items
+}
 })
 
 const isExtend = ref<boolean>(false)

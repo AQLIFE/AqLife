@@ -3,7 +3,7 @@ import 'vue-router'
 import { WebIconName } from '@aqlife/icons'
 import { SidebarType } from '@/types/sidebarType'
 import { routes } from './routes'
-import { useAuthorInfoStore } from '@/stores/useAuthorInfoStore'
+import { useAuthorInfoStore } from '@/stores/accountStore'
 
 declare module 'vue-router' {
   interface RouteMeta {

@@ -11,12 +11,12 @@ namespace AqLife.Application.Business.Corpus.Search
 {
     public class AllCorpusSearchStrategy:AllSearchStrategyBase<CorpusEntity, EntitySearchCriteria>
     {
-        public override async Task<IEnumerable<CorpusEntity>> ExecuteAsync(
+        public override async Task<IQueryable<CorpusEntity>> ExecuteAsync(
            IQueryable<CorpusEntity> queryable,
            EntitySearchCriteria criteria,
            CancellationToken ct = default)
         {
-            return await queryable.ToListAsync(ct);
+            return queryable;
         }
     }
 }

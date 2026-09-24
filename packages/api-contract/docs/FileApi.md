@@ -10,7 +10,6 @@ All URIs are relative to *http://localhost*
 | [**apiFileGet**](FileApi.md#apifileget) | **GET** /api/File |  |
 | [**apiFilePatch**](FileApi.md#apifilepatch) | **PATCH** /api/File |  |
 | [**apiFilePreviewGet**](FileApi.md#apifilepreviewget) | **GET** /api/File/preview |  |
-| [**apiFilePublishPost**](FileApi.md#apifilepublishpost) | **POST** /api/File/Publish |  |
 | [**apiFileSchedulePatch**](FileApi.md#apifileschedulepatch) | **PATCH** /api/File/schedule |  |
 | [**apiFileTagPatch**](FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag |  |
 | [**apiFileUploadPost**](FileApi.md#apifileuploadpost) | **POST** /api/File/Upload |  |
@@ -214,7 +213,7 @@ No authorization required
 
 ## apiFileGet
 
-> Array&lt;FileDto&gt; apiFileGet(uID, title)
+> FileDtoPageResult apiFileGet(uID, title, page, pageSize)
 
 
 
@@ -236,6 +235,10 @@ async function example() {
     uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
     // string (optional)
     title: title_example,
+    // number (optional)
+    page: 56,
+    // number (optional)
+    pageSize: 56,
   } satisfies ApiFileGetRequest;
 
   try {
@@ -257,10 +260,12 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **title** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **page** | `number` |  | [Optional] [Defaults to `undefined`] |
+| **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**Array&lt;FileDto&gt;**](FileDto.md)
+[**FileDtoPageResult**](FileDtoPageResult.md)
 
 ### Authorization
 
@@ -402,74 +407,6 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: `text/plain`, `application/json`, `text/json`
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **200** | OK |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
-
-
-## apiFilePublishPost
-
-> Array&lt;string&gt; apiFilePublishPost(file, scheduledTime)
-
-
-
-### Example
-
-```ts
-import {
-  Configuration,
-  FileApi,
-} from '@aqlife/api-contract';
-import type { ApiFilePublishPostRequest } from '@aqlife/api-contract';
-
-async function example() {
-  console.log("🚀 Testing @aqlife/api-contract SDK...");
-  const api = new FileApi();
-
-  const body = {
-    // Blob (optional)
-    file: BINARY_DATA_HERE,
-    // string (optional)
-    scheduledTime: 2013-10-20T19:20:30+01:00,
-  } satisfies ApiFilePublishPostRequest;
-
-  try {
-    const data = await api.apiFilePublishPost(body);
-    console.log(data);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// Run the test
-example().catch(console.error);
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **file** | `Blob` |  | [Optional] [Defaults to `undefined`] |
-| **scheduledTime** | `string` |  | [Optional] [Defaults to `undefined`] |
-
-### Return type
-
-**Array<string>**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
-- **Content-Type**: `multipart/form-data`
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 

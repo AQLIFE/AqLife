@@ -73,7 +73,7 @@ namespace AqLife.Data.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<DateTime>("CreateDate")
+                    b.Property<DateTimeOffset>("CreateDate")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("UID");
@@ -84,7 +84,7 @@ namespace AqLife.Data.Migrations
                     b.ToTable("Corpus");
                 });
 
-            modelBuilder.Entity("AqLife.Domain.Entities.FileMetaEntity", b =>
+            modelBuilder.Entity("AqLife.Domain.Entities.File.FileMetaEntity", b =>
                 {
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
@@ -106,18 +106,41 @@ namespace AqLife.Data.Migrations
                     b.Property<ulong>("FileSize")
                         .HasColumnType("bigint unsigned");
 
-                    b.Property<DateTime?>("PublishAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("PublishStatus")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UploadTime")
+                    b.Property<DateTimeOffset>("UploadTime")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("UID");
 
                     b.ToTable("FileMeta");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.File.InteractionMetaEntity", b =>
+                {
+                    b.Property<Guid>("UID")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("UID");
+
+                    b.ToTable("FileInteractionMetas");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.File.PublishMetaEntity", b =>
+                {
+                    b.Property<Guid>("UID")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset?>("PublishAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("PublishStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("UID");
+
+                    b.ToTable("FilePublishMetas");
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.FileTagEntity", b =>
@@ -201,10 +224,10 @@ namespace AqLife.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<DateTime?>("CompletedAt")
+                    b.Property<DateTimeOffset?>("CompletedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Desc")
@@ -227,9 +250,27 @@ namespace AqLife.Data.Migrations
                     b.ToTable("TodoList");
                 });
 
+            modelBuilder.Entity("AqLife.Domain.Entities.File.InteractionMetaEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.File.FileMetaEntity", null)
+                        .WithOne("InteractionMeta")
+                        .HasForeignKey("AqLife.Domain.Entities.File.InteractionMetaEntity", "UID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.File.PublishMetaEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.File.FileMetaEntity", null)
+                        .WithOne("PublishMeta")
+                        .HasForeignKey("AqLife.Domain.Entities.File.PublishMetaEntity", "UID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("AqLife.Domain.Entities.FileTagEntity", b =>
                 {
-                    b.HasOne("AqLife.Domain.Entities.FileMetaEntity", "File")
+                    b.HasOne("AqLife.Domain.Entities.File.FileMetaEntity", "File")
                         .WithMany("FileTags")
                         .HasForeignKey("FileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -269,9 +310,15 @@ namespace AqLife.Data.Migrations
                     b.Navigation("Subscriptions");
                 });
 
-            modelBuilder.Entity("AqLife.Domain.Entities.FileMetaEntity", b =>
+            modelBuilder.Entity("AqLife.Domain.Entities.File.FileMetaEntity", b =>
                 {
                     b.Navigation("FileTags");
+
+                    b.Navigation("InteractionMeta")
+                        .IsRequired();
+
+                    b.Navigation("PublishMeta")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.TagEntity", b =>

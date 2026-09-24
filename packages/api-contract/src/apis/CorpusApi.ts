@@ -14,10 +14,10 @@
 
 import * as runtime from '../runtime';
 import {
-    type CorpusDto,
-    CorpusDtoFromJSON,
-    CorpusDtoToJSON,
-} from '../models/CorpusDto';
+    type CorpusDtoPageResult,
+    CorpusDtoPageResultFromJSON,
+    CorpusDtoPageResultToJSON,
+} from '../models/CorpusDtoPageResult';
 import {
     type CreateCorpusCommand,
     CreateCorpusCommandFromJSON,
@@ -33,13 +33,15 @@ export interface ApiCorpusDeleteRequest {
     deleteCorepusCommand?: DeleteCorepusCommand;
 }
 
-export interface ApiCorpusPostRequest {
-    createCorpusCommand?: CreateCorpusCommand;
-}
-
-export interface ApiCorpusSearchGetRequest {
+export interface ApiCorpusGetRequest {
     uID?: string;
     content?: string;
+    page?: number;
+    pageSize?: number;
+}
+
+export interface ApiCorpusPostRequest {
+    createCorpusCommand?: CreateCorpusCommand;
 }
 
 /**
@@ -72,22 +74,30 @@ export interface CorpusApiInterface {
 
     /**
      * Creates request options for apiCorpusGet without sending the request
+     * @param {string} [uID] 
+     * @param {string} [content] 
+     * @param {number} [page] 
+     * @param {number} [pageSize] 
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
      */
-    apiCorpusGetRequestOpts(): Promise<runtime.RequestOpts>;
+    apiCorpusGetRequestOpts(requestParameters: ApiCorpusGetRequest): Promise<runtime.RequestOpts>;
 
     /**
      * 
+     * @param {string} [uID] 
+     * @param {string} [content] 
+     * @param {number} [page] 
+     * @param {number} [pageSize] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CorpusApiInterface
      */
-    apiCorpusGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CorpusDto>>>;
+    apiCorpusGetRaw(requestParameters: ApiCorpusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CorpusDtoPageResult>>;
 
     /**
      */
-    apiCorpusGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CorpusDto>>;
+    apiCorpusGet(requestParameters: ApiCorpusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CorpusDtoPageResult>;
 
     /**
      * Creates request options for apiCorpusPost without sending the request
@@ -128,29 +138,6 @@ export interface CorpusApiInterface {
     /**
      */
     apiCorpusRandomGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
-
-    /**
-     * Creates request options for apiCorpusSearchGet without sending the request
-     * @param {string} [uID] 
-     * @param {string} [content] 
-     * @throws {RequiredError}
-     * @memberof CorpusApiInterface
-     */
-    apiCorpusSearchGetRequestOpts(requestParameters: ApiCorpusSearchGetRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * 
-     * @param {string} [uID] 
-     * @param {string} [content] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CorpusApiInterface
-     */
-    apiCorpusSearchGetRaw(requestParameters: ApiCorpusSearchGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CorpusDto>>>;
-
-    /**
-     */
-    apiCorpusSearchGet(requestParameters: ApiCorpusSearchGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CorpusDto>>;
 
 }
 
@@ -199,8 +186,24 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
     /**
      * Creates request options for apiCorpusGet without sending the request
      */
-    async apiCorpusGetRequestOpts(): Promise<runtime.RequestOpts> {
+    async apiCorpusGetRequestOpts(requestParameters: ApiCorpusGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
+
+        if (requestParameters['uID'] != null) {
+            queryParameters['UID'] = requestParameters['uID'];
+        }
+
+        if (requestParameters['content'] != null) {
+            queryParameters['Content'] = requestParameters['content'];
+        }
+
+        if (requestParameters['page'] != null) {
+            queryParameters['Page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['pageSize'] != null) {
+            queryParameters['PageSize'] = requestParameters['pageSize'];
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
@@ -217,17 +220,17 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
 
     /**
      */
-    async apiCorpusGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CorpusDto>>> {
-        const requestOptions = await this.apiCorpusGetRequestOpts();
+    async apiCorpusGetRaw(requestParameters: ApiCorpusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CorpusDtoPageResult>> {
+        const requestOptions = await this.apiCorpusGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(CorpusDtoFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => CorpusDtoPageResultFromJSON(jsonValue));
     }
 
     /**
      */
-    async apiCorpusGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CorpusDto>> {
-        const response = await this.apiCorpusGetRaw(initOverrides);
+    async apiCorpusGet(requestParameters: ApiCorpusGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CorpusDtoPageResult> {
+        const response = await this.apiCorpusGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -309,49 +312,6 @@ export class CorpusApi extends runtime.BaseAPI implements CorpusApiInterface {
      */
     async apiCorpusRandomGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiCorpusRandomGetRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for apiCorpusSearchGet without sending the request
-     */
-    async apiCorpusSearchGetRequestOpts(requestParameters: ApiCorpusSearchGetRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        if (requestParameters['uID'] != null) {
-            queryParameters['UID'] = requestParameters['uID'];
-        }
-
-        if (requestParameters['content'] != null) {
-            queryParameters['Content'] = requestParameters['content'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/api/Corpus/search`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    async apiCorpusSearchGetRaw(requestParameters: ApiCorpusSearchGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CorpusDto>>> {
-        const requestOptions = await this.apiCorpusSearchGetRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(CorpusDtoFromJSON));
-    }
-
-    /**
-     */
-    async apiCorpusSearchGet(requestParameters: ApiCorpusSearchGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CorpusDto>> {
-        const response = await this.apiCorpusSearchGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

@@ -8,7 +8,6 @@ All URIs are relative to *http://localhost*
 | [**apiTodoGet**](TodoApi.md#apitodoget) | **GET** /api/Todo |  |
 | [**apiTodoPatch**](TodoApi.md#apitodopatch) | **PATCH** /api/Todo |  |
 | [**apiTodoPost**](TodoApi.md#apitodopost) | **POST** /api/Todo |  |
-| [**apiTodoSearchGet**](TodoApi.md#apitodosearchget) | **GET** /api/Todo/search |  |
 
 
 
@@ -79,7 +78,7 @@ No authorization required
 
 ## apiTodoGet
 
-> Array&lt;TodoDto&gt; apiTodoGet()
+> TodoDtoPageResult apiTodoGet(uID, desc, isTree, page, pageSize)
 
 
 
@@ -96,8 +95,21 @@ async function example() {
   console.log("🚀 Testing @aqlife/api-contract SDK...");
   const api = new TodoApi();
 
+  const body = {
+    // string (optional)
+    uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    desc: desc_example,
+    // boolean (optional)
+    isTree: true,
+    // number (optional)
+    page: 56,
+    // number (optional)
+    pageSize: 56,
+  } satisfies ApiTodoGetRequest;
+
   try {
-    const data = await api.apiTodoGet();
+    const data = await api.apiTodoGet(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -110,11 +122,18 @@ example().catch(console.error);
 
 ### Parameters
 
-This endpoint does not need any parameter.
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **desc** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **isTree** | `boolean` |  | [Optional] [Defaults to `undefined`] |
+| **page** | `number` |  | [Optional] [Defaults to `undefined`] |
+| **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**Array&lt;TodoDto&gt;**](TodoDto.md)
+[**TodoDtoPageResult**](TodoDtoPageResult.md)
 
 ### Authorization
 
@@ -253,77 +272,6 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: `application/json`, `text/json`, `application/*+json`
-- **Accept**: `text/plain`, `application/json`, `text/json`
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **200** | OK |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
-
-
-## apiTodoSearchGet
-
-> Array&lt;TodoDto&gt; apiTodoSearchGet(uID, desc, isTree)
-
-
-
-### Example
-
-```ts
-import {
-  Configuration,
-  TodoApi,
-} from '@aqlife/api-contract';
-import type { ApiTodoSearchGetRequest } from '@aqlife/api-contract';
-
-async function example() {
-  console.log("🚀 Testing @aqlife/api-contract SDK...");
-  const api = new TodoApi();
-
-  const body = {
-    // string (optional)
-    uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-    // string (optional)
-    desc: desc_example,
-    // boolean (optional)
-    isTree: true,
-  } satisfies ApiTodoSearchGetRequest;
-
-  try {
-    const data = await api.apiTodoSearchGet(body);
-    console.log(data);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// Run the test
-example().catch(console.error);
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
-| **desc** | `string` |  | [Optional] [Defaults to `undefined`] |
-| **isTree** | `boolean` |  | [Optional] [Defaults to `undefined`] |
-
-### Return type
-
-[**Array&lt;TodoDto&gt;**](TodoDto.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 

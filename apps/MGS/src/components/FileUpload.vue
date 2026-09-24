@@ -130,7 +130,7 @@ async function commit() {
         // 获取最新的文件 DTO (包含元数据和 已关联的标签) [cite: 9]
         const fileDtos = await fileApi.apiFileGet({ uID: finalUid })
         // ElMessage.info(fileDtos[0].fileName??'失败')
-        return fileDtos
+        return fileDtos.items
       } catch (err) {
         console.error(`处理文件[${uid}]失败:`, err)
         return null

@@ -12,13 +12,12 @@ namespace AqLife.Application.Business.Todo.Search
     public sealed class AllTodoSearchStrategy
     : AllSearchStrategyBase<TodoEntity, EntitySearchCriteria>
     {
-        public override async Task<IEnumerable<TodoEntity>> ExecuteAsync(
+        public override async Task<IQueryable<TodoEntity>> ExecuteAsync(
             IQueryable<TodoEntity> queryable,
             EntitySearchCriteria criteria,
             CancellationToken ct = default)
         {
-            queryable = queryable.Where(e => e.Status != TodoStatus.Completed);
-            return await queryable.ToListAsync(ct);
+            return queryable.Where(e => e.Status != TodoStatus.Completed);
         }
     }
 }

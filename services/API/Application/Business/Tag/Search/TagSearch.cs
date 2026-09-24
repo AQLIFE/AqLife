@@ -17,5 +17,8 @@ namespace AqLife.Application.Business.Tag.Search
 
         protected override async Task<IQueryable<TagEntity>> BuildBaseQueryAsync(IQueryable<TagEntity> queryable, TagQuery query)
        => queryable;
+
+        protected override IQueryable<TagEntity> ApplyDefaultOrder(IQueryable<TagEntity> queryble)
+        => queryble.OrderBy(e => e.Name);
     }
 }

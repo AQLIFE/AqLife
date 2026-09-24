@@ -16,6 +16,7 @@ Name | Type
 `uploadTime` | string
 `fileType` | string
 `fileIntroduction` | string
+`viewCount` | number
 
 ## Example
 
@@ -34,6 +35,7 @@ const example = {
   "uploadTime": null,
   "fileType": null,
   "fileIntroduction": null,
+  "viewCount": null,
 } satisfies FileDto
 
 console.log(example)
