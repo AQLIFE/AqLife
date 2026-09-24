@@ -1,67 +1,102 @@
 <template>
-    <div id="mdRender">
-        <template v-for="(node, index) in rNode" :key="index">
-            <CodeBlock v-if="node.type === 'component' && node.component === 'CodeBlock'" :info="node.content"
-                :infoType="node.info" />
-            <MermaidPreview v-else-if="node.type === 'component' && node.component === 'MermaidPreview'"
-                :info="node.content" :info-type="node.info" />
-            <TipPreview v-else-if="node.type === 'blockquote'" :quoteTokens="node.tokens" />
-            <TablePreview v-else-if="node.type === 'table'" :tableTokens="node.tokens" />
-            <InternalImage v-else-if="
-                node.type === 'resolved-link' &&
-                node.result.type === 'image'
-            " :src="node.result.src" :alt="node.result.alt"/>
+  <div id="mdRender">
+    <template v-for="(node, index) in rNode" :key="index">
+      <CodeBlock
+        v-if="node.type === 'component' && node.component === 'CodeBlock'"
+        :info="node.content"
+        :info-type="node.info"
+      />
 
-            <RouterLink v-else-if="
-                node.type === 'resolved-link' &&
-                node.result.type === 'markdown'
-            " :to="node.result.href" class="markdown-internal-link">
-                {{ node.text }}
-            </RouterLink>
-            <a
-                v-else-if="
-                    node.type === 'resolved-link' &&
-                    node.result.type === 'link'
-                "
-                :href="node.result.href"
-            >
-                {{ node.text }}
-            </a>
+      <MarkdownMermaid
+        v-else-if="
+          node.type === 'component' &&
+          node.component === 'MermaidPreview'
+        "
+        :info="node.content"
+        :info-type="node.info"
+      />
 
-            <div v-else-if="node.type === 'html'" v-html="node.content" />
-        </template>
-    </div>
+      <div
+        v-else-if="
+          node.type === 'blockquote' ||
+          node.type === 'table'
+        "
+        v-html="renderTokenGroup(node.tokens)"
+      />
+
+      <img
+        v-else-if="
+          node.type === 'resolved-link' &&
+          node.result.type === 'image'
+        "
+        :src="node.result.src"
+        :alt="node.result.alt"
+      />
+
+      <RouterLink
+        v-else-if="
+          node.type === 'resolved-link' &&
+          node.result.type === 'markdown'
+        "
+        :to="node.result.href"
+        class="markdown-internal-link"
+      >
+        {{ node.text }}
+      </RouterLink>
+
+      <a
+        v-else-if="
+          node.type === 'resolved-link' &&
+          node.result.type === 'link'
+        "
+        :href="node.result.href"
+      >
+        {{ node.text }}
+      </a>
+
+      <div
+        v-else-if="node.type === 'html'"
+        v-html="node.content"
+      />
+    </template>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, ref, watch } from 'vue';
+import { ref, watch } from 'vue'
+import {
+  buildMarkdownRenderNodes,
+  extractFileUid,
+  isImageType,
+  mdRenderOption,
+  type MarkdownLinkContext,
+  type MarkdownLinkResult,
+} from '@aqlife/domain'
+import type { MarkdownFileResolver } from '../../markdown/tyep'
 import CodeBlock from './MarkdownCode.vue'
-import TipPreview from './TipPreview.vue'
-import TablePreview from './TablePreview.vue'
-import MermaidPreview from './MermaidPreview.vue';
-import { mdRenderOption, buildMarkdownRenderNodes, type MarkdownLinkResult, isImageType, extractFileUid, type MarkdownLinkContext } from '@aqlife/domain'
-import InternalImage from './InternalImage.vue'
-import type { FileApi } from '@/api';
-
+import MarkdownMermaid from './MarkdownMermaid.vue'
 
 interface MarkdownRenderProps {
-    markdown: string
-    baseurl?: string
-    fileApi:FileApi
+  markdown: string
+  baseurl?: string
+  fileResolver?: MarkdownFileResolver
 }
+
 const props = defineProps<MarkdownRenderProps>()
 
 const rNode = ref<any[]>([])
 const loading = ref(false)
+
 watch(
-    () => props.markdown,
-    () => {
-        renderMarkdown()
-    },
-    {
-        immediate: true,
-    },
+  () => props.markdown,
+  () => {
+    renderMarkdown()
+  },
+  {
+    immediate: true,
+  },
 )
+
 async function renderMarkdown() {
   loading.value = true
 
@@ -70,11 +105,21 @@ async function renderMarkdown() {
 
     rNode.value = await buildMarkdownRenderNodes(
       parsed,
-      resolveInternalLink,
+      props.fileResolver
+        ? resolveInternalLink
+        : undefined,
     )
   } finally {
     loading.value = false
   }
+}
+
+function renderTokenGroup(tokens: any[]): string {
+  return mdRenderOption.renderer.render(
+    tokens,
+    mdRenderOption.options,
+    {},
+  )
 }
 
 function isSameOrigin(target: URL): boolean {
@@ -84,7 +129,6 @@ function isSameOrigin(target: URL): boolean {
 
   try {
     const base = new URL(props.baseurl)
-
     return target.origin === base.origin
   } catch {
     return false
@@ -94,47 +138,36 @@ function isSameOrigin(target: URL): boolean {
 async function resolveInternalLink(
   context: MarkdownLinkContext,
 ): Promise<MarkdownLinkResult | null> {
-  const {
-    href,
-    text,
-  } = context
+  const { href, text } = context
 
   let url: URL
-  
 
   try {
     url = new URL(href)
   } catch {
     return null
   }
+
   if (!isSameOrigin(url)) {
-    console.error('非可信地址')
     return null
   }
 
   const uid = extractFileUid(url)
 
-  if (!uid) {
-    console.error('没找到ID')
+  if (!uid || !props.fileResolver) {
     return null
   }
-  
-  const files = await props.fileApi.apiFileGet({
-    uID: uid,
-  })
 
-  const file = files.items![0]
+  const file = await props.fileResolver.getFile(uid)
 
   if (!file) {
     return null
   }
 
   if (isImageType(file.fileType ?? '')) {
-    const str =buildPreviewUrl(uid)
-    
     return {
       type: 'image',
-      src: str,
+      src: buildPreviewUrl(uid),
       alt: text,
     }
   }
@@ -149,30 +182,25 @@ async function resolveInternalLink(
   return {
     type: 'link',
     href,
+  }
 }
+
+function buildPreviewUrl(uid: string): string {
+  if (!props.baseurl) {
+    return ''
+  }
+
+  const base = new URL(props.baseurl)
+
+  base.pathname =
+    `${base.pathname.replace(/\/$/, '')}/api/File/preview`
+
+  base.search = ''
+  base.searchParams.set('UID', uid)
+
+  return base.toString()
 }
 
-function buildPreviewUrl(
-    uid: string,
-): string {
-    if (!props.baseurl) {
-        return ''
-    }
-
-    const base = new URL(props.baseurl)
-
-    base.pathname =
-        `${base.pathname.replace(/\/$/, '')}/api/File/preview`
-
-    base.search = ''
-
-    base.searchParams.set(
-        'UID',
-        uid,
-    )
-
-    return base.toString()
-}
 defineExpose({
   loading,
 })

@@ -28,7 +28,7 @@
           fullscreen
           destroy-on-close
           title="图表详情预览"
-          custom-class="mermaid-fullscreen-dialog"
+          class="mermaid-fullscreen-dialog"
         >
           <div class="fullscreen-content" v-html="svgHtml"></div>
         </ElDialog>
