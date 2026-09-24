@@ -142,9 +142,11 @@ async function commit() {
 
     // 5. 批量更新 Store，减少 Vue 响应式触发次数 [cite: 11]
     const validDtos = results.filter((dto): dto is FileDto[] => !!dto)
-    if (validDtos.length > 0) {
-      fileStore.fileList.push(...validDtos[0])
-      ElMessage.success(`成功处理 ${validDtos.length} 个文件`)
+    const uploadedFiles = validDtos.flat()
+
+    if (uploadedFiles.length > 0) {
+      fileStore.fileList.push(...uploadedFiles)
+      ElMessage.success(`成功处理 ${uploadedFiles.length} 个文件`)
       // 重置上下文
       fileList.value = []
       tags.value = []
