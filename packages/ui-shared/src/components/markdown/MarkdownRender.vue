@@ -72,7 +72,7 @@ import {
   type MarkdownLinkContext,
   type MarkdownLinkResult,
 } from '@aqlife/domain'
-import type { MarkdownFileResolver } from '../../markdown/tyep'
+import type { MarkdownFileResolver } from '../../markdown/type.ts'
 import CodeBlock from './MarkdownCode.vue'
 import MarkdownMermaid from './MarkdownMermaid.vue'
 
