@@ -67,7 +67,7 @@ namespace AqLife.Application.Search
                 queryable = queryable
                     .Skip((pageQuery.Page - 1) * pageQuery.PageSize)
                     .Take(pageQuery.PageSize + 1);
-                return new PageResult<TEntity>(queryable.Take(pageQuery.PageSize), pageQuery.Page, pageQuery.PageSize,queryable.Count()>pageQuery.PageSize);
+                return new PageResult<TEntity>(await queryable.Take(pageQuery.PageSize).ToListAsync(ct), pageQuery.Page, pageQuery.PageSize,queryable.Count()>pageQuery.PageSize);
             }
             else throw new("未配置业务属性，无法分页");
         }

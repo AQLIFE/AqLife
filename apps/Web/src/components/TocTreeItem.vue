@@ -46,9 +46,7 @@ function toggleExpand(event: MouseEvent) {
 <template>
   <li class="toc-node">
     <div class="toc-node-row">
-      <a class="toc-link" :class="{ active: isActive }" :href="`#${node.anchor}`" :style="{
-        paddingLeft: `${16 + (node.level - 2) * 16}px`,
-      }" @click="handleClick">
+      <a class="toc-link" :class="{ active: isActive }" :href="`#${node.anchor}`" @click="handleClick">
         {{ node.title }}
       </a>
 
@@ -81,6 +79,7 @@ function toggleExpand(event: MouseEvent) {
   min-width: 0;
 
   padding-top: 6px;
+  padding-left: 5px;
   padding-right: 8px;
   padding-bottom: 6px;
 

@@ -1,9 +1,10 @@
 import type { FileDto } from '@/api'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 export const useBlogStore = defineStore('blog', () => {
-  const isShow = ref(false)
+  const hasMore = ref(false)
+  const lastRequestTime = reactive(Date.now)
   const cacheBlogList = ref<FileDto[]>([])
 
   function setBlogList(files: FileDto[]) {
@@ -15,8 +16,9 @@ export const useBlogStore = defineStore('blog', () => {
   }
 
   return {
-    isShow,
+    hasMore,
     cacheBlogList,
+    lastRequestTime,
     setBlogList,
     clearBlogList,
   }

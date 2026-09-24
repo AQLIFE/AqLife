@@ -16,9 +16,11 @@
       </span>
     </header>
 
-    <div class="blog-grid" v-loading="isLoading" element-loading-text="正在加载文章...">
-      <BlogCard v-for="item in blogStore.cacheBlogList" :key="item.uid" :blog="item" />
-    </div>
+    <ElScrollbar @end-reached="loadBlogs" height="100%" class="blog-scrollbar">
+      <div class="blog-grid" v-loading="isLoading" element-loading-text="正在加载文章...">
+        <BlogCard v-for="item in blogStore.cacheBlogList" :key="item.uid" :blog="item" />
+      </div>
+    </ElScrollbar>
   </div>
 </template>
 
@@ -27,34 +29,28 @@ import { FileApi } from '@/api'
 import BlogCard from '@/components/BlogCard.vue'
 import { apiConfiguration } from '@/services/api'
 import { useBlogStore } from '@/stores/fileStore'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElScrollbar } from 'element-plus'
 import { onBeforeMount, ref } from 'vue'
 
 const blogStore = useBlogStore()
 const isLoading = ref(false)
+const page = ref<number>(1)
 
 async function loadBlogs() {
   const fileApi = new FileApi(apiConfiguration)
-  const files = []
-  let page = 1
-  const pageSize = 50
+  const files = blogStore.cacheBlogList ?? []
+  // const pageSize = 10: 请求时默认为10
 
-  while (true) {
-    const result = await fileApi.apiFileGet({
-      page,
-      pageSize,
-    })
-
+  if (blogStore.hasMore || blogStore.cacheBlogList.length == 0) {
+    isLoading.value = true
+    const result = await fileApi.apiFileGet({ page: page.value })
     files.push(...(result.items ?? []))
-
-    if (!result.hasMore) {
-      break
-    }
-
-    page = result.page + 1
+    page.value = (result.page ?? 0) + 1
+    blogStore.hasMore = result.hasMore ?? false
+    blogStore.setBlogList(files)
+    isLoading.value = false
   }
 
-  blogStore.setBlogList(files)
 }
 
 onBeforeMount(async () => {
@@ -92,10 +88,12 @@ onBeforeMount(async () => {
 
   box-sizing: border-box;
 }
+
 .blog-page-header {
   flex: 0 0 auto;
 
   display: flex;
+  padding:0 20px;
 
   align-items: flex-end;
 
@@ -131,6 +129,7 @@ onBeforeMount(async () => {
 
   font-size: 12px;
 }
+
 .blog-grid {
   flex: 1 1 auto;
 
@@ -150,5 +149,8 @@ onBeforeMount(async () => {
 
   box-sizing: border-box;
   scrollbar-width: none;
+}
+.blog-scrollbar{
+  padding:0 20px;
 }
 </style>

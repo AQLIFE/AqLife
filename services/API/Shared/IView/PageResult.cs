@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace AqLife.Shared.IView
 {
-    public record PageResult<TData>(IEnumerable<TData> Items,int Page,int PageSize,bool HasMore=true);
+    public record PageResult<TData>(List<TData> Items,int Page,int PageSize,bool HasMore=true);
 }

@@ -2,6 +2,7 @@ using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Todo.Validator
 {

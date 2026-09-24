@@ -3,14 +3,20 @@
     <ElPageHeader class="header" :icon="ArrowLeft" @back="router.push('/blog')">
       <template #content>
         <div class="article-header">
-          <span class="article-title">
-            {{ fileMeta?.fileName }}
-          </span>
+          <div class="article-title-row">
+            <span class="article-title">
+              {{ fileMeta?.fileName }}
+            </span>
 
-          <div v-if="articleTags.length" class="article-tags">
-            <ElTag v-for="tag in articleTags" :key="tag.uid!">
-              {{ tag.name }}
-            </ElTag>
+            <div v-if="articleTags.length" class="article-tags">
+              <ElTag v-for="tag in articleTags" :key="tag.uid!">
+                {{ tag.name }}
+              </ElTag>
+            </div>
+          </div>
+
+          <div v-if="fileMeta?.uploadTime" class="article-upload-time">
+            发布于 {{ fileMeta.uploadTime }}
           </div>
         </div>
       </template>
@@ -269,6 +275,15 @@ onBeforeUnmount(() => {
 
 .article-header {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+
+  min-width: 0;
+}
+
+.article-title-row {
+  display: flex;
   align-items: center;
   gap: 20px;
 
@@ -286,6 +301,12 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.article-upload-time {
+  font-size: 12px;
+  line-height: 16px;
+  color: #909399;
 }
 
 .markdown-content {

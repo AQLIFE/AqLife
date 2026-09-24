@@ -45,7 +45,7 @@ namespace AqLife.Application.Mappers
     {
         public PageResult<TEntityDto> ToDto(PageResult<TEntity> source)
         {
-            IEnumerable<TEntityDto> dtos = source.Items.Select<TEntity,TEntityDto>(mapper.ToDto).ToList();
+            List<TEntityDto> dtos = source.Items.Select<TEntity,TEntityDto>(mapper.ToDto).ToList();
             return new PageResult<TEntityDto>(dtos, source.Page, source.PageSize, source.HasMore);
         }
     }

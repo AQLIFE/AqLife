@@ -15,8 +15,8 @@ namespace AqLife.Application.Business.File.Handler
         public async Task<PageResult<FileDto>> Handle(FileQuery query, CancellationToken ct)
         {
             var result = await search.SearchPageAsync(query, ct);
-
-            foreach (var item in result.Items)
+            var items = result.Items.ToList();
+            foreach (var item in items)
             {
                 if (item.Extension == ".md")
                 {

@@ -21,6 +21,7 @@ namespace AqLife.Application.Business.File
         [MapProperty(nameof(FileMetaEntity.PublishMeta.PublishStatus), nameof(FileDto.PublishStatus))]
         [MapProperty(nameof(FileMetaEntity.PublishMeta.PublishAt), nameof(FileDto.PublishAt))]
         [MapProperty(nameof(FileMetaEntity.InteractionMeta.ViewCount), nameof(FileDto.ViewCount))]
+        [MapProperty(nameof(FileMetaEntity.FileIntroduction), nameof(FileDto.FileIntroduction))]
         public partial FileDto ToDto(FileMetaEntity source);
 
         public string Convert(DateTimeOffset dateTime) => dateTime.ToString("yyyy-MM-dd");

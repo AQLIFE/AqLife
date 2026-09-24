@@ -135,7 +135,7 @@ namespace AqLife.Application
             services.AddSingleton<FileMapper>();
 
             services.AddScoped<FileMappingService>();
-            services.AddSingleton<IViewMapper<FileMetaEntity, FileDto>>(sp =>
+            services.AddScoped<IViewMapper<FileMetaEntity, FileDto>>(sp =>
                 sp.GetRequiredService<FileMappingService>());
 
             services.AddScoped<ICreateMapper<FileMetaEntity, IFormFile>>(sp =>
