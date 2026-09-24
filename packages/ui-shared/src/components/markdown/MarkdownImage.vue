@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { ElImage,ElRow,ElCol } from 'element-plus'
+import { ElImage, ElCol } from 'element-plus'
 
 defineProps<{
   src: string
