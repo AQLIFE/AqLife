@@ -16,6 +16,14 @@
         :info-type="node.info"
       />
 
+      <div
+        v-else-if="
+          node.type === 'blockquote' ||
+          node.type === 'table'
+        "
+        v-html="renderTokenGroup(node.tokens)"
+      />
+
       <img
         v-else-if="
           node.type === 'resolved-link' &&
@@ -104,6 +112,14 @@ async function renderMarkdown() {
   } finally {
     loading.value = false
   }
+}
+
+function renderTokenGroup(tokens: any[]): string {
+  return mdRenderOption.renderer.render(
+    tokens,
+    mdRenderOption.options,
+    {},
+  )
 }
 
 function isSameOrigin(target: URL): boolean {
