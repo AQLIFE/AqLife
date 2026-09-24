@@ -7,17 +7,19 @@ import { ArrowRight } from '@element-plus/icons-vue'
 const props = defineProps<{
   item: TodoDto
   index: number
-  level: number
 }>()
 
 const expanded = ref(true)
+
 const children = computed(() => props.item.todoList ?? [])
-const hasChildren = computed(() => props.item.hasChildren === true || children.value.length > 0)
+const hasChildren = computed(() =>
+  props.item.hasChildren === true || children.value.length > 0,
+)
 </script>
 
 <template>
   <div class="todo-node">
-    <div class="content-item" :style="{ paddingLeft: `${level * 20 + 10}px` }">
+    <div class="content-item">
       <ElCol :span="2" class="serial">{{ index + 1 }}</ElCol>
       <ElCol :span="18" class="description">{{ item.desc }}</ElCol>
       <ElCol :span="4" class="serial">
@@ -34,13 +36,18 @@ const hasChildren = computed(() => props.item.hasChildren === true || children.v
     </div>
 
     <div v-if="hasChildren && expanded" class="children">
-      <DevPlanTodoItem
+      <div
         v-for="(child, childIndex) in children"
         :key="child.uid ?? childIndex"
-        :item="child"
-        :index="childIndex"
-        :level="level + 1"
-      />
+        class="child-item"
+      >
+        <ElCol :span="2" class="serial">
+          {{ index + 1 }}.{{ childIndex + 1 }}
+        </ElCol>
+        <ElCol :span="22" class="description">
+          {{ child.desc }}
+        </ElCol>
+      </div>
     </div>
   </div>
 </template>
@@ -50,7 +57,8 @@ const hasChildren = computed(() => props.item.hasChildren === true || children.v
   width: 100%;
 }
 
-.content-item {
+.content-item,
+.child-item {
   display: flex;
   align-items: center;
   min-height: 42px;
@@ -59,6 +67,11 @@ const hasChildren = computed(() => props.item.hasChildren === true || children.v
   padding-bottom: 10px;
   border-bottom: 1px dotted var(--back_color_lv3);
   background-color: var(--back_color_lv1);
+}
+
+.child-item {
+  padding-left: 20px;
+  background-color: var(--back_color_lv2);
 }
 
 .serial {
@@ -78,9 +91,5 @@ const hasChildren = computed(() => props.item.hasChildren === true || children.v
 
 .content-item > :deep(.el-col > .el-button.expanded) {
   transform: rotate(90deg);
-}
-
-.children {
-  width: 100%;
 }
 </style>
