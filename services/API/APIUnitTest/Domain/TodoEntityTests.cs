@@ -1,4 +1,4 @@
-﻿using AqLife.Domain.Entities;
+using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 
 namespace AqLife.APIUnitTest.Domain
@@ -21,6 +21,16 @@ namespace AqLife.APIUnitTest.Domain
 
             Assert.Throws<DomainLegalityException>(
                 () => todo.SetParent(Guid.Empty)
+            );
+        }
+
+        [Fact]
+        public void SetParent_ShouldRejectSelfParent()
+        {
+            var todo = new TodoEntity("测试任务3");
+
+            Assert.Throws<DomainLegalityException>(
+                () => todo.SetParent(todo.UID)
             );
         }
     }
