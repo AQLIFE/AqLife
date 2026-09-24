@@ -4,31 +4,36 @@ import type { FileApi, FileDto } from '@/api'
 import { isImageType } from '@aqlife/domain'
 
 export type FileStore = ReturnType<typeof useFileStore>
+
 export const useFileStore = defineStore('file', () => {
   const fileList = ref<FileDto[]>([])
-  const previewUrl = reactive<Map<String, string>>(new Map<string, string>())
+  const previewUrl = reactive<Map<string, string>>(new Map())
   const isInitialized = ref(false)
 
-  /**
-   * 拉取全部文件至最新
-   * @param fileApi 文件API
-   * @returns 无返回
-   */
   async function fetchAllFiles(fileApi: FileApi) {
-    if (isInitialized.value) return // 缓存命中，直接返回 [cite: 3]
+    if (isInitialized.value) return
 
-    // 1. 获取元数据
-    const result =await fileApi.apiFileGet()
-    if(result.items)fileList.value = result.items
+    let page = 1
+    const pageSize = 10
 
-    // 2. 并行获取所有预览图，提升加载速度 [cite: 9]
-    const tasks = fileList.value.map(async (item) => {
-      if (!item.uid || previewUrl.has(item.uid) || !isImageType(item.fileType!)) return
+    while (true) {
+      const result = await fileApi.apiFileGet({
+        page,
+        pageSize,
+      })
+
+      fileList.value.push(...(result.items ?? []))
+
+      if (!result.hasMore) break
+      page = (result.page ?? page) + 1
+    }
+
+    const tasks = fileList.value.map(async item => {
+      if (!item.uid || previewUrl.has(item.uid) || !isImageType(item.fileType ?? '')) return
 
       try {
         const blob = await fileApi.apiFilePreviewGet({ uID: item.uid })
-        const url = URL.createObjectURL(blob)
-        previewUrl.set(item.uid, url)
+        previewUrl.set(item.uid, URL.createObjectURL(blob))
       } catch (e) {
         console.error(`加载图片[${item.uid}]失败`, e)
       }
@@ -37,22 +42,16 @@ export const useFileStore = defineStore('file', () => {
     await Promise.all(tasks)
     isInitialized.value = true
   }
-  /**
-   * 提供清理方法，防止内存泄漏
-   */
+
   function clearCache() {
     previewUrl.forEach(url => URL.revokeObjectURL(url))
     previewUrl.clear()
+    fileList.value = []
     isInitialized.value = false
   }
-  /**
-   * 更新Store存储的 File
-   * @param file 需要更新的'文件'
-   */
+
   function replaceFile(file: FileDto) {
-    const index = fileList.value.findIndex(
-      x => x.uid === file.uid
-    )
+    const index = fileList.value.findIndex(x => x.uid === file.uid)
 
     if (index === -1) {
       throw new Error('File not found')
@@ -60,14 +59,9 @@ export const useFileStore = defineStore('file', () => {
 
     fileList.value[index] = file
   }
-  /**
-   * 移除Store内的特定文件
-   * @param uid 文件ID
-   */
+
   function removeFile(uid: string) {
-    const index = fileList.value.findIndex(
-      x => x.uid === uid
-    )
+    const index = fileList.value.findIndex(x => x.uid === uid)
 
     if (index !== -1) {
       fileList.value.splice(index, 1)
@@ -81,5 +75,12 @@ export const useFileStore = defineStore('file', () => {
     }
   }
 
-  return { fileList, previewUrl, fetchAllFiles, clearCache,replaceFile,removeFile }
+  return {
+    fileList,
+    previewUrl,
+    fetchAllFiles,
+    clearCache,
+    replaceFile,
+    removeFile,
+  }
 })
