@@ -129,7 +129,9 @@ async function handleUploadNewBlog() {
     <div ref="container" class="editor" />
 
     <!-- 右侧 Preview -->
-    <MarkdownRender :markdown="markdown" :baseurl="baseurl"/>
+    <div class="render">
+      <MarkdownRender :markdown="markdown" :baseurl="baseurl"/>
+    </div>
   </div>
 </template>
 
@@ -156,6 +158,11 @@ async function handleUploadNewBlog() {
   max-height: calc(100vh - 52px);
 }
 
+.render{
+  height:100%;
+  scrollbar-width: none;
+  overflow-x: hidden;
+}
 /* Markdown 基础样式 */
 
 .markdown-body :deep(h1) {
