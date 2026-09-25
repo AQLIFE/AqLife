@@ -200,4 +200,22 @@ onBeforeUnmount(() => {
   padding: 1rem;
   overflow-x: auto;
 }
+.mermaid-viewer-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.mermaid-svg-wrapper {
+  width: max-content;
+  min-width: 100%;
+}
+
+.mermaid-svg-wrapper :deep(svg) {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: none;
+  margin: 0 auto;
+}
 </style>

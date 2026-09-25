@@ -46,90 +46,83 @@ function toggleExpand(event: MouseEvent) {
 <template>
   <li class="toc-node">
     <div class="toc-node-row">
-      <a class="toc-link" :class="{ active: isActive }" :href="`#${node.anchor}`" @click="handleClick">
-        {{ node.title }}
-      </a>
-
-      <button v-if="isRoot && hasChildren" class="toc-toggle" type="button" :aria-label="isExpanded ? '折叠目录' : '展开目录'"
-        :aria-expanded="isExpanded" @click="toggleExpand">
-        <span class="toc-toggle-icon" :class="{ expanded: isExpanded }">
+      <button
+        v-if="isRoot && hasChildren"
+        class="toc-toggle"
+        type="button"
+        :aria-label="isExpanded ? '折叠目录' : '展开目录'"
+        :aria-expanded="isExpanded"
+        @click="toggleExpand"
+      >
+        <span
+          class="toc-toggle-icon"
+          :class="{ expanded: isExpanded }"
+        >
           ›
         </span>
       </button>
+
+      <span
+        v-else-if="isRoot"
+        class="toc-toggle-placeholder"
+        aria-hidden="true"
+      />
+
+      <a
+        class="toc-link"
+        :class="{ active: isActive }"
+        :href="`#${node.anchor}`"
+        @click="handleClick"
+      >
+        {{ node.title }}
+      </a>
     </div>
 
-    <ul v-if="hasChildren" v-show="isRoot ? isExpanded : true" class="toc-children">
-      <TocTreeItem v-for="child in node.children" :key="child.anchor" :node="child" :root-anchor="rootAnchor"
-        :expanded-anchor="expandedAnchor" @toggle-root="emit('toggleRoot', $event)" />
+    <ul
+      v-if="hasChildren"
+      v-show="isRoot ? isExpanded : true"
+      class="toc-children"
+    >
+      <TocTreeItem
+        v-for="child in node.children"
+        :key="child.anchor"
+        :node="child"
+        :root-anchor="rootAnchor"
+        :expanded-anchor="expandedAnchor"
+        @toggle-root="emit('toggleRoot', $event)"
+      />
     </ul>
   </li>
 </template>
 
 <style lang="css" scoped>
+.toc-node {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .toc-node-row {
   display: flex;
-  align-items: stretch;
-}
-
-.toc-link {
-  position: relative;
-
-  display: block;
-  flex: 1;
+  align-items: center;
   min-width: 0;
-
-  padding-top: 6px;
-  padding-left: 5px;
-  padding-right: 8px;
-  padding-bottom: 6px;
-
-  color: inherit;
-  text-decoration: none;
-
-  line-height: 1.5;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  border-radius: 4px;
-
-  transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
 }
 
-.toc-link:hover {
-  background-color: var(--el-fill-color-light);
-  text-decoration: none;
-}
-
-.toc-link.active {
-  font-weight: 600;
-  color: var(--el-color-primary);
-  background-color: var(--el-color-primary-light-9);
-}
-
-.toc-link.active::before {
-  content: '';
-
-  position: absolute;
-  left: 0;
-  top: 4px;
-  bottom: 4px;
-
-  width: 3px;
-
-  background-color: var(--el-color-primary);
-  border-radius: 0 2px 2px 0;
+/*
+ * 根节点左侧折叠区域
+ */
+.toc-toggle,
+.toc-toggle-placeholder {
+  flex: 0 0 28px;
+  width: 28px;
 }
 
 .toc-toggle {
-  flex: 0 0 28px;
-
   display: flex;
   align-items: center;
   justify-content: center;
+
+  height: 30px;
 
   padding: 0;
 
@@ -139,7 +132,6 @@ function toggleExpand(event: MouseEvent) {
   color: var(--el-text-color-secondary);
 
   cursor: pointer;
-
   border-radius: 4px;
 
   transition:
@@ -165,5 +157,135 @@ function toggleExpand(event: MouseEvent) {
 
 .toc-toggle-icon.expanded {
   transform: rotate(90deg);
+}
+
+/*
+ * 导航标题
+ */
+.toc-link {
+  position: relative;
+
+  display: block;
+  flex: 1;
+  min-width: 0;
+
+  padding: 6px 10px 6px 6px;
+
+  color: var(--el-text-color-regular);
+  text-decoration: none;
+
+  line-height: 1.5;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  border-radius: 4px;
+
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.toc-link:hover {
+  color: var(--el-color-primary);
+  background-color: var(--el-fill-color-light);
+  text-decoration: none;
+}
+
+.toc-link.active {
+  font-weight: 600;
+  color: var(--el-color-primary);
+  background-color: var(--el-color-primary-light-9);
+}
+
+.toc-link.active::before {
+  content: '';
+
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+
+  width: 3px;
+
+  background-color: var(--el-color-primary);
+  border-radius: 0 2px 2px 0;
+}
+
+/*
+ * 子导航区域
+ *
+ * 这里同时负责：
+ * 1. 子导航整体向右缩进
+ * 2. 绘制贯穿子导航的竖线
+ *
+ * 28px 是父节点折叠区域，
+ * 32px 是额外的子层级缩进。
+ *
+ * 因此子导航比父导航明显更深入。
+ */
+.toc-children {
+  position: relative;
+
+  margin: 0;
+  padding: 2px 0 4px 32px;
+
+  list-style: none;
+}
+
+/*
+ * 子导航层级线
+ *
+ * 不直接使用 border-left，
+ * 而使用伪元素，这样可以精确控制：
+ * - 竖线位置
+ * - 上下长度
+ * - 颜色
+ */
+.toc-children::before {
+  content: '';
+
+  position: absolute;
+
+  top: 0;
+  bottom: 4px;
+  left: 14px;
+
+  width: 3px;
+
+  background-color: var(--el-border-color-darker);
+
+  pointer-events: none;
+}
+
+/*
+ * 子节点标题
+ */
+.toc-children .toc-link {
+  padding-left: 8px;
+}
+
+/*
+ * 子导航之间保持紧凑
+ */
+.toc-children > .toc-node {
+  margin: 0;
+}
+
+/*
+ * 子导航 hover
+ */
+.toc-children .toc-link:hover {
+  color: var(--el-color-primary);
+  background-color: var(--el-fill-color-light);
+}
+
+/*
+ * 子导航 active
+ */
+.toc-children .toc-link.active {
+  color: var(--el-color-primary);
+  background-color: var(--el-color-primary-light-9);
 }
 </style>

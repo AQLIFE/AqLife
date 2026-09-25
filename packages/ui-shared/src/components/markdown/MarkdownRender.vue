@@ -1,63 +1,36 @@
 <template>
   <div id="mdRender">
     <template v-for="(node, index) in rNode" :key="index">
-      <CodeBlock
-        v-if="node.type === 'component' && node.component === 'CodeBlock'"
-        :info="node.content"
-        :info-type="node.info"
-      />
+      <CodeBlock v-if="node.type === 'component' && node.component === 'CodeBlock'" :info="node.content"
+        :info-type="node.info" />
 
-      <MarkdownMermaid
-        v-else-if="
-          node.type === 'component' &&
-          node.component === 'MermaidPreview'
-        "
-        :info="node.content"
-        :info-type="node.info"
-      />
+      <MarkdownMermaid v-else-if="
+        node.type === 'component' &&
+        node.component === 'MermaidPreview'
+      " :info="node.content" :info-type="node.info" />
 
-      <div
-        v-else-if="
-          node.type === 'blockquote' ||
-          node.type === 'table'
-        "
-        v-html="renderTokenGroup(node.tokens)"
-      />
+      <MarkdownTable v-else-if="node.type === 'table'" :table-tokens="node.tokens" />
 
-      <img
-        v-else-if="
-          node.type === 'resolved-link' &&
-          node.result.type === 'image'
-        "
-        :src="node.result.src"
-        :alt="node.result.alt"
-      />
+      <img v-else-if="
+        node.type === 'resolved-link' &&
+        node.result.type === 'image'
+      " :src="node.result.src" :alt="node.result.alt" />
 
-      <RouterLink
-        v-else-if="
-          node.type === 'resolved-link' &&
-          node.result.type === 'markdown'
-        "
-        :to="node.result.href"
-        class="markdown-internal-link"
-      >
+      <RouterLink v-else-if="
+        node.type === 'resolved-link' &&
+        node.result.type === 'markdown'
+      " :to="node.result.href" class="markdown-internal-link">
         {{ node.text }}
       </RouterLink>
 
-      <a
-        v-else-if="
-          node.type === 'resolved-link' &&
-          node.result.type === 'link'
-        "
-        :href="node.result.href"
-      >
+      <a v-else-if="
+        node.type === 'resolved-link' &&
+        node.result.type === 'link'
+      " :href="node.result.href">
         {{ node.text }}
       </a>
 
-      <div
-        v-else-if="node.type === 'html'"
-        v-html="node.content"
-      />
+      <div v-else-if="node.type === 'html'" v-html="node.content" />
     </template>
   </div>
 </template>
@@ -75,6 +48,7 @@ import {
 import type { MarkdownFileResolver } from '../../markdown/type.ts'
 import CodeBlock from './MarkdownCode.vue'
 import MarkdownMermaid from './MarkdownMermaid.vue'
+import MarkdownTable from './MarkdownTable.vue'
 
 interface MarkdownRenderProps {
   markdown: string
