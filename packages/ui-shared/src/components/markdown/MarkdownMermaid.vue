@@ -16,8 +16,9 @@
         <div v-if="svgHtml" class="mermaid-svg-wrapper" v-html="svgHtml" />
 
         <div v-else-if="hasError" class="mermaid-error-fallback">
-          <div class="error-header">⚠️ 抱歉，Mermaid 图表渲染失败，请检查语法</div>
-          <pre><code>{{ props.info }}</code></pre>
+          <div class="error-header">
+            图表采用落后样式编写,当前不支持渲染
+          </div>
         </div>
 
         <div v-else class="mermaid-loading">
@@ -30,7 +31,16 @@
           title="图表详情预览"
           class="mermaid-fullscreen-dialog"
         >
-          <div class="fullscreen-content" v-html="svgHtml"></div>
+          <div
+            v-if="svgHtml"
+            class="fullscreen-content"
+            v-html="svgHtml"
+          ></div>
+          <div v-else-if="hasError" class="mermaid-error-fallback">
+            <div class="error-header">
+              图表采用落后样式编写,当前不支持渲染
+            </div>
+          </div>
         </ElDialog>
       </div>
     </div>
