@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 import { FullScreen } from '@element-plus/icons-vue'
-import mermaid from 'mermaid'
+import { renderMermaid } from './mermaidRenderer'
 import { ElButton, ElDialog } from 'element-plus'
 import {
   onBeforeUnmount,
@@ -74,20 +74,6 @@ const hasError = ref(false)
 let renderTimer: ReturnType<typeof setTimeout> | undefined
 let renderVersion = 0
 
-// Mermaid 的样式会按 SVG id 做作用域隔离。
-// 这里必须保证所有 MarkdownMermaid 实例共用一个全局递增 id，
-// 不能使用各组件实例自己的 Date.now() + version，否则多个图同时挂载时可能撞 id。
-let nextMermaidId = 0
-
-mermaid.initialize({
-  startOnLoad: false,
-  securityLevel: 'loose',
-  theme: 'default',
-  // Mermaid 解析/渲染失败时不要把“Syntax error” SVG 偷偷插入页面。
-  // 失败状态完全交给当前组件自己的 fallback 处理。
-  suppressErrorRendering: true,
-})
-
 const drawDiagram = async () => {
   const codeText = props.info.trim()
 
@@ -98,21 +84,14 @@ const drawDiagram = async () => {
   }
 
   const currentVersion = ++renderVersion
-  const chartId = `mermaid-aqlife-${++nextMermaidId}`
 
   svgHtml.value = ''
   hasError.value = false
 
   try {
-    // 先做语法解析。
-    // 对历史 Mermaid 语法、未知 diagram 类型等情况直接进入 fallback，
-    // 避免 mermaid.render() 产生错误 DOM。
-    await mermaid.parse(codeText)
-
-    const { svg } = await mermaid.render(
-      chartId,
-      codeText,
-    )
+    // 直接以 Mermaid 的 render API 作为唯一判定入口。
+    // 不额外调用 parse，避免把 Mermaid 能实际渲染的定义提前判为失败。
+    const svg = await renderMermaid(codeText)
 
     // 旧请求完成得比新请求晚，丢弃。
     if (currentVersion !== renderVersion) {
@@ -264,23 +243,5 @@ onBeforeUnmount(() => {
   width: auto !important;
   height: auto !important;
   max-width: none !important;
-}
-.mermaid-viewer-container {
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-.mermaid-svg-wrapper {
-  width: max-content;
-  min-width: 100%;
-}
-
-.mermaid-svg-wrapper :deep(svg) {
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: none;
-  margin: 0 auto;
 }
 </style>
