@@ -18,7 +18,7 @@ namespace AqLife.Application.Business.Account.Search
         protected override EntitySearchCriteria MapToCriteria(AccountQuery query)
         => queryMapper.ToCriteria(query);
 
-        protected override IQueryable<AccountEntity> ApplyDefaultOrder(IQueryable<AccountEntity> queryble)
+        protected override IQueryable<AccountEntity> ApplyDefaultOrder(IQueryable<AccountEntity> queryble,AccountQuery query)
         => queryble.OrderBy(e => e.Name);
     }
 }

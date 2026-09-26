@@ -14,4 +14,10 @@
     }
 
     public enum FileStatus { Draft, Scheduled, Published }
+    public enum FileOrder
+    {
+        Latest,
+        Earliest,
+        MostViewed
+    }
 }

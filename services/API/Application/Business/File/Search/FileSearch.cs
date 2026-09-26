@@ -38,11 +38,18 @@ public class FileSearch(
     private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
     protected override FileSearchCriteria MapToCriteria(FileQuery query)
         => queryMapper.ToCriteria(query);
-    protected override IQueryable<FileMetaEntity> ApplyDefaultOrder(IQueryable<FileMetaEntity> queryble)
-    => queryble.Include(t=>t.PublishMeta).OrderBy(e => e.PublishMeta.PublishAt);
+    protected override IQueryable<FileMetaEntity> ApplyDefaultOrder(IQueryable<FileMetaEntity> queryble, FileQuery query)
+        => query.Order switch
+        {
+
+            Shared.Options.FileOrder.MostViewed => queryble.Include(i => i.InteractionMeta).OrderBy(e => e.InteractionMeta.ViewCount),
+            Shared.Options.FileOrder.Latest => queryble.Include(t => t.PublishMeta).OrderBy(e => e.PublishMeta.PublishAt),
+            _ => queryble.Include(t => t.PublishMeta).OrderByDescending(e => e.UploadTime)
+        };
+
     protected override async Task<IQueryable<FileMetaEntity>> BuildBaseQueryAsync(IQueryable<FileMetaEntity> queryable, FileQuery query)
     {
-        queryable = queryable.Include(e=>e.PublishMeta).Include(e=>e.InteractionMeta).Include(e =>e.FileTags).ThenInclude(x => x.Tag);
+        queryable = queryable.Include(e => e.PublishMeta).Include(e => e.InteractionMeta).Include(e => e.FileTags).ThenInclude(x => x.Tag);
         FileAccessMode mode = IsValid ? FileAccessMode.Internal : FileAccessMode.Standard;
         return await fileSecurity.ApplyAccessPolicy(queryable, mode);
     }

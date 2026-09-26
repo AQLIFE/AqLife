@@ -17,7 +17,7 @@ namespace AqLife.Application.Business.Todo.Search
         protected override EntitySearchCriteria MapToCriteria(TodoQuery query)
         => queryMapper.ToCriteria(query);
 
-        protected override IQueryable<TodoEntity> ApplyDefaultOrder(IQueryable<TodoEntity> queryble)
+        protected override IQueryable<TodoEntity> ApplyDefaultOrder(IQueryable<TodoEntity> queryble,TodoQuery query)
         => queryble.OrderBy(e => e.CreatedAt);
 
         protected override async Task<IQueryable<TodoEntity>> BuildBaseQueryAsync(IQueryable<TodoEntity> queryable, TodoQuery query)

@@ -1,13 +1,15 @@
 ﻿using AqLife.Domain.CommandInterface;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;
+using AqLife.Shared.Options;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Domain.Command
 {
     public record BlogUnpublishQuery(DateTimeOffset ScheduledTime) : IQuery<IEnumerable<FileDto>>;
-    public record FileQuery(Guid? UID = null, string? Title = null,Guid? CategoryUID=null, int Page=1,int PageSize=10) : IPageQuery, IQuery<PageResult<FileDto>>;
+    public record BlogPreviewCompleteCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand;
+    public record FileQuery(Guid? UID = null, string? Title = null,Guid? CategoryUID=null, int Page=1,int PageSize=10, FileOrder Order= FileOrder.Latest) : IPageQuery, IQuery<PageResult<FileDto>>;
     public record DownloadFileQuery(Guid UID) : IRequireValidEntity<FileMetaEntity>, IQuery<FileDownloadModel>;
     public record PreviewFileQuery(Guid UID) : IRequireValidEntity<FileMetaEntity>, IQuery<FilePreviewModel>;
     public record DeleteFileCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IDeleteCommand;

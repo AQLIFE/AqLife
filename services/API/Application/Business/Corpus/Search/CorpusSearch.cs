@@ -16,7 +16,7 @@ namespace AqLife.Application.Business.Corpus.Search
         protected override EntitySearchCriteria MapToCriteria(CorpusQuery query)
         => queryMapper.ToCriteria(query);
 
-        protected override IQueryable<CorpusEntity> ApplyDefaultOrder(IQueryable<CorpusEntity> queryble)
+        protected override IQueryable<CorpusEntity> ApplyDefaultOrder(IQueryable<CorpusEntity> queryble,CorpusQuery query)
         => queryble.OrderBy(e => e.CreateDate);
     }
 }

@@ -42,7 +42,7 @@ namespace AqLife.Application.Search
         /// </summary>
         /// <param name="queryble"></param>
         /// <returns></returns>
-        protected abstract IQueryable<TEntity> ApplyDefaultOrder(IQueryable<TEntity> queryble);
+        protected abstract IQueryable<TEntity> ApplyDefaultOrder(IQueryable<TEntity> queryble,TQuery query);
 
         // 核心逻辑复用：不需要子类 override 
         public async Task<IQueryable<TEntity>> SearchAsync(TQuery query, CancellationToken ct)
@@ -53,7 +53,7 @@ namespace AqLife.Application.Search
             IQueryable<TEntity> queryable = await BuildBaseQueryAsync(storage.Set<TEntity>().AsNoTracking(), query);
             queryable = await strategy.ExecuteAsync(queryable, criteria, ct);
 
-            queryable = ApplyDefaultOrder(queryable);
+            queryable = ApplyDefaultOrder(queryable,query);
 
             return queryable;
         }
