@@ -16,8 +16,8 @@
       </span>
     </header>
 
-    <ElScrollbar @end-reached="loadBlogs" height="100%" class="blog-scrollbar">
-      <div class="blog-grid" v-loading="isLoading" element-loading-text="正在加载文章...">
+    <ElScrollbar class="blog-scrollbar" @end-reached="loadBlogs" v-loading="isLoading" element-loading-text="正在加载文章...">
+      <div class="blog-grid">
         <BlogCard v-for="item in blogStore.cacheBlogList" :key="item.uid" :blog="item" />
       </div>
     </ElScrollbar>
@@ -37,6 +37,9 @@ const isLoading = ref(false)
 const page = ref<number>(1)
 
 async function loadBlogs() {
+  if (isLoading.value) {
+    return
+  }
   const fileApi = new FileApi(apiConfiguration)
   const files = blogStore.cacheBlogList ?? []
   // const pageSize = 10: 请求时默认为10
@@ -58,15 +61,11 @@ onBeforeMount(async () => {
     return
   }
 
-  isLoading.value = true
-
   try {
     await loadBlogs()
   } catch {
     blogStore.clearBlogList()
     ElMessage.warning('请求数据失败')
-  } finally {
-    isLoading.value = false
   }
 })
 </script>
@@ -89,14 +88,18 @@ onBeforeMount(async () => {
   box-sizing: border-box;
 }
 
+/* =========================
+   Header
+   ========================= */
+
 .blog-page-header {
   flex: 0 0 auto;
 
   display: flex;
-  padding:0 20px;
+
+  padding: 0 20px;
 
   align-items: flex-end;
-
   justify-content: space-between;
 
   margin-bottom: 22px;
@@ -130,28 +133,43 @@ onBeforeMount(async () => {
   font-size: 12px;
 }
 
-.blog-grid {
-  flex: 1 1 auto;
+/* =========================
+   Scroll Area
+   ========================= */
+
+.blog-scrollbar {
+  /*
+   * 关键：
+   * Header 占据固定空间后，
+   * Scrollbar 自动占据剩余空间。
+   */
+  flex: 1 1 0;
 
   min-width: 0;
   min-height: 0;
-  height:inherit;
+
+  padding: 0 20px;
+
+  box-sizing: border-box;
+}
+
+/* =========================
+   Article Grid
+   ========================= */
+
+.blog-grid {
+  min-width: 0;
 
   display: grid;
+
   grid-template-columns: repeat(2, minmax(0, 1fr));
 
   align-content: start;
 
   gap: 16px;
 
-  overflow-y: auto;
-
   padding: 2px;
 
   box-sizing: border-box;
-  scrollbar-width: none;
-}
-.blog-scrollbar{
-  padding:0 20px;
 }
 </style>
