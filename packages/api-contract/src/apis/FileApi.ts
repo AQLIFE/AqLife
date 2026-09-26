@@ -70,6 +70,10 @@ export interface ApiFilePatchRequest {
     file?: Blob;
 }
 
+export interface ApiFilePreviewCompletePatchRequest {
+    uID?: string;
+}
+
 export interface ApiFilePreviewGetRequest {
     uID?: string;
 }
@@ -209,6 +213,27 @@ export interface FileApiInterface {
     /**
      */
     apiFilePatch(requestParameters: ApiFilePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiFilePreviewCompletePatch without sending the request
+     * @param {string} [uID] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFilePreviewCompletePatchRequestOpts(requestParameters: ApiFilePreviewCompletePatchRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} [uID] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFilePreviewCompletePatchRaw(requestParameters: ApiFilePreviewCompletePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiFilePreviewCompletePatch(requestParameters: ApiFilePreviewCompletePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
     /**
      * Creates request options for apiFilePreviewGet without sending the request
@@ -539,6 +564,49 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
      */
     async apiFilePatch(requestParameters: ApiFilePatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiFilePatchRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFilePreviewCompletePatch without sending the request
+     */
+    async apiFilePreviewCompletePatchRequestOpts(requestParameters: ApiFilePreviewCompletePatchRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['uID'] != null) {
+            queryParameters['UID'] = requestParameters['uID'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/File/preview/complete`;
+
+        return {
+            path: urlPath,
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiFilePreviewCompletePatchRaw(requestParameters: ApiFilePreviewCompletePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiFilePreviewCompletePatchRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiFilePreviewCompletePatch(requestParameters: ApiFilePreviewCompletePatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiFilePreviewCompletePatchRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

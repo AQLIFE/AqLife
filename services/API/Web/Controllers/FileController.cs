@@ -39,6 +39,10 @@ namespace AqLife.Web.Controllers
         public async Task<Guid> UpdateFile([FromForm] UpdateFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
 
+        [HttpPatch("preview/complete"),AllowAnonymous]
+        public async Task<Guid> BlogViewed([FromQuery]BlogPreviewCompleteCommand command, CancellationToken ct)
+            => await mediator.Send(command, ct);
+
         [HttpPatch("tag")]
         public async Task<Guid> UpdateFileTag(UpdateFileTagCommand command, CancellationToken ct)
             => await mediator.Send(command, ct);

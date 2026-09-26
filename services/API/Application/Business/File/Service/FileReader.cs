@@ -20,9 +20,6 @@ namespace AqLife.Application.Business.File.Service
         public async Task<FileDownloadModel> ReadAsync(Guid id, CancellationToken ct)
         {
             FileMetaEntity fileInfo = (await fileSearch.SearchAsync(query: new FileQuery(UID: id), ct)).FirstOrDefault() ?? throw new ResourceNotFoundException("不存在文件记录");
-
-            //if (!await fileStorage.ExistsAsync(fileInfo.StorageKey, ct)) throw new ResourceNotFoundException("源文件丢失,请联系管理员:" + fileInfo.FileName);
-
             Stream stream = await fileStorage.OpenReadAsync(fileInfo.StorageKey, ct);
             var contentType = GetFileMimeType(fileInfo.StorageKey);
             return new FileDownloadModel(stream, contentType, fileInfo.FileName);

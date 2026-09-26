@@ -26,9 +26,11 @@
       </template>
     </ElPageHeader>
 
-    <div class="markdown-content" ref="markdownContainer" v-loading="markdownRenderRef?.loading">
-      <MarkdownRender :markdown="sourceMarkdown" :baseurl="baseurl" />
-    </div>
+    <ElScrollbar class="markdown-scrollbar" @scroll="handleMarkdownScroll" @end-reached="handleEndReached">
+      <div ref="markdownContainer" class="markdown-content" v-loading="markdownRenderRef?.loading">
+        <MarkdownRender :markdown="sourceMarkdown" :baseurl="baseurl" />
+      </div>
+    </ElScrollbar>
   </div>
 </template>
 
@@ -75,6 +77,25 @@ const fileMeta = ref<FileDto | null>(null)
 const articleTags = computed(() =>
   fileMeta.value?.tags ?? [],
 )
+
+const hasViewed = ref(false)
+const isViewing = ref(false)
+
+async function handleEndReached() {
+  if (hasViewed.value || isViewing.value) {
+    return
+  }
+
+  isViewing.value = true
+
+  try {
+    await fileApi.apiFilePreviewCompletePatch({uID:fileMeta.value?.uid})
+
+    hasViewed.value = true
+  } finally {
+    isViewing.value = false
+  }
+}
 const markdownContainer = ref<HTMLElement | null>(null)
 let requestVersion = 0
 
@@ -185,7 +206,7 @@ function updateActiveAnchor() {
     return
   }
 
-  const containerTop = container.getBoundingClientRect().top
+  const containerTop = container.getBoundingClientRect().bottom/* container.getBoundingClientRect().top */
 
   const visibleHeadings = headings.filter(heading => {
     const rect = heading.getBoundingClientRect()
@@ -231,11 +252,11 @@ function handleMarkdownScroll() {
 }
 
 onMounted(() => {
-  markdownContainer.value?.addEventListener(
-    'scroll',
-    handleMarkdownScroll,
-    { passive: true },
-  )
+  // markdownContainer.value?.addEventListener(
+  //   'scroll',
+  //   handleMarkdownScroll,
+  //   { passive: true },
+  // )
 
   updateActiveAnchor()
 })
@@ -243,10 +264,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   requestVersion++
 
-  markdownContainer.value?.removeEventListener(
-    'scroll',
-    handleMarkdownScroll,
-  )
+  // markdownContainer.value?.removeEventListener(
+  //   'scroll',
+  //   handleMarkdownScroll,
+  // )
 
   if (scrollFrame !== null) {
     cancelAnimationFrame(scrollFrame)
@@ -309,12 +330,15 @@ onBeforeUnmount(() => {
   color: #909399;
 }
 
+.markdown-scrollbar {
+  min-width: 0;
+  min-height: 0;
+}
+
 .markdown-content {
   min-width: 0;
   min-height: 0;
 
   overflow-x: hidden;
-  overflow-y: auto;
-  scrollbar-width: none;
 }
 </style>

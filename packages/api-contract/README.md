@@ -66,6 +66,7 @@ All URIs are relative to *http://localhost*
 *FileApi* | [**apiFileDownloadGet**](docs/FileApi.md#apifiledownloadget) | **GET** /api/File/download | 
 *FileApi* | [**apiFileGet**](docs/FileApi.md#apifileget) | **GET** /api/File | 
 *FileApi* | [**apiFilePatch**](docs/FileApi.md#apifilepatch) | **PATCH** /api/File | 
+*FileApi* | [**apiFilePreviewCompletePatch**](docs/FileApi.md#apifilepreviewcompletepatch) | **PATCH** /api/File/preview/complete | 
 *FileApi* | [**apiFilePreviewGet**](docs/FileApi.md#apifilepreviewget) | **GET** /api/File/preview | 
 *FileApi* | [**apiFileSchedulePatch**](docs/FileApi.md#apifileschedulepatch) | **PATCH** /api/File/schedule | 
 *FileApi* | [**apiFileTagPatch**](docs/FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag | 
