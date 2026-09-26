@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useTagStore } from '@/stores/tagStore';
-import { computed, onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { ElButton } from 'element-plus';
 import { TagApi,FileApi, type BlogCategoryStatistics, type FileDto } from '@/api';
 import { apiConfiguration } from '@/services/api';
-import { View, Timer } from '@element-plus/icons-vue';
+// import { View, Timer } from '@element-plus/icons-vue';
 import { useBlogStore } from '../stores/fileStore';
 
 const BlogCategoryView = ref<BlogCategoryStatistics[]>([])
@@ -16,6 +16,7 @@ const fileStore = useBlogStore()
 async function handleFilter(tagId:string){
     // if(tagId!=undefine)return 
     fileStore.clearBlogList()
+    fileStore.reset(tagId || undefined)
     const result = await fileApi.apiFileGet({categoryUID:tagId})
 
     if(result.items)fileStore.setBlogList(result.items)

@@ -34,26 +34,35 @@ import { onBeforeMount, ref } from 'vue'
 
 const blogStore = useBlogStore()
 const isLoading = ref(false)
-const page = ref<number>(1)
+
 
 async function loadBlogs() {
-  if (isLoading.value) {
+  if (isLoading.value || !blogStore.hasMore) {
     return
   }
-  const fileApi = new FileApi(apiConfiguration)
-  const files = blogStore.cacheBlogList ?? []
-  // const pageSize = 10: 请求时默认为10
 
-  if (blogStore.hasMore || blogStore.cacheBlogList.length == 0) {
-    isLoading.value = true
-    const result = await fileApi.apiFileGet({ page: page.value })
-    files.push(...(result.items ?? []))
-    page.value = (result.page ?? 0) + 1
-    blogStore.hasMore = result.hasMore ?? false
+  isLoading.value = true
+
+  try {
+    const fileApi = new FileApi(apiConfiguration)
+
+    const result = await fileApi.apiFileGet({
+      page: blogStore.page,
+      categoryUID: blogStore.categoryUID,
+    })
+
+    const files = [
+      ...blogStore.cacheBlogList,
+      ...(result.items ?? []),
+    ]
+
     blogStore.setBlogList(files)
+
+    blogStore.page = (result.page ?? blogStore.page) + 1
+    blogStore.hasMore = result.hasMore ?? false
+  } finally {
     isLoading.value = false
   }
-
 }
 
 onBeforeMount(async () => {
