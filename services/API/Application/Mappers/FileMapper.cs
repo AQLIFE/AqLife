@@ -70,7 +70,8 @@ namespace AqLife.Application.Business.File
             FileHash:source.FileHash,
             UploadTime:dateTime,
             FileType:source.Extension,
-            FileIntroduction: source.FileIntroduction
+            FileIntroduction: source.FileIntroduction,
+            ViewCount:source.InteractionMeta.ViewCount
         );
     }
 

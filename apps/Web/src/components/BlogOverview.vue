@@ -12,11 +12,9 @@ const BlogCategoryView = ref<BlogCategoryStatistics[]>([])
 // const category = computed(() => useTagStore().tagList.filter(e => e.isCategory))
 const hotList = ref<FileDto[]>()
 const fileApi = new FileApi(apiConfiguration)
-
-async function handleFilter(tagId:string|null|undefined){
-    if(!tagId)return 
-    
-    const fileStore = useBlogStore()
+const fileStore = useBlogStore()
+async function handleFilter(tagId:string){
+    // if(tagId!=undefine)return 
     fileStore.clearBlogList()
     const result = await fileApi.apiFileGet({categoryUID:tagId})
 
@@ -29,6 +27,7 @@ onBeforeMount(async () => {
     if(BlogCategoryView.value.length==0) BlogCategoryView.value = await tagApi.apiTagOverviewGet()
     const list = await fileApi.apiFileGet({order:2,pageSize:5})
     if( list.items) hotList.value = list.items
+    BlogCategoryView.value.push({uid:'',categoryName:'ALL',categoryCount:fileStore.cacheBlogList.length})// 用于清除 filter的效果
 })
 </script>
 
@@ -41,7 +40,7 @@ onBeforeMount(async () => {
             </h3>
 
             <div v-for="item in BlogCategoryView" :key="item.uid!" class="overview-item">
-                <ElButton type="info" link @click="handleFilter(item.uid)">
+                <ElButton type="info" link @click="handleFilter(item.uid??'')">
                     {{ item.categoryName }}
                 </ElButton>
 
