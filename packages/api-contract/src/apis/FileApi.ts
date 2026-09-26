@@ -54,6 +54,7 @@ export interface ApiFileDownloadGetRequest {
 export interface ApiFileGetRequest {
     uID?: string;
     title?: string;
+    categoryUID?: string;
     page?: number;
     pageSize?: number;
 }
@@ -153,6 +154,7 @@ export interface FileApiInterface {
      * Creates request options for apiFileGet without sending the request
      * @param {string} [uID] 
      * @param {string} [title] 
+     * @param {string} [categoryUID] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
      * @throws {RequiredError}
@@ -164,6 +166,7 @@ export interface FileApiInterface {
      * 
      * @param {string} [uID] 
      * @param {string} [title] 
+     * @param {string} [categoryUID] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
      * @param {*} [options] Override http request option.
@@ -420,6 +423,10 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
         if (requestParameters['title'] != null) {
             queryParameters['Title'] = requestParameters['title'];
+        }
+
+        if (requestParameters['categoryUID'] != null) {
+            queryParameters['CategoryUID'] = requestParameters['categoryUID'];
         }
 
         if (requestParameters['page'] != null) {

@@ -13,11 +13,13 @@ using System.Threading.Tasks;
 namespace AqLife.Application.Business.File.Search
 {
     public sealed class AllFilesSearchStrategy(IHttpContextAccessor httpContext)
-    : AllSearchStrategyBase<FileMetaEntity, EntitySearchCriteria>
+    : AllSearchStrategyBase<FileMetaEntity, FileSearchCriteria>
     {
+        public override bool IsMatch(FileSearchCriteria c)
+        => base.IsMatch(c) && c.CategoryUID is null;
         public override async Task<IQueryable<FileMetaEntity>> ExecuteAsync(
             IQueryable<FileMetaEntity> queryable,
-            EntitySearchCriteria criteria,
+            FileSearchCriteria criteria,
             CancellationToken ct = default)
         {
             return httpContext.HttpContext?.User.Identity?.IsAuthenticated != true?

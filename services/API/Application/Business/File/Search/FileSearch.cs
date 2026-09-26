@@ -1,13 +1,15 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
+using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Entities.File;
+using AqLife.Shared.Exceptions;
 using AqLife.Shared.IView;
 using AqLife.Shared.Tools;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using AqLife.Application.Mappers;
-using AqLife.Domain.Entities.File;
 
 
 namespace AqLife.Application.Business.File.Search;
@@ -19,22 +21,22 @@ public enum FileAccessMode
     Preview,  // 预览模式：绕过扩展名检查，应用订阅/头像权限检查 [cite: 11]
     Internal  // 内部模式：全量数据，用于后台管理
 }
-[Obsolete]
+
 public readonly record struct FileSearchCriteria(
     Guid? UID,
     string? Keyword,
-    FileAccessMode Mode = FileAccessMode.Standard // 默认为标准模式
+    Guid? CategoryUID
 ) : ISearchCriteria;
 
 public class FileSearch(
     QueryMapper queryMapper,
     FileSecurityAspect fileSecurity,
     IApplicationDbContext storage, IHttpContextAccessor httpContext,
-    IEnumerable<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>> searchStrategies)
-    : BaseSearch<FileQuery, FileMetaEntity, FileDto, EntitySearchCriteria>(storage, searchStrategies)
+    IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
+    : BaseSearch<FileQuery, FileMetaEntity, FileDto, FileSearchCriteria>(storage, searchStrategies)
 {
     private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
-    protected override EntitySearchCriteria MapToCriteria(FileQuery query)
+    protected override FileSearchCriteria MapToCriteria(FileQuery query)
         => queryMapper.ToCriteria(query);
     protected override IQueryable<FileMetaEntity> ApplyDefaultOrder(IQueryable<FileMetaEntity> queryble)
     => queryble.Include(t=>t.PublishMeta).OrderBy(e => e.PublishMeta.PublishAt);

@@ -34,46 +34,16 @@ namespace AqLife.Application
     {
         public static IServiceCollection AddApplicationLayer(this IServiceCollection services)
         {
-            var implementationAssembly = typeof(Application).Assembly;
-            // 1. 扫描 MediatR (一次性扫描所有 Handler) [cite: 1, 191]
-            services.AddMediatR(cfg =>
-            {
-                cfg.RegisterServicesFromAssemblies(implementationAssembly);
-                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
-            });
-
-
-            // 2. 修复验证器注册：增加 !t.IsAbstract 过滤条件
-            var validatorTypes = implementationAssembly.GetTypes()
-                .Where(t => !t.IsAbstract && !t.IsInterface && !t.IsGenericTypeDefinition && t.GetInterfaces().Any(i => i.IsGenericType
-                && i.GetGenericTypeDefinition() == typeof(IValidator<>)));
-            // 泛型验证器需要手动注册，因为它们是 open generic types，不能通过扫描程序集自动注册
-            services.AddScoped(typeof(IValidator<>), typeof(ExistenceValidator<>)); // 业务ID的统一检查
-            services.AddScoped(typeof(IValidator<>), typeof(FileTypeValidator<>));
-            services.AddScoped(typeof(IValidator<>), typeof(FileSizeValidator<>));
-            services.AddScoped(typeof(IValidator<>), typeof(FileDuplicateValidator<>));
-            foreach (var type in validatorTypes)
-            {
-                foreach (var item in type.GetInterfaces())
-                {
-                    // 💡 这种循环注册方式支持同一个接口有多个实现                    
-                    services.AddScoped(item, type);// 这样 ValidationBehavior 就可以通过 IEnumerable<IValidator<T>> 获取到所有的验证规则
-                }
-            }
-
-
             services.AddScoped<FileSecurityAspect>();// FileSearch 依赖
-            //services.AddScoped<PreviewContext>();
             services.AddScoped<UploadContext>();// UploadContext 提供给 FileService
-            services.AddScoped<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>, AllFilesSearchStrategy>();// FileSearch 专属策略:All
+            services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, AllFilesSearchStrategy>();// FileSearch 专属策略:All
             services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, AllTagSearchStrategy>();// TagSearch 专属策略:All
             services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, AllTodoSearchStrategy>();// TodoSearch 专属策略:All
             services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, DefaultAccount>();// AccountSearch 专属策略:All
             services.AddScoped<ISearchStrategy<CorpusEntity, EntitySearchCriteria>, AllCorpusSearchStrategy>();// AccountSearch 专属策略:All
 
             services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, ValidAccount>();// AccountSearch 专属策略
-            services.AddScoped<ISearchStrategy<FileMetaEntity, EntitySearchCriteria>, FilteredFilesSearchStrategy>();// FileSearch 专属策略
+            services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, FilteredFilesSearchStrategy>();// FileSearch 专属策略
             services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();  // Tag  的策略
             services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, FilterTodoSearchStrategy>();// Todo 的策略
 
@@ -142,8 +112,8 @@ namespace AqLife.Application
                 sp.GetRequiredService<FileMappingService>());
 
             //==========================================================================OtherMapper
-            
-            
+
+
             services.AddSingleton<QueryMapper>();
             services.AddScoped(typeof(PageResultMapper<,>));
 
@@ -151,7 +121,33 @@ namespace AqLife.Application
             services.AddScoped<BlogSearch>();
             services.AddHostedService<ScheduledPublishWorker>();// 注册后台任务
 
+            var implementationAssembly = typeof(Application).Assembly;
+            // 1. 扫描 MediatR (一次性扫描所有 Handler) [cite: 1, 191]
+            services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssemblies(implementationAssembly);
+                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+            });
 
+
+            // 2. 修复验证器注册：增加 !t.IsAbstract 过滤条件
+            var validatorTypes = implementationAssembly.GetTypes()
+                .Where(t => !t.IsAbstract && !t.IsInterface && !t.IsGenericTypeDefinition && t.GetInterfaces().Any(i => i.IsGenericType
+                && i.GetGenericTypeDefinition() == typeof(IValidator<>)));
+            // 泛型验证器需要手动注册，因为它们是 open generic types，不能通过扫描程序集自动注册
+            services.AddScoped(typeof(IValidator<>), typeof(ExistenceValidator<>)); // 业务ID的统一检查
+            services.AddScoped(typeof(IValidator<>), typeof(FileTypeValidator<>));
+            services.AddScoped(typeof(IValidator<>), typeof(FileSizeValidator<>));
+            services.AddScoped(typeof(IValidator<>), typeof(FileDuplicateValidator<>));
+            foreach (var type in validatorTypes)
+            {
+                foreach (var item in type.GetInterfaces())
+                {
+                    // 💡 这种循环注册方式支持同一个接口有多个实现                    
+                    services.AddScoped(item, type);// 这样 ValidationBehavior 就可以通过 IEnumerable<IValidator<T>> 获取到所有的验证规则
+                }
+            }
             return services;
         }
     }

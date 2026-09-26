@@ -1,16 +1,20 @@
 ﻿using AqLife.Application.Abstractions.FileStorage;
-using AqLife.Application.Business.File.Search;
-using AqLife.Domain.Command;
-using AqLife.Shared.IView;
-using MediatR;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Business.File;
+using AqLife.Application.Business.File.Search;
 using AqLife.Application.Business.File.Service;
+using AqLife.Application.Business.Tag.Search;
 using AqLife.Application.Mappers;
+using AqLife.Domain.Command;
 using AqLife.Domain.Entities.File;
+using AqLife.Shared.IView;
+using AqLife.Shared.Options;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.File.Handler
 {
-    public class FileQueryHandler(FileSearch search,PageResultMapper<FileMetaEntity,FileDto> mapper, FileReader fileReader) : IRequestHandler<FileQuery, PageResult<FileDto>>
+    public class FileQueryHandler(FileSearch search, PageResultMapper<FileMetaEntity,FileDto> mapper, FileReader fileReader) : IRequestHandler<FileQuery, PageResult<FileDto>>
     {
         public async Task<PageResult<FileDto>> Handle(FileQuery query, CancellationToken ct)
         {

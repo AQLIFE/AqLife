@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 namespace AqLife.Domain.Command
 {
     public record BlogUnpublishQuery(DateTimeOffset ScheduledTime) : IQuery<IEnumerable<FileDto>>;
-    public record FileQuery(Guid? UID = null, string? Title = null,int Page=1,int PageSize=10) : IPageQuery, IQuery<PageResult<FileDto>>;
+    public record FileQuery(Guid? UID = null, string? Title = null,Guid? CategoryUID=null, int Page=1,int PageSize=10) : IPageQuery, IQuery<PageResult<FileDto>>;
     public record DownloadFileQuery(Guid UID) : IRequireValidEntity<FileMetaEntity>, IQuery<FileDownloadModel>;
     public record PreviewFileQuery(Guid UID) : IRequireValidEntity<FileMetaEntity>, IQuery<FilePreviewModel>;
     public record DeleteFileCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IDeleteCommand;

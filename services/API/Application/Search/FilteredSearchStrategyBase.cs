@@ -13,7 +13,7 @@ namespace AqLife.Application.Search
     where TEntity : class, IEntity
     where TSearchCriteria : ISearchCriteria
     {
-        public virtual bool IsMatch(TSearchCriteria c)
+        public virtual  bool IsMatch(TSearchCriteria c)
             => c.UID is not null || !string.IsNullOrWhiteSpace(c.Keyword);
         public virtual async Task<IQueryable<TEntity>> ExecuteAsync(
             IQueryable<TEntity> queryable,

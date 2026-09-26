@@ -2,13 +2,24 @@
 import { useTagStore } from '@/stores/tagStore';
 import { computed, onBeforeMount, ref } from 'vue';
 import { ElButton } from 'element-plus';
-import { TagApi, type BlogCategoryStatistics } from '@/api';
+import { TagApi,FileApi, type BlogCategoryStatistics } from '@/api';
 import { apiConfiguration } from '@/services/api';
 import { View, Timer } from '@element-plus/icons-vue';
+import { useBlogStore } from '../stores/fileStore';
 
 const BlogCategoryView = ref<BlogCategoryStatistics[]>([])
 
 const category = computed(() => useTagStore().tagList.filter(e => e.isCategory))
+async function handleFilter(tagId:string|null|undefined){
+    if(!tagId)return 
+    const fileApi = new FileApi(apiConfiguration)
+    const fileStore = useBlogStore()
+    fileStore.clearBlogList()
+    const result = await fileApi.apiFileGet({categoryUID:tagId})
+
+    if(result.items)fileStore.setBlogList(result.items)
+}
+
 onBeforeMount(async () => {
     const tagApi = new TagApi(apiConfiguration)
     if (useTagStore().tagList.length == 0) useTagStore().tagList = await (await tagApi.apiTagGet()).items??[]
@@ -25,7 +36,7 @@ onBeforeMount(async () => {
             </h3>
 
             <div v-for="item in BlogCategoryView" :key="item.uid!" class="overview-item">
-                <ElButton type="info" link>
+                <ElButton type="info" link @click="handleFilter(item.uid)">
                     {{ item.categoryName }}
                 </ElButton>
 

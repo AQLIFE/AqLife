@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Business.File.Search;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Contracts;
@@ -31,7 +32,7 @@ namespace AqLife.Application.Mappers
         [MapperIgnoreSource(nameof(FileQuery.Page))]
         [MapperIgnoreSource(nameof(FileQuery.PageSize))]
         [MapProperty(nameof(FileQuery.Title), nameof(EntitySearchCriteria.Keyword))]
-        public partial EntitySearchCriteria ToCriteria(FileQuery query);
+        public partial FileSearchCriteria ToCriteria(FileQuery query);
 
         [MapperIgnoreSource(nameof(CorpusQuery.Page))]
         [MapperIgnoreSource(nameof(CorpusQuery.PageSize))]

@@ -9,9 +9,12 @@ using Microsoft.Extensions.Options;
 
 namespace AqLife.Application.Business.File.Search
 {
-    public class FilteredFilesSearchStrategy(IHttpContextAccessor httpContext) : FilteredSearchStrategyBase<FileMetaEntity, EntitySearchCriteria>
+    public class FilteredFilesSearchStrategy(IHttpContextAccessor httpContext) : FilteredSearchStrategyBase<FileMetaEntity, FileSearchCriteria>
     {
         private bool IsAuth = httpContext.HttpContext?.User.Identity?.IsAuthenticated ??false;
+        public override bool IsMatch(FileSearchCriteria c)
+        => c.UID is not null || !string.IsNullOrWhiteSpace(c.Keyword) || c.CategoryUID is not null;
+
         protected override IQueryable<FileMetaEntity> ApplyKeywordFilter(
         IQueryable<FileMetaEntity> q, string keyword)
         {
@@ -21,13 +24,16 @@ namespace AqLife.Application.Business.File.Search
 
         public override async Task<IQueryable<FileMetaEntity>> ExecuteAsync(
            IQueryable<FileMetaEntity> queryable,
-           EntitySearchCriteria c,
+           FileSearchCriteria c,
            CancellationToken ct = default)
         {
             if (c.UID is Guid id)
                 return queryable.Where(e => e.UID == id);
             else if (!string.IsNullOrWhiteSpace(c.Keyword))
                 return ApplyKeywordFilter(queryable, c.Keyword.Trim());
+            else if (c.CategoryUID is Guid categoryId)
+                return queryable.Where(e => e.FileTags.Any(ft => ft.TagId == categoryId) && e.PublishMeta.PublishStatus == FileStatus.Published );
+                    
             else throw new RequestFailException("不合规的操作，该请求不应被处理");
         }
     }

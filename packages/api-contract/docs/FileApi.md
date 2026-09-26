@@ -213,7 +213,7 @@ No authorization required
 
 ## apiFileGet
 
-> FileDtoPageResult apiFileGet(uID, title, page, pageSize)
+> FileDtoPageResult apiFileGet(uID, title, categoryUID, page, pageSize)
 
 
 
@@ -235,6 +235,8 @@ async function example() {
     uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
     // string (optional)
     title: title_example,
+    // string (optional)
+    categoryUID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
     // number (optional)
     page: 56,
     // number (optional)
@@ -260,6 +262,7 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **title** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **categoryUID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **page** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
 
