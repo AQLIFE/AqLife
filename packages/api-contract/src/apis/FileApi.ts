@@ -29,6 +29,11 @@ import {
     FileDtoPageResultToJSON,
 } from '../models/FileDtoPageResult';
 import {
+    type FileOrder,
+    FileOrderFromJSON,
+    FileOrderToJSON,
+} from '../models/FileOrder';
+import {
     type ScheduledFileCommand,
     ScheduledFileCommandFromJSON,
     ScheduledFileCommandToJSON,
@@ -57,6 +62,7 @@ export interface ApiFileGetRequest {
     categoryUID?: string;
     page?: number;
     pageSize?: number;
+    order?: FileOrder;
 }
 
 export interface ApiFilePatchRequest {
@@ -157,6 +163,7 @@ export interface FileApiInterface {
      * @param {string} [categoryUID] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
+     * @param {FileOrder} [order] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -169,6 +176,7 @@ export interface FileApiInterface {
      * @param {string} [categoryUID] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
+     * @param {FileOrder} [order] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -435,6 +443,10 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
         if (requestParameters['pageSize'] != null) {
             queryParameters['PageSize'] = requestParameters['pageSize'];
+        }
+
+        if (requestParameters['order'] != null) {
+            queryParameters['Order'] = requestParameters['order'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

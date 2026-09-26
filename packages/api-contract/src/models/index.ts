@@ -16,6 +16,7 @@ export * from './DeleteTagCommand';
 export * from './DeleteTodoCommand';
 export * from './FileDto';
 export * from './FileDtoPageResult';
+export * from './FileOrder';
 export * from './FileStatus';
 export * from './LoginCommand';
 export * from './ScheduledFileCommand';

@@ -2,17 +2,20 @@
 import { useTagStore } from '@/stores/tagStore';
 import { computed, onBeforeMount, ref } from 'vue';
 import { ElButton } from 'element-plus';
-import { TagApi,FileApi, type BlogCategoryStatistics } from '@/api';
+import { TagApi,FileApi, type BlogCategoryStatistics, type FileDto } from '@/api';
 import { apiConfiguration } from '@/services/api';
 import { View, Timer } from '@element-plus/icons-vue';
 import { useBlogStore } from '../stores/fileStore';
 
 const BlogCategoryView = ref<BlogCategoryStatistics[]>([])
 
-const category = computed(() => useTagStore().tagList.filter(e => e.isCategory))
+// const category = computed(() => useTagStore().tagList.filter(e => e.isCategory))
+const hotList = ref<FileDto[]>()
+const fileApi = new FileApi(apiConfiguration)
+
 async function handleFilter(tagId:string|null|undefined){
     if(!tagId)return 
-    const fileApi = new FileApi(apiConfiguration)
+    
     const fileStore = useBlogStore()
     fileStore.clearBlogList()
     const result = await fileApi.apiFileGet({categoryUID:tagId})
@@ -24,6 +27,8 @@ onBeforeMount(async () => {
     const tagApi = new TagApi(apiConfiguration)
     if (useTagStore().tagList.length == 0) useTagStore().tagList = await (await tagApi.apiTagGet()).items??[]
     if(BlogCategoryView.value.length==0) BlogCategoryView.value = await tagApi.apiTagOverviewGet()
+    const list = await fileApi.apiFileGet({order:2,pageSize:5})
+    if( list.items) hotList.value = list.items
 })
 </script>
 
@@ -51,13 +56,13 @@ onBeforeMount(async () => {
                 最多阅览
             </h3>
 
-            <div v-for="item in category" :key="item.uid!" class="overview-item">
-                <ElButton type="info" link>
-                    {{ item.name }}
+            <div v-for="item in hotList" :key="item.uid!" class="overview-item">
+                <ElButton type="info" link @click="$router.push({ path: `/preview/${item.uid}` })">
+                    {{ item.fileName }}
                 </ElButton>
 
                 <span>
-                    100
+                    {{ item.viewCount }}
                 </span>
             </div>
         </section>

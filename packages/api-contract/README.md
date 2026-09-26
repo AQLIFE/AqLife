@@ -99,6 +99,7 @@ All URIs are relative to *http://localhost*
 - [DeleteTodoCommand](docs/DeleteTodoCommand.md)
 - [FileDto](docs/FileDto.md)
 - [FileDtoPageResult](docs/FileDtoPageResult.md)
+- [FileOrder](docs/FileOrder.md)
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
 - [ScheduledFileCommand](docs/ScheduledFileCommand.md)

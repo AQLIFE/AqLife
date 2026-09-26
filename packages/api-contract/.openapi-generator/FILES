@@ -20,6 +20,7 @@ docs/DeleteTodoCommand.md
 docs/FileApi.md
 docs/FileDto.md
 docs/FileDtoPageResult.md
+docs/FileOrder.md
 docs/FileStatus.md
 docs/LoginCommand.md
 docs/ScheduledFileCommand.md
@@ -58,6 +59,7 @@ src/models/DeleteTagCommand.ts
 src/models/DeleteTodoCommand.ts
 src/models/FileDto.ts
 src/models/FileDtoPageResult.ts
+src/models/FileOrder.ts
 src/models/FileStatus.ts
 src/models/LoginCommand.ts
 src/models/ScheduledFileCommand.ts
