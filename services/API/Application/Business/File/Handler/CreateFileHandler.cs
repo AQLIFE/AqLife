@@ -7,6 +7,6 @@ namespace AqLife.Application.Business.File.Handler
     public class CreateFileHandler(FileWriter fileWriter) : IRequestHandler<CreateFileCommand, IEnumerable<Guid>>
     {
         public async Task<IEnumerable<Guid>> Handle(CreateFileCommand command, CancellationToken ct)
-        => await fileWriter.WriteAsync(command.GetFiles(), ct);
+        => await fileWriter.WriteAsync(command.GetFiles(), ct, command.IsTemplate);
     }
 }
