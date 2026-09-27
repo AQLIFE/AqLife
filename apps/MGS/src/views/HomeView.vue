@@ -38,7 +38,7 @@
             <p>Quick actions</p>
           </div>
         </div>
-        <button class="quick-action" @click="router.push('/blog/template')">
+        <button class="quick-action" @click="router.push('/blog/new')">
           <span>+</span>
           <div><strong>New article</strong><small>Start from a template</small></div>
         </button>
