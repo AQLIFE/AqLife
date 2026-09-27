@@ -21,7 +21,6 @@
 <script setup lang="ts">
 import {
   ElTable,
-  ElSlider,
   ElDatePicker,
   ElTableColumn,
   ElInput,
