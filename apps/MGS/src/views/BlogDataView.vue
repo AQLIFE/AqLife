@@ -205,15 +205,12 @@ const tableData = computed(() => (filterDisabled.value ? [] : filteredFileList.v
 
 onBeforeMount(async () => {
   await fileStore.fetchAllFiles(fileApi)
-  // actionStore.onAdd = handleAddFile
 })
 
 function handleUploadFile() {
   router.push('/blog/upload')
 }
 function handleAddFile(){
-  actionStore.OState = OperationalState.Add
-
   router.push('/blog/new')
 }
 
