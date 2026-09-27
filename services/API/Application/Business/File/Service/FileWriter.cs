@@ -22,7 +22,7 @@ namespace AqLife.Application.Business.File.Service
 
             if (fileList.Count == 0) return [];
 
-            var existingFiles = await FindExistingFilesAsync(uploadContext.FileHashes.Values, ct);// 获取 数据库 和 uploadContext 中都存在的文件哈希对应的文件ID,用于去重
+            var existingFiles = await FindExistingFilesAsync(uploadContext.FileHashes.Values, isTemplate, ct);// 获取 数据库 和 uploadContext 中都存在的文件哈希对应的文件ID,用于去重
 
             List<Guid> result = [];
             List<FileMetaEntity> newMetas = [];
@@ -70,8 +70,8 @@ namespace AqLife.Application.Business.File.Service
 
         }
 
-        private async Task<Dictionary<string, Guid>> FindExistingFilesAsync(IEnumerable<string> hashes, CancellationToken ct)
-            => await appStorage.File.Include(e=>e.PublishMeta).Where(e => hashes.Contains(e.FileHash))
+        private async Task<Dictionary<string, Guid>> FindExistingFilesAsync(IEnumerable<string> hashes, bool isTemplate, CancellationToken ct)
+            => await appStorage.File.Include(e=>e.PublishMeta).Where(e => hashes.Contains(e.FileHash) && e.IsTemplate == isTemplate)
                 .ToDictionaryAsync(e => e.FileHash, e => e.UID, ct);
     }
 }
