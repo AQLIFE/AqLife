@@ -413,10 +413,6 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
     async apiFileDownloadGetRequestOpts(requestParameters: ApiFileDownloadGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters['includeTemplates'] != null) {
-            queryParameters['IncludeTemplates'] = requestParameters['includeTemplates'];
-        }
-
         if (requestParameters['uID'] != null) {
             queryParameters['UID'] = requestParameters['uID'];
         }
@@ -455,6 +451,10 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
      */
     async apiFileGetRequestOpts(requestParameters: ApiFileGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
+
+        if (requestParameters['includeTemplates'] != null) {
+            queryParameters['IncludeTemplates'] = requestParameters['includeTemplates'];
+        }
 
         if (requestParameters['uID'] != null) {
             queryParameters['UID'] = requestParameters['uID'];
