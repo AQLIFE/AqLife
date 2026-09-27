@@ -47,8 +47,6 @@ export class FileContentUpdateWorkflow {
   }
 
   private commit(result: FileDto) {
-    const index = this.store.fileList.findIndex(f => f.uid === result.uid)
-    if (index === -1) throw new Error('File 更新失败')
-    this.store.fileList[index] = result
+    this.store.upsertFile(result)
   }
 }
