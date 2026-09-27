@@ -51,6 +51,7 @@ export const routes = [
       { path: 'list', component: BlogDataView },
       { path: 'new', component: BlogTemplateView },
       { path: 'template', redirect: '/blog/new' },
+      { path: ':id/edit', component: BlogView, props: true },
       { path: ':id', component: BlogView, props: true },
     ],
   },
