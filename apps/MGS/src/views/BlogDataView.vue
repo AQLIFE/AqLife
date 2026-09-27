@@ -1,5 +1,5 @@
 <template>
-  <div class="dataview"><MgsPageHeader title="Blog" description="Manage articles, drafts and published content"><template #actions><ElButton :icon="Upload" @click="handleUploadFile">Upload</ElButton><ElButton type="primary" :icon="Plus" @click="handleAddFile">New article</ElButton></template></MgsPageHeader>
+  <div class="dataview"><MgsPageHeader title="Blog" description="Manage articles, drafts and published content"><template #actions><ElButton :icon="Upload" @click="handleUploadFile">Upload</ElButton><ElButton type="primary" :icon="Plus" @click="handleAddFile">New article</ElButton></template></MgsPageHeader><MgsToolbar><ElInput v-model="searchText" :disabled="filterDisabled || !searchField" @keyup.enter="onSearchEnter" placeholder="Search..." class="toolbar-control"><template #prepend><ElSelect v-model="searchField" placeholder="Field" style="width:100px"><ElOption v-for="option in searchFieldOptions" :key="option.value" :label="option.label" :value="option.value" /></ElSelect></template></ElInput><ElSelect v-model="selectedTags" multiple collapse-tags filterable placeholder="Tags" :disabled="filterDisabled" class="toolbar-control" value-key="uid"><ElOption v-for="(tag,index) in tagOptions" :key="tag.uid ?? tag.name ?? index" :label="tag.name ?? ''" :value="tag" /></ElSelect><ElDatePicker type="daterange" range-separator="to" start-placeholder="Start" end-placeholder="End" value-format="YYYY-MM-DD" format="YYYY-MM-DD" v-model="dateRange" :disabled="filterDisabled" /></MgsToolbar>
 
     <ElTable :data="tableData" highlight-current-row @row-click="activeRow" height="calc(100% - 50px)" class="data-table">
       <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label"
@@ -39,6 +39,7 @@ import FileUpload from '@/components/FileUpload.vue'
 import FileTool from '@/components/FileTool.vue'
 import { Plus,Upload } from '@element-plus/icons-vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 import { useRouter } from 'vue-router'
 import FilePreviewCell from '@/components/FilePreviewCell.vue'
 import TagsCell from '@/components/TagsCell.vue'
