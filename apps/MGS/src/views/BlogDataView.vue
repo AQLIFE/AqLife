@@ -246,6 +246,7 @@ function handleAddFile(){
   overflow-y: scroll;
   scrollbar-width: none;
 }
-.data-table { width:100%;height:calc(100% - 92px); }
+.data-table { width:100%;height:calc(100% - 148px); }
+.toolbar-control { max-width:260px; }
 
 </style>
