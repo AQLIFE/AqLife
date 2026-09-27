@@ -12,7 +12,6 @@
       </ElTableColumn>
       </ElTable>
 
-    <FileUpload v-model:file-list="UploadContext.fileList" v-model:tags="UploadContext.tags" />
   </div>
 </template>
 
@@ -25,14 +24,11 @@ import {
   ElSelect,
   ElOption,
   ElButton,
-  type UploadUserFile,
 } from 'element-plus'
 import { FileApi, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { onBeforeMount, ref, reactive, computed, type Component } from 'vue'
+import { onBeforeMount, ref, computed, type Component } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
-import { useActionStore, OperationalState } from '@/stores/useActionStore'
-import FileUpload from '@/components/FileUpload.vue'
 import { Plus,Upload } from '@element-plus/icons-vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
@@ -112,14 +108,9 @@ const selectedTags = ref<TagDto[]>([])
 const sizeRange = ref<number[]>([0, 100])
 const dateRange = ref<string[] | null>(null)
 
-const UploadContext = reactive<{ fileList: UploadUserFile[]; tags: TagDto[] }>({
-  fileList: [],
-  tags: [],
-})
 // ---组件属性
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
-const actionStore = useActionStore()
 const router = useRouter()
 
 const activeRow = (row: FileDto) => {
@@ -218,7 +209,7 @@ onBeforeMount(async () => {
 })
 
 function handleUploadFile() {
-  actionStore.OState = OperationalState.Upload
+  router.push('/blog/upload')
 }
 function handleAddFile(){
   actionStore.OState = OperationalState.Add
