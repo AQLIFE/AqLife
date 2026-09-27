@@ -220,7 +220,6 @@ onBeforeMount(async () => {
 function handleUploadFile() {
   actionStore.OState = OperationalState.Upload
 }
-const router = useRouter()
 function handleAddFile(){
   actionStore.OState = OperationalState.Add
 
