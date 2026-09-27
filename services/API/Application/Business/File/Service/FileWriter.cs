@@ -16,7 +16,7 @@ namespace AqLife.Application.Business.File.Service
     public class FileWriter(IApplicationDbContext appStorage, IFileStorage fileStorage, UploadContext uploadContext,ICreateMapper<FileMetaEntity,IFormFile> fileMapper)
     {
 
-        public async Task<List<Guid>> WriteAsync(IEnumerable<IFormFile> files, CancellationToken ct, DateTimeOffset? publishAt = null)
+        public async Task<List<Guid>> WriteAsync(IEnumerable<IFormFile> files, CancellationToken ct, bool isTemplate = false, DateTimeOffset? publishAt = null)
         {
             List<IFormFile> fileList = files.ToList();
 
@@ -41,7 +41,7 @@ namespace AqLife.Application.Business.File.Service
                     }// 若存在于数据库,则直接将其作为结果返回,不再写入物理文件存储和数据库
 
                     
-                    FileMetaEntity meta = fileMapper.ToEntity(file);
+                    FileMetaEntity meta = fileMapper.ToEntity(file).SetTemplate(isTemplate);
                     await fileStorage.SaveAsync(file.OpenReadStream(), meta.StorageKey, ct);
 
                     savedFiles.Add(meta.StorageKey);
