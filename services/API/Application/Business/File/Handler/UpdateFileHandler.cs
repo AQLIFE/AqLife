@@ -17,6 +17,7 @@ namespace AqLife.Application.Business.File.Handler
             string hash = uploadContext.FileHashes[command.File];
             _ = entity.UpdateHash(hash);
             await fileStorage.SaveAsync(command.File.OpenReadStream(), entity.StorageKey, ct);// 覆写到原来的文件
+            entity.IncrementVersion();
             return command.UID;
         }
     }
