@@ -60,63 +60,42 @@
 import { ElButton } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { onBeforeMount, computed } from 'vue'
-import { FileApi, type FileDto } from '@/api'
+import { OverviewApi } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { useFileStore } from '@/stores/useFileStore'
-import { publishStatus } from '@/types/TableFilterOption.ts'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 
 const router = useRouter()
-const fileApi = new FileApi(apiConfiguration)
-const fileStore = useFileStore()
+const overviewApi = new OverviewApi(apiConfiguration)
+const overview = ref<Awaited<ReturnType<OverviewApi['apiOverviewGet']>> | null>(null)
 
 const metrics = computed(() => [
-  {
-    label: 'Drafts',
-    value: fileStore.fileList.filter(file => file.publishStatus === publishStatus.Draft).length,
-    note: 'Current workspace',
-  },
-  {
-    label: 'Scheduled',
-    value: fileStore.fileList.filter(file => file.publishStatus === publishStatus.Scheduled).length,
-    note: 'Waiting to publish',
-  },
-  {
-    label: 'Published',
-    value: fileStore.fileList.filter(file => file.publishStatus === publishStatus.Published).length,
-    note: 'Published articles',
-  },
+  { label: 'Drafts', value: overview.value?.draftCount ?? 0, note: 'Current workspace' },
+  { label: 'Scheduled', value: overview.value?.scheduledCount ?? 0, note: 'Waiting to publish' },
+  { label: 'Published', value: overview.value?.publishedCount ?? 0, note: 'Published articles' },
 ])
 
 const articles = computed(() =>
-  [...fileStore.fileList]
-    .sort((a, b) => {
-      const left = Date.parse(a.uploadTime ?? '') || 0
-      const right = Date.parse(b.uploadTime ?? '') || 0
-      return right - left
-    })
-    .slice(0, 5)
-    .map(file => ({
-      uid: file.uid,
-      title: file.fileName || 'Untitled article',
-      meta: file.fileType ? file.fileType.replace('.', '').toUpperCase() : 'File',
-      status:
-        file.publishStatus === publishStatus.Published
-          ? 'published'
-          : file.publishStatus === publishStatus.Scheduled
-            ? 'scheduled'
-            : 'draft',
-      label:
-        file.publishStatus === publishStatus.Published
-          ? 'Published'
-          : file.publishStatus === publishStatus.Scheduled
-            ? 'Scheduled'
-            : 'Draft',
-    })),
+  (overview.value?.recentFiles ?? []).map(file => ({
+    uid: file.uid,
+    title: file.fileName || 'Untitled article',
+    meta: file.fileType ? file.fileType.replace('.', '').toUpperCase() : 'File',
+    status:
+      file.publishStatus === 2
+        ? 'published'
+        : file.publishStatus === 1
+          ? 'scheduled'
+          : 'draft',
+    label:
+      file.publishStatus === 2
+        ? 'Published'
+        : file.publishStatus === 1
+          ? 'Scheduled'
+          : 'Draft',
+  })),
 )
 
 onBeforeMount(async () => {
-  await fileStore.fetchAllFiles(fileApi)
+  overview.value = await overviewApi.apiOverviewGet({ recentCount: 5 })
 })
 </script>
 
