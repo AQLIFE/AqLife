@@ -6,7 +6,7 @@ import { routes } from './routes'
 import { useAccountStore } from '@/stores/useAccountStore'
 import { AccountApi } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -25,15 +25,15 @@ const router = createRouter({
 })
 
 const accountApi = new AccountApi(apiConfiguration)
-const accountStoreCache = useAccountStore()
 let systemAccountChecked = false
 
 async function ensureSystemAccount() {
   if (systemAccountChecked) return
 
+  const accountStore = useAccountStore()
   const response = await accountApi.apiAccountGetRaw()
   if (response.raw.status === 200) {
-    accountStoreCache.systemAccount = await response.value()
+    accountStore.systemAccount = await response.value()
   }
 
   systemAccountChecked = true
