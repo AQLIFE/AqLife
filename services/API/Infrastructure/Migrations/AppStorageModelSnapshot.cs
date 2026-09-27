@@ -109,6 +109,12 @@ namespace AqLife.Data.Migrations
                     b.Property<DateTimeOffset>("UploadTime")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsTemplate")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasKey("UID");
 
                     b.ToTable("FileMeta");
