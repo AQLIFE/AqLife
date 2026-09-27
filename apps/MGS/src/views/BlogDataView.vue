@@ -1,5 +1,5 @@
 <template>
-  <ElCol class="dataview">
+  <div class="dataview"><MgsPageHeader title="Blog" description="Manage articles, drafts and published content"><template #actions><ElButton :icon="Upload" @click="handleUploadFile">Upload</ElButton><ElButton type="primary" :icon="Plus" @click="handleAddFile">New article</ElButton></template></MgsPageHeader>
 
     <ElTable :data="tableData" highlight-current-row @row-click="activeRow" height="calc(100% - 50px)" class="data-table">
       <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label"
@@ -15,7 +15,7 @@
     <FileUpload v-model:file-list="UploadContext.fileList" v-model:tags="UploadContext.tags" />
     <FileTool  :initial-tags="activeDto.tags!" v-model:model-value="activeDto" />
     <!-- 防止tag修改渗透,仅允许在update事件成功以后,由update回调至fileDto -->
-  </ElCol>
+  </div>
 </template>
 
 <script setup lang="ts">
