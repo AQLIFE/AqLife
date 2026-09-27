@@ -112,6 +112,7 @@ async function onPublishStatusChanged(value: publishStatus) {
           throw new Error('禁止从已发布状态修改为预定发布状态')
         }
         if (!current.publishAt) {
+          publishStatusModel.value = current.publishStatus
           ElMessage.warning('请先设置预定发布时间')
           return
         }
@@ -142,6 +143,7 @@ async function onScheduledAtChanged(value: string | Date | null) {
     publishStatusModel.value = dto.publishStatus
     ElMessage.success('预定发布时间已更新')
   } catch (error) {
+    file.value.publishAt = previousPublishAt
     ElMessage.error(error instanceof Error ? error.message : '设置预定发布时间失败')
   } finally {
     scheduling.value = false
@@ -229,14 +231,14 @@ onBeforeUnmount(() => {
       <template #actions>
         <div v-if="file" class="publish-control">
           <ElSegmented
-            v-model="publishStatusModel"
+            :model-value="publishStatusModel"
             :options="segmentedOptions"
             :disabled="publishing || scheduling"
             @change="onPublishStatusChanged"
           />
           <ElDatePicker
             v-if="file.publishStatus !== publishStatus.Draft"
-            v-model="file.publishAt"
+            :model-value="file.publishAt"
             type="datetime"
             :disabled="file.publishStatus === publishStatus.Published || publishing || scheduling"
             placeholder="预定发布时间"
@@ -302,6 +304,12 @@ onBeforeUnmount(() => {
   overflow: auto;
   padding: 18px 24px 32px;
   background: var(--mgs-surface);
+}
+
+ .publish-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 @media (max-width: 900px) {
