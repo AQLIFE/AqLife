@@ -22,7 +22,7 @@ namespace AqLife.Domain.Command
     /// 上传文件,并将其设置为草稿,除非手动使用预定,否则永不发布
     /// </summary>
     /// <param name="File"></param>
-    public record CreateFileCommand(params IFormFile[] File) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
+    public record CreateFileCommand(bool IsTemplate = false, params IFormFile[] File) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
     {
         public IEnumerable<IFormFile> GetFiles() => File;
     }
