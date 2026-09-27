@@ -1,73 +1,75 @@
 <script setup lang="ts">
-import { ElCol, ElMessage, ElRow } from 'element-plus'
+import { ElMessage, ElRow } from 'element-plus'
 import { RouterView, useRoute } from 'vue-router'
 import NavMenu from '@/components/NavMenu.vue'
-import DataTool from '@/components/DataTool.vue'
-import { SidebarType } from '@/types/sidebarType'
 import RegisterStep from './components/RegisterStep.vue'
-import { computed, onBeforeMount, onMounted } from 'vue'
 import EntrancePanel from './components/EntrancePanel.vue'
+import { SidebarType } from '@/types/sidebarType'
 import { useAccountStore } from '@/stores/useAccountStore'
 import { AccountApi } from '@/api'
 import { apiConfiguration } from './services/api.ts'
-import {ref } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
+import MgsSidebar from '@/components/ui/MgsSidebar.vue'
+import MgsTopbar from '@/components/ui/MgsTopbar.vue'
 
 const accountStore = useAccountStore()
 const request = new AccountApi(apiConfiguration)
 const route = useRoute()
+const loading = ref(true)
 
-const currentComponent = computed(() => {
-  if (route.meta.sidebarType == SidebarType.Register) return RegisterStep
-  if (route.meta.sidebarType == SidebarType.Data) return DataTool
+const currentTitle = computed(() => {
+  if (route.path.startsWith('/blog')) return 'Blog'
+  if (route.path.startsWith('/todo')) return 'Todo'
+  if (route.path.startsWith('/tag')) return 'Tags'
+  if (route.path.startsWith('/account')) return 'Account'
+  return 'Overview'
 })
 
-const lodding = ref<boolean>(true)
+const authPanel = computed(() => {
+  if (route.meta.sidebarType === SidebarType.Register) return RegisterStep
+  return EntrancePanel
+})
 
 onBeforeMount(async () => {
-  const response = await request.apiAccountGetRaw()
-  if (response.raw.status == 200) {
-    const account = await response.value()
-    accountStore.systemAccount = account;
-    lodding.value =false
-  }else if(response.raw.status == 204)
-  lodding.value =false
-  else{
-    ElMessage.error('未配置账户,请进入注册流程')
-    lodding.value =false
+  try {
+    const response = await request.apiAccountGetRaw()
+    if (response.raw.status === 200) {
+      accountStore.systemAccount = await response.value()
+    } else if (response.raw.status !== 204) {
+      ElMessage.error('未配置账户,请进入注册流程')
+    }
+  } finally {
+    loading.value = false
   }
 })
-
 </script>
 
 <template>
-  <ElRow v-loading.fullscreen.lock="lodding">
-    <ElCol :lg="4" :md="24" class="aside">
-      <NavMenu v-if="accountStore.bearerToken" />
-      <EntrancePanel v-else />
-    </ElCol>
-    <ElCol :lg="20" :md="24" class="container">
-      <RouterView v-slot="{ Component }">
-        <transition>
-          <component :is="Component" />
-        </transition>
-      </RouterView>
-    </ElCol>
-  </ElRow>
+  <div v-if="route.meta.sidebarType === SidebarType.Login || route.meta.sidebarType === SidebarType.Register" class="auth-layout">
+    <component :is="authPanel" />
+  </div>
+
+  <div v-else class="mgs-shell" v-loading.fullscreen.lock="loading">
+    <MgsSidebar v-if="accountStore.bearerToken" />
+    <NavMenu v-else />
+    <main class="workspace">
+      <MgsTopbar :title="currentTitle" />
+      <section class="workspace-content">
+        <RouterView v-slot="{ Component }">
+          <transition name="mgs-fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </RouterView>
+      </section>
+    </main>
+  </div>
 </template>
 
-<style lang="css" scoped>
-.aside {
-  border-right: 1px dotted gainsboro;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  height: 100vh;
-}
-
-.container {
-  display: block;
-  height: 100vh;
-}
+<style scoped>
+.mgs-shell { min-height:100vh;display:flex;background:var(--mgs-bg); }
+.workspace { min-width:0;flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden; }
+.workspace-content { min-height:0;flex:1;overflow:auto; }
+.auth-layout { min-height:100vh; }
+.mgs-fade-enter-active,.mgs-fade-leave-active { transition:opacity .12s ease,transform .12s ease; }
+.mgs-fade-enter-from,.mgs-fade-leave-to { opacity:0;transform:translateY(3px); }
 </style>
