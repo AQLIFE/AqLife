@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ElButton, ElDatePicker, ElMessage, ElSegmented } from 'element-plus'
-import { Edit, Check, Lock } from '@element-plus/icons-vue'
+import { ElButton, ElDatePicker, ElMessage, ElMessageBox, ElSegmented } from 'element-plus'
+import { Edit, Check, Lock, Delete } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
 import { FileApi, type FileDto, type TagDto } from '@/api'
@@ -33,6 +33,7 @@ const pageTitle = computed(() => file.value?.fileName || '博文')
 const publishStatusModel = ref<publishStatus>()
 const publishing = ref(false)
 const scheduling = ref(false)
+const deleting = ref(false)
 const selectedTags = ref<TagDto[]>([])
 const scheduledAt = ref<Date | null>(null)
 
@@ -191,6 +192,33 @@ async function onScheduledAtChanged(value: Date | null) {
   }
 }
 
+async function deleteArticle() {
+  const current = file.value
+  if (!current?.uid || deleting.value) return
+
+  try {
+    await ElMessageBox.confirm(
+      `确定删除「${current.fileName || '未命名文章'}」吗？删除后将无法在 MGS 中继续编辑这篇文章。`,
+      '删除文章',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      },
+    )
+
+    deleting.value = true
+    await new FileDeleteWorkflow(current, fileApi, fileStore).run()
+    ElMessage.success('文章已删除')
+    await router.push('/blog/list')
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(error instanceof Error ? error.message : '删除文章失败')
+  } finally {
+    deleting.value = false
+  }
+}
+
 async function saveVersion() {
   if (!file.value?.uid || !isDirty.value) return
 
@@ -304,9 +332,14 @@ onBeforeUnmount(() => {
             保存版本
           </ElButton>
         </template>
-        <ElButton v-else type="primary" :icon="Edit" @click="enterEditMode">
-          编辑
-        </ElButton>
+        <template v-else>
+          <ElButton :icon="Delete" :disabled="deleting || publishing || scheduling" @click="deleteArticle">
+            删除
+          </ElButton>
+          <ElButton type="primary" :icon="Edit" @click="enterEditMode">
+            编辑
+          </ElButton>
+        </template>
       </template>
     </MgsPageHeader>
 
