@@ -17,7 +17,9 @@ namespace AqLife.Shared.IView
         string UploadTime = "",
         string FileType = "",
         string FileIntroduction = "",
-        int ViewCount = 0
+        int ViewCount = 0,
+        int Version = 1,
+        bool IsTemplate = false
     ) : IEntityDto;
 
     public record FileDownloadModel(
