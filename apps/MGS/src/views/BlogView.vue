@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElButton, ElMessage } from 'element-plus'
-import { Edit, Save, Lock, Unlock } from '@element-plus/icons-vue'
+import { Edit, Check, Lock } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
 import { FileApi, type FileDto } from '@/api'
@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
           </ElButton>
           <ElButton
             type="primary"
-            :icon="Save"
+            :icon="Check"
             :disabled="!isDirty"
             @click="saveVersion"
           >
