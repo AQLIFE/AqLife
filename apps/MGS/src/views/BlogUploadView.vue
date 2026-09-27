@@ -23,10 +23,6 @@ const acceptType = computed(() => defaultFilePolicy.allowedUpload.join(','))
 
 const canCommit = computed(() => fileList.value.length > 0 && !uploading.value)
 
-function remove(index: number) {
-  fileList.value.splice(index, 1)
-}
-
 function goBack() {
   router.push('/blog/list')
 }
