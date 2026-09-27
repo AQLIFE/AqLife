@@ -288,7 +288,7 @@ const router = useRouter()
 function handleAddFile(){
   actionStore.OState = OperationalState.Add
 
-  router.push('/blog/view')
+  router.push('/blog/template')
 }
 
 </script>
