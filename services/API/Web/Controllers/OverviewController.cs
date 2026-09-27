@@ -9,7 +9,7 @@ namespace AqLife.Web.Controllers
     [ApiController, Route("[controller]"), Authorize]
     public class OverviewController(IMediator mediator) : ControllerBase
     {
-        [HttpGet, AllowAnonymous]
+        [HttpGet]
         public async Task<OverviewDto> GetOverview([FromQuery] OverviewQuery query, CancellationToken ct)
             => await mediator.Send(query, ct);
     }
