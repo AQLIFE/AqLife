@@ -72,7 +72,6 @@ import {
   ElMessage,
   ElMessageBox,
 } from 'element-plus'
-import { OperationalState, useActionStore } from '@/stores/useActionStore.ts'
 import { apiConfiguration } from '@/services/api.ts'
 import { useRouter } from 'vue-router'
 import { FileDraftWorkflow,FileContentUpdateWorkflow,FilePublishWorkflow,FileDeleteWorkflow,FileTagUpdateWorkflow,FileScheduledWorkflow } from '@/workflow/index.ts'
@@ -80,15 +79,13 @@ import { publishStatusOptions, publishStatus } from '@/types/TableFilterOption.t
 
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
-const actionStore = useActionStore()
 const router = useRouter()
 
 
 //================================组件视觉属性
 function preview() {
-  actionStore.OState = OperationalState.View
-  actionStore.cacheViewGuid = fileDto.value?.uid ?? ''
-  router.push('/blog/view')
+  if (!fileDto.value?.uid) return
+  router.push(`/blog/${fileDto.value.uid}`)
 }
 const drawerStatus = computed({
   get: () => actionStore.OState === OperationalState.Update,
