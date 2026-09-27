@@ -49,8 +49,9 @@ export const routes = [
     meta: { navTitle: 'Blog', navIcon: Document, showInNav: true, order: 5, sidebarType: SidebarType.Data },
     children: [
       { path: 'list', component: BlogDataView },
-      { path: 'template', component: BlogTemplateView },
-      { path: 'view', component: BlogView },
+      { path: 'new', component: BlogTemplateView },
+      { path: 'template', redirect: '/blog/new' },
+      { path: ':id', component: BlogView, props: true },
     ],
   },
   {
