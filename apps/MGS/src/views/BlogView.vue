@@ -47,7 +47,7 @@ async function loadArticle(guid: string) {
       throw new Error(`无法加载博文（HTTP ${previewResponse.raw.status}）`)
     }
 
-    const content = await previewResponse.text()
+    const content = await previewResponse.raw.text()
     const dto = metadata.items?.[0]
 
     if (!dto) {
