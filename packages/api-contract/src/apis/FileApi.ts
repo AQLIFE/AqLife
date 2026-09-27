@@ -87,6 +87,7 @@ export interface ApiFileTagPatchRequest {
 }
 
 export interface ApiFileUploadPostRequest {
+    isTemplate?: boolean;
     file?: Array<Blob>;
 }
 
@@ -755,6 +756,10 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             formParams = new FormData();
         } else {
             formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['isTemplate'] != null) {
+            formParams.append('IsTemplate', requestParameters['isTemplate'] as any);
         }
 
         if (requestParameters['file'] != null) {
