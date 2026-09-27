@@ -50,6 +50,9 @@ public class FileSearch(
     protected override async Task<IQueryable<FileMetaEntity>> BuildBaseQueryAsync(IQueryable<FileMetaEntity> queryable, FileQuery query)
     {
         queryable = queryable.Include(e => e.PublishMeta).Include(e => e.InteractionMeta).Include(e => e.FileTags).ThenInclude(x => x.Tag);
+        if (!IsValid || !query.IncludeTemplates)
+            queryable = queryable.Where(e => !e.IsTemplate);
+
         FileAccessMode mode = IsValid ? FileAccessMode.Internal : FileAccessMode.Standard;
         return await fileSecurity.ApplyAccessPolicy(queryable, mode);
     }
