@@ -4,7 +4,7 @@ import { ElButton, ElDatePicker, ElMessage, ElSegmented } from 'element-plus'
 import { Edit, Check, Lock } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
-import { FileApi, type FileDto } from '@/api'
+import { FileApi, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
@@ -33,7 +33,7 @@ const pageTitle = computed(() => file.value?.fileName || '博文')
 const publishStatusModel = ref<publishStatus>()
 const publishing = ref(false)
 const scheduling = ref(false)
-const selectedTags = ref<FileDto['tags']>([])
+const selectedTags = ref<TagDto[]>([])
 
 const segmentedOptions = computed(() =>
   publishStatusOptions.map(item => ({
