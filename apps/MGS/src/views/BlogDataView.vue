@@ -46,7 +46,6 @@ type FileTableColumn = {
   renderer?:Component,
   sortable?: boolean,
   width?:number|string,
-  fixed?:'left'|'right',
   filter?: {
     options: TableFilterOption[]
     multiple?: boolean
@@ -60,7 +59,6 @@ const tableColumns: FileTableColumn[] = [
     label: 'ID & 预览',
     renderer:FilePreviewCell,
     width:'130',
-    fixed:'left'
   },
   {
     prop: 'fileName',
@@ -105,7 +103,6 @@ const searchField = ref<keyof FileDto | null>(null)
 const searchText = ref<string>('')
 const searchTerm = ref<string>('')
 const selectedTags = ref<TagDto[]>([])
-const sizeRange = ref<number[]>([0, 100])
 const dateRange = ref<string[] | null>(null)
 
 // ---组件属性
@@ -176,12 +173,6 @@ function matchesTags(row: FileDto) {
   )
 }
 
-function matchesSize(row: FileDto) {
-  if (sizeRange.value[0] === 0 && sizeRange.value[1] === 100) return true
-  const fileSizeKb = (row.fileSize ?? 0) / 1024
-  return fileSizeKb >= sizeRange.value[0] && fileSizeKb <= sizeRange.value[1]
-}
-
 function matchesDate(row: FileDto) {
   if (!dateRange.value || dateRange.value.length !== 2) return true
   const [start, end] = dateRange.value
@@ -196,7 +187,7 @@ function matchesDate(row: FileDto) {
 
 const filteredFileList = computed(() =>
   fileStore.fileList?.filter((item: FileDto) =>
-    matchesSearch(item) && matchesTags(item) && matchesSize(item) && matchesDate(item),
+    matchesSearch(item) && matchesTags(item) && matchesDate(item),
   ) ?? [],
 )
 
@@ -217,12 +208,6 @@ function handleAddFile(){
 </script>
 
 <style lang="css" scoped>
-.image {
-  width: 5vw;
-  height: 5vw;
-  /* font-size: 5vw; */
-}
-
 .dataview {
   height: 100%;
   min-height: 0;
