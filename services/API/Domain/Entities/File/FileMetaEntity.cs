@@ -26,7 +26,7 @@ namespace AqLife.Domain.Entities.File
         [Column]
         public DateTimeOffset UploadTime { private set; get; } = DateTimeOffset.UtcNow;
 
-        [Column]
+        [Column, ConcurrencyCheck]
         public int Version { get; private set; } = 1;
 
         [Column]
