@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ElPageHeader, ElMessage } from 'element-plus';
-import { Lock, Unlock, Upload } from '@element-plus/icons-vue';
+import { ElButton, ElMessage } from 'element-plus'
+import { Lock, Unlock, Upload } from '@element-plus/icons-vue'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as monaco from 'monaco-editor'
-import { useRouter } from 'vue-router';
-import { getArticleTitle } from '@aqlife/domain';
-import { FileApi } from '@/api';
-import { apiConfiguration } from '@/services/api';
-import { OperationalState, useActionStore } from '@/stores/useActionStore';
+import { useRoute } from 'vue-router'
+import { getArticleTitle } from '@aqlife/domain'
+import { FileApi } from '@/api'
+import { apiConfiguration } from '@/services/api'
 import { MarkdownRender } from '@aqlife/ui-shared'
+import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 
+const route = useRoute()
 const container = ref<HTMLElement>()
-
 const markdown = ref(`# Hello World
 这是一个 **Markdown 编辑器**。
 ## Features
@@ -20,10 +20,10 @@ const markdown = ref(`# Hello World
 - Vue 3
 `)
 
-// const errorMessage = '没有匹配的博文哦'
-
 let editor: monaco.editor.IStandaloneCodeEditor | undefined
 const readOnly = ref(true)
+const loading = ref(false)
+const baseurl = import.meta.env.VITE_API
 
 function toggleReadOnly() {
   readOnly.value = !readOnly.value
@@ -31,28 +31,28 @@ function toggleReadOnly() {
     readOnly: readOnly.value,
   })
 }
-const actionStore = useActionStore()
+
 async function loadArticle(guid: string) {
   loading.value = true
 
   try {
     const fileApi = new FileApi(apiConfiguration)
-
-    const response = await fileApi.apiFilePreviewGet({
-      uID: guid
-    })
+    const response = await fileApi.apiFilePreviewGetRaw({ uID: guid })
+    if (response.raw.status !== 200) {
+      throw new Error(`无法加载博文（HTTP ${response.raw.status}）`)
+    }
 
     const content = await response.text()
-
     markdown.value = content
     editor?.setValue(content)
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
     loading.value = false
   }
 }
 
 onMounted(async () => {
-  // 先创建 Monaco
   if (container.value) {
     editor = monaco.editor.create(container.value, {
       value: markdown.value,
@@ -60,9 +60,7 @@ onMounted(async () => {
       theme: 'vs',
       fontFamily: 'Cascadia Code PL',
       automaticLayout: true,
-      minimap: {
-        enabled: false,
-      },
+      minimap: { enabled: false },
       wordWrap: 'on',
       fontSize: 14,
       readOnly: readOnly.value,
@@ -73,114 +71,121 @@ onMounted(async () => {
     })
   }
 
-  // 再加载文章
-  if (
-    actionStore.OState === OperationalState.View &&
-    actionStore.cacheViewGuid
-  ) {
-    await loadArticle(actionStore.cacheViewGuid)
+  const guid = typeof route.params.id === 'string' ? route.params.id : ''
+  if (guid) {
+    await loadArticle(guid)
   }
 })
+
 watch(
-  () => actionStore.cacheViewGuid,
-  async guid => {
-    if (actionStore.OState === OperationalState.View && guid) {
+  () => route.params.id,
+  async value => {
+    const guid = typeof value === 'string' ? value : ''
+    if (guid) {
       await loadArticle(guid)
     }
-  }
+  },
 )
+
 onBeforeUnmount(() => {
   editor?.dispose()
 })
 
-const router = useRouter()
-const loading = ref<boolean>(false)
-const baseurl = import.meta.env.VITE_API
-
 async function handleUploadNewBlog() {
   loading.value = true
-  const title = getArticleTitle(markdown.value)
-  const fileApi = new FileApi(apiConfiguration)
-  const blog = new File(
-    [markdown.value],
-    `${title || '未命名文章'}.md`,
-    {
-      type: 'text/markdown',
-    }
-  )
-  const guid = await fileApi.apiFileUploadPostRaw({ file: [blog] })
-  if (guid.raw.status == 200) ElMessage.success('上传成功')
-  // console.log(guid.raw.body)
-  loading.value = false
-}
 
+  try {
+    const title = getArticleTitle(markdown.value)
+    const fileApi = new FileApi(apiConfiguration)
+    const blog = new File(
+      [markdown.value],
+      `${title || '未命名文章'}.md`,
+      { type: 'text/markdown' },
+    )
+    const response = await fileApi.apiFileUploadPostRaw({ file: [blog] })
+    if (response.raw.status === 200) {
+      ElMessage.success('上传成功')
+    } else {
+      throw new Error(`上传失败（HTTP ${response.raw.status}）`)
+    }
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '上传失败')
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
-  <div class="markdown-editor" v-loading="loading">
-    <ElPageHeader content="博文视图" class="header" @back="router.back()">
-      <template #extra>
-        <ElButton :icon="readOnly ? Lock : Unlock" :type="readOnly ? 'warning' : 'info'" @click="toggleReadOnly"
-          :title="readOnly ? '解锁编辑' : '锁定编辑'" />
-        <ElButton :icon="Upload" type="success" @click="handleUploadNewBlog" />
+  <div class="markdown-workspace" v-loading="loading">
+    <MgsPageHeader
+      title="博文"
+      description="查看与编辑 Markdown 内容"
+      :back="true"
+    >
+      <template #actions>
+        <ElButton
+          :icon="readOnly ? Lock : Unlock"
+          :type="readOnly ? 'warning' : 'info'"
+          @click="toggleReadOnly"
+        >
+          {{ readOnly ? '解锁编辑' : '锁定编辑' }}
+        </ElButton>
+        <ElButton type="primary" :icon="Upload" @click="handleUploadNewBlog">
+          上传新版本
+        </ElButton>
       </template>
-    </ElPageHeader>
-    <!-- 左侧 Monaco -->
-    <div ref="container" class="editor" />
+    </MgsPageHeader>
 
-    <!-- 右侧 Preview -->
-    <div class="render">
-      <MarkdownRender :markdown="markdown" :baseurl="baseurl"/>
+    <div class="editor-grid">
+      <div ref="container" class="editor" />
+      <div class="render">
+        <MarkdownRender :markdown="markdown" :baseurl="baseurl" />
+      </div>
     </div>
   </div>
 </template>
 
-<style lang="css" scoped>
-.markdown-editor {
-  display: grid;
-
-  /* 两边各占 50% */
-  grid-template-rows: auto 1fr;
-  grid-template-columns: 1fr 1fr;
-  text-align: left;
-  height: 100vh;
-  font-family: 'Cascadia Code PL', monospace;
+<style scoped>
+.markdown-workspace {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.header {
-  grid-column: 1 / 3;
-  height: 50px;
-  line-height: 50px;
+.editor-grid {
+  min-height: 0;
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  overflow: hidden;
+  border-top: 1px solid var(--mgs-border);
 }
 
 .editor {
   min-width: 0;
-  max-height: calc(100vh - 52px);
+  min-height: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--mgs-border);
 }
 
-.render{
-  height:100%;
-  scrollbar-width: none;
-  overflow-x: hidden;
-}
-/* Markdown 基础样式 */
-
-.markdown-body :deep(h1) {
-  font-size: 2em;
+.render {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 18px 24px 32px;
+  background: var(--mgs-surface);
 }
 
-.markdown-body :deep(h2) {
-  font-size: 1.5em;
-}
+@media (max-width: 900px) {
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
 
-.markdown-body :deep(code) {
-  padding: 2px 4px;
-  background: #f5f5f5;
-}
-
-.markdown-body :deep(pre) {
-  padding: 16px;
-  overflow-x: auto;
-  background: #f5f5f5;
+  .render {
+    display: none;
+  }
 }
 </style>
