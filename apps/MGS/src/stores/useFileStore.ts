@@ -50,7 +50,22 @@ export const useFileStore = defineStore('file', () => {
     isInitialized.value = false
   }
 
+  function upsertFile(file: FileDto) {
+    if (!file.uid) return
+
+    const index = fileList.value.findIndex(x => x.uid === file.uid)
+
+    if (index === -1) {
+      fileList.value.push(file)
+      return
+    }
+
+    fileList.value[index] = file
+  }
+
   function replaceFile(file: FileDto) {
+    if (!file.uid) throw new Error('File not found')
+
     const index = fileList.value.findIndex(x => x.uid === file.uid)
 
     if (index === -1) {
@@ -80,6 +95,7 @@ export const useFileStore = defineStore('file', () => {
     previewUrl,
     fetchAllFiles,
     clearCache,
+    upsertFile,
     replaceFile,
     removeFile,
   }
