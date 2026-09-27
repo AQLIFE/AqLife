@@ -5,13 +5,11 @@ using AqLife.Shared.IView;
 using AqLife.Shared.Options;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace AqLife.Application.Business.Overview.Handler
 {
     public class OverviewQueryHandler(
-        IApplicationDbContext dbContext,
-        IOptions<FilePolicyOption> filePolicy) : IRequestHandler<OverviewQuery, OverviewDto>
+        IApplicationDbContext dbContext) : IRequestHandler<OverviewQuery, OverviewDto>
     {
         public async Task<OverviewDto> Handle(OverviewQuery query, CancellationToken ct)
         {
