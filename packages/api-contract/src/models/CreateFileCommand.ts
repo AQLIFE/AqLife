@@ -20,6 +20,12 @@ import { mapValues } from '../runtime';
  */
 export interface CreateFileCommand {
     /**
+     * Whether uploaded files should be stored as templates.
+     * @type {boolean}
+     * @memberof CreateFileCommand
+     */
+    isTemplate?: boolean;
+    /**
      * 
      * @type {Array<Blob>}
      * @memberof CreateFileCommand
@@ -44,6 +50,7 @@ export function CreateFileCommandFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
+        'isTemplate': json['isTemplate'] == null ? undefined : json['isTemplate'],
         'file': json['file'] == null ? undefined : json['file'],
     };
 }
@@ -59,6 +66,7 @@ export function CreateFileCommandToJSONTyped(value?: CreateFileCommand | null, i
 
     return {
         
+        'isTemplate': value['isTemplate'],
         'file': value['file'],
     };
 }
