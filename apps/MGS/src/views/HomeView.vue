@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import { ElButton } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { onBeforeMount, computed } from 'vue'
+import { onBeforeMount, computed, ref } from 'vue'
 import { OverviewApi } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
@@ -87,9 +87,9 @@ const articles = computed(() =>
           ? 'scheduled'
           : 'draft',
     label:
-      file.publishStatus === 2
+      file.publishStatus === publishStatus.Published
         ? 'Published'
-        : file.publishStatus === 1
+        : file.publishStatus === publishStatus.Scheduled
           ? 'Scheduled'
           : 'Draft',
   })),
