@@ -143,6 +143,7 @@ async function onPublishStatusChanged(value: publishStatus) {
     publishStatusModel.value = dto.publishStatus
     ElMessage.success('发布状态已更新')
   } catch (error) {
+    publishStatusModel.value = current.publishStatus
     ElMessage.error(error instanceof Error ? error.message : '发布状态更新失败')
   } finally {
     publishing.value = false
@@ -152,15 +153,27 @@ async function onPublishStatusChanged(value: publishStatus) {
 async function onScheduledAtChanged(value: string | Date | null) {
   if (!file.value?.uid || !value) return
 
-  file.value.publishAt = value instanceof Date ? value.toISOString() : value
+  const current = file.value
+  const previousPublishAt = current.publishAt
+  const nextPublishAt = value instanceof Date ? value.toISOString() : value
+
+  // 草稿阶段先只保留预约时间，不能在设置时间的同时提前触发预约。
+  // 用户随后切换到“预约”时，再由状态工作流一次性提交。
+  current.publishAt = nextPublishAt
+
+  if (current.publishStatus === publishStatus.Draft) {
+    ElMessage.success('预定发布时间已设置')
+    return
+  }
+
   try {
     scheduling.value = true
-    const dto = await new FileScheduledWorkflow(file.value, fileApi, fileStore).run()
+    const dto = await new FileScheduledWorkflow(current, fileApi, fileStore).run()
     file.value = dto
     publishStatusModel.value = dto.publishStatus
     ElMessage.success('预定发布时间已更新')
   } catch (error) {
-    file.value.publishAt = previousPublishAt
+    current.publishAt = previousPublishAt
     ElMessage.error(error instanceof Error ? error.message : '设置预定发布时间失败')
   } finally {
     scheduling.value = false
@@ -259,10 +272,10 @@ onBeforeUnmount(() => {
             @change="onPublishStatusChanged"
           />
           <ElDatePicker
-            v-if="file.publishStatus !== publishStatus.Draft"
+            v-if="file.publishStatus !== publishStatus.Published"
             :model-value="file.publishAt"
             type="datetime"
-            :disabled="file.publishStatus === publishStatus.Published || publishing || scheduling"
+            :disabled="publishing || scheduling"
             placeholder="预定发布时间"
             @change="onScheduledAtChanged"
           />
@@ -328,7 +341,7 @@ onBeforeUnmount(() => {
   background: var(--mgs-surface);
 }
 
- .publish-control {
+.publish-control {
   display: flex;
   align-items: center;
   gap: 8px;
