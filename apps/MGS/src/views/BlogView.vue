@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ElButton, ElMessage } from 'element-plus'
+import { ElButton, ElDatePicker, ElMessage, ElSegmented } from 'element-plus'
 import { Edit, Check, Lock } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
 import { FileApi, type FileDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
-import { FileContentUpdateWorkflow } from '@/workflow'
+import { FileContentUpdateWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow } from '@/workflow'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import { publishStatusOptions, publishStatus } from '@/types/TableFilterOption.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -28,6 +29,19 @@ let editor: monaco.editor.IStandaloneCodeEditor | undefined
 const isEditing = computed(() => route.path.endsWith('/edit'))
 const isDirty = computed(() => markdown.value !== originalMarkdown.value)
 const pageTitle = computed(() => file.value?.fileName || '博文')
+const publishStatusModel = ref<publishStatus>()
+const publishing = ref(false)
+const scheduling = ref(false)
+
+const segmentedOptions = computed(() =>
+  publishStatusOptions.map(item => ({
+    ...item,
+    disabled:
+      item.value === publishStatus.Scheduled &&
+      file.value?.publishStatus === publishStatus.Published,
+  })),
+)
+
 const pageDescription = computed(() =>
   isEditing.value
     ? '编辑 Markdown 内容，保存后生成文件的新版本'
@@ -59,6 +73,7 @@ async function loadArticle(guid: string) {
     markdown.value = content
     originalMarkdown.value = content
     editor?.setValue(content)
+    publishStatusModel.value = dto.publishStatus
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
@@ -74,6 +89,63 @@ function enterEditMode() {
 function leaveEditMode() {
   const guid = typeof route.params.id === 'string' ? route.params.id : ''
   if (guid) router.push(`/blog/${guid}`)
+}
+
+async function onPublishStatusChanged(value: publishStatus) {
+  const current = file.value
+  if (!current?.uid || current.publishStatus === value) return
+
+  try {
+    publishing.value = true
+
+    let dto: FileDto
+
+    switch (value) {
+      case publishStatus.Draft:
+        dto = await new FileDraftWorkflow(current, fileApi, fileStore).run()
+        break
+      case publishStatus.Published:
+        dto = await new FilePublishWorkflow(current, fileApi, fileStore).run()
+        break
+      case publishStatus.Scheduled:
+        if (current.publishStatus === publishStatus.Published) {
+          throw new Error('禁止从已发布状态修改为预定发布状态')
+        }
+        if (!current.publishAt) {
+          ElMessage.warning('请先设置预定发布时间')
+          return
+        }
+        dto = await new FileScheduledWorkflow(current, fileApi, fileStore).run()
+        break
+      default:
+        return
+    }
+
+    file.value = dto
+    publishStatusModel.value = dto.publishStatus
+    ElMessage.success('发布状态已更新')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '发布状态更新失败')
+  } finally {
+    publishing.value = false
+  }
+}
+
+async function onScheduledAtChanged(value: string | Date | null) {
+  if (!file.value?.uid || !value) return
+
+  file.value.publishAt = value instanceof Date ? value.toISOString() : value
+  try {
+    scheduling.value = true
+    const dto = await new FileScheduledWorkflow(file.value, fileApi, fileStore).run()
+    file.value = dto
+    publishStatusModel.value = dto.publishStatus
+    ElMessage.success('预定发布时间已更新')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '设置预定发布时间失败')
+  } finally {
+    scheduling.value = false
+  }
 }
 
 async function saveVersion() {
@@ -155,6 +227,22 @@ onBeforeUnmount(() => {
       :back="true"
     >
       <template #actions>
+        <div v-if="file" class="publish-control">
+          <ElSegmented
+            v-model="publishStatusModel"
+            :options="segmentedOptions"
+            :disabled="publishing || scheduling"
+            @change="onPublishStatusChanged"
+          />
+          <ElDatePicker
+            v-if="file.publishStatus !== publishStatus.Draft"
+            v-model="file.publishAt"
+            type="datetime"
+            :disabled="file.publishStatus === publishStatus.Published || publishing || scheduling"
+            placeholder="预定发布时间"
+            @change="onScheduledAtChanged"
+          />
+        </div>
         <template v-if="isEditing">
           <ElButton :icon="Lock" @click="leaveEditMode">
             退出编辑
