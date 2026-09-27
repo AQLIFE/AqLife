@@ -57,6 +57,7 @@ export interface ApiFileDownloadGetRequest {
 }
 
 export interface ApiFileGetRequest {
+    includeTemplates?: boolean;
     uID?: string;
     title?: string;
     categoryUID?: string;
@@ -411,6 +412,10 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
      */
     async apiFileDownloadGetRequestOpts(requestParameters: ApiFileDownloadGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
+
+        if (requestParameters['includeTemplates'] != null) {
+            queryParameters['IncludeTemplates'] = requestParameters['includeTemplates'];
+        }
 
         if (requestParameters['uID'] != null) {
             queryParameters['UID'] = requestParameters['uID'];
