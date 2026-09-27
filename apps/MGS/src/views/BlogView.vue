@@ -7,10 +7,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { FileApi, type FileDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
-import { FileContentUpdateWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow } from '@/workflow'
+import { FileContentUpdateWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import { publishStatusOptions, publishStatus } from '@/types/TableFilterOption.ts'
+import TagSelect from '@/components/TagSelect.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -32,6 +33,7 @@ const pageTitle = computed(() => file.value?.fileName || '博文')
 const publishStatusModel = ref<publishStatus>()
 const publishing = ref(false)
 const scheduling = ref(false)
+const selectedTags = ref<FileDto['tags']>([])
 
 const segmentedOptions = computed(() =>
   publishStatusOptions.map(item => ({
@@ -74,6 +76,7 @@ async function loadArticle(guid: string) {
     originalMarkdown.value = content
     editor?.setValue(content)
     publishStatusModel.value = dto.publishStatus
+    selectedTags.value = dto.tags ?? []
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
@@ -89,6 +92,20 @@ function enterEditMode() {
 function leaveEditMode() {
   const guid = typeof route.params.id === 'string' ? route.params.id : ''
   if (guid) router.push(`/blog/${guid}`)
+}
+
+async function onTagsChanged(value: FileDto['tags']) {
+  if (!file.value?.uid || !value) return
+
+  try {
+    const dto = await new FileTagUpdateWorkflow(file.value, value, fileApi, fileStore).run()
+    file.value = dto
+    selectedTags.value = dto.tags ?? []
+    ElMessage.success('标签已更新')
+  } catch (error) {
+    selectedTags.value = file.value.tags ?? []
+    ElMessage.error(error instanceof Error ? error.message : '标签更新失败')
+  }
 }
 
 async function onPublishStatusChanged(value: publishStatus) {
@@ -230,6 +247,11 @@ onBeforeUnmount(() => {
     >
       <template #actions>
         <div v-if="file" class="publish-control">
+          <TagSelect
+            v-model:tag-list="selectedTags"
+            :select-disabled="publishing || scheduling"
+            @update:tag-list="onTagsChanged"
+          />
           <ElSegmented
             :model-value="publishStatusModel"
             :options="segmentedOptions"
