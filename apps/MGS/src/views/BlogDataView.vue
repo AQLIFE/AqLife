@@ -120,11 +120,11 @@ const UploadContext = reactive<{ fileList: UploadUserFile[]; tags: TagDto[] }>({
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const actionStore = useActionStore()
-const activeDto = ref<FileDto>({})
+const router = useRouter()
 
 const activeRow = (row: FileDto) => {
-  actionStore.OState = OperationalState.Update
-  activeDto.value = row
+  if (!row.uid) return
+  router.push(`/blog/${row.uid}`)
 }
 
 
