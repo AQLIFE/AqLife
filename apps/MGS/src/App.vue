@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import { RouterView, useRoute } from 'vue-router'
-import NavMenu from '@/components/NavMenu.vue'
 import RegisterStep from './components/RegisterStep.vue'
 import EntrancePanel from './components/EntrancePanel.vue'
 import { SidebarType } from '@/types/sidebarType'
@@ -49,9 +48,12 @@ onBeforeMount(async () => {
     <component :is="authPanel" />
   </div>
 
+  <div v-else-if="!accountStore.bearerToken" class="entrance-layout" v-loading.fullscreen.lock="loading">
+    <EntrancePanel />
+  </div>
+
   <div v-else class="mgs-shell" v-loading.fullscreen.lock="loading">
-    <MgsSidebar v-if="accountStore.bearerToken" />
-    <NavMenu v-else />
+    <MgsSidebar />
     <main class="workspace">
       <MgsTopbar :title="currentTitle" />
       <section class="workspace-content">
@@ -69,7 +71,7 @@ onBeforeMount(async () => {
 .mgs-shell { min-height:100vh;display:flex;background:var(--mgs-bg); }
 .workspace { min-width:0;flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden; }
 .workspace-content { min-height:0;flex:1;overflow:auto; }
-.auth-layout { min-height:100vh; }
+.auth-layout { min-height:100vh; }\n.entrance-layout { min-height:100vh; }
 .mgs-fade-enter-active,.mgs-fade-leave-active { transition:opacity .12s ease,transform .12s ease; }
 .mgs-fade-enter-from,.mgs-fade-leave-to { opacity:0;transform:translateY(3px); }
 </style>
