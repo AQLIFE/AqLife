@@ -1,11 +1,8 @@
 <template>
   <div class="template-view">
-    <MgsPageHeader title="新建博文" description="选择模板，快速开始编写一篇文章" :back="true">
+    <MgsPageHeader title="博文模板" description="选择模板并编辑文章草稿" :back="true">
       <template #actions>
         <ElButton @click="resetDraft">Reset</ElButton>
-        <ElButton type="primary" :disabled="!draft.title.trim()" @click="createDraft">
-          Create draft
-        </ElButton>
       </template>
     </MgsPageHeader>
 
@@ -191,10 +188,6 @@ function resetDraft() {
   if (!selectedTemplate.value) return
   applyTemplate(selectedTemplate.value)
   ElMessage.success('已恢复当前模板')
-}
-
-function createDraft() {
-  ElMessage.success('Demo：已生成博文草稿，下一步可接入现有上传/创建 API')
 }
 
 applyTemplate(templates[0])
