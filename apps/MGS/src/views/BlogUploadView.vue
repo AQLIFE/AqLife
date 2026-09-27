@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { ElButton, ElCard, ElIcon, ElMessage, ElUpload, type UploadUserFile, type UploadRawFile } from 'element-plus'
-import { ArrowLeft, UploadFilled, Delete } from '@element-plus/icons-vue'
-import { isImageType, defaultFilePolicy } from '@aqlife/domain'
-import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
+import { ArrowLeft, UploadFilled } from '@element-plus/icons-vue'
+import { defaultFilePolicy } from '@aqlife/domain'
+
 import { FileApi, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
@@ -19,17 +19,12 @@ const fileList = ref<UploadUserFile[]>([])
 const tags = ref<TagDto[]>([])
 const uploading = ref(false)
 
-const markdown = MgsIconName.Markdown
 const acceptType = computed(() => defaultFilePolicy.allowedUpload.join(','))
 
 const canCommit = computed(() => fileList.value.length > 0 && !uploading.value)
 
 function remove(index: number) {
   fileList.value.splice(index, 1)
-}
-
-function isImageFile(file: UploadUserFile) {
-  return isImageType(file.raw)
 }
 
 function goBack() {
@@ -134,21 +129,6 @@ async function commit() {
           <template #tip>
             <div class="upload-tip">允许上传：{{ acceptType }}</div>
           </template>
-          <template #file="{ file, index }">
-            <div class="file-row">
-              <ElIcon class="file-icon">
-                <ElIcon v-if="isImageFile(file)" />
-                <component v-else :is="mgsIconRegistry[markdown]" />
-              </ElIcon>
-              <span class="file-name">{{ file.name }}</span>
-              <ElButton
-                text
-                :icon="Delete"
-                aria-label="删除文件"
-                @click.stop="remove(index)"
-              />
-            </div>
-          </template>
         </ElUpload>
       </ElCard>
 
@@ -202,28 +182,6 @@ async function commit() {
 .helper-text {
   color: var(--mgs-muted);
   font-size: 13px;
-}
-
-.file-row {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-width: 0;
-  padding: 6px 0;
-}
-
-.file-icon {
-  flex: 0 0 auto;
-  margin-right: 10px;
-  font-size: 24px;
-}
-
-.file-name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 @media (max-width: 900px) {
