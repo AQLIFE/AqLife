@@ -1,13 +1,13 @@
 <template>
   <div class="template-view">
-    <ElPageHeader class="header" content="新建博文" @back="router.back()">
-      <template #extra>
-        <ElButton @click="resetDraft">重置</ElButton>
-        <ElButton type="success" :disabled="!draft.title.trim()" @click="createDraft">
-          创建博文
+    <MgsPageHeader title="新建博文" description="选择模板，快速开始编写一篇文章" :back="true">
+      <template #actions>
+        <ElButton @click="resetDraft">Reset</ElButton>
+        <ElButton type="primary" :disabled="!draft.title.trim()" @click="createDraft">
+          Create draft
         </ElButton>
       </template>
-    </ElPageHeader>
+    </MgsPageHeader>
 
     <div class="workspace">
       <aside class="template-panel">
@@ -113,12 +113,12 @@ import {
   ElInput,
   ElMessage,
   ElOption,
-  ElPageHeader,
   ElSelect,
   ElTag,
 } from 'element-plus'
 import { InfoFilled } from '@element-plus/icons-vue'
 import { MarkdownRender } from '@aqlife/ui-shared'
+import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 
 type BlogTemplate = {
   id: string
@@ -131,7 +131,6 @@ type BlogTemplate = {
   content: string
 }
 
-const router = useRouter()
 const baseurl = import.meta.env.VITE_API
 
 const templates: BlogTemplate[] = [
@@ -202,42 +201,41 @@ applyTemplate(templates[0])
 </script>
 
 <style scoped>
-.template-view { height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: var(--el-bg-color-page); }
-.header { height: 54px; flex: 0 0 54px; padding: 0 18px; border-bottom: 1px solid var(--el-border-color-light); background: var(--el-bg-color); }
-.workspace { min-height: 0; flex: 1; display: grid; grid-template-columns: 290px minmax(0, 1fr); }
-.template-panel { min-height: 0; display: flex; flex-direction: column; border-right: 1px solid var(--el-border-color-light); background: var(--el-bg-color); }
-.panel-title { display: flex; align-items: center; justify-content: space-between; padding: 18px; border-bottom: 1px solid var(--el-border-color-lighter); }
-.title { font-size: 16px; font-weight: 600; }
-.subtitle { margin-top: 4px; color: var(--el-text-color-secondary); font-size: 12px; }
-.template-list { flex: 1; min-height: 0; overflow: auto; padding: 10px; }
+.template-view { min-height: 0; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: var(--mgs-bg); }
+.workspace { min-height: 0; flex: 1; display: grid; grid-template-columns: 280px minmax(0, 1fr); padding: 0 28px 18px; gap: 18px; }
+.template-panel { min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); overflow: hidden; }
+.panel-title { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--mgs-border); }
+.title { font-size: 15px; font-weight: 650; }
+.subtitle { margin-top: 4px; color: var(--mgs-muted); font-size: 12px; }
+.template-list { flex: 1; min-height: 0; overflow: auto; padding: 8px; }
 .template-card { width: 100%; display: flex; gap: 12px; padding: 12px; margin-bottom: 8px; text-align: left; border: 1px solid transparent; border-radius: 8px; background: transparent; cursor: pointer; }
-.template-card:hover { background: var(--el-fill-color-light); }
-.template-card.active { border-color: var(--el-color-primary-light-5); background: var(--el-color-primary-light-9); }
-.template-icon { width: 38px; height: 38px; flex: 0 0 38px; display: grid; place-items: center; border-radius: 6px; background: var(--el-fill-color); color: var(--el-color-primary); font-weight: 700; font-family: monospace; }
-.template-name { color: var(--el-text-color-primary); font-size: 14px; font-weight: 600; }
-.template-description { margin-top: 4px; color: var(--el-text-color-secondary); font-size: 12px; line-height: 1.5; }
+.template-card:hover { background: var(--mgs-surface-soft); }
+.template-card.active { border-color: #b9c9f7; background: var(--mgs-accent-soft); }
+.template-icon { width: 38px; height: 38px; flex: 0 0 38px; display: grid; place-items: center; border-radius: 7px; background: var(--mgs-surface-soft); color: var(--mgs-accent); font-weight: 700; font-family: monospace; }
+.template-name { color: var(--mgs-text); font-size: 14px; font-weight: 600; }
+.template-description { margin-top: 4px; color: var(--mgs-muted); font-size: 12px; line-height: 1.5; }
 .template-tags { display: flex; gap: 4px; margin-top: 7px; }
-.panel-tip { display: flex; gap: 7px; padding: 12px 14px; color: var(--el-text-color-secondary); font-size: 12px; line-height: 1.5; border-top: 1px solid var(--el-border-color-lighter); }
-.editor-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 14px 18px 0; }
+.panel-tip { display: flex; gap: 7px; padding: 12px 14px; color: var(--mgs-muted); font-size: 12px; line-height: 1.5; border-top: 1px solid var(--mgs-border); }
+.editor-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 0; }
 .meta-form { flex: 0 0 auto; }
 .form-row { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 14px; }
 .meta-form :deep(.el-form-item) { margin-bottom: 12px; }
-.sheet { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--el-border-color); border-radius: 6px; background: var(--el-bg-color); }
-.sheet-toolbar { display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--el-border-color); background: var(--el-fill-color-light); }
-.sheet-cell { display: flex; align-items: center; padding: 0 10px; border-right: 1px solid var(--el-border-color-lighter); color: var(--el-text-color-secondary); font-size: 12px; }
+.sheet { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); box-shadow: var(--mgs-shadow); }
+.sheet-toolbar { display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); }
+.sheet-cell { display: flex; align-items: center; padding: 0 10px; border-right: 1px solid var(--mgs-border); color: var(--mgs-muted); font-size: 12px; }
 .row-number { justify-content: center; padding: 0; }
 .preview-heading { border-right: 0; }
 .sheet-body { min-height: 0; flex: 1; display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr); }
-.line-numbers { overflow: hidden; padding-top: 8px; text-align: center; background: var(--el-fill-color-lighter); color: var(--el-text-color-placeholder); font: 13px/22px monospace; user-select: none; }
-.markdown-input { min-width: 0; border-right: 1px solid var(--el-border-color); }
+.line-numbers { overflow: hidden; padding-top: 8px; text-align: center; background: var(--mgs-surface-soft); color: var(--mgs-muted); font: 13px/22px monospace; user-select: none; }
+.markdown-input { min-width: 0; border-right: 1px solid var(--mgs-border); }
 .markdown-input :deep(.el-textarea), .markdown-input :deep(.el-textarea__inner) { height: 100%; }
 .markdown-input :deep(.el-textarea__inner) { border: 0; border-radius: 0; padding: 8px 12px; resize: none; box-shadow: none; font: 14px/22px 'Cascadia Code PL', monospace; }
 .preview { min-width: 0; overflow: auto; padding: 10px 18px; }
-.status-bar { height: 30px; flex: 0 0 30px; display: flex; align-items: center; gap: 18px; color: var(--el-text-color-secondary); font-size: 12px; }
+.status-bar { height: 30px; flex: 0 0 30px; display: flex; align-items: center; gap: 18px; color: var(--mgs-muted); font-size: 12px; }
 .status-bar span:last-child { margin-left: auto; }
-.status-ready { color: var(--el-color-success); }
+.status-ready { color: var(--mgs-success); }
 @media (max-width: 900px) {
-  .workspace { grid-template-columns: 220px minmax(0, 1fr); }
+  .workspace { grid-template-columns: 220px minmax(0, 1fr); padding: 0 16px 16px; }
   .sheet-toolbar, .sheet-body { grid-template-columns: 36px minmax(0, 1fr); }
   .preview, .preview-heading { display: none; }
 }
