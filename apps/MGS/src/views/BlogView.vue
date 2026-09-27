@@ -34,6 +34,7 @@ const publishStatusModel = ref<publishStatus>()
 const publishing = ref(false)
 const scheduling = ref(false)
 const selectedTags = ref<TagDto[]>([])
+const scheduledAt = ref<Date | null>(null)
 
 const segmentedOptions = computed(() =>
   publishStatusOptions.map(item => ({
@@ -49,6 +50,12 @@ const pageDescription = computed(() =>
     ? '编辑 Markdown 内容，保存后生成文件的新版本'
     : '查看 Markdown 内容与发布状态',
 )
+
+function parsePublishAt(value: FileDto['publishAt']): Date | null {
+  if (!value) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
+}
 
 async function loadArticle(guid: string) {
   loading.value = true
@@ -77,6 +84,7 @@ async function loadArticle(guid: string) {
     editor?.setValue(content)
     publishStatusModel.value = dto.publishStatus
     selectedTags.value = dto.tags ?? []
+    scheduledAt.value = parsePublishAt(dto.publishAt)
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
@@ -141,6 +149,7 @@ async function onPublishStatusChanged(value: publishStatus) {
 
     file.value = dto
     publishStatusModel.value = dto.publishStatus
+    scheduledAt.value = parsePublishAt(dto.publishAt)
     ElMessage.success('发布状态已更新')
   } catch (error) {
     publishStatusModel.value = current.publishStatus
@@ -150,16 +159,16 @@ async function onPublishStatusChanged(value: publishStatus) {
   }
 }
 
-async function onScheduledAtChanged(value: string | Date | null) {
-  if (!file.value?.uid || !value) return
+async function onScheduledAtChanged(value: Date | null) {
+  if (!file.value || !value) return
 
   const current = file.value
   const previousPublishAt = current.publishAt
-  const nextPublishAt = value instanceof Date ? value.toISOString() : value
+  const nextPublishAt = value.toISOString()
 
-  // 草稿阶段先只保留预约时间，不能在设置时间的同时提前触发预约。
-  // 用户随后切换到“预约”时，再由状态工作流一次性提交。
+  // 草稿阶段只记录预约时间，切换到“预约”时再提交。
   current.publishAt = nextPublishAt
+  scheduledAt.value = value
 
   if (current.publishStatus === publishStatus.Draft) {
     ElMessage.success('预定发布时间已设置')
@@ -171,9 +180,11 @@ async function onScheduledAtChanged(value: string | Date | null) {
     const dto = await new FileScheduledWorkflow(current, fileApi, fileStore).run()
     file.value = dto
     publishStatusModel.value = dto.publishStatus
+    scheduledAt.value = parsePublishAt(dto.publishAt)
     ElMessage.success('预定发布时间已更新')
   } catch (error) {
     current.publishAt = previousPublishAt
+    scheduledAt.value = parsePublishAt(previousPublishAt)
     ElMessage.error(error instanceof Error ? error.message : '设置预定发布时间失败')
   } finally {
     scheduling.value = false
@@ -273,7 +284,7 @@ onBeforeUnmount(() => {
           />
           <ElDatePicker
             v-if="file.publishStatus !== publishStatus.Published"
-            :model-value="file.publishAt"
+            v-model="scheduledAt"
             type="datetime"
             :disabled="publishing || scheduling"
             placeholder="预定发布时间"
