@@ -13,8 +13,6 @@
       </ElTable>
 
     <FileUpload v-model:file-list="UploadContext.fileList" v-model:tags="UploadContext.tags" />
-    <FileTool  :initial-tags="activeDto.tags!" v-model:model-value="activeDto" />
-    <!-- 防止tag修改渗透,仅允许在update事件成功以后,由update回调至fileDto -->
   </div>
 </template>
 
@@ -35,7 +33,6 @@ import { onBeforeMount, ref, reactive, computed, type Component } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
 import { useActionStore, OperationalState } from '@/stores/useActionStore'
 import FileUpload from '@/components/FileUpload.vue'
-import FileTool from '@/components/FileTool.vue'
 import { Plus,Upload } from '@element-plus/icons-vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
@@ -218,7 +215,6 @@ const tableData = computed(() => (filterDisabled.value ? [] : filteredFileList.v
 onBeforeMount(async () => {
   await fileStore.fetchAllFiles(fileApi)
   // actionStore.onAdd = handleAddFile
-  activeDto.value = { fileName: '', fileHash: '', fileType: '', fileSize: 0 }
 })
 
 function handleUploadFile() {
