@@ -33,6 +33,22 @@ namespace AqLife.APIUnitTest.Domain
             Assert.Equal(".md", entity.Extension);
             Assert.Equal((ulong)content.Length, entity.FileSize);
             Assert.Equal(hash, entity.FileHash);
+            Assert.Equal(1, entity.Version);
+            Assert.False(entity.IsTemplate);
+        }
+
+        [Fact]
+        public void TemplateAndVersion_ShouldBeManagedByEntity()
+        {
+            var content = new MemoryStream(Encoding.UTF8.GetBytes("template"));
+            IFormFile file = new FormFile(content, 0, content.Length, "file", "template.md");
+            var entity = new FileMetaEntity(file, "template-hash");
+
+            entity.SetTemplate();
+            entity.IncrementVersion();
+
+            Assert.True(entity.IsTemplate);
+            Assert.Equal(2, entity.Version);
         }
     }
 }
