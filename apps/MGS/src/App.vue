@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElMessage, ElRow } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { RouterView, useRoute } from 'vue-router'
 import NavMenu from '@/components/NavMenu.vue'
 import RegisterStep from './components/RegisterStep.vue'

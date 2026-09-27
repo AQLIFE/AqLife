@@ -20,7 +20,7 @@ import { ElButton } from 'element-plus'
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   title: string
   description?: string
   back?: boolean

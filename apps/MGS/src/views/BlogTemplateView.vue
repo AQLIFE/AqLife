@@ -233,7 +233,7 @@ applyTemplate(templates[0])
 .preview { min-width: 0; overflow: auto; padding: 10px 18px; }
 .status-bar { height: 30px; flex: 0 0 30px; display: flex; align-items: center; gap: 18px; color: var(--mgs-muted); font-size: 12px; }
 .status-bar span:last-child { margin-left: auto; }
- .status-ready { color: var(--mgs-success); }
+.status-ready { color: var(--mgs-success); }
 @media (max-width: 900px) {
   .workspace { grid-template-columns: 220px minmax(0, 1fr); padding: 0 16px 16px; }
   .sheet-toolbar, .sheet-body { grid-template-columns: 36px minmax(0, 1fr); }
