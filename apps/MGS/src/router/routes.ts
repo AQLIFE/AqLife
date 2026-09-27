@@ -12,6 +12,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import BlogDataView from '@/views/BlogDataView.vue'
 import BlogView from '@/views/BlogView.vue'
 import BlogTemplateView from '@/views/BlogTemplateView.vue'
+import BlogUploadView from '@/views/BlogUploadView.vue'
 
 export const routes = [
   {
@@ -49,6 +50,7 @@ export const routes = [
     meta: { navTitle: 'Blog', navIcon: Document, showInNav: true, order: 5, sidebarType: SidebarType.Data },
     children: [
       { path: 'list', component: BlogDataView },
+      { path: 'upload', component: BlogUploadView },
       { path: 'new', component: BlogTemplateView },
       { path: 'template', redirect: '/blog/new' },
       { path: ':id/edit', component: BlogView, props: true },
