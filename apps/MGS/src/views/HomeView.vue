@@ -63,6 +63,7 @@ import { onBeforeMount, computed } from 'vue'
 import { OverviewApi } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import { publishStatus } from '@/types/TableFilterOption.ts'
 
 const router = useRouter()
 const overviewApi = new OverviewApi(apiConfiguration)
@@ -80,9 +81,9 @@ const articles = computed(() =>
     title: file.fileName || 'Untitled article',
     meta: file.fileType ? file.fileType.replace('.', '').toUpperCase() : 'File',
     status:
-      file.publishStatus === 2
+      file.publishStatus === publishStatus.Published
         ? 'published'
-        : file.publishStatus === 1
+        : file.publishStatus === publishStatus.Scheduled
           ? 'scheduled'
           : 'draft',
     label:
