@@ -1,67 +1,6 @@
 <template>
-  <ElCol class="dataview">
-    <ElRow :gutter="10" class="filter-bar">
-      <ElCol :span="5">
-        <ElInput v-model="searchText" :disabled="filterDisabled || !searchField" @keyup.enter="onSearchEnter">
-          <template #prepend>
-            <ElSelect v-model="searchField" placeholder="选择字段" style="width: 115px" :disabled="filterDisabled">
-              <ElOption
-                v-for="option in searchFieldOptions"
-                :key="option.value"
-                :label="option.label"
-                :value="option.value"
-              />
-            </ElSelect>
-          </template>
-        </ElInput>
-      </ElCol>
-      <ElCol :span="5">
-        <ElSelect
-          v-model="selectedTags"
-          multiple
-          collapse-tags
-          filterable
-          placeholder="选择标签"
-          :disabled="filterDisabled"
-          style="width: 100%"
-          value-key="uid"
-        >
-          <ElOption
-            v-for="(tag, index) in tagOptions"
-            :key="tag.uid ?? tag.name ?? index"
-            :label="tag.name ?? ''"
-            :value="tag"
-          />
-        </ElSelect>
-      </ElCol>
-      <ElCol :span="5">
-        <ElSlider
-          :step="10"
-          range
-          show-stops
-          :max="100"
-          v-model="sizeRange"
-          style="width:inherit;"
-          :disabled="filterDisabled"
-        />
-      </ElCol>
-      <ElCol :span="5">
-        <ElDatePicker
-          type="daterange"
-          range-separator="To"
-          start-placeholder="Start Date"
-          end-placeholder="End Date"
-          value-format="YYYY-MM-DD"
-          format="YYYY-MM-DD"
-          v-model="dateRange"
-          :disabled="filterDisabled"
-        />
-      </ElCol>
-      <ElCol :span="4">
-        <ElButton style="width: inherit;" :icon="Upload" @click="handleUploadFile" type="warning"/>
-        <ElButton style="width: inherit;" :icon="Plus" @click="handleAddFile" type="success"/>
-      </ElCol>
-    </ElRow>
+  <div class="dataview"><MgsPageHeader title="Blog" description="Manage articles, drafts and published content"><template #actions><ElButton :icon="Upload" @click="handleUploadFile">Upload</ElButton><ElButton type="primary" :icon="Plus" @click="handleAddFile">New article</ElButton></template></MgsPageHeader><MgsToolbar><ElInput v-model="searchText" :disabled="filterDisabled || !searchField" @keyup.enter="onSearchEnter" placeholder="Search..." class="toolbar-control"><template #prepend><ElSelect v-model="searchField" placeholder="Field" style="width:100px"><ElOption v-for="option in searchFieldOptions" :key="option.value" :label="option.label" :value="option.value" /></ElSelect></template></ElInput><ElSelect v-model="selectedTags" multiple collapse-tags filterable placeholder="Tags" :disabled="filterDisabled" class="toolbar-control" value-key="uid"><ElOption v-for="(tag,index) in tagOptions" :key="tag.uid ?? tag.name ?? index" :label="tag.name ?? ''" :value="tag" /></ElSelect><ElDatePicker type="daterange" range-separator="to" start-placeholder="Start" end-placeholder="End" value-format="YYYY-MM-DD" format="YYYY-MM-DD" v-model="dateRange" :disabled="filterDisabled" /></MgsToolbar>
+
     <ElTable :data="tableData" highlight-current-row @row-click="activeRow" height="calc(100% - 50px)" class="data-table">
       <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label"
       :width="column.width" :sortable="column.sortable" :filters="column.filter?.options.map(option=>({text:option.label,value:option.value.toString() }))" :filter-method="column.filter?(value, row) => `${row[column.prop]}` === value:undefined" :filter-multiple="column.filter?.multiple ?? false"
@@ -76,13 +15,12 @@
     <FileUpload v-model:file-list="UploadContext.fileList" v-model:tags="UploadContext.tags" />
     <FileTool  :initial-tags="activeDto.tags!" v-model:model-value="activeDto" />
     <!-- 防止tag修改渗透,仅允许在update事件成功以后,由update回调至fileDto -->
-  </ElCol>
+  </div>
 </template>
 
 <script setup lang="ts">
 import {
   ElTable,
-  ElSlider,
   ElDatePicker,
   ElTableColumn,
   ElInput,
@@ -99,6 +37,8 @@ import { useActionStore, OperationalState } from '@/stores/useActionStore'
 import FileUpload from '@/components/FileUpload.vue'
 import FileTool from '@/components/FileTool.vue'
 import { Plus,Upload } from '@element-plus/icons-vue'
+import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 import { useRouter } from 'vue-router'
 import FilePreviewCell from '@/components/FilePreviewCell.vue'
 import TagsCell from '@/components/TagsCell.vue'
@@ -305,14 +245,7 @@ function handleAddFile(){
   overflow-y: scroll;
   scrollbar-width: none;
 }
-.filter-bar {
-  padding:10px 10px 0 10px;
-  width:100%;height:50px;
-  flex: 0 0 auto;
-}
+.data-table { width:100%;height:calc(100% - 148px); }
+.toolbar-control { max-width:260px; }
 
-.data-table {
-  flex: 1 1 auto;
-  min-height: 0;
-}
 </style>
