@@ -32,7 +32,7 @@
               <div class="template-name">{{ item.fileName || '未命名模板' }}</div>
               <div class="template-description">Version {{ item.version ?? 1 }} · {{ item.fileType || '.md' }}</div>
               <div class="template-tags">
-                <ElTag v-for="tag in item.tags ?? []" :key="tag.uid" size="small" effect="plain">{{ tag.name }}</ElTag>
+                <ElTag v-for="(tag, index) in item.tags ?? []" :key="tag.uid ?? index" size="small" effect="plain">{{ tag.name }}</ElTag>
               </div>
             </div>
           </div>
@@ -73,8 +73,8 @@
               <ElButton type="primary" :disabled="!templateDirty || saving" @click="saveTemplate">保存模板</ElButton>
             </template>
             <template v-else>
-              <ElButton :icon="Edit" @click="startEditingTemplate(selectedTemplate)">编辑模板</ElButton>
-              <ElButton type="danger" @click="deleteTemplate(selectedTemplate)">删除模板</ElButton>
+              <ElButton :icon="Edit" :disabled="!selectedTemplate" @click="selectedTemplate && startEditingTemplate(selectedTemplate)">编辑模板</ElButton>
+              <ElButton type="danger" :disabled="!selectedTemplate" @click="selectedTemplate && deleteTemplate(selectedTemplate)">删除模板</ElButton>
               <ElButton type="primary" :icon="Plus" @click="startCreatingArticle">基于此模板新建博文</ElButton>
             </template>
           </div>
@@ -166,7 +166,7 @@ import {
 import { Edit, InfoFilled, Plus } from '@element-plus/icons-vue'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
-import { FileApi, type FileDto } from '@/api'
+import { FileApi, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow } from '@/workflow'
@@ -194,7 +194,7 @@ const creatingArticleBusy = ref(false)
 
 const articleDraft = reactive<{
   title: string
-  tags: FileDto['tags']
+  tags: TagDto[]
 }>({
   title: '',
   tags: [],
