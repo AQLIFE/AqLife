@@ -312,10 +312,9 @@ onBeforeUnmount(() => {
             @change="onPublishStatusChanged"
           />
           <ElDatePicker
-            v-if="file.publishStatus !== publishStatus.Published"
             v-model="scheduledAt"
             type="datetime"
-            :disabled="publishing || scheduling"
+            :disabled="publishing || scheduling || file.publishStatus === publishStatus.Published"
             placeholder="预定发布时间"
             @change="onScheduledAtChanged"
           />
