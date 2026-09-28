@@ -50,9 +50,9 @@
       </aside>
 
       <main class="editor-panel">
-        <div v-if="selectedTemplate" class="template-toolbar">
+        <div v-if="selectedTemplate || creatingTemplate" class="template-toolbar">
           <div>
-            <div class="selected-template-name">{{ selectedTemplate.fileName }}</div>
+            <div class="selected-template-name">{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName }}</div>
             <div class="selected-template-state">
               {{ creatingTemplate ? '正在创建模板' : editing ? '正在修改模板' : '只读预览' }}
               <template v-if="!creatingTemplate"> · Version {{ selectedTemplate?.version ?? 1 }}</template>
