@@ -2,7 +2,8 @@
   <div class="template-view">
     <MgsPageHeader title="博文模板" description="选择模板并编辑文章草稿" :back="true">
       <template #actions>
-        <ElButton @click="resetDraft">Reset</ElButton>
+        <input ref="templateInput" class="hidden-input" type="file" accept=".md,text/markdown" @change="onTemplateFileSelected" />
+        <ElButton :icon="Upload" @click="openTemplateUpload">添加模板</ElButton>
       </template>
     </MgsPageHeader>
 
@@ -19,18 +20,23 @@
         <div class="template-list">
           <button
             v-for="item in templates"
-            :key="item.id"
+            :key="item.uid"
             class="template-card"
-            :class="{ active: item.id === selectedTemplateId }"
+            :class="{ active: item.uid === selectedTemplate?.uid }"
             type="button"
-            @click="selectTemplate(item.id)"
+            @click="selectTemplate(item.uid!)"
           >
-            <div class="template-icon">{{ item.icon }}</div>
+            <div class="template-icon">M</div>
             <div class="template-info">
-              <div class="template-name">{{ item.name }}</div>
-              <div class="template-description">{{ item.description }}</div>
+              <div class="template-name">{{ item.fileName || '未命名模板' }}</div>
+              <div class="template-description">Version {{ item.version ?? 1 }} · {{ item.fileType || '.md' }}</div>
               <div class="template-tags">
-                <ElTag v-for="tag in item.tags" :key="tag" size="small" effect="plain">{{ tag }}</ElTag>
+                <ElTag v-for="tag in item.tags ?? []" :key="tag.uid" size="small" effect="plain">{{ tag.name }}</ElTag>
+              </div>
+              <div class="template-actions" @click.stop>
+                <ElButton link type="primary" @click="selectTemplate(item.uid!)">预览</ElButton>
+                <ElButton link :disabled="editing" @click="startEditingTemplate(item)">修改</ElButton>
+                <ElButton link type="danger" :disabled="editing" @click="deleteTemplate(item)">删除</ElButton>
               </div>
             </div>
           </button>
@@ -38,15 +44,32 @@
 
         <div class="panel-tip">
           <ElIcon><InfoFilled /></ElIcon>
-          <span>模板只负责初始化内容，修改后的正文不会影响原模板。</span>
+          <span>模板默认只读。使用模板创建博文后，后续修改不会影响原模板。</span>
         </div>
       </aside>
 
       <main class="editor-panel">
+        <div v-if="selectedTemplate" class="template-toolbar">
+          <div>
+            <div class="selected-template-name">{{ selectedTemplate.fileName }}</div>
+            <div class="selected-template-state">{{ editing ? '正在修改模板' : '只读预览' }} · Version {{ selectedTemplate.version ?? 1 }}</div>
+          </div>
+          <div class="template-toolbar-actions">
+            <template v-if="editing">
+              <ElButton @click="cancelEditing">取消</ElButton>
+              <ElButton type="primary" :disabled="!templateDirty || saving" @click="saveTemplate">保存模板</ElButton>
+            </template>
+            <template v-else>
+              <ElButton :icon="Edit" @click="startEditingTemplate(selectedTemplate)">修改</ElButton>
+              <ElButton type="primary" :icon="Plus" @click="createArticle">使用此模板</ElButton>
+            </template>
+          </div>
+        </div>
+
         <ElForm :model="draft" label-position="top" class="meta-form">
           <div class="form-row">
             <ElFormItem label="标题" class="title-field">
-              <ElInput v-model="draft.title" size="large" placeholder="输入博文标题" clearable />
+              <ElInput v-model="draft.title" size="large" placeholder="输入新博文标题" clearable :disabled="editing" />
             </ElFormItem>
             <ElFormItem label="标签" class="tags-field">
               <ElSelect
@@ -81,7 +104,7 @@
               <div v-for="(_, index) in bodyLines" :key="index">{{ index + 1 }}</div>
             </div>
             <div class="markdown-input">
-              <ElInput v-model="draft.content" type="textarea" resize="none" placeholder="开始编写 Markdown..." />
+              <ElInput v-model="draft.content" type="textarea" resize="none" :readonly="!editing" :placeholder="editing ? '编辑 Markdown 模板...' : '模板内容加载中...'" />
             </div>
             <div class="preview">
               <MarkdownRender :markdown="draft.content" :baseurl="baseurl" />
@@ -90,9 +113,9 @@
         </div>
 
         <div class="status-bar">
-          <span>{{ selectedTemplate?.name }}</span>
+          <span>{{ selectedTemplate?.fileName || '未选择模板' }}</span>
           <span>{{ bodyLines.length }} 行 · {{ draft.content.length }} 字符</span>
-          <span class="status-ready">草稿已就绪</span>
+          <span :class="editing ? 'status-editing' : 'status-ready'">{{ editing ? '模板编辑中' : '模板只读' }}</span>
         </div>
       </main>
     </div>
