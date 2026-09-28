@@ -300,6 +300,7 @@ onBeforeUnmount(() => {
       <template #actions>
         <div v-if="file" class="publish-control">
           <TagSelect
+            class="blog-tag-select"
             v-model:tag-list="selectedTags"
             :select-disabled="publishing || scheduling"
             @update:tag-list="onTagsChanged"
@@ -389,6 +390,18 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+}
+
+.publish-control :deep(.blog-tag-select) {
+  width: 220px;
+  min-width: 180px;
+  flex: 0 1 220px;
+}
+
+.publish-control :deep(.blog-tag-select .el-select__wrapper) {
+  width: 100%;
+  min-width: 0;
 }
 
 @media (max-width: 900px) {
