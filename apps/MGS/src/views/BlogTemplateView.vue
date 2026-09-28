@@ -169,6 +169,7 @@ const draft = reactive({
 
 const templateDirty = computed(() => draft.content !== selectedTemplateContent.value)
 const bodyLines = computed(() => draft.content.split('\n'))
+const tagOptions = computed(() => (selectedTemplate.value?.tags ?? []).map(tag => tag.name).filter((name): name is string => Boolean(name)))
 
 async function loadTemplates(selectUid?: string) {
   const result = await fileApi.apiFileGet({
@@ -414,9 +415,14 @@ onBeforeMount(async () => {
 .template-icon { width: 38px; height: 38px; flex: 0 0 38px; display: grid; place-items: center; border-radius: 7px; background: var(--mgs-surface-soft); color: var(--mgs-accent); font-weight: 700; font-family: monospace; }
 .template-name { color: var(--mgs-text); font-size: 14px; font-weight: 600; }
 .template-description { margin-top: 4px; color: var(--mgs-muted); font-size: 12px; line-height: 1.5; }
-.template-tags { display: flex; gap: 4px; margin-top: 7px; }
+.template-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+.template-actions { display: flex; gap: 2px; margin-top: 7px; }
 .panel-tip { display: flex; gap: 7px; padding: 12px 14px; color: var(--mgs-muted); font-size: 12px; line-height: 1.5; border-top: 1px solid var(--mgs-border); }
 .editor-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 0; }
+.template-toolbar { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.selected-template-name { font-size: 16px; font-weight: 650; }
+.selected-template-state { margin-top: 4px; color: var(--mgs-muted); font-size: 12px; }
+.template-toolbar-actions { display: flex; align-items: center; gap: 8px; }
 .meta-form { flex: 0 0 auto; }
 .form-row { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 14px; }
 .meta-form :deep(.el-form-item) { margin-bottom: 12px; }
@@ -430,10 +436,13 @@ onBeforeMount(async () => {
 .markdown-input { min-width: 0; border-right: 1px solid var(--mgs-border); }
 .markdown-input :deep(.el-textarea), .markdown-input :deep(.el-textarea__inner) { height: 100%; }
 .markdown-input :deep(.el-textarea__inner) { border: 0; border-radius: 0; padding: 8px 12px; resize: none; box-shadow: none; font: 14px/22px 'Cascadia Code PL', monospace; }
+.markdown-input :deep(.el-textarea__inner[readonly]) { background: var(--mgs-surface); cursor: default; }
 .preview { min-width: 0; overflow: auto; padding: 10px 18px; }
 .status-bar { height: 30px; flex: 0 0 30px; display: flex; align-items: center; gap: 18px; color: var(--mgs-muted); font-size: 12px; }
 .status-bar span:last-child { margin-left: auto; }
 .status-ready { color: var(--mgs-success); }
+.status-editing { color: var(--mgs-accent); }
+.hidden-input { display: none; }
 @media (max-width: 900px) {
   .workspace { grid-template-columns: 220px minmax(0, 1fr); padding: 0 16px 16px; }
   .sheet-toolbar, .sheet-body { grid-template-columns: 36px minmax(0, 1fr); }
