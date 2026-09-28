@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onBeforeMount, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ElButton,
@@ -132,88 +132,272 @@ import {
   ElIcon,
   ElInput,
   ElMessage,
+  ElMessageBox,
   ElOption,
   ElSelect,
   ElTag,
 } from 'element-plus'
-import { InfoFilled } from '@element-plus/icons-vue'
+import { Edit, InfoFilled, Plus, Upload } from '@element-plus/icons-vue'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import { FileApi, type FileDto } from '@/api'
+import { apiConfiguration } from '@/services/api'
+import { useFileStore } from '@/stores/useFileStore'
+import { FileContentUpdateWorkflow, FileDeleteWorkflow } from '@/workflow'
 
-type BlogTemplate = {
-  id: string
-  name: string
-  description: string
-  icon: string
-  tags: string[]
-  title: string
-  summary: string
-  content: string
-}
+type BlogTemplate = FileDto
 
 const baseurl = import.meta.env.VITE_API
+const router = useRouter()
+const fileApi = new FileApi(apiConfiguration)
+const fileStore = useFileStore()
 
-const templates: BlogTemplate[] = [
-  {
-    id: 'article',
-    name: '普通文章',
-    description: '适合知识分享、随笔和经验总结',
-    icon: 'A',
-    tags: ['Blog', 'Article'],
-    title: '未命名文章',
-    summary: '',
-    content: '# {{title}}\n\n## 背景\n\n在这里写下这篇文章的背景。\n\n## 正文\n\n开始记录你的内容……\n\n## 总结\n\n总结这篇文章的主要内容。',
-  },
-  {
-    id: 'technical',
-    name: '技术笔记',
-    description: '预置环境、方案、代码和总结结构',
-    icon: '</>',
-    tags: ['Tech', 'Note'],
-    title: '技术笔记：未命名',
-    summary: '记录一个技术问题、解决方案以及最终结论。',
-    content: '# {{title}}\n\n## 问题\n\n描述遇到的问题和上下文。\n\n## 环境\n\n- OS:\n- Runtime:\n- Version:\n\n## 方案\n\n记录关键方案。\n\n## 实现\n\n说明具体实现。\n\n## 总结\n\n记录最终结论和注意事项。',
-  },
-  {
-    id: 'release',
-    name: '版本发布',
-    description: '适合记录版本更新、变更和迁移事项',
-    icon: '↗',
-    tags: ['Release', 'Changelog'],
-    title: 'Release v0.0.0',
-    summary: '本次版本包含的主要变更。',
-    content: '# Release v0.0.0\n\n## ✨ 新增\n\n- 新功能\n\n## 🐛 修复\n\n- 修复的问题\n\n## ⚠️ 注意\n\n- 兼容性或迁移说明\n\n## 📦 升级\n\n说明升级步骤。',
-  },
-]
+const templates = ref<BlogTemplate[]>([])
+const selectedTemplate = ref<BlogTemplate>()
+const selectedTemplateContent = ref('')
+const editing = ref(false)
+const saving = ref(false)
+const loading = ref(false)
+const templateInput = ref<HTMLInputElement>()
 
-const tagOptions = ['Blog', 'Article', 'Tech', 'Note', 'Release', 'Changelog', 'MGS']
-const selectedTemplateId = ref('article')
-const draft = reactive({ title: '', summary: '', tags: [] as string[], content: '' })
+const draft = reactive({
+  title: '未命名文章',
+  summary: '',
+  tags: [] as string[],
+  content: '',
+})
 
-const selectedTemplate = computed(() => templates.find(item => item.id === selectedTemplateId.value))
+const templateDirty = computed(() => draft.content !== selectedTemplateContent.value)
 const bodyLines = computed(() => draft.content.split('\n'))
 
-function applyTemplate(template: BlogTemplate) {
-  draft.title = template.title
-  draft.summary = template.summary
-  draft.tags = [...template.tags]
-  draft.content = template.content.replaceAll('{{title}}', template.title)
+async function loadTemplates(selectUid?: string) {
+  const result = await fileApi.apiFileGet({
+    includeTemplates: true,
+    page: 1,
+    pageSize: 100,
+  })
+
+  templates.value = (result.items ?? []).filter(item => item.isTemplate)
+
+  if (!templates.value.length) {
+    selectedTemplate.value = undefined
+    selectedTemplateContent.value = ''
+    draft.content = ''
+    return
+  }
+
+  const uid =
+    selectUid && templates.value.some(item => item.uid === selectUid)
+      ? selectUid
+      : selectedTemplate.value?.uid && templates.value.some(item => item.uid === selectedTemplate.value?.uid)
+        ? selectedTemplate.value.uid
+        : templates.value[0].uid
+
+  if (uid) await selectTemplate(uid)
 }
 
-function selectTemplate(id: string) {
-  const template = templates.find(item => item.id === id)
-  if (!template) return
-  selectedTemplateId.value = id
-  applyTemplate(template)
+async function selectTemplate(uid: string) {
+  const metadata = templates.value.find(item => item.uid === uid)
+  if (!metadata?.uid) return
+
+  loading.value = true
+  try {
+    const response = await fileApi.apiFilePreviewGetRaw({ uID: metadata.uid })
+    if (response.raw.status !== 200) {
+      throw new Error('模板加载失败（HTTP ' + response.raw.status + '）')
+    }
+
+    const content = await response.raw.text()
+    selectedTemplate.value = metadata
+    selectedTemplateContent.value = content
+    draft.content = content
+    draft.title = '未命名文章'
+    draft.summary = ''
+    draft.tags = (metadata.tags ?? []).map(tag => tag.name ?? '').filter(Boolean)
+    editing.value = false
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '模板加载失败')
+  } finally {
+    loading.value = false
+  }
 }
 
-function resetDraft() {
-  if (!selectedTemplate.value) return
-  applyTemplate(selectedTemplate.value)
-  ElMessage.success('已恢复当前模板')
+function startEditingTemplate(template: BlogTemplate) {
+  if (selectedTemplate.value?.uid !== template.uid) {
+    void selectTemplate(template.uid!)
+    return
+  }
+
+  editing.value = true
 }
 
-applyTemplate(templates[0])
+function cancelEditing() {
+  draft.content = selectedTemplateContent.value
+  editing.value = false
+}
+
+async function saveTemplate() {
+  const current = selectedTemplate.value
+  if (!current?.uid || !templateDirty.value || saving.value) return
+
+  saving.value = true
+  try {
+    const fileName = (current.fileName || 'template') + (current.fileType || '.md')
+    const contentFile = new File([draft.content], fileName, { type: 'text/markdown' })
+
+    const updated = await new FileContentUpdateWorkflow(
+      current,
+      contentFile,
+      fileApi,
+      fileStore,
+      true,
+    ).run()
+
+    selectedTemplate.value = updated
+    selectedTemplateContent.value = draft.content
+    templates.value = templates.value.map(item => item.uid === updated.uid ? updated : item)
+    editing.value = false
+    ElMessage.success('模板已保存')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '模板保存失败')
+  } finally {
+    saving.value = false
+  }
+}
+
+async function deleteTemplate(template: BlogTemplate) {
+  if (!template.uid) return
+
+  try {
+    await ElMessageBox.confirm(
+      '确定删除「' + (template.fileName || '未命名模板') + '」吗？删除后无法继续用于创建博文。',
+      '删除模板',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      },
+    )
+
+    loading.value = true
+    await new FileDeleteWorkflow(template, fileApi, fileStore).run()
+    templates.value = templates.value.filter(item => item.uid !== template.uid)
+
+    if (selectedTemplate.value?.uid === template.uid) {
+      selectedTemplate.value = undefined
+      selectedTemplateContent.value = ''
+      draft.content = ''
+      editing.value = false
+
+      if (templates.value[0]?.uid) {
+        await selectTemplate(templates.value[0].uid)
+      }
+    }
+
+    ElMessage.success('模板已删除')
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(error instanceof Error ? error.message : '模板删除失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+function openTemplateUpload() {
+  templateInput.value?.click()
+}
+
+async function onTemplateFileSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  try {
+    if (!file.name.toLowerCase().endsWith('.md')) {
+      throw new Error('博文模板必须使用 Markdown（.md）文件')
+    }
+
+    loading.value = true
+    const uids = await fileApi.apiFileUploadPost({
+      isTemplate: true,
+      file: [file],
+    })
+
+    await loadTemplates(uids[0])
+    ElMessage.success('模板已添加')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '模板添加失败')
+  } finally {
+    loading.value = false
+    input.value = ''
+  }
+}
+
+function sanitizeFileName(value: string) {
+  const normalized = value
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, '-')
+    .slice(0, 64)
+
+  return normalized || '未命名文章'
+}
+
+async function createArticle() {
+  const template = selectedTemplate.value
+  if (!template?.uid || !selectedTemplateContent.value) return
+
+  const title = draft.title.trim() || '未命名文章'
+  const content = selectedTemplateContent.value.replaceAll('{{title}}', title)
+  const fileName = sanitizeFileName(title) + '.md'
+
+  try {
+    loading.value = true
+
+    const uids = await fileApi.apiFileUploadPost({
+      isTemplate: false,
+      file: [new File([content], fileName, { type: 'text/markdown' })],
+    })
+
+    const uid = uids[0]
+    if (!uid) throw new Error('博文创建失败')
+
+    let article = (await fileApi.apiFileGet({ uID: uid })).items?.[0]
+    if (!article) throw new Error('博文创建后无法读取文件')
+
+    const tagUids = (template.tags ?? [])
+      .map(tag => tag.uid)
+      .filter((uid): uid is string => Boolean(uid))
+
+    if (tagUids.length) {
+      await fileApi.apiFileTagPatch({
+        updateFileTagCommand: {
+          uid,
+          tags: tagUids,
+        },
+      })
+      article = (await fileApi.apiFileGet({ uID: uid })).items?.[0] ?? article
+    }
+
+    fileStore.upsertFile(article)
+    ElMessage.success('博文草稿已创建')
+    await router.push('/blog/' + uid + '/edit')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '博文创建失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+onBeforeMount(async () => {
+  try {
+    loading.value = true
+    await loadTemplates()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '模板列表加载失败')
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>
