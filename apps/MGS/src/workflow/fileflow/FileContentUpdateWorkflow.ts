@@ -9,7 +9,8 @@ export class FileContentUpdateWorkflow {
     private readonly file: FileDto,
     private readonly uploadFile: File,
     private readonly api: FileApi,
-    private readonly store: FileStore
+    private readonly store: FileStore,
+    private readonly includeTemplates = false
   ) {}
 
   async run(): Promise<FileDto> {
@@ -36,7 +37,10 @@ export class FileContentUpdateWorkflow {
   }
 
   private async validate(result: string) {
-    const latest = await this.api.apiFileGet({ uID: this.file.uid })
+    const latest = await this.api.apiFileGet({
+      uID: this.file.uid,
+      includeTemplates: this.includeTemplates,
+    })
     const latestFile = latest.items?.[0]
 
     if (!latestFile || latestFile.fileHash === this.file.fileHash) {
