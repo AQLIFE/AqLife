@@ -65,7 +65,7 @@
                 :disabled="!articleDraft.title.trim() || creatingArticleBusy"
                 @click="createArticle"
               >
-                创建并进入编辑
+                创建并进入预览
               </ElButton>
             </template>
             <template v-else-if="editing">
@@ -414,9 +414,9 @@ async function createArticle() {
   const template = selectedTemplate.value
   const title = articleDraft.title.trim()
 
-  if (!template?.uid || !selectedTemplateContent.value || !title || creatingArticleBusy.value) return
+  if (!template?.uid || !draft.content || !title || creatingArticleBusy.value) return
 
-  const content = selectedTemplateContent.value.replaceAll('{{title}}', title)
+  const content = draft.content.replaceAll('{{title}}', title)
   const fileName = sanitizeFileName(title) + '.md'
 
   creatingArticleBusy.value = true
