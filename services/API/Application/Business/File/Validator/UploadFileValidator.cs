@@ -1,5 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Validators;
+using AqLife.Domain.Command;
 using AqLife.Domain.CommandInterface;
 using AqLife.Shared.Options;
 using AqLife.Shared.Tools;
