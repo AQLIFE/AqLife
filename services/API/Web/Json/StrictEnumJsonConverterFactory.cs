@@ -34,20 +34,31 @@ internal sealed class StrictEnumJsonConverter<TEnum> : JsonConverter<TEnum>
         {
             rawValue = Enum.GetUnderlyingType(typeof(TEnum)) switch
             {
-                var type when type == typeof(ulong) =>
-                    reader.GetUInt64(),
-
-                var type when type == typeof(uint) =>
-                    checked((uint)reader.GetInt64()),
-
-                var type when type == typeof(ushort) =>
-                    checked((ushort)reader.GetInt64()),
+                var type when type == typeof(sbyte) =>
+                    checked((sbyte)reader.GetInt64()),
 
                 var type when type == typeof(byte) =>
                     checked((byte)reader.GetInt64()),
 
-                _ =>
-                    reader.GetInt64()
+                var type when type == typeof(short) =>
+                    checked((short)reader.GetInt64()),
+
+                var type when type == typeof(ushort) =>
+                    checked((ushort)reader.GetInt64()),
+
+                var type when type == typeof(int) =>
+                    checked((int)reader.GetInt64()),
+
+                var type when type == typeof(uint) =>
+                    checked((uint)reader.GetInt64()),
+
+                var type when type == typeof(long) =>
+                    reader.GetInt64(),
+
+                var type when type == typeof(ulong) =>
+                    reader.GetUInt64(),
+
+                _ => throw new JsonException($"Unsupported enum underlying type for {typeof(TEnum).Name}.")
             };
         }
         catch (Exception ex) when (ex is FormatException or InvalidOperationException or OverflowException or JsonException)
@@ -69,6 +80,38 @@ internal sealed class StrictEnumJsonConverter<TEnum> : JsonConverter<TEnum>
         TEnum value,
         JsonSerializerOptions options)
     {
-        writer.WriteNumberValue(Convert.ToInt64(value));
+        var rawValue = Convert.ChangeType(
+            value,
+            Enum.GetUnderlyingType(typeof(TEnum)));
+
+        switch (rawValue)
+        {
+            case sbyte v:
+                writer.WriteNumberValue(v);
+                break;
+            case byte v:
+                writer.WriteNumberValue(v);
+                break;
+            case short v:
+                writer.WriteNumberValue(v);
+                break;
+            case ushort v:
+                writer.WriteNumberValue(v);
+                break;
+            case int v:
+                writer.WriteNumberValue(v);
+                break;
+            case uint v:
+                writer.WriteNumberValue(v);
+                break;
+            case long v:
+                writer.WriteNumberValue(v);
+                break;
+            case ulong v:
+                writer.WriteNumberValue(v);
+                break;
+            default:
+                throw new JsonException($"Unsupported enum underlying type for {typeof(TEnum).Name}.");
+        }
     }
 }
