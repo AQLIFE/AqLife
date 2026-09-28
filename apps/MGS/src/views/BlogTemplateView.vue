@@ -1,6 +1,6 @@
 <template>
   <div class="template-view">
-    <MgsPageHeader title="博文模板" description="选择模板并编辑文章草稿" :back="true">
+    <MgsPageHeader title="博文模板" description="选择模板、预览结构，再创建博文" :back="true">
       <template #actions>
         <ElButton :icon="Plus" @click="startCreatingTemplate">添加模板</ElButton>
       </template>
@@ -34,11 +34,6 @@
               <div class="template-tags">
                 <ElTag v-for="tag in item.tags ?? []" :key="tag.uid" size="small" effect="plain">{{ tag.name }}</ElTag>
               </div>
-              <div class="template-actions" @click.stop>
-                <ElButton link type="primary" @click="selectTemplate(item.uid!)">预览</ElButton>
-                <ElButton link :disabled="editing" @click="startEditingTemplate(item)">修改</ElButton>
-                <ElButton link type="danger" :disabled="editing" @click="deleteTemplate(item)">删除</ElButton>
-              </div>
             </div>
           </div>
         </div>
@@ -68,8 +63,9 @@
               <ElButton type="primary" :disabled="!templateDirty || saving" @click="saveTemplate">保存模板</ElButton>
             </template>
             <template v-else>
-              <ElButton :icon="Edit" @click="startEditingTemplate(selectedTemplate)">修改</ElButton>
-              <ElButton type="primary" :icon="Plus" @click="createArticle">使用此模板</ElButton>
+              <ElButton :icon="Edit" @click="startEditingTemplate(selectedTemplate)">编辑模板</ElButton>
+              <ElButton type="danger" @click="deleteTemplate(selectedTemplate)">删除模板</ElButton>
+              <ElButton type="primary" :icon="Plus" @click="createArticle">基于此模板新建博文</ElButton>
             </template>
           </div>
         </div>
@@ -80,31 +76,7 @@
           </ElFormItem>
         </ElForm>
 
-        <ElForm v-else :model="draft" label-position="top" class="meta-form">
-          <div class="form-row">
-            <ElFormItem label="标题" class="title-field">
-              <ElInput v-model="draft.title" size="large" placeholder="输入新博文标题" clearable :disabled="editing" />
-            </ElFormItem>
-            <ElFormItem label="标签" class="tags-field">
-              <ElSelect
-                v-model="draft.tags"
-                multiple
-                filterable
-                allow-create
-                default-first-option
-                collapse-tags
-                placeholder="添加标签"
-                style="width: 100%"
-              >
-                <ElOption v-for="tag in tagOptions" :key="tag" :label="tag" :value="tag" />
-              </ElSelect>
-            </ElFormItem>
-          </div>
-
-          <ElFormItem label="摘要">
-            <ElInput v-model="draft.summary" type="textarea" :rows="2" maxlength="160" show-word-limit placeholder="用一句话描述这篇文章" />
-          </ElFormItem>
-        </ElForm>
+        
 
         <div class="sheet">
           <div class="sheet-toolbar">
@@ -186,16 +158,13 @@ const saving = ref(false)
 const loading = ref(false)
 
 const draft = reactive({
-  title: '未命名文章',
-  summary: '',
-  tags: [] as string[],
   content: '',
 })
 
 const templateDirty = computed(() => draft.content !== selectedTemplateContent.value)
 const canSaveNewTemplate = computed(() => Boolean(templateDraft.name.trim() && draft.content.trim()))
 const bodyLines = computed(() => draft.content.split('\n'))
-const tagOptions = computed(() => (selectedTemplate.value?.tags ?? []).map(tag => tag.name).filter((name): name is string => Boolean(name)))
+
 
 async function loadTemplates(selectUid?: string) {
   const result = await fileApi.apiFileGet({
@@ -238,9 +207,6 @@ async function selectTemplate(uid: string) {
     selectedTemplate.value = metadata
     selectedTemplateContent.value = content
     draft.content = content
-    draft.title = '未命名文章'
-    draft.summary = ''
-    draft.tags = (metadata.tags ?? []).map(tag => tag.name ?? '').filter(Boolean)
     editing.value = false
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '模板加载失败')
@@ -256,9 +222,7 @@ function startCreatingTemplate() {
   creatingTemplate.value = true
   templateDraft.name = ''
   draft.content = '# {{title}}\n\n'
-  draft.title = '未命名文章'
-  draft.summary = ''
-  draft.tags = []
+
 }
 
 function cancelCreatingTemplate() {
@@ -391,7 +355,7 @@ async function createArticle() {
   const template = selectedTemplate.value
   if (!template?.uid || !selectedTemplateContent.value) return
 
-  const title = draft.title.trim() || '未命名文章'
+  const title = '未命名文章'
   const content = selectedTemplateContent.value.replaceAll('{{title}}', title)
   const fileName = sanitizeFileName(title) + '.md'
 
