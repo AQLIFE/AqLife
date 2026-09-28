@@ -127,8 +127,6 @@ import {
   ElInput,
   ElMessage,
   ElMessageBox,
-  ElOption,
-  ElSelect,
   ElTag,
 } from 'element-plus'
 import { Edit, InfoFilled, Plus } from '@element-plus/icons-vue'
