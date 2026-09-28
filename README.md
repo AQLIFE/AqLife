@@ -64,7 +64,7 @@ graph LR
   subgraph MGS
     LoginView
     registerView
-    profile & subscription --> account  
+    profile & subscription --> account
     FileView --> ManoEditor
     TodoView
     TagView
@@ -86,7 +86,7 @@ MGS & Web
 - 使用 Markdown-It 对后端Md 文件进行转换,将 AST 组件树 通过遍历转为自己实现的组件树,若我没有实现,则使用MARKDOWN-it的组件树进行渲染.
 - 使用 Mano Editor 作为 md 的实时编辑器,VScode 同源方案,快速易用
 - 通过 Element-plus 的 Step 组件实现账户注册功能,流程化引导,简单易用
-- 使用 openapi-generator 对NET  WEB API进行自动生成 FETCH的请求 方法,可随后端更新,并能提供后端数据模型的定义,便于前端使用TS 进行类型检查,提升工程化开发的可靠性
+- 使用 openapi-generator 对NET WEB API进行自动生成 FETCH的请求方法,可随后端更新,并能提供后端数据模型的定义,便于前端使用TS进行类型检查,提升工程化开发的可靠性
 
 Other
 
@@ -101,11 +101,11 @@ gantt
     title 用户完整注册流程
     dateFormat  SSS
     axisFormat %Sms
-    
+
     section 注册基础信息的账户
     参数校验      :a1, 0, 10s
     执行服务      :a2, after a1, 15s
-    
+
     自动登录: milestone,0s
 
     section 上传账户配置文件
@@ -115,7 +115,7 @@ gantt
     section 更新账户配置
     参数校验      :c1, after b2, 10s
     执行服务      :c2, after c1, 15s
-    
+
     section 查询
     查询注册账户信息 :done, merge, after c2, 12s
 ```
@@ -165,6 +165,12 @@ icons : 存储所有的svg图像
 
 ---
 
-2026-09-23 改造效果
+2026-09-28 MGS 工作区重构完成
 
-![alt text](image.png)
+- MGS 采用 Sidebar + Topbar + Workspace 的工作区结构
+- Blog 形成 List / Upload / Template / Preview / Edit 的完整工作流
+- Account 采用 Profile / Subscriptions 工作区结构
+- 注册流程保留分步引导，并统一到 MGS 工作区视觉体系
+- 移除旧的 Drawer / ActionStore / FileTool / FileUpload 等历史交互结构
+- API 增加 Overview、File Version、Template 支持，并完善发布与预约发布流程
+- 完成前后端类型检查、后端编译及自动化测试验证
