@@ -17,6 +17,8 @@ Name | Type
 `fileType` | string
 `fileIntroduction` | string
 `viewCount` | number
+`version` | number
+`isTemplate` | boolean
 
 ## Example
 
@@ -36,6 +38,8 @@ const example = {
   "fileType": null,
   "fileIntroduction": null,
   "viewCount": null,
+  "version": null,
+  "isTemplate": null,
 } satisfies FileDto
 
 console.log(example)

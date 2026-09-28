@@ -8,6 +8,6 @@ namespace AqLife.Application.Business.File.Handler
     public class DownloadFileHandler(FileReader fileReader) : IRequestHandler<DownloadFileQuery, FileDownloadModel>
     {
         public async Task<FileDownloadModel> Handle(DownloadFileQuery query, CancellationToken ct)
-        => await fileReader.ReadAsync(query.UID, ct);
+        => await fileReader.ReadAsync(query.UID,false, ct);
     }
 }

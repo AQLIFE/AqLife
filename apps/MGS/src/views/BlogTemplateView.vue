@@ -229,7 +229,7 @@ async function selectTemplate(uid: string) {
 
   loading.value = true
   try {
-    const response = await fileApi.apiFilePreviewGetRaw({ uID: metadata.uid })
+    const response = await fileApi.apiFilePreviewGetRaw({ uID: metadata.uid,isTemplate:true })
     if (response.raw.status !== 200) {
       throw new Error('模板加载失败（HTTP ' + response.raw.status + '）')
     }

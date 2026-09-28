@@ -9,7 +9,7 @@ namespace AqLife.Application.Business.File.Handler
     public class PreviewFileHandler(FileReader fileReader) : IRequestHandler<PreviewFileQuery, FilePreviewModel>
     {
         public async Task<FilePreviewModel> Handle(PreviewFileQuery query, CancellationToken ct)
-            => await fileReader.ReadAsync(query.UID, ct);
+            => await fileReader.ReadAsync(query.UID,query.IsTemplate, ct);
 
     }
 }

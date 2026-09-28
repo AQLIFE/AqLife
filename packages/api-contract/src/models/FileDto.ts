@@ -35,18 +35,6 @@ import {
  */
 export interface FileDto {
     /**
-     * Current content version.
-     * @type {number}
-     * @memberof FileDto
-     */
-    version?: number;
-    /**
-     * Whether this file is a management-only template.
-     * @type {boolean}
-     * @memberof FileDto
-     */
-    isTemplate?: boolean;
-    /**
      * 
      * @type {string}
      * @memberof FileDto
@@ -112,6 +100,18 @@ export interface FileDto {
      * @memberof FileDto
      */
     viewCount?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileDto
+     */
+    version?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileDto
+     */
+    isTemplate?: boolean;
 }
 
 
@@ -133,8 +133,6 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
     }
     return {
         
-        'version': json['version'] == null ? undefined : json['version'],
-        'isTemplate': json['isTemplate'] == null ? undefined : json['isTemplate'],
         'uid': json['uid'] == null ? undefined : json['uid'],
         'fileName': json['fileName'] == null ? undefined : json['fileName'],
         'tags': json['tags'] == null ? undefined : ((json['tags'] as Array<any>).map(TagDtoFromJSON)),
@@ -146,6 +144,8 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
         'fileType': json['fileType'] == null ? undefined : json['fileType'],
         'fileIntroduction': json['fileIntroduction'] == null ? undefined : json['fileIntroduction'],
         'viewCount': json['viewCount'] == null ? undefined : json['viewCount'],
+        'version': json['version'] == null ? undefined : json['version'],
+        'isTemplate': json['isTemplate'] == null ? undefined : json['isTemplate'],
     };
 }
 
@@ -160,8 +160,6 @@ export function FileDtoToJSONTyped(value?: FileDto | null, ignoreDiscriminator: 
 
     return {
         
-        'version': value['version'],
-        'isTemplate': value['isTemplate'],
         'uid': value['uid'],
         'fileName': value['fileName'],
         'tags': value['tags'] == null ? undefined : ((value['tags'] as Array<any>).map(TagDtoToJSON)),
@@ -173,6 +171,8 @@ export function FileDtoToJSONTyped(value?: FileDto | null, ignoreDiscriminator: 
         'fileType': value['fileType'],
         'fileIntroduction': value['fileIntroduction'],
         'viewCount': value['viewCount'],
+        'version': value['version'],
+        'isTemplate': value['isTemplate'],
     };
 }
 

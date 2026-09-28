@@ -37,7 +37,7 @@ namespace AqLife.Domain.Command
     /// 预览文件,返回文件流和相关元数据
     /// </summary>
     /// <param name="UID"></param>
-    public record PreviewFileQuery(Guid UID) : IRequireValidEntity<FileMetaEntity>, IQuery<FilePreviewModel>;
+    public record PreviewFileQuery(Guid UID,bool IsTemplate=false) : IRequireValidEntity<FileMetaEntity>, IQuery<FilePreviewModel>;
     /// <summary>
     /// 删除文件,同时删除相关的元数据和文件存储
     /// </summary>

@@ -57,13 +57,13 @@ export interface ApiFileDownloadGetRequest {
 }
 
 export interface ApiFileGetRequest {
-    includeTemplates?: boolean;
     uID?: string;
     title?: string;
     categoryUID?: string;
     page?: number;
     pageSize?: number;
     order?: FileOrder;
+    includeTemplates?: boolean;
 }
 
 export interface ApiFilePatchRequest {
@@ -77,6 +77,7 @@ export interface ApiFilePreviewCompletePatchRequest {
 
 export interface ApiFilePreviewGetRequest {
     uID?: string;
+    isTemplate?: boolean;
 }
 
 export interface ApiFileSchedulePatchRequest {
@@ -170,6 +171,7 @@ export interface FileApiInterface {
      * @param {number} [page] 
      * @param {number} [pageSize] 
      * @param {FileOrder} [order] 
+     * @param {boolean} [includeTemplates] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -183,6 +185,7 @@ export interface FileApiInterface {
      * @param {number} [page] 
      * @param {number} [pageSize] 
      * @param {FileOrder} [order] 
+     * @param {boolean} [includeTemplates] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -240,6 +243,7 @@ export interface FileApiInterface {
     /**
      * Creates request options for apiFilePreviewGet without sending the request
      * @param {string} [uID] 
+     * @param {boolean} [isTemplate] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -248,6 +252,7 @@ export interface FileApiInterface {
     /**
      * 
      * @param {string} [uID] 
+     * @param {boolean} [isTemplate] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -302,6 +307,7 @@ export interface FileApiInterface {
 
     /**
      * Creates request options for apiFileUploadPost without sending the request
+     * @param {boolean} [isTemplate] 
      * @param {Array<Blob>} [file] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -310,6 +316,7 @@ export interface FileApiInterface {
 
     /**
      * 
+     * @param {boolean} [isTemplate] 
      * @param {Array<Blob>} [file] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -452,10 +459,6 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
     async apiFileGetRequestOpts(requestParameters: ApiFileGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters['includeTemplates'] != null) {
-            queryParameters['IncludeTemplates'] = requestParameters['includeTemplates'];
-        }
-
         if (requestParameters['uID'] != null) {
             queryParameters['UID'] = requestParameters['uID'];
         }
@@ -478,6 +481,10 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
         if (requestParameters['order'] != null) {
             queryParameters['Order'] = requestParameters['order'];
+        }
+
+        if (requestParameters['includeTemplates'] != null) {
+            queryParameters['IncludeTemplates'] = requestParameters['includeTemplates'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -624,6 +631,10 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
         if (requestParameters['uID'] != null) {
             queryParameters['UID'] = requestParameters['uID'];
+        }
+
+        if (requestParameters['isTemplate'] != null) {
+            queryParameters['IsTemplate'] = requestParameters['isTemplate'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
