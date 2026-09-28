@@ -2,8 +2,7 @@
   <div class="template-view">
     <MgsPageHeader title="博文模板" description="选择模板并编辑文章草稿" :back="true">
       <template #actions>
-        <input ref="templateInput" class="hidden-input" type="file" accept=".md,text/markdown" @change="onTemplateFileSelected" />
-        <ElButton :icon="Upload" @click="openTemplateUpload">添加模板</ElButton>
+        <ElButton :icon="Plus" @click="startCreatingTemplate">添加模板</ElButton>
       </template>
     </MgsPageHeader>
 
@@ -54,10 +53,17 @@
         <div v-if="selectedTemplate" class="template-toolbar">
           <div>
             <div class="selected-template-name">{{ selectedTemplate.fileName }}</div>
-            <div class="selected-template-state">{{ editing ? '正在修改模板' : '只读预览' }} · Version {{ selectedTemplate.version ?? 1 }}</div>
+            <div class="selected-template-state">
+              {{ creatingTemplate ? '正在创建模板' : editing ? '正在修改模板' : '只读预览' }}
+              <template v-if="!creatingTemplate"> · Version {{ selectedTemplate?.version ?? 1 }}</template>
+            </div>
           </div>
           <div class="template-toolbar-actions">
-            <template v-if="editing">
+            <template v-if="creatingTemplate">
+              <ElButton @click="cancelCreatingTemplate">取消</ElButton>
+              <ElButton type="primary" :disabled="!canSaveNewTemplate || saving" @click="saveNewTemplate">保存模板</ElButton>
+            </template>
+            <template v-else-if="editing">
               <ElButton @click="cancelEditing">取消</ElButton>
               <ElButton type="primary" :disabled="!templateDirty || saving" @click="saveTemplate">保存模板</ElButton>
             </template>
@@ -68,7 +74,13 @@
           </div>
         </div>
 
-        <ElForm :model="draft" label-position="top" class="meta-form">
+        <ElForm v-if="creatingTemplate" :model="templateDraft" label-position="top" class="meta-form">
+          <ElFormItem label="模板名称">
+            <ElInput v-model="templateDraft.name" size="large" placeholder="例如：技术文章模板" clearable />
+          </ElFormItem>
+        </ElForm>
+
+        <ElForm v-else :model="draft" label-position="top" class="meta-form">
           <div class="form-row">
             <ElFormItem label="标题" class="title-field">
               <ElInput v-model="draft.title" size="large" placeholder="输入新博文标题" clearable :disabled="editing" />
@@ -106,7 +118,13 @@
               <div v-for="(_, index) in bodyLines" :key="index">{{ index + 1 }}</div>
             </div>
             <div class="markdown-input">
-              <ElInput v-model="draft.content" type="textarea" resize="none" :readonly="!editing" :placeholder="editing ? '编辑 Markdown 模板...' : '模板内容加载中...'" />
+              <ElInput
+                v-model="draft.content"
+                type="textarea"
+                resize="none"
+                :readonly="!creatingTemplate && !editing"
+                :placeholder="creatingTemplate || editing ? '编辑 Markdown 模板...' : '模板内容加载中...'"
+              />
             </div>
             <div class="preview">
               <MarkdownRender :markdown="draft.content" :baseurl="baseurl" />
@@ -115,9 +133,11 @@
         </div>
 
         <div class="status-bar">
-          <span>{{ selectedTemplate?.fileName || '未选择模板' }}</span>
+          <span>{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName || '未选择模板' }}</span>
           <span>{{ bodyLines.length }} 行 · {{ draft.content.length }} 字符</span>
-          <span :class="editing ? 'status-editing' : 'status-ready'">{{ editing ? '模板编辑中' : '模板只读' }}</span>
+          <span :class="creatingTemplate || editing ? 'status-editing' : 'status-ready'">
+            {{ creatingTemplate ? '新模板编辑中' : editing ? '模板编辑中' : '模板只读' }}
+          </span>
         </div>
       </main>
     </div>
@@ -139,7 +159,7 @@ import {
   ElSelect,
   ElTag,
 } from 'element-plus'
-import { Edit, InfoFilled, Plus, Upload } from '@element-plus/icons-vue'
+import { Edit, InfoFilled, Plus } from '@element-plus/icons-vue'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import { FileApi, type FileDto } from '@/api'
@@ -158,9 +178,12 @@ const templates = ref<BlogTemplate[]>([])
 const selectedTemplate = ref<BlogTemplate>()
 const selectedTemplateContent = ref('')
 const editing = ref(false)
+const creatingTemplate = ref(false)
+const templateDraft = reactive({
+  name: '',
+})
 const saving = ref(false)
 const loading = ref(false)
-const templateInput = ref<HTMLInputElement>()
 
 const draft = reactive({
   title: '未命名文章',
@@ -170,6 +193,7 @@ const draft = reactive({
 })
 
 const templateDirty = computed(() => draft.content !== selectedTemplateContent.value)
+const canSaveNewTemplate = computed(() => Boolean(templateDraft.name.trim() && draft.content.trim()))
 const bodyLines = computed(() => draft.content.split('\n'))
 const tagOptions = computed(() => (selectedTemplate.value?.tags ?? []).map(tag => tag.name).filter((name): name is string => Boolean(name)))
 
@@ -225,17 +249,66 @@ async function selectTemplate(uid: string) {
   }
 }
 
+function startCreatingTemplate() {
+  selectedTemplate.value = undefined
+  selectedTemplateContent.value = ''
+  editing.value = false
+  creatingTemplate.value = true
+  templateDraft.name = ''
+  draft.content = '# {{title}}\n\n'
+  draft.title = '未命名文章'
+  draft.summary = ''
+  draft.tags = []
+}
+
+function cancelCreatingTemplate() {
+  creatingTemplate.value = false
+  templateDraft.name = ''
+  draft.content = ''
+  if (templates.value[0]?.uid) {
+    void selectTemplate(templates.value[0].uid)
+  }
+}
+
 async function startEditingTemplate(template: BlogTemplate) {
   if (selectedTemplate.value?.uid !== template.uid) {
     await selectTemplate(template.uid!)
   }
 
+  creatingTemplate.value = false
   editing.value = true
 }
 
 function cancelEditing() {
   draft.content = selectedTemplateContent.value
   editing.value = false
+}
+
+async function saveNewTemplate() {
+  if (!canSaveNewTemplate.value || saving.value) return
+
+  const name = sanitizeFileName(templateDraft.name) + '.md'
+
+  saving.value = true
+  try {
+    const contentFile = new File([draft.content], name, { type: 'text/markdown' })
+    const uids = await fileApi.apiFileUploadPost({
+      isTemplate: true,
+      file: [contentFile],
+    })
+
+    const uid = uids[0]
+    if (!uid) throw new Error('模板创建失败')
+
+    creatingTemplate.value = false
+    templateDraft.name = ''
+    await loadTemplates(uid)
+    ElMessage.success('模板已创建')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '模板创建失败')
+  } finally {
+    saving.value = false
+  }
 }
 
 async function saveTemplate() {
@@ -302,36 +375,6 @@ async function deleteTemplate(template: BlogTemplate) {
     ElMessage.error(error instanceof Error ? error.message : '模板删除失败')
   } finally {
     loading.value = false
-  }
-}
-
-function openTemplateUpload() {
-  templateInput.value?.click()
-}
-
-async function onTemplateFileSelected(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (!file) return
-
-  try {
-    if (!file.name.toLowerCase().endsWith('.md')) {
-      throw new Error('博文模板必须使用 Markdown（.md）文件')
-    }
-
-    loading.value = true
-    const uids = await fileApi.apiFileUploadPost({
-      isTemplate: true,
-      file: [file],
-    })
-
-    await loadTemplates(uids[0])
-    ElMessage.success('模板已添加')
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '模板添加失败')
-  } finally {
-    loading.value = false
-    input.value = ''
   }
 }
 
