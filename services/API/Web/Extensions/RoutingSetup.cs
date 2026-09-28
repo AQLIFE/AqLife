@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
+﻿using AqLife.Web.Json;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 namespace AqLife.Web.Extensions
 {
@@ -10,6 +11,10 @@ namespace AqLife.Web.Extensions
             {
                 // 在这里注册你的全局路由前缀
                 options.Conventions.Add(new ApiPrefixConvention("api"));
+            })
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new StrictEnumJsonConverterFactory());
             });
             return services;
         }

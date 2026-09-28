@@ -71,6 +71,7 @@ All URIs are relative to *http://localhost*
 *FileApi* | [**apiFileSchedulePatch**](docs/FileApi.md#apifileschedulepatch) | **PATCH** /api/File/schedule | 
 *FileApi* | [**apiFileTagPatch**](docs/FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag | 
 *FileApi* | [**apiFileUploadPost**](docs/FileApi.md#apifileuploadpost) | **POST** /api/File/Upload | 
+*OverviewApi* | [**apiOverviewGet**](docs/OverviewApi.md#apioverviewget) | **GET** /api/Overview | 
 *TagApi* | [**apiTagDelete**](docs/TagApi.md#apitagdelete) | **DELETE** /api/Tag | 
 *TagApi* | [**apiTagGet**](docs/TagApi.md#apitagget) | **GET** /api/Tag | 
 *TagApi* | [**apiTagOverviewGet**](docs/TagApi.md#apitagoverviewget) | **GET** /api/Tag/overview | 
@@ -103,6 +104,7 @@ All URIs are relative to *http://localhost*
 - [FileOrder](docs/FileOrder.md)
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
+- [OverviewDto](docs/OverviewDto.md)
 - [ScheduledFileCommand](docs/ScheduledFileCommand.md)
 - [SubscriptionDto](docs/SubscriptionDto.md)
 - [TagDto](docs/TagDto.md)

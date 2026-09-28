@@ -100,6 +100,18 @@ export interface FileDto {
      * @memberof FileDto
      */
     viewCount?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileDto
+     */
+    version?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileDto
+     */
+    isTemplate?: boolean;
 }
 
 
@@ -132,6 +144,8 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
         'fileType': json['fileType'] == null ? undefined : json['fileType'],
         'fileIntroduction': json['fileIntroduction'] == null ? undefined : json['fileIntroduction'],
         'viewCount': json['viewCount'] == null ? undefined : json['viewCount'],
+        'version': json['version'] == null ? undefined : json['version'],
+        'isTemplate': json['isTemplate'] == null ? undefined : json['isTemplate'],
     };
 }
 
@@ -157,6 +171,8 @@ export function FileDtoToJSONTyped(value?: FileDto | null, ignoreDiscriminator: 
         'fileType': value['fileType'],
         'fileIntroduction': value['fileIntroduction'],
         'viewCount': value['viewCount'],
+        'version': value['version'],
+        'isTemplate': value['isTemplate'],
     };
 }
 

@@ -25,6 +25,12 @@ namespace AqLife.Domain.Entities.File
         public string FileHash { private set; get; } = string.Empty;
         [Column]
         public DateTimeOffset UploadTime { private set; get; } = DateTimeOffset.UtcNow;
+
+        [Column, ConcurrencyCheck]
+        public int Version { get; private set; } = 1;
+
+        [Column]
+        public bool IsTemplate { get; private set; } = false;
        
 
         [NotMapped]
@@ -62,6 +68,21 @@ namespace AqLife.Domain.Entities.File
             FileHash = hash;
         }
         
+
+        public FileMetaEntity SetTemplate(bool isTemplate = true)
+        {
+            IsTemplate = isTemplate;
+            return this;
+        }
+
+        public FileMetaEntity IncrementVersion()
+        {
+            checked
+            {
+                Version++;
+            }
+            return this;
+        }
 
         public void SetFileIntroduction(string content)
         {

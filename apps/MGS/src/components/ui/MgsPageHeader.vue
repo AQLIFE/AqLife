@@ -1,7 +1,7 @@
 <template>
   <div class="page-header">
     <div class="heading">
-      <div v-if="$slots.back || back" class="back">
+      <div v-if="back" class="back">
         <ElButton text :icon="ArrowLeft" @click="handleBack">Back</ElButton>
       </div>
       <div>

@@ -1,7 +1,7 @@
 <template>
   <div class="dataview"><MgsPageHeader title="Blog" description="Manage articles, drafts and published content"><template #actions><ElButton :icon="Upload" @click="handleUploadFile">Upload</ElButton><ElButton type="primary" :icon="Plus" @click="handleAddFile">New article</ElButton></template></MgsPageHeader><MgsToolbar><ElInput v-model="searchText" :disabled="filterDisabled || !searchField" @keyup.enter="onSearchEnter" placeholder="Search..." class="toolbar-control"><template #prepend><ElSelect v-model="searchField" placeholder="Field" style="width:100px"><ElOption v-for="option in searchFieldOptions" :key="option.value" :label="option.label" :value="option.value" /></ElSelect></template></ElInput><ElSelect v-model="selectedTags" multiple collapse-tags filterable placeholder="Tags" :disabled="filterDisabled" class="toolbar-control" value-key="uid"><ElOption v-for="(tag,index) in tagOptions" :key="tag.uid ?? tag.name ?? index" :label="tag.name ?? ''" :value="tag" /></ElSelect><ElDatePicker type="daterange" range-separator="to" start-placeholder="Start" end-placeholder="End" value-format="YYYY-MM-DD" format="YYYY-MM-DD" v-model="dateRange" :disabled="filterDisabled" /></MgsToolbar>
 
-    <ElTable :data="tableData" highlight-current-row @row-click="activeRow" height="calc(100% - 50px)" class="data-table">
+    <ElTable :data="tableData" highlight-current-row @row-click="activeRow" height="100%" class="data-table">
       <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label"
       :width="column.width" :sortable="column.sortable" :filters="column.filter?.options.map(option=>({text:option.label,value:option.value.toString() }))" :filter-method="column.filter?(value, row) => `${row[column.prop]}` === value:undefined" :filter-multiple="column.filter?.multiple ?? false"
 >
@@ -12,9 +12,6 @@
       </ElTableColumn>
       </ElTable>
 
-    <FileUpload v-model:file-list="UploadContext.fileList" v-model:tags="UploadContext.tags" />
-    <FileTool  :initial-tags="activeDto.tags!" v-model:model-value="activeDto" />
-    <!-- 防止tag修改渗透,仅允许在update事件成功以后,由update回调至fileDto -->
   </div>
 </template>
 
@@ -27,15 +24,11 @@ import {
   ElSelect,
   ElOption,
   ElButton,
-  type UploadUserFile,
 } from 'element-plus'
 import { FileApi, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { onBeforeMount, ref, reactive, computed, type Component } from 'vue'
+import { onBeforeMount, ref, computed, type Component } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
-import { useActionStore, OperationalState } from '@/stores/useActionStore'
-import FileUpload from '@/components/FileUpload.vue'
-import FileTool from '@/components/FileTool.vue'
 import { Plus,Upload } from '@element-plus/icons-vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
@@ -53,7 +46,6 @@ type FileTableColumn = {
   renderer?:Component,
   sortable?: boolean,
   width?:number|string,
-  fixed?:'left'|'right',
   filter?: {
     options: TableFilterOption[]
     multiple?: boolean
@@ -67,7 +59,6 @@ const tableColumns: FileTableColumn[] = [
     label: 'ID & 预览',
     renderer:FilePreviewCell,
     width:'130',
-    fixed:'left'
   },
   {
     prop: 'fileName',
@@ -112,22 +103,16 @@ const searchField = ref<keyof FileDto | null>(null)
 const searchText = ref<string>('')
 const searchTerm = ref<string>('')
 const selectedTags = ref<TagDto[]>([])
-const sizeRange = ref<number[]>([0, 100])
 const dateRange = ref<string[] | null>(null)
 
-const UploadContext = reactive<{ fileList: UploadUserFile[]; tags: TagDto[] }>({
-  fileList: [],
-  tags: [],
-})
 // ---组件属性
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
-const actionStore = useActionStore()
-const activeDto = ref<FileDto>({})
+const router = useRouter()
 
 const activeRow = (row: FileDto) => {
-  actionStore.OState = OperationalState.Update
-  activeDto.value = row
+  if (!row.uid) return
+  router.push(`/blog/${row.uid}`)
 }
 
 
@@ -188,12 +173,6 @@ function matchesTags(row: FileDto) {
   )
 }
 
-function matchesSize(row: FileDto) {
-  if (sizeRange.value[0] === 0 && sizeRange.value[1] === 100) return true
-  const fileSizeKb = (row.fileSize ?? 0) / 1024
-  return fileSizeKb >= sizeRange.value[0] && fileSizeKb <= sizeRange.value[1]
-}
-
 function matchesDate(row: FileDto) {
   if (!dateRange.value || dateRange.value.length !== 2) return true
   const [start, end] = dateRange.value
@@ -208,7 +187,7 @@ function matchesDate(row: FileDto) {
 
 const filteredFileList = computed(() =>
   fileStore.fileList?.filter((item: FileDto) =>
-    matchesSearch(item) && matchesTags(item) && matchesSize(item) && matchesDate(item),
+    matchesSearch(item) && matchesTags(item) && matchesDate(item),
   ) ?? [],
 )
 
@@ -217,35 +196,30 @@ const tableData = computed(() => (filterDisabled.value ? [] : filteredFileList.v
 
 onBeforeMount(async () => {
   await fileStore.fetchAllFiles(fileApi)
-  // actionStore.onAdd = handleAddFile
-  activeDto.value = { fileName: '', fileHash: '', fileType: '', fileSize: 0 }
 })
 
 function handleUploadFile() {
-  actionStore.OState = OperationalState.Upload
+  router.push('/blog/upload')
 }
-const router = useRouter()
 function handleAddFile(){
-  actionStore.OState = OperationalState.Add
-
-  router.push('/blog/template')
+  router.push('/blog/new')
 }
 
 </script>
 
 <style lang="css" scoped>
-.image {
-  width: 5vw;
-  height: 5vw;
-  /* font-size: 5vw; */
-}
-
 .dataview {
-  height: inherit;
-  overflow-y: scroll;
-  scrollbar-width: none;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
-.data-table { width:100%;height:calc(100% - 148px); }
+.data-table {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
 .toolbar-control { max-width:260px; }
 
 </style>

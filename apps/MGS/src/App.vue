@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import { RouterView, useRoute } from 'vue-router'
-import NavMenu from '@/components/NavMenu.vue'
-import RegisterStep from './components/RegisterStep.vue'
 import EntrancePanel from './components/EntrancePanel.vue'
-import { SidebarType } from '@/types/sidebarType'
 import { useAccountStore } from '@/stores/useAccountStore'
 import { AccountApi } from '@/api'
 import { apiConfiguration } from './services/api.ts'
@@ -25,11 +22,6 @@ const currentTitle = computed(() => {
   return 'Overview'
 })
 
-const authPanel = computed(() => {
-  if (route.meta.sidebarType === SidebarType.Register) return RegisterStep
-  return EntrancePanel
-})
-
 onBeforeMount(async () => {
   try {
     const response = await request.apiAccountGetRaw()
@@ -45,13 +37,17 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div v-if="route.meta.sidebarType === SidebarType.Login || route.meta.sidebarType === SidebarType.Register" class="auth-layout">
-    <component :is="authPanel" />
+  <!-- 登录/注册页面交给路由页面自己渲染。 -->
+  <div v-if="route.meta.sidebarType === 'Login' || route.meta.sidebarType === 'Register'" class="auth-layout">
+    <RouterView />
+  </div>
+
+  <div v-else-if="!accountStore.bearerToken" class="entrance-layout" v-loading.fullscreen.lock="loading">
+    <EntrancePanel />
   </div>
 
   <div v-else class="mgs-shell" v-loading.fullscreen.lock="loading">
-    <MgsSidebar v-if="accountStore.bearerToken" />
-    <NavMenu v-else />
+    <MgsSidebar />
     <main class="workspace">
       <MgsTopbar :title="currentTitle" />
       <section class="workspace-content">
@@ -70,6 +66,7 @@ onBeforeMount(async () => {
 .workspace { min-width:0;flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden; }
 .workspace-content { min-height:0;flex:1;overflow:auto; }
 .auth-layout { min-height:100vh; }
+.entrance-layout { min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px; }
 .mgs-fade-enter-active,.mgs-fade-leave-active { transition:opacity .12s ease,transform .12s ease; }
 .mgs-fade-enter-from,.mgs-fade-leave-to { opacity:0;transform:translateY(3px); }
 </style>

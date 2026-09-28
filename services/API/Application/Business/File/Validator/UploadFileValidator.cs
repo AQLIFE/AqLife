@@ -1,5 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Validators;
+using AqLife.Domain.Command;
 using AqLife.Domain.CommandInterface;
 using AqLife.Shared.Options;
 using AqLife.Shared.Tools;
@@ -52,7 +53,13 @@ namespace AqLife.Application.Business.File.Validator
             {
                 var tempHash = await CalculateHashAsync(file);
                 context.FileHashes.Add(file, tempHash);
-                if( dbContext.File.Any(e=>e.FileHash == tempHash))
+                var allowTemplateDuplicate =
+                    command is CreateFileCommand createCommand &&
+                    !createCommand.IsTemplate;
+
+                if (dbContext.File.Any(e =>
+                    e.FileHash == tempHash &&
+                    (!allowTemplateDuplicate || !e.IsTemplate)))
                 {
                     return false;
                 }

@@ -214,7 +214,7 @@ No authorization required
 
 ## apiFileGet
 
-> FileDtoPageResult apiFileGet(uID, title, categoryUID, page, pageSize, order)
+> FileDtoPageResult apiFileGet(uID, title, categoryUID, page, pageSize, order, includeTemplates)
 
 
 
@@ -244,6 +244,8 @@ async function example() {
     pageSize: 56,
     // FileOrder (optional)
     order: ...,
+    // boolean (optional)
+    includeTemplates: true,
   } satisfies ApiFileGetRequest;
 
   try {
@@ -269,6 +271,7 @@ example().catch(console.error);
 | **page** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **order** | `FileOrder` |  | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2] |
+| **includeTemplates** | `boolean` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
@@ -427,7 +430,7 @@ No authorization required
 
 ## apiFilePreviewGet
 
-> Blob apiFilePreviewGet(uID)
+> Blob apiFilePreviewGet(uID, isTemplate)
 
 
 
@@ -447,6 +450,8 @@ async function example() {
   const body = {
     // string (optional)
     uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // boolean (optional)
+    isTemplate: true,
   } satisfies ApiFilePreviewGetRequest;
 
   try {
@@ -467,6 +472,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **isTemplate** | `boolean` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
@@ -622,7 +628,7 @@ No authorization required
 
 ## apiFileUploadPost
 
-> Array&lt;string&gt; apiFileUploadPost(file)
+> Array&lt;string&gt; apiFileUploadPost(isTemplate, file)
 
 
 
@@ -640,6 +646,8 @@ async function example() {
   const api = new FileApi();
 
   const body = {
+    // boolean (optional)
+    isTemplate: true,
     // Array<Blob> (optional)
     file: /path/to/file.txt,
   } satisfies ApiFileUploadPostRequest;
@@ -661,6 +669,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
+| **isTemplate** | `boolean` |  | [Optional] [Defaults to `undefined`] |
 | **file** | `Array<Blob>` |  | [Optional] |
 
 ### Return type

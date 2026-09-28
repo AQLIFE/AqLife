@@ -6,7 +6,7 @@ import { routes } from './routes'
 import { useAccountStore } from '@/stores/useAccountStore'
 import { AccountApi } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -24,33 +24,51 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach(async (to, from) => {
+const accountApi = new AccountApi(apiConfiguration)
+let systemAccountChecked = false
+
+async function ensureSystemAccount() {
+  if (systemAccountChecked) return
+
   const accountStore = useAccountStore()
-   // 2. 定义匿名访问白名单
+  const response = await accountApi.apiAccountGetRaw()
+  if (response.raw.status === 200) {
+    accountStore.systemAccount = await response.value()
+  }
+
+  systemAccountChecked = true
+}
+
+router.beforeEach(async (to) => {
+  const accountStore = useAccountStore()
+
+  // 登录/注册页需要知道系统是否已经初始化。
+  // 不能依赖 App.vue 的异步初始化，否则首次打开 /login 时会出现竞态。
+  if (to.path === '/login' || to.path === '/register') {
+    await ensureSystemAccount()
+  }
+
   const publicPaths = ['/home', '/login', '/register']
-  // 错误页匹配：检查是否为通配符错误页
   const isErrorPage = to.matched.some(record => record.path === '/:pathMatch(.*)*')
   const isPublic = publicPaths.includes(to.path) || isErrorPage
 
-  // 3. 核心权限拦截逻辑
-  // A. 如果是私有路径且没有 Token，强制去登录 (Auth 契约校验 [cite: 217])
   if (!isPublic && !accountStore.bearerToken) {
     ElMessage.warning('请登录')
     return '/home'
   }
-  // C. 体验优化：已登录状态下访问登录页，直接去首页
+
   if (to.path === '/login' && accountStore.bearerToken) {
-    ElMessage.success('登录成功,正在载入后台控制面板')
-    return '/home'
-  }
-  if (to.path == '/login' && !accountStore.systemAccount) {
-    ElMessage.warning('系统等待初始化,请注册')
+    ElMessage.success('已登录,正在载入后台控制面板')
     return '/home'
   }
 
-  // B. 业务逻辑补充：系统已初始化时，禁止进入注册页 (单账户系统逻辑)
+  if (to.path === '/login' && !accountStore.systemAccount) {
+    ElMessage.warning('系统尚未初始化,请先注册')
+    return '/register'
+  }
+
   if (to.path === '/register' && accountStore.systemAccount) {
-    ElMessage.warning('已有账户,拒绝注册,请登录!')
+    ElMessage.warning('已有账户,请登录')
     return '/login'
   }
 })

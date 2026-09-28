@@ -1,11 +1,8 @@
 <template>
   <div class="template-view">
-    <MgsPageHeader title="新建博文" description="选择模板，快速开始编写一篇文章" :back="true">
+    <MgsPageHeader title="博文模板" description="选择模板、预览结构，再创建博文" :back="true">
       <template #actions>
-        <ElButton @click="resetDraft">Reset</ElButton>
-        <ElButton type="primary" :disabled="!draft.title.trim()" @click="createDraft">
-          Create draft
-        </ElButton>
+        <ElButton :icon="Plus" @click="startCreatingTemplate">添加模板</ElButton>
       </template>
     </MgsPageHeader>
 
@@ -20,57 +17,100 @@
         </div>
 
         <div class="template-list">
-          <button
+          <div
             v-for="item in templates"
-            :key="item.id"
+            :key="item.uid"
             class="template-card"
-            :class="{ active: item.id === selectedTemplateId }"
-            type="button"
-            @click="selectTemplate(item.id)"
+            :class="{ active: item.uid === selectedTemplate?.uid }"
+            role="button"
+            tabindex="0"
+            @click="selectTemplate(item.uid!)"
+            @keydown.enter="selectTemplate(item.uid!)"
           >
-            <div class="template-icon">{{ item.icon }}</div>
+            <div class="template-icon">M</div>
             <div class="template-info">
-              <div class="template-name">{{ item.name }}</div>
-              <div class="template-description">{{ item.description }}</div>
+              <div class="template-name">{{ item.fileName || '未命名模板' }}</div>
+              <div class="template-description">Version {{ item.version ?? 1 }} · {{ item.fileType || '.md' }}</div>
               <div class="template-tags">
-                <ElTag v-for="tag in item.tags" :key="tag" size="small" effect="plain">{{ tag }}</ElTag>
+                <ElTag v-for="(tag, index) in item.tags ?? []" :key="tag.uid ?? index" size="small" effect="plain">{{ tag.name }}</ElTag>
               </div>
             </div>
-          </button>
+          </div>
         </div>
 
         <div class="panel-tip">
           <ElIcon><InfoFilled /></ElIcon>
-          <span>模板只负责初始化内容，修改后的正文不会影响原模板。</span>
+          <span>模板默认只读。使用模板创建博文后，后续修改不会影响原模板。</span>
         </div>
       </aside>
 
       <main class="editor-panel">
-        <ElForm :model="draft" label-position="top" class="meta-form">
-          <div class="form-row">
-            <ElFormItem label="标题" class="title-field">
-              <ElInput v-model="draft.title" size="large" placeholder="输入博文标题" clearable />
-            </ElFormItem>
-            <ElFormItem label="标签" class="tags-field">
-              <ElSelect
-                v-model="draft.tags"
-                multiple
-                filterable
-                allow-create
-                default-first-option
-                collapse-tags
-                placeholder="添加标签"
-                style="width: 100%"
-              >
-                <ElOption v-for="tag in tagOptions" :key="tag" :label="tag" :value="tag" />
-              </ElSelect>
-            </ElFormItem>
+        <div v-if="selectedTemplate || creatingTemplate" class="template-toolbar">
+          <div>
+            <div class="selected-template-name">{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName }}</div>
+            <div class="selected-template-state">
+              {{ creatingTemplate ? '正在创建模板' : creatingArticle ? '正在设置博文' : editing ? '正在修改模板' : '只读预览' }}
+              <template v-if="!creatingTemplate"> · Version {{ selectedTemplate?.version ?? 1 }}</template>
+            </div>
           </div>
+          <div class="template-toolbar-actions">
+            <template v-if="creatingTemplate">
+              <ElButton @click="cancelCreatingTemplate">取消</ElButton>
+              <ElButton type="primary" :disabled="!canSaveNewTemplate || saving" @click="saveNewTemplate">保存模板</ElButton>
+            </template>
+            <template v-else-if="creatingArticle">
+              <ElButton @click="cancelCreatingArticle">取消</ElButton>
+              <ElButton
+                type="primary"
+                :disabled="!articleDraft.title.trim() || creatingArticleBusy"
+                @click="createArticle"
+              >
+                创建并进入预览
+              </ElButton>
+            </template>
+            <template v-else-if="editing">
+              <ElButton @click="cancelEditing">取消</ElButton>
+              <ElButton type="primary" :disabled="!templateDirty || saving" @click="saveTemplate">保存模板</ElButton>
+            </template>
+            <template v-else>
+              <ElButton :icon="Edit" :disabled="!selectedTemplate" @click="selectedTemplate && startEditingTemplate(selectedTemplate)">编辑模板</ElButton>
+              <ElButton type="danger" :disabled="!selectedTemplate" @click="selectedTemplate && deleteTemplate(selectedTemplate)">删除模板</ElButton>
+              <ElButton type="primary" :icon="Plus" @click="startCreatingArticle">基于此模板新建博文</ElButton>
+            </template>
+          </div>
+        </div>
 
-          <ElFormItem label="摘要">
-            <ElInput v-model="draft.summary" type="textarea" :rows="2" maxlength="160" show-word-limit placeholder="用一句话描述这篇文章" />
+        <ElForm v-if="creatingTemplate" :model="templateDraft" label-position="top" class="meta-form">
+          <ElFormItem label="模板名称">
+            <ElInput v-model="templateDraft.name" size="large" placeholder="例如：技术文章模板" clearable />
           </ElFormItem>
         </ElForm>
+
+        <ElForm
+          v-if="creatingArticle"
+          :model="articleDraft"
+          label-position="top"
+          class="meta-form article-form"
+        >
+          <div class="form-row">
+            <ElFormItem label="博文标题">
+              <ElInput
+                v-model="articleDraft.title"
+                size="large"
+                placeholder="请输入博文标题"
+                clearable
+              />
+            </ElFormItem>
+            <ElFormItem label="标签">
+              <TagSelect
+                v-model:tag-list="articleDraft.tags"
+                :select-disabled="creatingArticleBusy"
+              />
+            </ElFormItem>
+          </div>
+        </ElForm>
+
+        
 
         <div class="sheet">
           <div class="sheet-toolbar">
@@ -84,7 +124,13 @@
               <div v-for="(_, index) in bodyLines" :key="index">{{ index + 1 }}</div>
             </div>
             <div class="markdown-input">
-              <ElInput v-model="draft.content" type="textarea" resize="none" placeholder="开始编写 Markdown..." />
+              <ElInput
+                v-model="draft.content"
+                type="textarea"
+                resize="none"
+                :readonly="!creatingTemplate && !editing && !creatingArticle"
+                :placeholder="creatingTemplate || editing || creatingArticle ? '编辑 Markdown 内容...' : '模板内容加载中...'"
+              />
             </div>
             <div class="preview">
               <MarkdownRender :markdown="draft.content" :baseurl="baseurl" />
@@ -93,9 +139,11 @@
         </div>
 
         <div class="status-bar">
-          <span>{{ selectedTemplate?.name }}</span>
+          <span>{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName || '未选择模板' }}</span>
           <span>{{ bodyLines.length }} 行 · {{ draft.content.length }} 字符</span>
-          <span class="status-ready">草稿已就绪</span>
+          <span :class="creatingTemplate || editing ? 'status-editing' : 'status-ready'">
+            {{ creatingTemplate ? '新模板编辑中' : editing ? '模板编辑中' : '模板只读' }}
+          </span>
         </div>
       </main>
     </div>
@@ -103,7 +151,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onBeforeMount, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ElButton,
@@ -112,92 +160,315 @@ import {
   ElIcon,
   ElInput,
   ElMessage,
-  ElOption,
-  ElSelect,
+  ElMessageBox,
   ElTag,
 } from 'element-plus'
-import { InfoFilled } from '@element-plus/icons-vue'
+import { Edit, InfoFilled, Plus } from '@element-plus/icons-vue'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import { FileApi, type FileDto, type TagDto } from '@/api'
+import { apiConfiguration } from '@/services/api'
+import { useFileStore } from '@/stores/useFileStore'
+import { FileContentUpdateWorkflow, FileDeleteWorkflow } from '@/workflow'
+import TagSelect from '@/components/TagSelect.vue'
 
-type BlogTemplate = {
-  id: string
-  name: string
-  description: string
-  icon: string
-  tags: string[]
-  title: string
-  summary: string
-  content: string
-}
+type BlogTemplate = FileDto
 
 const baseurl = import.meta.env.VITE_API
+const router = useRouter()
+const fileApi = new FileApi(apiConfiguration)
+const fileStore = useFileStore()
 
-const templates: BlogTemplate[] = [
-  {
-    id: 'article',
-    name: '普通文章',
-    description: '适合知识分享、随笔和经验总结',
-    icon: 'A',
-    tags: ['Blog', 'Article'],
-    title: '未命名文章',
-    summary: '',
-    content: '# {{title}}\n\n## 背景\n\n在这里写下这篇文章的背景。\n\n## 正文\n\n开始记录你的内容……\n\n## 总结\n\n总结这篇文章的主要内容。',
-  },
-  {
-    id: 'technical',
-    name: '技术笔记',
-    description: '预置环境、方案、代码和总结结构',
-    icon: '</>',
-    tags: ['Tech', 'Note'],
-    title: '技术笔记：未命名',
-    summary: '记录一个技术问题、解决方案以及最终结论。',
-    content: '# {{title}}\n\n## 问题\n\n描述遇到的问题和上下文。\n\n## 环境\n\n- OS:\n- Runtime:\n- Version:\n\n## 方案\n\n记录关键方案。\n\n## 实现\n\n说明具体实现。\n\n## 总结\n\n记录最终结论和注意事项。',
-  },
-  {
-    id: 'release',
-    name: '版本发布',
-    description: '适合记录版本更新、变更和迁移事项',
-    icon: '↗',
-    tags: ['Release', 'Changelog'],
-    title: 'Release v0.0.0',
-    summary: '本次版本包含的主要变更。',
-    content: '# Release v0.0.0\n\n## ✨ 新增\n\n- 新功能\n\n## 🐛 修复\n\n- 修复的问题\n\n## ⚠️ 注意\n\n- 兼容性或迁移说明\n\n## 📦 升级\n\n说明升级步骤。',
-  },
-]
+const templates = ref<BlogTemplate[]>([])
+const selectedTemplate = ref<BlogTemplate>()
+const selectedTemplateContent = ref('')
+const editing = ref(false)
+const creatingTemplate = ref(false)
+const templateDraft = reactive({
+  name: '',
+})
+const saving = ref(false)
+const loading = ref(false)
+const creatingArticle = ref(false)
+const creatingArticleBusy = ref(false)
 
-const tagOptions = ['Blog', 'Article', 'Tech', 'Note', 'Release', 'Changelog', 'MGS']
-const selectedTemplateId = ref('article')
-const draft = reactive({ title: '', summary: '', tags: [] as string[], content: '' })
+const articleDraft = reactive<{
+  title: string
+  tags: TagDto[]
+}>({
+  title: '',
+  tags: [],
+})
 
-const selectedTemplate = computed(() => templates.find(item => item.id === selectedTemplateId.value))
+const draft = reactive({
+  content: '',
+})
+
+const templateDirty = computed(() => draft.content !== selectedTemplateContent.value)
+const canSaveNewTemplate = computed(() => Boolean(templateDraft.name.trim() && draft.content.trim()))
 const bodyLines = computed(() => draft.content.split('\n'))
 
-function applyTemplate(template: BlogTemplate) {
-  draft.title = template.title
-  draft.summary = template.summary
-  draft.tags = [...template.tags]
-  draft.content = template.content.replaceAll('{{title}}', template.title)
+
+async function loadTemplates(selectUid?: string) {
+  const result = await fileApi.apiFileGet({
+    includeTemplates: true,
+    page: 1,
+    pageSize: 100,
+  })
+
+  templates.value = (result.items ?? []).filter(item => item.isTemplate)
+
+  if (!templates.value.length) {
+    selectedTemplate.value = undefined
+    selectedTemplateContent.value = ''
+    draft.content = ''
+    return
+  }
+
+  const uid =
+    selectUid && templates.value.some(item => item.uid === selectUid)
+      ? selectUid
+      : selectedTemplate.value?.uid && templates.value.some(item => item.uid === selectedTemplate.value?.uid)
+        ? selectedTemplate.value.uid
+        : templates.value[0].uid
+
+  if (uid) await selectTemplate(uid)
 }
 
-function selectTemplate(id: string) {
-  const template = templates.find(item => item.id === id)
-  if (!template) return
-  selectedTemplateId.value = id
-  applyTemplate(template)
+async function selectTemplate(uid: string) {
+  const metadata = templates.value.find(item => item.uid === uid)
+  if (!metadata?.uid) return
+
+  loading.value = true
+  try {
+    const response = await fileApi.apiFilePreviewGetRaw({ uID: metadata.uid,isTemplate:true })
+    if (response.raw.status !== 200) {
+      throw new Error('模板加载失败（HTTP ' + response.raw.status + '）')
+    }
+
+    const content = await response.raw.text()
+    selectedTemplate.value = metadata
+    selectedTemplateContent.value = content
+    draft.content = content
+    editing.value = false
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '模板加载失败')
+  } finally {
+    loading.value = false
+  }
 }
 
-function resetDraft() {
-  if (!selectedTemplate.value) return
-  applyTemplate(selectedTemplate.value)
-  ElMessage.success('已恢复当前模板')
+function startCreatingTemplate() {
+  selectedTemplate.value = undefined
+  selectedTemplateContent.value = ''
+  editing.value = false
+  creatingTemplate.value = true
+  templateDraft.name = ''
+  draft.content = '# {{title}}\n\n'
+
 }
 
-function createDraft() {
-  ElMessage.success('Demo：已生成博文草稿，下一步可接入现有上传/创建 API')
+function cancelCreatingTemplate() {
+  creatingTemplate.value = false
+  templateDraft.name = ''
+  draft.content = ''
+  if (templates.value[0]?.uid) {
+    void selectTemplate(templates.value[0].uid)
+  }
 }
 
-applyTemplate(templates[0])
+async function startEditingTemplate(template: BlogTemplate) {
+  if (selectedTemplate.value?.uid !== template.uid) {
+    await selectTemplate(template.uid!)
+  }
+
+  creatingTemplate.value = false
+  editing.value = true
+}
+
+function cancelEditing() {
+  draft.content = selectedTemplateContent.value
+  editing.value = false
+}
+
+async function saveNewTemplate() {
+  if (!canSaveNewTemplate.value || saving.value) return
+
+  const name = sanitizeFileName(templateDraft.name) + '.md'
+
+  saving.value = true
+  try {
+    const contentFile = new File([draft.content], name, { type: 'text/markdown' })
+    const uids = await fileApi.apiFileUploadPost({
+      isTemplate: true,
+      file: [contentFile],
+    })
+
+    const uid = uids[0]
+    if (!uid) throw new Error('模板创建失败')
+
+    creatingTemplate.value = false
+    templateDraft.name = ''
+    await loadTemplates(uid)
+    ElMessage.success('模板已创建')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '模板创建失败')
+  } finally {
+    saving.value = false
+  }
+}
+
+async function saveTemplate() {
+  const current = selectedTemplate.value
+  if (!current?.uid || !templateDirty.value || saving.value) return
+
+  saving.value = true
+  try {
+    const fileName = (current.fileName || 'template') + (current.fileType || '.md')
+    const contentFile = new File([draft.content], fileName, { type: 'text/markdown' })
+
+    const updated = await new FileContentUpdateWorkflow(
+      current,
+      contentFile,
+      fileApi,
+      fileStore,
+      true,
+    ).run()
+
+    selectedTemplate.value = updated
+    selectedTemplateContent.value = draft.content
+    templates.value = templates.value.map(item => item.uid === updated.uid ? updated : item)
+    editing.value = false
+    ElMessage.success('模板已保存')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '模板保存失败')
+  } finally {
+    saving.value = false
+  }
+}
+
+async function deleteTemplate(template: BlogTemplate) {
+  if (!template.uid) return
+
+  try {
+    await ElMessageBox.confirm(
+      '确定删除「' + (template.fileName || '未命名模板') + '」吗？删除后无法继续用于创建博文。',
+      '删除模板',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      },
+    )
+
+    loading.value = true
+    await new FileDeleteWorkflow(template, fileApi, fileStore).run()
+    templates.value = templates.value.filter(item => item.uid !== template.uid)
+
+    if (selectedTemplate.value?.uid === template.uid) {
+      selectedTemplate.value = undefined
+      selectedTemplateContent.value = ''
+      draft.content = ''
+      editing.value = false
+
+      if (templates.value[0]?.uid) {
+        await selectTemplate(templates.value[0].uid)
+      }
+    }
+
+    ElMessage.success('模板已删除')
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(error instanceof Error ? error.message : '模板删除失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+function sanitizeFileName(value: string) {
+  const normalized = value
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, '-')
+    .slice(0, 64)
+
+  return normalized || '未命名文章'
+}
+
+function startCreatingArticle() {
+  const template = selectedTemplate.value
+  if (!template?.uid || !selectedTemplateContent.value) return
+
+  creatingArticle.value = true
+  articleDraft.title = ''
+  articleDraft.tags = [...(template.tags ?? [])]
+}
+
+function cancelCreatingArticle() {
+  creatingArticle.value = false
+  creatingArticleBusy.value = false
+  articleDraft.title = ''
+  articleDraft.tags = []
+}
+
+async function createArticle() {
+  const template = selectedTemplate.value
+  const title = articleDraft.title.trim()
+
+  if (!template?.uid || !draft.content || !title || creatingArticleBusy.value) return
+
+  const content = draft.content.replaceAll('{{title}}', title)
+  const fileName = sanitizeFileName(title) + '.md'
+
+  creatingArticleBusy.value = true
+  loading.value = true
+
+  try {
+    const uids = await fileApi.apiFileUploadPost({
+      isTemplate: false,
+      file: [new File([content], fileName, { type: 'text/markdown' })],
+    })
+
+    const uid = uids[0]
+    if (!uid) throw new Error('博文创建失败')
+
+    let article = (await fileApi.apiFileGet({ uID: uid })).items?.[0]
+    if (!article) throw new Error('博文创建后无法读取文件')
+
+    const tagUids = (articleDraft.tags ?? [])
+      .map(tag => tag.uid)
+      .filter((tagUid): tagUid is string => Boolean(tagUid))
+
+    await fileApi.apiFileTagPatch({
+      updateFileTagCommand: {
+        uid,
+        tags: tagUids,
+      },
+    })
+
+    article = (await fileApi.apiFileGet({ uID: uid })).items?.[0] ?? article
+    fileStore.upsertFile(article)
+
+    creatingArticle.value = false
+    ElMessage.success('博文已创建')
+    await router.push('/blog/' + uid)
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '博文创建失败')
+  } finally {
+    creatingArticleBusy.value = false
+    loading.value = false
+  }
+}
+
+onBeforeMount(async () => {
+  try {
+    loading.value = true
+    await loadTemplates()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '模板列表加载失败')
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>
@@ -214,11 +485,17 @@ applyTemplate(templates[0])
 .template-icon { width: 38px; height: 38px; flex: 0 0 38px; display: grid; place-items: center; border-radius: 7px; background: var(--mgs-surface-soft); color: var(--mgs-accent); font-weight: 700; font-family: monospace; }
 .template-name { color: var(--mgs-text); font-size: 14px; font-weight: 600; }
 .template-description { margin-top: 4px; color: var(--mgs-muted); font-size: 12px; line-height: 1.5; }
-.template-tags { display: flex; gap: 4px; margin-top: 7px; }
+.template-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+.template-actions { display: flex; gap: 2px; margin-top: 7px; }
 .panel-tip { display: flex; gap: 7px; padding: 12px 14px; color: var(--mgs-muted); font-size: 12px; line-height: 1.5; border-top: 1px solid var(--mgs-border); }
 .editor-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 0; }
+.template-toolbar { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.selected-template-name { font-size: 16px; font-weight: 650; }
+.selected-template-state { margin-top: 4px; color: var(--mgs-muted); font-size: 12px; }
+.template-toolbar-actions { display: flex; align-items: center; gap: 8px; }
 .meta-form { flex: 0 0 auto; }
 .form-row { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 14px; }
+.article-form .form-row { grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr); }
 .meta-form :deep(.el-form-item) { margin-bottom: 12px; }
 .sheet { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); box-shadow: var(--mgs-shadow); }
 .sheet-toolbar { display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); }
@@ -230,10 +507,12 @@ applyTemplate(templates[0])
 .markdown-input { min-width: 0; border-right: 1px solid var(--mgs-border); }
 .markdown-input :deep(.el-textarea), .markdown-input :deep(.el-textarea__inner) { height: 100%; }
 .markdown-input :deep(.el-textarea__inner) { border: 0; border-radius: 0; padding: 8px 12px; resize: none; box-shadow: none; font: 14px/22px 'Cascadia Code PL', monospace; }
+.markdown-input :deep(.el-textarea__inner[readonly]) { background: var(--mgs-surface); cursor: default; }
 .preview { min-width: 0; overflow: auto; padding: 10px 18px; }
 .status-bar { height: 30px; flex: 0 0 30px; display: flex; align-items: center; gap: 18px; color: var(--mgs-muted); font-size: 12px; }
 .status-bar span:last-child { margin-left: auto; }
 .status-ready { color: var(--mgs-success); }
+.status-editing { color: var(--mgs-accent); }
 @media (max-width: 900px) {
   .workspace { grid-template-columns: 220px minmax(0, 1fr); padding: 0 16px 16px; }
   .sheet-toolbar, .sheet-body { grid-template-columns: 36px minmax(0, 1fr); }

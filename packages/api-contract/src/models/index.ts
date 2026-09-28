@@ -19,6 +19,7 @@ export * from './FileDtoPageResult';
 export * from './FileOrder';
 export * from './FileStatus';
 export * from './LoginCommand';
+export * from './OverviewDto';
 export * from './ScheduledFileCommand';
 export * from './SubscriptionDto';
 export * from './TagDto';

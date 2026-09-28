@@ -13,7 +13,7 @@ namespace AqLife.Application.Business.File.Search
         {
             return mode switch
             {
-                FileAccessMode.Standard => queryable.Where(e => e.PublishMeta.PublishStatus == FileStatus.Published),// 发布信息集
+                FileAccessMode.Standard => queryable.Where(e => !e.IsTemplate && e.PublishMeta.PublishStatus == FileStatus.Published),// 发布信息集
                 _ => queryable // 全信息集
             };
         }

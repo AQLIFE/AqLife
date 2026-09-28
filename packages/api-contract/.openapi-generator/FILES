@@ -23,6 +23,8 @@ docs/FileDtoPageResult.md
 docs/FileOrder.md
 docs/FileStatus.md
 docs/LoginCommand.md
+docs/OverviewApi.md
+docs/OverviewDto.md
 docs/ScheduledFileCommand.md
 docs/SubscriptionDto.md
 docs/TagApi.md
@@ -39,6 +41,7 @@ package.json
 src/apis/AccountApi.ts
 src/apis/CorpusApi.ts
 src/apis/FileApi.ts
+src/apis/OverviewApi.ts
 src/apis/TagApi.ts
 src/apis/TodoApi.ts
 src/apis/index.ts
@@ -62,6 +65,7 @@ src/models/FileDtoPageResult.ts
 src/models/FileOrder.ts
 src/models/FileStatus.ts
 src/models/LoginCommand.ts
+src/models/OverviewDto.ts
 src/models/ScheduledFileCommand.ts
 src/models/SubscriptionDto.ts
 src/models/TagDto.ts
