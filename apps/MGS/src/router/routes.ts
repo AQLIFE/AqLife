@@ -3,6 +3,7 @@ import LoginView from '@/views/LoginView.vue'
 import { MgsIconName } from '@aqlife/icons'
 import { User, Document, PriceTag, List } from '@element-plus/icons-vue'
 import HomeView from '@/views/HomeView.vue'
+import AccountView from '@/views/AccountView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import SubscriptionsView from '@/views/SubscriptionsView.vue'
 import TagView from '@/views/TagView.vue'
@@ -38,6 +39,8 @@ export const routes = [
   },
   {
     path: '/account',
+    redirect: '/account/profile',
+    component: AccountView,
     meta: { navTitle: 'Account', navIcon: User, showInNav: true, order: 4, sidebarType: SidebarType.None },
     children: [
       { path: 'profile', component: ProfileView },
