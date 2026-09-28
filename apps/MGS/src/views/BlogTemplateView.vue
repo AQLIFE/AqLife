@@ -18,13 +18,15 @@
         </div>
 
         <div class="template-list">
-          <button
+          <div
             v-for="item in templates"
             :key="item.uid"
             class="template-card"
             :class="{ active: item.uid === selectedTemplate?.uid }"
-            type="button"
+            role="button"
+            tabindex="0"
             @click="selectTemplate(item.uid!)"
+            @keydown.enter="selectTemplate(item.uid!)"
           >
             <div class="template-icon">M</div>
             <div class="template-info">
@@ -39,7 +41,7 @@
                 <ElButton link type="danger" :disabled="editing" @click="deleteTemplate(item)">删除</ElButton>
               </div>
             </div>
-          </button>
+          </div>
         </div>
 
         <div class="panel-tip">
@@ -223,10 +225,9 @@ async function selectTemplate(uid: string) {
   }
 }
 
-function startEditingTemplate(template: BlogTemplate) {
+async function startEditingTemplate(template: BlogTemplate) {
   if (selectedTemplate.value?.uid !== template.uid) {
-    void selectTemplate(template.uid!)
-    return
+    await selectTemplate(template.uid!)
   }
 
   editing.value = true
