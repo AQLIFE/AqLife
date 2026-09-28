@@ -1,5 +1,5 @@
 <template>
-  <ElSelect v-model="tagListModel" multiple :disabled="props.selectDisabled" placeholder="选择 Tag" :fit-input-width="true"
+  <ElSelect class="tag-select" v-model="tagListModel" multiple :disabled="props.selectDisabled" placeholder="选择 Tag" :fit-input-width="true"
     value-key="uid">
     <ElOption v-for="item in tagSelectList" :key="item.uid as PropertyKey" :label="item.name!" :value="item" />
     <template #footer>
@@ -74,3 +74,19 @@ onBeforeMount(async () => {
 })
 
 </script>
+
+<style scoped>
+.tag-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.tag-select :deep(.el-select__wrapper) {
+  width: 100%;
+  min-width: 0;
+}
+
+.tag-select :deep(.el-select__selection) {
+  min-width: 0;
+}
+</style>
