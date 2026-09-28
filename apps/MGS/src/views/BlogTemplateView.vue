@@ -49,7 +49,7 @@
           <div>
             <div class="selected-template-name">{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName }}</div>
             <div class="selected-template-state">
-              {{ creatingTemplate ? '正在创建模板' : editing ? '正在修改模板' : '只读预览' }}
+              {{ creatingTemplate ? '正在创建模板' : creatingArticle ? '正在设置博文' : editing ? '正在修改模板' : '只读预览' }}
               <template v-if="!creatingTemplate"> · Version {{ selectedTemplate?.version ?? 1 }}</template>
             </div>
           </div>
@@ -58,6 +58,16 @@
               <ElButton @click="cancelCreatingTemplate">取消</ElButton>
               <ElButton type="primary" :disabled="!canSaveNewTemplate || saving" @click="saveNewTemplate">保存模板</ElButton>
             </template>
+            <template v-else-if="creatingArticle">
+              <ElButton @click="cancelCreatingArticle">取消</ElButton>
+              <ElButton
+                type="primary"
+                :disabled="!articleDraft.title.trim() || (articleDraft.status === publishStatus.Scheduled && !articleDraft.publishAt) || creatingArticleBusy"
+                @click="createArticle"
+              >
+                创建并进入编辑
+              </ElButton>
+            </template>
             <template v-else-if="editing">
               <ElButton @click="cancelEditing">取消</ElButton>
               <ElButton type="primary" :disabled="!templateDirty || saving" @click="saveTemplate">保存模板</ElButton>
@@ -65,7 +75,7 @@
             <template v-else>
               <ElButton :icon="Edit" @click="startEditingTemplate(selectedTemplate)">编辑模板</ElButton>
               <ElButton type="danger" @click="deleteTemplate(selectedTemplate)">删除模板</ElButton>
-              <ElButton type="primary" :icon="Plus" @click="createArticle">基于此模板新建博文</ElButton>
+              <ElButton type="primary" :icon="Plus" @click="startCreatingArticle">基于此模板新建博文</ElButton>
             </template>
           </div>
         </div>
@@ -74,6 +84,45 @@
           <ElFormItem label="模板名称">
             <ElInput v-model="templateDraft.name" size="large" placeholder="例如：技术文章模板" clearable />
           </ElFormItem>
+        </ElForm>
+
+        <ElForm
+          v-if="creatingArticle"
+          :model="articleDraft"
+          label-position="top"
+          class="meta-form article-form"
+        >
+          <div class="form-row">
+            <ElFormItem label="博文标题">
+              <ElInput
+                v-model="articleDraft.title"
+                size="large"
+                placeholder="请输入博文标题"
+                clearable
+              />
+            </ElFormItem>
+            <ElFormItem label="标签">
+              <TagSelect v-model:tag-list="articleDraft.tags" :select-disabled="creatingArticleBusy" />
+            </ElFormItem>
+          </div>
+          <div class="form-row">
+            <ElFormItem label="发布状态">
+              <ElSegmented
+                v-model="articleDraft.status"
+                :options="publishStatusOptions"
+                :disabled="creatingArticleBusy"
+              />
+            </ElFormItem>
+            <ElFormItem v-if="articleDraft.status === publishStatus.Scheduled" label="预定发布时间">
+              <ElDatePicker
+                v-model="articleDraft.publishAt"
+                type="datetime"
+                :disabled="creatingArticleBusy"
+                placeholder="选择预定发布时间"
+                class="schedule-picker"
+              />
+            </ElFormItem>
+          </div>
         </ElForm>
 
         
@@ -126,6 +175,8 @@ import {
   ElIcon,
   ElInput,
   ElMessage,
+  ElDatePicker,
+  ElSegmented,
   ElMessageBox,
   ElTag,
 } from 'element-plus'
@@ -135,7 +186,9 @@ import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import { FileApi, type FileDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
-import { FileContentUpdateWorkflow, FileDeleteWorkflow } from '@/workflow'
+import { FileContentUpdateWorkflow, FileDeleteWorkflow, FilePublishWorkflow, FileScheduledWorkflow } from '@/workflow'
+import { publishStatusOptions, publishStatus } from '@/types/TableFilterOption.ts'
+import TagSelect from '@/components/TagSelect.vue'
 
 type BlogTemplate = FileDto
 
@@ -154,6 +207,20 @@ const templateDraft = reactive({
 })
 const saving = ref(false)
 const loading = ref(false)
+const creatingArticle = ref(false)
+const creatingArticleBusy = ref(false)
+
+const articleDraft = reactive<{
+  title: string
+  tags: FileDto['tags']
+  status: publishStatus
+  publishAt: Date | null
+}>({
+  title: '',
+  tags: [],
+  status: publishStatus.Draft,
+  publishAt: null,
+})
 
 const draft = reactive({
   content: '',
@@ -349,17 +416,44 @@ function sanitizeFileName(value: string) {
   return normalized || '未命名文章'
 }
 
-async function createArticle() {
+function startCreatingArticle() {
   const template = selectedTemplate.value
   if (!template?.uid || !selectedTemplateContent.value) return
 
-  const title = '未命名文章'
+  creatingArticle.value = true
+  articleDraft.title = ''
+  articleDraft.tags = [...(template.tags ?? [])]
+  articleDraft.status = publishStatus.Draft
+  articleDraft.publishAt = null
+}
+
+function cancelCreatingArticle() {
+  creatingArticle.value = false
+  creatingArticleBusy.value = false
+  articleDraft.title = ''
+  articleDraft.tags = []
+  articleDraft.status = publishStatus.Draft
+  articleDraft.publishAt = null
+}
+
+async function createArticle() {
+  const template = selectedTemplate.value
+  const title = articleDraft.title.trim()
+
+  if (!template?.uid || !selectedTemplateContent.value || !title || creatingArticleBusy.value) return
+
+  if (articleDraft.status === publishStatus.Scheduled && !articleDraft.publishAt) {
+    ElMessage.warning('请先设置预定发布时间')
+    return
+  }
+
   const content = selectedTemplateContent.value.replaceAll('{{title}}', title)
   const fileName = sanitizeFileName(title) + '.md'
 
-  try {
-    loading.value = true
+  creatingArticleBusy.value = true
+  loading.value = true
 
+  try {
     const uids = await fileApi.apiFileUploadPost({
       isTemplate: false,
       file: [new File([content], fileName, { type: 'text/markdown' })],
@@ -371,26 +465,33 @@ async function createArticle() {
     let article = (await fileApi.apiFileGet({ uID: uid })).items?.[0]
     if (!article) throw new Error('博文创建后无法读取文件')
 
-    const tagUids = (template.tags ?? [])
+    const tagUids = (articleDraft.tags ?? [])
       .map(tag => tag.uid)
-      .filter((uid): uid is string => Boolean(uid))
+      .filter((tagUid): tagUid is string => Boolean(tagUid))
 
-    if (tagUids.length) {
-      await fileApi.apiFileTagPatch({
-        updateFileTagCommand: {
-          uid,
-          tags: tagUids,
-        },
-      })
-      article = (await fileApi.apiFileGet({ uID: uid })).items?.[0] ?? article
+    await fileApi.apiFileTagPatch({
+      updateFileTagCommand: {
+        uid,
+        tags: tagUids,
+      },
+    })
+    article = (await fileApi.apiFileGet({ uID: uid })).items?.[0] ?? article
+
+    if (articleDraft.status === publishStatus.Published) {
+      article = await new FilePublishWorkflow(article, fileApi, fileStore).run()
+    } else if (articleDraft.status === publishStatus.Scheduled) {
+      article.publishAt = articleDraft.publishAt!.toISOString()
+      article = await new FileScheduledWorkflow(article, fileApi, fileStore).run()
     }
 
     fileStore.upsertFile(article)
-    ElMessage.success('博文草稿已创建')
+    creatingArticle.value = false
+    ElMessage.success('博文已创建，进入编辑器')
     await router.push('/blog/' + uid + '/edit')
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '博文创建失败')
   } finally {
+    creatingArticleBusy.value = false
     loading.value = false
   }
 }
@@ -431,6 +532,8 @@ onBeforeMount(async () => {
 .template-toolbar-actions { display: flex; align-items: center; gap: 8px; }
 .meta-form { flex: 0 0 auto; }
 .form-row { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 14px; }
+.article-form .form-row { grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr); }
+.schedule-picker { width: 100%; }
 .meta-form :deep(.el-form-item) { margin-bottom: 12px; }
 .sheet { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); box-shadow: var(--mgs-shadow); }
 .sheet-toolbar { display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); }
@@ -448,7 +551,6 @@ onBeforeMount(async () => {
 .status-bar span:last-child { margin-left: auto; }
 .status-ready { color: var(--mgs-success); }
 .status-editing { color: var(--mgs-accent); }
-.hidden-input { display: none; }
 @media (max-width: 900px) {
   .workspace { grid-template-columns: 220px minmax(0, 1fr); padding: 0 16px 16px; }
   .sheet-toolbar, .sheet-body { grid-template-columns: 36px minmax(0, 1fr); }
