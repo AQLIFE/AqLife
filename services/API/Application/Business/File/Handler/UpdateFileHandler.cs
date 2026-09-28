@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.File.Handler
 {
+    // PASS
     public class UpdateFileHandler(IApplicationDbContext appStorage, IFileStorage fileStorage, UploadContext uploadContext) : IRequestHandler<UpdateFileCommand, Guid>
     {
         public async Task<Guid> Handle(UpdateFileCommand command, CancellationToken ct)
@@ -17,7 +18,6 @@ namespace AqLife.Application.Business.File.Handler
             string hash = uploadContext.FileHashes[command.File];
             _ = entity.UpdateHash(hash);
             await fileStorage.SaveAsync(command.File.OpenReadStream(), entity.StorageKey, ct);// 覆写到原来的文件
-            entity.IncrementVersion();
             entity.IncrementVersion();
             return command.UID;
         }

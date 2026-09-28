@@ -4,8 +4,10 @@
 
 namespace AqLife.Data.Migrations
 {
+    /// <inheritdoc />
     public partial class AddFileVersionAndTemplate : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<int>(

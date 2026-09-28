@@ -17,6 +17,12 @@ using System.Threading.Tasks;
 
 namespace AqLife.Application.Business.File.Handler
 {
+    /// <summary>
+    /// 获取处于预约状态但尚未发布的博客文章
+    /// </summary>
+    /// <param name="search"></param>
+    /// <param name="fileMapper"></param>
+    /// <param name="timeProvider"></param>
     public class BlogUnpublishedHandler(BlogSearch search,IViewMapper<FileMetaEntity,FileDto> fileMapper,TimeProvider timeProvider) : IRequestHandler<BlogUnpublishQuery, IEnumerable<FileDto>>
     {
         public async Task<IEnumerable<FileDto>> Handle(BlogUnpublishQuery query, CancellationToken ct)
