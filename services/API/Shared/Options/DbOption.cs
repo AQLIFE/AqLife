@@ -2,7 +2,7 @@
 {
     public enum BehavioralLevel { DbType, OptionType, ValidType, ApiType }
 
-    public record DbOption(string DbType, string DbVersion);
+    public record DbOption(string DbType, string DbVersion,string? MigrationAssembly);
     public enum ExceptionCategory
     {
         Validation,

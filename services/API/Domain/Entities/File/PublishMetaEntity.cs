@@ -16,10 +16,9 @@ namespace AqLife.Domain.Entities.File
     {
         [Key]   
         public Guid UID { get; init; } = Guid.Empty;
-        [Column]
+        
         public DateTimeOffset? PublishAt { get; private set; } = null;
 
-        [Column]
         public FileStatus PublishStatus { private set; get; } = FileStatus.Draft;
 
         public PublishMetaEntity() { }

@@ -63,6 +63,27 @@ namespace AqLife.Infrastructure
                 .WithOne()
                 .HasForeignKey<InteractionMetaEntity>(p => p.UID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //------------------------------------------------
+           
+            modelBuilder.Entity<AccountEntity>()
+                .HasMany(x => x.Subscriptions)
+                .WithOne()
+                .HasForeignKey(s => s.AID)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<TagEntity>()
+                .HasMany(e=>e.FileTags)
+                .WithOne(ft => ft.Tag)
+                .HasForeignKey(ft => ft.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            modelBuilder.Entity<TodoEntity>()
+                .HasMany(e => e.Children)
+                .WithOne()
+                .HasForeignKey(e => e.FTID)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

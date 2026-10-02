@@ -39,7 +39,7 @@ namespace AqLife.Web.Extensions
                 if (File.Exists(envPath))
                 {
                     builder.Configuration.AddJsonFile(envPath, optional: true, reloadOnChange: true);
-                    Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, $"配置文件已载入{envConfig}");
+                    Log.Debug(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, $"配置文件已载入{envConfig}");
                 }
             }
             builder.Configuration.AddEnvironmentVariables();

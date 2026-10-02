@@ -3,6 +3,7 @@
   <Project Path="Application/Application.csproj" />
   <Project Path="Domain/Domain.csproj" />
   <Project Path="Infrastructure/Infrastructure.csproj" />
+  <Project Path="PostgreSqlMigrations/PostgreSqlMigrations.csproj" Id="81459cd1-4171-4da6-8687-e5aeb1df474e" />
   <Project Path="Shared/Shared.csproj" />
   <Project Path="Web/Web.csproj" />
 </Solution>

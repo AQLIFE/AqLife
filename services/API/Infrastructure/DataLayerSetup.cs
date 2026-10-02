@@ -21,46 +21,53 @@ namespace AqLife.Infrastructure
     {
         public static IServiceCollection AddDataLayer(this IServiceCollection services, IConfiguration configuration)
         {
-            var dbconfig = configuration.GetSection(typeof(DbOption).Name).Get<DbOption>() ?? throw new ConfigurationMappingException("无法映射到DB Config");
-            // ... 解析版本和连接字符串的逻辑 ...
-            var version = MySqlServerVersion.Parse(dbconfig?.DbVersion ?? throw new ConfigurationValueOutOfRangeException("数据库版本不匹配"));// 暂不支持NET 9以上SDK
-            string connStr = configuration.GetConnectionString(dbconfig?.DbType is string link ? link : string.Empty) ?? throw new ConfigurationNotFoundException($"无法找到 关键字:{dbconfig?.DbType} 连接字符串!");
+            DbOption dbconfig = configuration.GetSection(typeof(DbOption).Name).Get<DbOption>() ?? throw new ConfigurationMappingException("无法映射到DB Config");
 
-            services.AddDbContext<AppStorage>(p => p.UseMySql(connStr, version));
+            var connStr = configuration.GetConnectionString(dbconfig.DbType);
+
+            services.AddDbContext<AppStorage>(p =>
+            {
+                switch (dbconfig.DbType)
+                {
+                    case "MySQL":
+                        p.UseMySql(connStr, MySqlServerVersion.Parse(dbconfig?.DbVersion), mysql => mysql.MigrationsAssembly(
+                typeof(AppStorage).Assembly.FullName));
+                        break;
+                    case "PostgreSQL":
+                        p.UseNpgsql(connStr, postgres => postgres.MigrationsAssembly(dbconfig.MigrationAssembly));
+                        break;
+                    default: throw new ConfigurationValueOutOfRangeException($"不支持的数据库类型: {dbconfig.DbType}");
+                }
+
+            });
+            Log.Debug(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, $"当前使用数据库类型:{dbconfig.DbType}");
 
             return services;
         }
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IHostEnvironment environment)
         {
             services.AddScoped<IApplicationDbContext, AppStorage>();
-            if (environment.IsProduction()) { 
-                
-                services.AddSingleton<IAmazonS3>(sp =>
-                {
-                    var options = sp
-                        .GetRequiredService<IOptions<R2Options>>()
-                        .Value;
-
-                    var credentials = new BasicAWSCredentials(
-                        options.AccessKey,
-                        options.SecretKey);
-
-                    return new AmazonS3Client(
-                        credentials,
-                        new AmazonS3Config
-                        {
-                            ServiceURL = options.Endpoint,
-                            ForcePathStyle = true
-                        });
-                });
-                services.AddScoped<IFileStorage, R2FileStorage>();
-            }
-            else
+           
+            services.AddSingleton<IAmazonS3>(sp =>
             {
-                services.AddScoped<IFileStorage, LocalFileStorage>();
-                Log.Warning(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, "使用默认 Dev 环境");
+                var options = sp
+                    .GetRequiredService<IOptions<R2Options>>()
+                    .Value;
 
-            }
+                var credentials = new BasicAWSCredentials(
+                    options.AccessKey,
+                    options.SecretKey);
+
+                return new AmazonS3Client(
+                    credentials,
+                    new AmazonS3Config
+                    {
+                        ServiceURL = options.Endpoint,
+                        ForcePathStyle = true
+                    });
+            });
+            services.AddScoped<IFileStorage, R2FileStorage>();
+            Log.Debug(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, "当前使用默认存储方案: Cloudflare R2");
             services.AddScoped<ITokenProvider<AccountEntity>, TokenProvider>();
 
             return services;
