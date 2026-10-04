@@ -1,44 +1,65 @@
-﻿using AqLife.Shared.Exceptions;
-using AqLife.Shared.Options;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+using AqLife.Shared.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
-namespace Extension.Configurations
+namespace AqLife.Extensions.Configurations;
+
+public static class ConfigurationExtensions
 {
-    public static class ConfigurationExtensions
+    public static IConfigurationBuilder AddAqLifeConfiguration(
+        this IConfigurationBuilder configuration,
+        string contentRootPath,
+        string environmentName)
     {
-        public static IConfiguration AddConfiguration(this IConfiguration configuration, IWebHostEnvironment environment)
+        var configFolder = Path.Combine(contentRootPath, "Configurations");
+
+        AddRequiredFile(configuration, configFolder, "appsettings.json");
+        AddOptionalFile(configuration, configFolder, $"appsettings.{environmentName}.json");
+
+        AddRequiredFile(configuration, configFolder, "FilePolicy.json");
+        AddOptionalFile(configuration, configFolder, $"FilePolicy.{environmentName}.json");
+
+        configuration.AddEnvironmentVariables();
+
+        return configuration;
+    }
+
+    private static void AddRequiredFile(
+        IConfigurationBuilder configuration,
+        string folder,
+        string fileName)
+    {
+        var path = Path.Combine(folder, fileName);
+
+        if (!File.Exists(path))
         {
-            string configFolder = Path.Combine(environment.ContentRootPath, "Configurations");
-            
-            var configFiles = new[] { "appsettings", "FilePolicy" };
-            foreach (string fileName in configFiles)
-            {
-                string baseConfig = $"{fileName}.json";
-                string basePath = Path.Combine(configFolder, baseConfig);
+            Log.Error(
+                "[Serilog][{@LogType}]=>{@LogDesc}",
+                BehavioralLevel.OptionType,
+                $"配置文件不存在: {path}");
 
-                if (!File.Exists(basePath))
-                {
-                    Log.Error(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, $"核心配置文件不存在{baseConfig}");
+            throw new ConfigurationFileNotFoundException(
+                $"核心配置文件不存在: {fileName}");
+        }
 
-                    throw new ConfigurationFileNotFoundException($"核心配置文件不存在: {baseConfig}");
-                }
-                configuration.AddJsonFile(basePath, optional: true, reloadOnChange: true);
+        configuration.AddJsonFile(path, optional: false, reloadOnChange: true);
+    }
 
-                // 2. 再找环境特定文件 (如 FilePolicy.Development.json) - 设为可选
-                var envConfig = $"{fileName}.{environment.EnvironmentName}.json";
-                var envPath = Path.Combine(configFolder, envConfig);
+    private static void AddOptionalFile(
+        IConfigurationBuilder configuration,
+        string folder,
+        string fileName)
+    {
+        var path = Path.Combine(folder, fileName);
 
-                if (File.Exists(envPath))
-                {
-                    configuration.AddJsonFile(envPath, optional: true, reloadOnChange: true);
-                    Log.Debug(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, $"配置文件已载入{envConfig}");
-                }
-            }
-            configuration.AddEnvironmentVariables();
-            return configuration;
+        if (File.Exists(path))
+        {
+            configuration.AddJsonFile(path, optional: true, reloadOnChange: true);
+
+            Log.Debug(
+                "[Serilog][{@LogType}]=>{@LogDesc}",
+                BehavioralLevel.OptionType,
+                $"配置文件已载入: {fileName}");
         }
     }
 }
