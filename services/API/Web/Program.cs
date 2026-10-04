@@ -12,10 +12,12 @@ using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddUserSecrets<Program>();
 builder.Configuration.AddAqLifeConfiguration(
     builder.Environment.ContentRootPath,
     builder.Environment.EnvironmentName);
+builder.Configuration.AddUserSecrets<Program>(optional: true);
+builder.Configuration.AddEnvironmentVariables();
+builder.Configuration.AddCommandLine(args);
 
 builder.Services.AddAqLifeSerilog();
 builder.Services.AddSwaggerGen();
