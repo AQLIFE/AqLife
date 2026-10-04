@@ -1,65 +1,59 @@
-﻿using AqLife.Application;
+using AqLife.Extensions.Application;
+using AqLife.Extensions.Authentication;
+using AqLife.Extensions.Database;
+using AqLife.Extensions.Infrastructure;
 using AqLife.Infrastructure;
-using AqLife.Infrastructure.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting.Internal;
 
-namespace AqLife.APIUnitTest.Application
+namespace AqLife.APIUnitTest.Application;
+
+public class IntegrationTestFixture : IDisposable
 {
-    public class IntegrationTestFixture : IDisposable
+    public ServiceProvider Services { get; }
+
+    public IntegrationTestFixture()
     {
-        public ServiceProvider Services { get; }
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.Test.json", optional: false)
+            .Build();
 
-        public IntegrationTestFixture()
-        {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.Test.json", optional: false)
-                .Build();
-            var environment = new HostingEnvironment
-            {
-                EnvironmentName = "Test",
-                ApplicationName = typeof(IntegrationTestFixture).Assembly.GetName().Name!
-            };
+        var services = new ServiceCollection();
+        services.AddLogging();
 
-            var services = new ServiceCollection();
-            services.AddLogging();
-            services.AddJwtOptions(configuration);
+        services.AddJwtAuthentication(configuration);
+        services.AddApplication();
+        services.AddDatabase(configuration);
+        services.AddInfrastructure();
 
-            services.AddApplicationLayer();
-
-            services.AddDataLayer(configuration);
-
-            services.AddInfrastructure(environment);
-            Services = services.BuildServiceProvider();
-
-        }
-
-        public void Dispose()
-        {
-            Services.Dispose();
-        }
-
-        public async Task ResetDatabase()
-        {
-            using var scope = Services.CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            storage.Accounts.RemoveRange(storage.Accounts);
-            storage.Subscription.RemoveRange(storage.Subscription);
-
-            await storage.SaveChangesAsync();
-        }
+        Services = services.BuildServiceProvider();
     }
-    public abstract class IntegrationTestBase(
-    IntegrationTestFixture fixture)
+
+    public void Dispose()
     {
-        protected IServiceScope CreateScope()
-        {
-            return fixture.Services.CreateScope();
-        }
+        Services.Dispose();
+    }
+
+    public async Task ResetDatabase()
+    {
+        using var scope = Services.CreateScope();
+
+        var storage = scope.ServiceProvider
+            .GetRequiredService<AppStorage>();
+
+        storage.Accounts.RemoveRange(storage.Accounts);
+        storage.Subscription.RemoveRange(storage.Subscription);
+
+        await storage.SaveChangesAsync();
+    }
+}
+
+public abstract class IntegrationTestBase(
+    IntegrationTestFixture fixture)
+{
+    protected IServiceScope CreateScope()
+    {
+        return fixture.Services.CreateScope();
     }
 }
