@@ -2,7 +2,7 @@ using AqLife.Extensions.Application;
 using AqLife.Extensions.Authentication;
 using AqLife.Extensions.Configurations;
 using AqLife.Extensions.Database;
-using AqLife.Extensions.Exception;
+using AqLife.Extensions.Exceptions;
 using AqLife.Extensions.Infrastructure;
 using AqLife.Extensions.Logging;
 using AqLife.Extensions.Routing;

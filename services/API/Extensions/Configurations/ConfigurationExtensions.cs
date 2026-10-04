@@ -1,4 +1,5 @@
 using AqLife.Shared.Exceptions;
+using AqLife.Shared.Options;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 

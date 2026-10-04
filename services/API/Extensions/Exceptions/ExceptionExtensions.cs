@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AqLife.Extensions.Exception;
+namespace AqLife.Extensions.Exceptions;
 
 public static class ExceptionExtensions
 {
