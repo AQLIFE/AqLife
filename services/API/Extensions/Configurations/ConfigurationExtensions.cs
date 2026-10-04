@@ -19,7 +19,6 @@ public static class ConfigurationExtensions
         AddRequiredFile(configuration, configFolder, "FilePolicy.json");
         AddOptionalFile(configuration, configFolder, $"FilePolicy.{environmentName}.json");
 
-        configuration.AddEnvironmentVariables();
 
         return configuration;
     }
