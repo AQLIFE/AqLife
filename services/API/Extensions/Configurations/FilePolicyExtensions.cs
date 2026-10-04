@@ -84,9 +84,8 @@ public static class FilePolicyExtensions
                 BehavioralLevel.OptionType,
                 "存储路径恢复失败,请检查权限或磁盘状态.");
 
-            throw new OptionSelfRecoveryMeasuresException(
-                "存储路径恢复失败,请检查权限或磁盘状态.",
-                ex);
+            throw new ConfigurationInvalidException(
+                $"存储路径恢复失败,请检查权限或磁盘状态: {ex.Message}");
         }
     }
 }
