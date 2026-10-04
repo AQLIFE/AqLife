@@ -1,5 +1,3 @@
-using Amazon.Runtime;
-using Amazon.S3;
 using AqLife.Application.Abstractions.Authentication;
 using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Persistence;
@@ -12,6 +10,8 @@ using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog;
 
