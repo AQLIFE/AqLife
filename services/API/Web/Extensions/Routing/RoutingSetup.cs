@@ -1,7 +1,7 @@
 ﻿using AqLife.Web.Json;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
-namespace AqLife.Web.Extensions
+namespace AqLife.Web.Extensions.Routing
 {
     public static class RoutingSetup
     {

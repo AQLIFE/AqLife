@@ -1,6 +1,6 @@
 ﻿using AqLife.Web.Middlewares;
 
-namespace AqLife.Web.Extensions
+namespace AqLife.Web.Extensions.Exception
 {
 
     public static class ExceptionHandlerSetup

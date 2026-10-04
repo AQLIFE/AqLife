@@ -1,6 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Authentication;
 using AqLife.Domain.Entities;
-using AqLife.Infrastructure.Configuration;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 
-namespace AqLife.Web.Extensions
+namespace AqLife.Web.Extensions.Authentication
 {
     /// <summary>
     /// 
@@ -16,16 +15,16 @@ namespace AqLife.Web.Extensions
     public static class JwtSetup
     {
         /// <summary>
-        /// 生成环境
+        /// 读取JWt 配置 并DI 到系统上
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
         /// <exception cref="ConfigurationNotFoundException"></exception>
-        public static WebApplicationBuilder AddJwtPolicy(this WebApplicationBuilder builder)
+        public static IServiceCollection BindJwtPolicy(this IServiceCollection services,IConfiguration configuration)
         {
-            builder.Services.AddJwtOptions(builder.Configuration);
+            //builder.Services.AddJwtOptions(configuration);
 
-            var jwtSection = builder.Configuration.GetSection("Jwt");
+            var jwtSection = configuration.GetSection("Jwt");
 
             var jwtOption = jwtSection.Get<JwtOption>() ?? throw new ConfigurationNotFoundException("无法从配置中加载 JwtOption，请检查 appsettings.json");
 
@@ -40,7 +39,7 @@ namespace AqLife.Web.Extensions
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOption.SecretKey))
             };
 
-            builder.Services.AddAuthentication(options =>
+            services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -50,7 +49,7 @@ namespace AqLife.Web.Extensions
                 option.Events = BearerEvents;
             });
 
-            return builder;
+            return services;
         }
 
 

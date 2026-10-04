@@ -122,7 +122,7 @@ namespace AqLife.Application
             services.AddHostedService<ScheduledPublishWorker>();// 注册后台任务
 
             var implementationAssembly = typeof(Application).Assembly;
-            // 1. 扫描 MediatR (一次性扫描所有 Handler) [cite: 1, 191]
+            // 1. 扫描 MediatR (一次性扫描所有 Handler)
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssemblies(implementationAssembly);

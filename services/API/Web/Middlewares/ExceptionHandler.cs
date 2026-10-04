@@ -30,29 +30,4 @@ namespace AqLife.Web.Middlewares
             return true;
         }
     }
-
-    //public class ProductionExceptionHandler(ILogger<ProductionExceptionHandler> logger) : BaseExceptionHandler(logger)
-    //{
-    //    protected override object GetResponseBody(HttpContext context, Exception ex)
-    //    {
-    //        context.Response.StatusCode = GetHttpStatusCode(ex);
-    //        return new { error = ex.Message };
-    //    }
-    //}
-
-    //[Obsolete("意义不大且不利用开发")]
-    //public class DevelopmentExceptionHandler(ILogger<DevelopmentExceptionHandler> logger) : BaseExceptionHandler(logger)
-    //{
-    //    protected override object GetResponseBody(HttpContext context, Exception ex)
-    //    {
-    //        var problemDetails = new ProblemDetails
-    //        {
-    //            Status = GetHttpStatusCode(ex),
-    //            Title = "后端异常",
-    //            Detail = $"系统内部发生错误：{ex.Message}\n{ex.GetType()}\n{ex.GetBaseException()}",
-    //            Instance = context.Request.Path
-    //        };
-    //        return problemDetails;
-    //    }        
-    //}
 }

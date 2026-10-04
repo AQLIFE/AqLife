@@ -2,7 +2,7 @@
 using AqLife.Shared.Options;
 using Serilog;
 
-namespace AqLife.Web.Extensions
+namespace AqLife.Web.Extensions.Configurations
 {
     public static class FilePolicyInitializer
     {
@@ -13,25 +13,25 @@ namespace AqLife.Web.Extensions
         /// <returns></returns>
         /// <exception cref="OptionMappingException"></exception>
         /// <exception cref="OptionNotFoundException"></exception>
-        public static WebApplicationBuilder AddFilePolicy(this WebApplicationBuilder builder)
+        public static IServiceCollection BindFilePolicy(this IServiceCollection services,IConfiguration configuration,IWebHostEnvironment environment)
         {
             Log.Information(@"[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, "正在绑定文件存储策略...");
 
-            var filePolicySection = builder.Configuration.GetSection("FilePolicy");
-            var r2OptionSection = builder.Configuration.GetSection("R2");
+            var filePolicySection = configuration.GetSection("FilePolicy");
+            var r2OptionSection =   configuration.GetSection("R2");
 
             var filePolicy = filePolicySection.Get<FilePolicyOption>() ?? throw new ConfigurationNotFoundException("配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
 
-            EnsureStorageDirectoryCreated(builder.Environment.ContentRootPath, filePolicy.StoragePath);
-            builder.Services.AddOptions<FilePolicyOption>().Bind(filePolicySection).ValidateOnStart();
-            builder.Services.AddOptions<R2Options>().Bind(r2OptionSection).ValidateOnStart();
-            return builder;
+            EnsureStorageDirectoryCreated(environment.ContentRootPath, filePolicy.StoragePath);
+            services.AddOptions<FilePolicyOption>().Bind(filePolicySection).ValidateOnStart();
+            services.AddOptions<R2Options>().Bind(r2OptionSection).ValidateOnStart();
+            return services;
         }
 
 
 
         /// <summary>
-        /// 
+        /// 检查 一个路径是否存在,若不存在则自动创建;创建失败则报错
         /// </summary>
         /// <param name="rootPath"></param>
         /// <param name="path"></param>
