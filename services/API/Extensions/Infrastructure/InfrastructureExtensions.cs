@@ -4,6 +4,7 @@ using AqLife.Application.Abstractions.Authentication;
 using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
+using AqLife.Infrastructure;
 using AqLife.Infrastructure.Authentication;
 using AqLife.Infrastructure.FileStorage;
 using AqLife.Shared.Options;
