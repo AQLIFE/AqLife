@@ -2,6 +2,7 @@
   <Project Path="APIUnitTest/APIUnitTest.csproj" Id="9cbc4732-1e04-43e4-a648-58c3823deacc" />
   <Project Path="Application/Application.csproj" />
   <Project Path="Domain/Domain.csproj" />
+  <Project Path="Extensions/Extension.csproj" />
   <Project Path="Infrastructure/Infrastructure.csproj" />
   <Project Path="PostgreSqlMigrations/PostgreSqlMigrations.csproj" Id="81459cd1-4171-4da6-8687-e5aeb1df474e" />
   <Project Path="Shared/Shared.csproj" />
