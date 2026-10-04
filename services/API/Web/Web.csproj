@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -10,13 +10,9 @@
 
   <ItemGroup>
     <Compile Remove="logs\**" />
-    
     <Content Remove="logs\**" />
-    
     <EmbeddedResource Remove="logs\**" />
-    
     <None Remove="logs\**" />
-    
   </ItemGroup>
 
   <ItemGroup>
@@ -35,8 +31,6 @@
     <PackageReference Include="MySql.Data" Version="9.7.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.3" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.0.1" />
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
-    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.7" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.7" />
@@ -45,8 +39,10 @@
   <ItemGroup>
     <Folder Include="Cache\" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Extensions\Extension.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\PostgreSqlMigrations\PostgreSqlMigrations.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
