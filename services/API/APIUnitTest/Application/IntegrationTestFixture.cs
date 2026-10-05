@@ -5,9 +5,13 @@ using AqLife.Extensions.Infrastructure;
 using AqLife.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace AqLife.APIUnitTest.Application;
 
+/// <summary>
+/// 集成测试环境组装
+/// </summary>
 public class IntegrationTestFixture : IDisposable
 {
     public ServiceProvider Services { get; }
@@ -20,12 +24,15 @@ public class IntegrationTestFixture : IDisposable
             .Build();
 
         var services = new ServiceCollection();
+        var environment = new TestHostEnvironment();
+
+        services.AddSingleton<IHostEnvironment>(environment);
         services.AddLogging();
 
         services.AddJwtAuthentication(configuration);
         services.AddApplication();
         services.AddDatabase(configuration);
-        services.AddInfrastructure();
+        services.AddInfrastructure(environment);
 
         Services = services.BuildServiceProvider();
     }

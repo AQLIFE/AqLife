@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace AqLife.Application.Services
+namespace AqLife.Application.BackServices
 {
     public class ScheduledPublishWorker(IServiceScopeFactory scopeFactory, ILogger<ScheduledPublishWorker> logger) : BackgroundService
     {

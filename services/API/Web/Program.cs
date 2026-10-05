@@ -29,7 +29,7 @@ builder.Services.AddFilePolicy(
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddDatabase(builder.Configuration);
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Environment);
 builder.Services.AddGlobalExceptionPolicy<BaseExceptionHandler>();
 builder.Services.AddRouteAdapter();
 
@@ -37,27 +37,31 @@ builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<FileUploadFilter>();
 
-var corsOrigins =
-    builder.Configuration
-        .GetSection("Cors:AllowedOrigins")
-        .Get<string[]>()
-    ?? throw new ConfigurationNotFoundException(
-        "未找到 Cors 配置");
-
-builder.Services.AddCors(options =>
+if(builder.Environment.IsDevelopment())
 {
-    options.AddPolicy(
-        "AqLifeAllowSpecificOrigins",
-        policy =>
-        {
-            policy
-                .WithOrigins(corsOrigins)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials()
-                .WithExposedHeaders("Authorization");
-        });
-});
+
+    var corsOrigins =
+        builder.Configuration
+            .GetSection("Cors:AllowedOrigins")
+            .Get<string[]>()
+        ?? throw new ConfigurationNotFoundException(
+            "未找到 Cors 配置");
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(
+            "AqLifeAllowSpecificOrigins",
+            policy =>
+            {
+                policy
+                    .WithOrigins(corsOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+                    .WithExposedHeaders("Authorization");
+            });
+    });
+}
 
 var app = builder.Build();
 
