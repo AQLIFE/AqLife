@@ -1,6 +1,7 @@
 using AqLife.Application.Abstractions.Authentication;
 using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Business.Account.Services;
 using AqLife.Domain.Entities;
 using AqLife.Infrastructure;
 using AqLife.Infrastructure.Authentication;
@@ -94,6 +95,51 @@ public static class DatabaseExtensions
             "[Serilog][{@BehavioralLevel}]=>{@LogDesc}",
             BehavioralLevel.DbType,
             "数据库连通性自检通过。");
+
+        return host;
+    }
+
+    public static async Task<IHost> OutputKeyAsync(this IHost host)
+    {
+        using var scope = host.Services.CreateScope();
+
+        var services = scope.ServiceProvider;
+
+        var logger =
+            services.GetRequiredService<
+                ILogger<SystemInitializationService>>();
+
+        var initializationService =
+            services.GetRequiredService<SystemInitializationService>();
+
+        logger.LogInformation(
+            "[Serilog][{@BehavioralLevel}]=>{@LogDesc}",
+            BehavioralLevel.DbType,
+            "正在检查系统密钥");
+
+        var systemKey =
+        await initializationService.GetSystemKey();
+
+        if (systemKey is null)
+        {
+            if (!await initializationService.Initialization())
+            {
+                logger.LogInformation(
+                    "[Serilog][{@BehavioralLevel}]=>{@LogDesc}",
+                    BehavioralLevel.DbType,
+                    "系统已经完成初始化");
+
+                return host;
+            }
+
+            systemKey =
+                await initializationService.GetSystemKey();
+        }
+
+        logger.LogInformation(
+            "[Serilog][{@BehavioralLevel}]=>{@LogDesc}",
+            BehavioralLevel.DbType,
+            $"系统密钥: {systemKey}");
 
         return host;
     }

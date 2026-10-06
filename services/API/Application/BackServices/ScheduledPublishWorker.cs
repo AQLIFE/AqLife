@@ -1,4 +1,5 @@
-﻿using AqLife.Domain.Command;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Command;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,9 +22,22 @@ namespace AqLife.Application.BackServices
 
                     var mediator = scope.ServiceProvider
                         .GetRequiredService<IMediator>();
+                    var context = scope.ServiceProvider
+                        .GetRequiredService<IApplicationDbContext>();
+                    await using var transaction = await context.BeginTransactionAsync(stoppingToken);
 
-                    var result =await mediator.Send(new ProcessScheduledPostsCommand(),stoppingToken);
-                    logger.LogInformation("Scheduled posts processed. Found: {Found}, Published: {Published}, Failed: {Failed}", result.Found, result.Published, result.Failed);
+                    try
+                    {
+                        var result = await mediator.Send(new ProcessScheduledPostsCommand(), stoppingToken);
+                        await context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        logger.LogInformation("Scheduled posts processed. Found: {Found}, Published: {Published}, Failed: {Failed}", result.Found, result.Published, result.Failed);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError("后台任务执行失败:{0}", ex);
+                        await transaction.RollbackAsync();
+                    }
                 }
                 catch (OperationCanceledException)
                     when (stoppingToken.IsCancellationRequested)
@@ -32,7 +46,7 @@ namespace AqLife.Application.BackServices
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex,"Scheduled publish processing failed.");
+                    logger.LogError(ex, "Scheduled publish processing failed.");
                 }
                 await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
             }

@@ -68,6 +68,8 @@ var app = builder.Build();
 app.UseExceptionHandler();
 app.CheckDatabaseConnection();
 
+await app.OutputKeyAsync();
+
 app.UseCors("AqLifeAllowSpecificOrigins");
 app.UseAuthentication();
 app.UseAuthorization();

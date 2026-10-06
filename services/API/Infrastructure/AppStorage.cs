@@ -16,6 +16,7 @@ namespace AqLife.Infrastructure
         public DbSet<FileTagEntity> BlogTags { get; set; }
         public DbSet<PublishMetaEntity> FilePublishMetas { get; set; }
         public DbSet<InteractionMetaEntity> FileInteractionMetas { get; set; }
+        public DbSet<SystemStateEntity> SystemStates { get; set; }
 
 
         public async Task<ITransaction> BeginTransactionAsync(CancellationToken ct)

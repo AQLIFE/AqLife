@@ -4,7 +4,7 @@
       <ElButton :type="isActive ? 'default' : 'primary'" :icon="isActive ? Lock : Unlock" @click="isActive = !isActive">{{ isActive ? 'Unlock' : 'Lock' }}</ElButton>
     </div>
     <ElForm class="profile-form" label-position="top">
-      <div class="profile-avatar"><ElFormItem label="Avatar"><ElTooltip content="请上传对应博客头像"><ImageUpload :disabled="isActive" iconSize="112px" :src="preview()" v-model:file="avatarFile" /></ElTooltip></ElFormItem></div>
+      <div class="profile-avatar"><ElFormItem label="Avatar"><ElTooltip content="请上传对应博客头像"><ImageUpload :disabled="isActive" iconSize="112px" :src="preview()" v-model:file="avatarFile" accept=".png,.jpeg,.jpg"/></ElTooltip></ElFormItem></div>
       <div class="profile-fields">
         <ElFormItem label="Name"><ElInput :disabled="isActive" v-model="accountStore.systemAccount!.name" /></ElFormItem>
         <ElFormItem label="Description"><ElInput type="textarea" :rows="6" :disabled="isActive" v-model="accountStore.systemAccount!.desc" /></ElFormItem>
