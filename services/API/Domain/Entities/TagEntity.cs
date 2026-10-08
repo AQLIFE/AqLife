@@ -18,7 +18,7 @@ namespace AqLife.Domain.Entities
         public bool IsCategory { get; set; } = false; // 标记是否属于分类
 
         // 导航属性：关联的中间表
-        public virtual ICollection<FileTagEntity> FileTags { get; set; } = [];
+        public ICollection<FileTagEntity> FileTags { get; set; } = [];
 
         public TagEntity() { }
         public TagEntity(string name, bool isCategory = false, string? aliasName = null)

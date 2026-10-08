@@ -19,8 +19,6 @@ namespace AqLife.Domain.Entities
         public string SubscriptionPlatform { get; init; } = String.Empty;
         public Guid SubscriptionIcon { get; init; } = Guid.Empty;
 
-        [ForeignKey(nameof(AID))]
-        public virtual AccountEntity Account { get; set; } = null!;
         public SubscriptionEntity() { }
 
         public SubscriptionEntity(Guid aid, string slink, string sPlatform, string sName, Guid icon)
@@ -35,7 +33,6 @@ namespace AqLife.Domain.Entities
         public void BindAccount(AccountEntity account)
         {
             AID = account.UID;
-            Account = account;
         }
     }
 
@@ -45,25 +42,24 @@ namespace AqLife.Domain.Entities
     {
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
-        [StringLength(32, ErrorMessage = "账户名称长度必须介于32之内"), Column]
+        [StringLength(32, ErrorMessage = "账户名称长度必须介于32之内")]
         public string Name { get; private set; } = string.Empty;
-        [StringLength(255, ErrorMessage = "最大允许255个字符"), Column]
+        [StringLength(255, ErrorMessage = "最大允许255个字符")]
         public string Desc { get; private set; } = string.Empty;
 
         /// <summary>
         /// 使用:设计 决定 Filecontroller 必须返回对应头像GUID
         /// </summary>
-        [Column]
         public Guid Avatar { get; private set; } = Guid.Empty;
-        [Column]
+        
         public bool IsValid { get; private set; } = true;
 
-        [Column]
+        
         public string LoginName { get; init; } = IdentityGenerator.GenerateSecureLoginName();
-        [Column]
+        
         public string LoginPasswordHash { get; private set; } = string.Empty;
 
-        public virtual ICollection<SubscriptionEntity> Subscriptions { get; set; } = [];
+        public ICollection<SubscriptionEntity> Subscriptions { get; set; } = [];
 
         public AccountEntity() { }
         public AccountEntity(string name, string? desc, string pwd)

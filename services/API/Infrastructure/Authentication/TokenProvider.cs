@@ -6,7 +6,7 @@ using Duende.IdentityModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
 using System.Text;
 
@@ -16,22 +16,27 @@ namespace AqLife.Infrastructure.Authentication
     {
         public string CreateToken(AccountEntity account)
         {
-            var claims = new[]
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(options.Value.SecretKey));
+
+            var creds = new SigningCredentials(
+                key,
+                SecurityAlgorithms.HmacSha256);
+
+            var sourceToken = new SecurityTokenDescriptor
             {
-            new Claim(JwtClaimTypes.Id, account.UID.ToString())
+                Issuer = options.Value.Issuer,
+                Audience = options.Value.Audience,
+                Claims = new Dictionary<string, object>
+                {
+                    [JwtClaimTypes.Id] = account.UID.ToString()
+                },
+                NotBefore = DateTime.UtcNow,
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = creds
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.SecretKey));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var sourceToken = new JwtSecurityToken(
-                issuer: options.Value.Issuer,
-                audience: options.Value.Audience,
-                claims: claims,
-                notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: creds);
-
-            return new JwtSecurityTokenHandler().WriteToken(sourceToken);
+            return new JsonWebTokenHandler().CreateToken(sourceToken);
         }
         public async Task<bool> IsUserExistsAsync(ClaimsPrincipal principal, CancellationToken ct = default)
         {

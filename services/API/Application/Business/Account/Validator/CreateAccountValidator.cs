@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Business.Account.Services;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Shared.Options;
@@ -40,10 +41,10 @@ namespace AqLife.Application.Business.Account.Validator
     /// 必须具有系统密钥
     /// </summary>
     /// <param name="options"></param>
-    public class CreateAccountServerKeyValidator(IOptions<JwtOption> options) : AbstractValidator<CreateAccountCommand>
+    public class CreateAccountServerKeyValidator(SystemInitializationService initializationService) : AbstractValidator<CreateAccountCommand>
     {
         private protected override string ErrorMessage { init; get; } = "系统密钥不匹配";
         private protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
-        => options.Value.SecretKey == command.ServerKey;
+        => await initializationService.ValidateSystemKey(command.ServerKey);
     }
 }

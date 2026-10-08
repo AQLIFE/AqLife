@@ -15,17 +15,15 @@ namespace AqLife.Domain.Entities
 
         public Guid? FTID { get; private set; } = null;// 作为父级任务ID，默认为空
 
-        [Column, Required(ErrorMessage = "Description is required")]
+        [Required(ErrorMessage = "Description is required")]
         public string Desc { get; private set; } = string.Empty;
 
-        [Column, Required(ErrorMessage = "Status is required")]
+        [Required(ErrorMessage = "Status is required")]
         public TodoStatus Status { get; private set; } = TodoStatus.Initial;
 
-        [Column]
         public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
         // 任务完成时间，默认为空，只有当任务状态为Completed时才会有值
-        [Column]
         public DateTimeOffset? CompletedAt { get; private set; }
 
         // 任务优先级,数值越大优先级越高，
@@ -33,10 +31,8 @@ namespace AqLife.Domain.Entities
         // 已完成的 : 不可被更新 不可被删除
         // 已废弃 :  不可被更新 可以删除
         // 合法语义区间 : 可以更新和删除
-        [Column]
         public int Priority { get; private set; } = 1;
 
-        [ForeignKey(nameof(FTID))]
         public ICollection<TodoEntity> Children { get; set; } = [];
 
         [NotMapped]

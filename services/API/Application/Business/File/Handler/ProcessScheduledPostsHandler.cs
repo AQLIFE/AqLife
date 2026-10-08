@@ -1,4 +1,4 @@
-﻿using AqLife.Application.Services;
+﻿using AqLife.Application.BackServices;
 using AqLife.Domain.Command;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -7,7 +7,7 @@ namespace AqLife.Application.Business.File.Handler;
 public class ProcessScheduledPostsHandler(
     BlogSearch search,
     TimeProvider timeProvider,
-    IBlogPublishService service,
+    IFilePublishService service,
     ILogger<ProcessScheduledPostsHandler> logger)
     : IRequestHandler<ProcessScheduledPostsCommand, ProcessScheduledPostsResult>
 {

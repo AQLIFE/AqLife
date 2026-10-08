@@ -9,14 +9,14 @@ namespace AqLife.Application.Business.Account
     [Mapper]
     public partial class SubscriptionMapper : IViewMapper<SubscriptionEntity, SubscriptionDto>, ICreateMapper<SubscriptionEntity, ISubscription>
     {
+        //[MapperIgnoreSource(nameof(SubscriptionEntity.Account))]
         [MapperIgnoreSource(nameof(SubscriptionEntity.UID))]
         [MapperIgnoreSource(nameof(SubscriptionEntity.AID))]
-        [MapperIgnoreSource(nameof(SubscriptionEntity.Account))]
         public partial SubscriptionDto ToDto(SubscriptionEntity obj);
 
+        //[MapperIgnoreTarget(nameof(SubscriptionEntity.Account))]
         [MapperIgnoreTarget(nameof(SubscriptionEntity.UID))]
         [MapperIgnoreTarget(nameof(SubscriptionEntity.AID))]
-        [MapperIgnoreTarget(nameof(SubscriptionEntity.Account))]
         public partial SubscriptionEntity ToEntity(ISubscription source);
     }
 

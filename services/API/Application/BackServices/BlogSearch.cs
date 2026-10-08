@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AqLife.Application.Services
+namespace AqLife.Application.BackServices
 {
     public class BlogSearch(IApplicationDbContext context)
     {

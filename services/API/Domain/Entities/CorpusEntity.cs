@@ -10,9 +10,9 @@ namespace AqLife.Domain.Entities
     {
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
-        [Column]
+        
         public string CorpusContent { get; private set; } = string.Empty;
-        [Column]
+        
         public DateTimeOffset CreateDate { get; init; } = DateTimeOffset.UtcNow;
 
         public CorpusEntity() { }
