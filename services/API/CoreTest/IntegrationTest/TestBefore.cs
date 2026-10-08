@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using Xunit.v3;
 
-namespace AqLife.APIUnitTest.Application
+namespace AqLife.CoreTest.Application
 {
     public sealed class ResetDatabaseAttribute : BeforeAfterTestAttribute
     {

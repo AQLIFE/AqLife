@@ -1,7 +1,7 @@
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 
-namespace AqLife.APIUnitTest.Domain
+namespace AqLife.CoreTest.Domain
 {
     public class TodoEntityTests
     {

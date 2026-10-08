@@ -1,3 +1,4 @@
+using AqLife.Application.Business.Account.Services;
 using AqLife.Extensions.Application;
 using AqLife.Extensions.Authentication;
 using AqLife.Extensions.Database;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace AqLife.APIUnitTest.Application;
+namespace AqLife.CoreTest.Application;
 
 /// <summary>
 /// 集成测试环境组装
@@ -33,6 +34,7 @@ public class IntegrationTestFixture : IDisposable
         services.AddApplication();
         services.AddDatabase(configuration);
         services.AddInfrastructure(environment);
+        
 
         Services = services.BuildServiceProvider();
     }
@@ -41,7 +43,6 @@ public class IntegrationTestFixture : IDisposable
     {
         Services.Dispose();
     }
-
     public async Task ResetDatabase()
     {
         using var scope = Services.CreateScope();
@@ -51,6 +52,7 @@ public class IntegrationTestFixture : IDisposable
 
         storage.Accounts.RemoveRange(storage.Accounts);
         storage.Subscription.RemoveRange(storage.Subscription);
+        storage.SystemStates.RemoveRange(storage.SystemStates);
 
         await storage.SaveChangesAsync();
     }
@@ -63,4 +65,6 @@ public abstract class IntegrationTestBase(
     {
         return fixture.Services.CreateScope();
     }
+    protected async Task<string?> EnsureSystemKeyAsync()
+        =>await fixture.Services.EnsureAndGetSystemKeyAsync();
 }

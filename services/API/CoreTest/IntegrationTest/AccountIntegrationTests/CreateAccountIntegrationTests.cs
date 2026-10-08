@@ -1,5 +1,7 @@
-﻿using AqLife.APIUnitTest.TestData;
+﻿using AqLife.Application.Business.Account.Services;
+using AqLife.CoreTest.TestData;
 using AqLife.Domain.Command;
+using AqLife.Extensions.Database;
 using AqLife.Infrastructure;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Utils;
@@ -8,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 
-namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
+namespace AqLife.CoreTest.Application.AccountIntegrationTests
 {
     [Collection<IntegrationTestCollection>]
     public class CreateAccountIntegrationTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
@@ -24,7 +26,9 @@ namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
             var mediator = scope.ServiceProvider
                 .GetRequiredService<IMediator>();
 
-            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", "8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92");
+            
+            string key = await fixture.Services.EnsureAndGetSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
+            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
 
             var loginName = await mediator.Send(command, CancellationToken.None);
 
@@ -58,9 +62,9 @@ namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
             var mediator = scope.ServiceProvider
                 .GetRequiredService<IMediator>();
 
-
+            string key = await fixture.Services.EnsureAndGetSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
             // 符合规则的测试数据
-            CreateAccountCommand command = new(testSource, "测试账户描述", "pwd123456", "8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92");
+            CreateAccountCommand command = new(testSource, "测试账户描述", "pwd123456", key);
 
             // 执行测试
             var loginName = await mediator.Send(command, CancellationToken.None);
@@ -92,10 +96,10 @@ namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
 
             var mediator = scope.ServiceProvider
                 .GetRequiredService<IMediator>();
-
+            string key = await fixture.Services.EnsureAndGetSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
 
             // 符合规则的测试数据
-            CreateAccountCommand command = new(testSource, "测试账户描述", "pwd123456", "8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92");
+            CreateAccountCommand command = new(testSource, "测试账户描述", "pwd123456", key);
 
             // 执行测试
             await Assert.ThrowsAsync<RequestCheckException>(() => mediator.Send(command, CancellationToken.None));
@@ -118,10 +122,10 @@ namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
             var mediator = scope.ServiceProvider
                 .GetRequiredService<IMediator>();
 
-
+            string key = await fixture.Services.EnsureAndGetSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
             // 符合规则的测试数据
             string longName = "abcdefghijklmnopquvwxyz1234567890";
-            CreateAccountCommand command = new(longName, "测试账户描述", "pwd123456", "8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92");
+            CreateAccountCommand command = new(longName, "测试账户描述", "pwd123456", key);
 
             // 执行测试
             await Assert.ThrowsAsync<DbUpdateException>(() => mediator.Send(command, CancellationToken.None));
@@ -145,9 +149,9 @@ namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
             var mediator = scope.ServiceProvider
                 .GetRequiredService<IMediator>();
 
-
+            string key = await fixture.Services.EnsureAndGetSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
             // 符合规则的测试数据            
-            CreateAccountCommand command = new("测试账户1", testSource, "pwd123456", "8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92");
+            CreateAccountCommand command = new("测试账户1", testSource, "pwd123456", key);
 
             // 执行测试
             if (testSource.Length > 255)
@@ -182,9 +186,9 @@ namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
             var mediator = scope.ServiceProvider
                 .GetRequiredService<IMediator>();
 
-
+            string key = await fixture.Services.EnsureAndGetSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
             // 符合规则的测试数据            
-            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", "8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92");
+            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
 
             // 执行测试
             var loginName = await mediator.Send(command, CancellationToken.None);

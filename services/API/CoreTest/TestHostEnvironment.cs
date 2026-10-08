@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AqLife.APIUnitTest
+namespace AqLife.CoreTest
 {
     public sealed class TestHostEnvironment : IHostEnvironment
     {

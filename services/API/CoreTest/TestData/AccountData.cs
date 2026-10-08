@@ -1,4 +1,4 @@
-﻿namespace AqLife.APIUnitTest.TestData
+﻿namespace AqLife.CoreTest.TestData
 {
     public static class AccountTestData
     {

@@ -99,26 +99,65 @@ public static class DatabaseExtensions
         return host;
     }
 
-    public static async Task<IHost> OutputKeyAsync(this IHost host)
+    //public static async Task<IHost> OutputKeyAsync(this IHost host)
+    //{
+    //    using var scope = host.Services.CreateScope();
+
+    //    var services = scope.ServiceProvider;
+
+    //    var logger =
+    //        services.GetRequiredService<
+    //            ILogger<SystemInitializationService>>();
+
+    //    var initializationService =
+    //        services.GetRequiredService<SystemInitializationService>();
+
+    //    logger.LogInformation(
+    //        "[Serilog][{@BehavioralLevel}]=>{@LogDesc}",
+    //        BehavioralLevel.DbType,
+    //        "正在检查系统密钥");
+
+    //    var systemKey =
+    //    await initializationService.GetSystemKey();
+
+    //    if (systemKey is null)
+    //    {
+    //        if (!await initializationService.Initialization())
+    //        {
+    //            logger.LogInformation(
+    //                "[Serilog][{@BehavioralLevel}]=>{@LogDesc}",
+    //                BehavioralLevel.DbType,
+    //                "系统已经完成初始化");
+
+    //            return host;
+    //        }
+
+    //        systemKey =
+    //            await initializationService.GetSystemKey();
+    //    }
+
+    //    logger.LogInformation(
+    //        "[Serilog][{@BehavioralLevel}]=>{@LogDesc}",
+    //        BehavioralLevel.DbType,
+    //        $"系统密钥: {systemKey}");
+
+    //    return host;
+    //}
+
+    public static async Task<string?> EnsureAndGetSystemKeyAsync(this IServiceProvider services)
     {
-        using var scope = host.Services.CreateScope();
+        using var scope = services.CreateScope();
+        var sp = scope.ServiceProvider;
 
-        var services = scope.ServiceProvider;
-
-        var logger =
-            services.GetRequiredService<
-                ILogger<SystemInitializationService>>();
-
-        var initializationService =
-            services.GetRequiredService<SystemInitializationService>();
+        var logger = sp.GetRequiredService<ILogger<SystemInitializationService>>();
+        var initializationService = sp.GetRequiredService<SystemInitializationService>();
 
         logger.LogInformation(
             "[Serilog][{@BehavioralLevel}]=>{@LogDesc}",
             BehavioralLevel.DbType,
             "正在检查系统密钥");
 
-        var systemKey =
-        await initializationService.GetSystemKey();
+        var systemKey = await initializationService.GetSystemKey();
 
         if (systemKey is null)
         {
@@ -128,12 +167,10 @@ public static class DatabaseExtensions
                     "[Serilog][{@BehavioralLevel}]=>{@LogDesc}",
                     BehavioralLevel.DbType,
                     "系统已经完成初始化");
-
-                return host;
+                return null;
             }
 
-            systemKey =
-                await initializationService.GetSystemKey();
+            systemKey = await initializationService.GetSystemKey();
         }
 
         logger.LogInformation(
@@ -141,6 +178,13 @@ public static class DatabaseExtensions
             BehavioralLevel.DbType,
             $"系统密钥: {systemKey}");
 
+        return systemKey;
+    }
+
+    // 原来的 IHost 扩展改成转发
+    public static async Task<IHost> OutputKeyAsync(this IHost host)
+    {
+        await host.Services.EnsureAndGetSystemKeyAsync();
         return host;
     }
 }

@@ -3,7 +3,7 @@ using AqLife.Domain.Entities.File;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 
-namespace AqLife.APIUnitTest.Domain
+namespace AqLife.CoreTest.Domain
 {
     public class FileEntityTests
     {

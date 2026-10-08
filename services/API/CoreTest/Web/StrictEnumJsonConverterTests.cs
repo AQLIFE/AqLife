@@ -2,7 +2,7 @@ using System.Text.Json;
 using AqLife.Extensions.Routing;
 using AqLife.Shared.Options;
 
-namespace AqLife.APIUnitTest.Web;
+namespace AqLife.CoreTest.Web;
 
 public class StrictEnumJsonConverterTests
 {

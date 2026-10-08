@@ -1,6 +1,6 @@
 ﻿using AqLife.Domain.Entities;
 
-namespace AqLife.APIUnitTest.Domain
+namespace AqLife.CoreTest.Domain
 {
     public class TagEntityTests
     {

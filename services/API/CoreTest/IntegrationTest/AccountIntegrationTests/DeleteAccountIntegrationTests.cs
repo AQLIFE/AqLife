@@ -1,12 +1,15 @@
-﻿using AqLife.Domain.Command;
+﻿using AqLife.Application.Business.Account.Services;
+using AqLife.CoreTest.Application;
+using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using AqLife.Extensions.Database;
 using AqLife.Infrastructure;
 using AqLife.Shared.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
+namespace AqLife.CoreTest.Application.AccountIntegrationTests
 {
     [Collection<IntegrationTestCollection>]
     public class DeleteAccountIntegrationTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
@@ -104,7 +107,9 @@ namespace AqLife.APIUnitTest.Application.AccountIntegrationTests
             var mediator = scope.ServiceProvider
                 .GetRequiredService<IMediator>();
 
-            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", "8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92");
+            string key = await fixture.Services.EnsureAndGetSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
+
+            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
 
             var loginName = await mediator.Send(command, CancellationToken.None);
 

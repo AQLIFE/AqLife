@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.BackServices;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
@@ -10,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AqLife.Application.BackServices
+namespace AqLife.Application.Abstractions
 {
     public sealed class FilePublishService(IApplicationDbContext context): IFilePublishService
     {
@@ -31,6 +32,7 @@ namespace AqLife.Application.BackServices
             }
             return files.Count;
             //return await context.SaveChangesAsync(ct);// 返回发布的数量:对于数量是否一致或者其他要求,交由调用者处理
+     
         }
     }
 }

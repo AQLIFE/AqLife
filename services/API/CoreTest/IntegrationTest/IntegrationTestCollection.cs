@@ -1,4 +1,4 @@
-﻿namespace AqLife.APIUnitTest.Application
+﻿namespace AqLife.CoreTest.Application
 {
     [CollectionDefinition]
     public class IntegrationTestCollection
