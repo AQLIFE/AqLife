@@ -5,7 +5,6 @@ import { Edit, Check, Lock, Delete } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
 import { FileApi, type FileDto, type TagDto } from '@/api'
-import { isMdType } from '@aqlife/domain'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
@@ -47,14 +46,11 @@ const segmentedOptions = computed(() =>
   })),
 )
 
-const isMarkdownFile = computed(() => isMdType(file.value?.fileType ?? ''))
-
-const pageDescription = computed(() => {
-  if (file.value && !isMarkdownFile.value) return '该文件类型不支持 Markdown 编辑或预览'
-  return isEditing.value
+const pageDescription = computed(() =>
+  isEditing.value
     ? '编辑 Markdown 内容，保存后生成文件的新版本'
-    : '查看 Markdown 内容与发布状态'
-})
+    : '查看 Markdown 内容与发布状态',
+)
 
 function parsePublishAt(value: FileDto['publishAt']): Date | null {
   if (!value) return null
@@ -66,7 +62,16 @@ async function loadArticle(guid: string) {
   loading.value = true
 
   try {
-    const metadata = await fileApi.apiFileGet({ uID: guid })
+    const [previewResponse, metadata] = await Promise.all([
+      fileApi.apiFilePreviewGetRaw({ uID: guid }),
+      fileApi.apiFileGet({ uID: guid }),
+    ])
+
+    if (previewResponse.raw.status !== 200) {
+      throw new Error(`无法加载博文（HTTP ${previewResponse.raw.status}）`)
+    }
+
+    const content = await previewResponse.raw.text()
     const dto = metadata.items?.[0]
 
     if (!dto) {
@@ -75,27 +80,12 @@ async function loadArticle(guid: string) {
 
     file.value = dto
     fileStore.upsertFile(dto)
-    publishStatusModel.value = dto.publishStatus
-    selectedTags.value = dto.tags ?? []
-    scheduledAt.value = parsePublishAt(dto.publishAt)
-
-    // 非 Markdown 文件不应请求文本预览接口，也不能交给 Markdown 编辑器/渲染器。
-    if (!isMdType(dto.fileType ?? '')) {
-      markdown.value = ''
-      originalMarkdown.value = ''
-      editor?.setValue('')
-      return
-    }
-
-    const previewResponse = await fileApi.apiFilePreviewGetRaw({ uID: guid })
-    if (previewResponse.raw.status !== 200) {
-      throw new Error(`无法加载博文（HTTP ${previewResponse.raw.status}）`)
-    }
-
-    const content = await previewResponse.raw.text()
     markdown.value = content
     originalMarkdown.value = content
     editor?.setValue(content)
+    publishStatusModel.value = dto.publishStatus
+    selectedTags.value = dto.tags ?? []
+    scheduledAt.value = parsePublishAt(dto.publishAt)
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
@@ -230,7 +220,7 @@ async function deleteArticle() {
 }
 
 async function saveVersion() {
-  if (!isMarkdownFile.value || !file.value?.uid || !isDirty.value) return
+  if (!file.value?.uid || !isDirty.value) return
 
   loading.value = true
 
@@ -329,7 +319,7 @@ onBeforeUnmount(() => {
             @change="onScheduledAtChanged"
           />
         </div>
-        <template v-if="isEditing && isMarkdownFile">
+        <template v-if="isEditing">
           <ElButton :icon="Lock" @click="leaveEditMode">
             退出编辑
           </ElButton>
@@ -346,22 +336,18 @@ onBeforeUnmount(() => {
           <ElButton :icon="Delete" :disabled="deleting || publishing || scheduling" @click="deleteArticle">
             删除
           </ElButton>
-          <ElButton v-if="isMarkdownFile" type="primary" :icon="Edit" @click="enterEditMode">
+          <ElButton type="primary" :icon="Edit" @click="enterEditMode">
             编辑
           </ElButton>
         </template>
       </template>
     </MgsPageHeader>
 
-    <div v-show="isMarkdownFile" class="editor-grid">
+    <div class="editor-grid">
       <div ref="container" class="editor" />
       <div class="render">
-        <MarkdownRender v-if="isMarkdownFile" :markdown="markdown" :baseurl="baseurl" />
+        <MarkdownRender :markdown="markdown" :baseurl="baseurl" />
       </div>
-    </div>
-    <div v-else-if="file" class="unsupported-file">
-      <p>此文件不是 Markdown 文件，已停止 Markdown 加载与渲染。</p>
-      <p>文件类型：{{ file.fileType || '未知' }}</p>
     </div>
   </div>
 </template>
@@ -373,18 +359,6 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.unsupported-file {
-  margin: 24px;
-  padding: 24px;
-  border: 1px solid var(--mgs-border);
-  border-radius: 8px;
-  color: var(--mgs-muted);
-}
-
-.unsupported-file p {
-  margin: 0 0 8px;
 }
 
 .editor-grid {
