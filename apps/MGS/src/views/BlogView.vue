@@ -230,7 +230,7 @@ async function deleteArticle() {
 }
 
 async function saveVersion() {
-  if (!file.value?.uid || !isDirty.value) return
+  if (!isMarkdownFile.value || !file.value?.uid || !isDirty.value) return
 
   loading.value = true
 
@@ -329,7 +329,7 @@ onBeforeUnmount(() => {
             @change="onScheduledAtChanged"
           />
         </div>
-        <template v-if="isEditing">
+        <template v-if="isEditing && isMarkdownFile">
           <ElButton :icon="Lock" @click="leaveEditMode">
             退出编辑
           </ElButton>
