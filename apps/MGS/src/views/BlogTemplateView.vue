@@ -110,7 +110,7 @@
           </div>
         </ElForm>
 
-        
+
 
         <div class="sheet">
           <div class="sheet-toolbar">
@@ -166,7 +166,7 @@ import {
 import { Edit, InfoFilled, Plus } from '@element-plus/icons-vue'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
-import { FileApi, type FileDto, type TagDto } from '@/api'
+import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow } from '@/workflow'
@@ -211,7 +211,7 @@ const bodyLines = computed(() => draft.content.split('\n'))
 
 async function loadTemplates(selectUid?: string) {
   const result = await fileApi.apiFileGet({
-    includeTemplates: true,
+    scope: FileScope.NUMBER_3 ,
     page: 1,
     pageSize: 100,
   })
