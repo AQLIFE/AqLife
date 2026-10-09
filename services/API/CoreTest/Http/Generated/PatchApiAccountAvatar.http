@@ -1,4 +1,4 @@
-@baseUrl = 
+@baseUrl = http://localhost:5110
 @contentType = application/json
 
 ########################################
