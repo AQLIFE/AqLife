@@ -353,10 +353,10 @@ onBeforeUnmount(() => {
       </template>
     </MgsPageHeader>
 
-    <div v-if="isMarkdownFile" class="editor-grid">
+    <div v-show="isMarkdownFile" class="editor-grid">
       <div ref="container" class="editor" />
       <div class="render">
-        <MarkdownRender :markdown="markdown" :baseurl="baseurl" />
+        <MarkdownRender v-if="isMarkdownFile" :markdown="markdown" :baseurl="baseurl" />
       </div>
     </div>
     <div v-else-if="file" class="unsupported-file">
