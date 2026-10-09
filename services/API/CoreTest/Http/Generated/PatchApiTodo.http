@@ -1,0 +1,18 @@
+@baseUrl = 
+@contentType = application/json
+
+##############################
+### Request: PATCH /api/Todo
+##############################
+
+
+PATCH {{baseUrl}}/api/Todo
+Content-Type: {{contentType}}
+
+{
+  "uid": "uid",
+  "desc": "desc",
+  "status": 0,
+  "priority": 0
+}
+

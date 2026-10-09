@@ -1,0 +1,12 @@
+@baseUrl = 
+@contentType = application/json
+
+####################################
+### Request: POST /api/File/Upload
+####################################
+
+
+POST {{baseUrl}}/api/File/Upload
+Content-Type: {{contentType}}
+
+

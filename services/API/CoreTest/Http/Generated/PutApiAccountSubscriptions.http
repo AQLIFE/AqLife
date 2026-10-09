@@ -1,0 +1,20 @@
+@baseUrl = 
+@contentType = application/json
+
+#############################################
+### Request: PUT /api/Account/subscriptions
+#############################################
+
+
+PUT {{baseUrl}}/api/Account/subscriptions
+Content-Type: {{contentType}}
+
+[
+  {
+    "aliasName": "aliasName",
+    "subscriptionLink": "subscriptionLink",
+    "subscriptionPlatform": "subscriptionPlatform",
+    "subscriptionIcon": "subscriptionIcon"
+  }
+]
+

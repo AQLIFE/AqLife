@@ -1,0 +1,12 @@
+@baseUrl = 
+@contentType = application/json
+
+#####################################
+### Request: GET /api/Corpus/random
+#####################################
+
+
+GET {{baseUrl}}/api/Corpus/random
+Content-Type: {{contentType}}
+
+

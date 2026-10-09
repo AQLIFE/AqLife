@@ -1,0 +1,16 @@
+@baseUrl = 
+@contentType = application/json
+
+######################################
+### Request: POST /api/Account/login
+######################################
+
+
+POST {{baseUrl}}/api/Account/login
+Content-Type: {{contentType}}
+
+{
+  "accountName": "accountName",
+  "secretKey": "secretKey"
+}
+

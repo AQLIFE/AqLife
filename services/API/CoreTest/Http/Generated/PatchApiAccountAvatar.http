@@ -1,0 +1,12 @@
+@baseUrl = 
+@contentType = application/json
+
+########################################
+### Request: PATCH /api/Account/avatar
+########################################
+
+
+PATCH {{baseUrl}}/api/Account/avatar
+Content-Type: {{contentType}}
+
+

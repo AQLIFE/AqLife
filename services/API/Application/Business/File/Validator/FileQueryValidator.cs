@@ -1,6 +1,9 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
+using AqLife.Shared.Exceptions;
+using AqLife.Shared.Options;
+using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.File.Validator
 {
@@ -14,5 +17,16 @@ namespace AqLife.Application.Business.File.Validator
             else return true;
         }
         // 启用Tag 搜索后,UID 必须提供,且该Tag 必须存在且是Category
+    }
+
+    public class FileQueryScopeValidator(IHttpContextAccessor httpContext) : AbstractValidator<FileQuery>
+    {
+        private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
+        private protected override string ErrorMessage { init; get; } = "无权搜索";
+        private protected override async Task<bool> IsValidAsync(FileQuery query, CancellationToken ct)
+        => !(query.Scope == FileScope.Template && !IsValid);
+
+        private protected override Exception CreateException(string message)
+        => new ForbiddenException(this.ErrorMessage);
     }
 }

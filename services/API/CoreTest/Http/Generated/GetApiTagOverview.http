@@ -1,0 +1,15 @@
+@baseUrl = 
+@contentType = application/json
+
+####################################
+### Request: GET /api/Tag/overview
+####################################
+
+### Query Parameter: IsAll
+@IsAll = str
+
+
+GET {{baseUrl}}/api/Tag/overview?IsAll={{IsAll}}
+Content-Type: {{contentType}}
+
+

@@ -1,0 +1,27 @@
+@baseUrl = 
+@contentType = application/json
+
+############################
+### Request: GET /api/Todo
+############################
+
+### Query Parameter: UID
+@UID = str
+
+### Query Parameter: Desc
+@Desc = str
+
+### Query Parameter: IsTree
+@IsTree = str
+
+### Query Parameter: Page
+@Page = 0
+
+### Query Parameter: PageSize
+@PageSize = 0
+
+
+GET {{baseUrl}}/api/Todo?UID={{UID}}&Desc={{Desc}}&IsTree={{IsTree}}&Page={{Page}}&PageSize={{PageSize}}
+Content-Type: {{contentType}}
+
+

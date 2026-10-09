@@ -1,0 +1,18 @@
+@baseUrl = 
+@contentType = application/json
+
+##################################
+### Request: PATCH /api/File/tag
+##################################
+
+
+PATCH {{baseUrl}}/api/File/tag
+Content-Type: {{contentType}}
+
+{
+  "uid": "uid",
+  "tags": [
+    ""
+  ]
+}
+

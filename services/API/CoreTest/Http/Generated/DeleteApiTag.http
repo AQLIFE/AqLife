@@ -1,0 +1,15 @@
+@baseUrl = 
+@contentType = application/json
+
+##############################
+### Request: DELETE /api/Tag
+##############################
+
+
+DELETE {{baseUrl}}/api/Tag
+Content-Type: {{contentType}}
+
+{
+  "uid": "uid"
+}
+

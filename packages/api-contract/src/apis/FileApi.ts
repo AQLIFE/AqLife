@@ -34,6 +34,11 @@ import {
     FileOrderToJSON,
 } from '../models/FileOrder';
 import {
+    type FileScope,
+    FileScopeFromJSON,
+    FileScopeToJSON,
+} from '../models/FileScope';
+import {
     type ScheduledFileCommand,
     ScheduledFileCommandFromJSON,
     ScheduledFileCommandToJSON,
@@ -63,7 +68,7 @@ export interface ApiFileGetRequest {
     page?: number;
     pageSize?: number;
     order?: FileOrder;
-    includeTemplates?: boolean;
+    scope?: FileScope;
 }
 
 export interface ApiFilePatchRequest {
@@ -171,7 +176,7 @@ export interface FileApiInterface {
      * @param {number} [page] 
      * @param {number} [pageSize] 
      * @param {FileOrder} [order] 
-     * @param {boolean} [includeTemplates] 
+     * @param {FileScope} [scope] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -185,7 +190,7 @@ export interface FileApiInterface {
      * @param {number} [page] 
      * @param {number} [pageSize] 
      * @param {FileOrder} [order] 
-     * @param {boolean} [includeTemplates] 
+     * @param {FileScope} [scope] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -483,8 +488,8 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             queryParameters['Order'] = requestParameters['order'];
         }
 
-        if (requestParameters['includeTemplates'] != null) {
-            queryParameters['IncludeTemplates'] = requestParameters['includeTemplates'];
+        if (requestParameters['scope'] != null) {
+            queryParameters['Scope'] = requestParameters['scope'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

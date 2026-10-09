@@ -1,0 +1,15 @@
+@baseUrl = 
+@contentType = application/json
+
+###############################
+### Request: DELETE /api/Todo
+###############################
+
+
+DELETE {{baseUrl}}/api/Todo
+Content-Type: {{contentType}}
+
+{
+  "uid": "uid"
+}
+

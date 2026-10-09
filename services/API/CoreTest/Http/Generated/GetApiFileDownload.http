@@ -1,0 +1,15 @@
+@baseUrl = 
+@contentType = application/json
+
+#####################################
+### Request: GET /api/File/download
+#####################################
+
+### Query Parameter: UID
+@UID = str
+
+
+GET {{baseUrl}}/api/File/download?UID={{UID}}
+Content-Type: {{contentType}}
+
+

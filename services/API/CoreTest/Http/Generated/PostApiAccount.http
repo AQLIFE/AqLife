@@ -1,0 +1,18 @@
+@baseUrl = 
+@contentType = application/json
+
+################################
+### Request: POST /api/Account
+################################
+
+
+POST {{baseUrl}}/api/Account
+Content-Type: {{contentType}}
+
+{
+  "name": "name",
+  "desc": "desc",
+  "pwd": "pwd",
+  "serverKey": "serverKey"
+}
+

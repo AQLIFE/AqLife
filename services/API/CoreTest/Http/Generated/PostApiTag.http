@@ -1,0 +1,17 @@
+@baseUrl = 
+@contentType = application/json
+
+############################
+### Request: POST /api/Tag
+############################
+
+
+POST {{baseUrl}}/api/Tag
+Content-Type: {{contentType}}
+
+{
+  "name": "name",
+  "aliasName": "aliasName",
+  "isCategory": false
+}
+

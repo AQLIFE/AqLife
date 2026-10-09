@@ -1,0 +1,15 @@
+@baseUrl = 
+@contentType = application/json
+
+#############################################
+### Request: PATCH /api/File/CancelSchedule
+#############################################
+
+
+PATCH {{baseUrl}}/api/File/CancelSchedule
+Content-Type: {{contentType}}
+
+{
+  "uid": "uid"
+}
+

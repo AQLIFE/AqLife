@@ -214,7 +214,7 @@ No authorization required
 
 ## apiFileGet
 
-> FileDtoPageResult apiFileGet(uID, title, categoryUID, page, pageSize, order, includeTemplates)
+> FileDtoPageResult apiFileGet(uID, title, categoryUID, page, pageSize, order, scope)
 
 
 
@@ -244,8 +244,8 @@ async function example() {
     pageSize: 56,
     // FileOrder (optional)
     order: ...,
-    // boolean (optional)
-    includeTemplates: true,
+    // FileScope (optional)
+    scope: ...,
   } satisfies ApiFileGetRequest;
 
   try {
@@ -271,7 +271,7 @@ example().catch(console.error);
 | **page** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **order** | `FileOrder` |  | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2] |
-| **includeTemplates** | `boolean` |  | [Optional] [Defaults to `undefined`] |
+| **scope** | `FileScope` |  | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2, 3] |
 
 ### Return type
 

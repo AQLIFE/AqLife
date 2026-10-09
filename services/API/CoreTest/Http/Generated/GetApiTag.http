@@ -1,0 +1,24 @@
+@baseUrl = 
+@contentType = application/json
+
+###########################
+### Request: GET /api/Tag
+###########################
+
+### Query Parameter: UID
+@UID = str
+
+### Query Parameter: Tag
+@Tag = str
+
+### Query Parameter: Page
+@Page = 0
+
+### Query Parameter: PageSize
+@PageSize = 0
+
+
+GET {{baseUrl}}/api/Tag?UID={{UID}}&Tag={{Tag}}&Page={{Page}}&PageSize={{PageSize}}
+Content-Type: {{contentType}}
+
+

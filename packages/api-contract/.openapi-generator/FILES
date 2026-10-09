@@ -21,6 +21,7 @@ docs/FileApi.md
 docs/FileDto.md
 docs/FileDtoPageResult.md
 docs/FileOrder.md
+docs/FileScope.md
 docs/FileStatus.md
 docs/LoginCommand.md
 docs/OverviewApi.md
@@ -63,6 +64,7 @@ src/models/DeleteTodoCommand.ts
 src/models/FileDto.ts
 src/models/FileDtoPageResult.ts
 src/models/FileOrder.ts
+src/models/FileScope.ts
 src/models/FileStatus.ts
 src/models/LoginCommand.ts
 src/models/OverviewDto.ts

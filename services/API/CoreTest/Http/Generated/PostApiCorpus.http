@@ -1,0 +1,15 @@
+@baseUrl = 
+@contentType = application/json
+
+###############################
+### Request: POST /api/Corpus
+###############################
+
+
+POST {{baseUrl}}/api/Corpus
+Content-Type: {{contentType}}
+
+{
+  "content": "content"
+}
+

@@ -1,0 +1,33 @@
+@baseUrl = 
+@contentType = application/json
+
+############################
+### Request: GET /api/File
+############################
+
+### Query Parameter: UID
+@UID = str
+
+### Query Parameter: Title
+@Title = str
+
+### Query Parameter: CategoryUID
+@CategoryUID = str
+
+### Query Parameter: Page
+@Page = 0
+
+### Query Parameter: PageSize
+@PageSize = 0
+
+### Query Parameter: Order
+@Order = 0
+
+### Query Parameter: Scope
+@Scope = 0
+
+
+GET {{baseUrl}}/api/File?UID={{UID}}&Title={{Title}}&CategoryUID={{CategoryUID}}&Page={{Page}}&PageSize={{PageSize}}&Order={{Order}}&Scope={{Scope}}
+Content-Type: {{contentType}}
+
+

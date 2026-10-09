@@ -1,0 +1,12 @@
+@baseUrl = 
+@contentType = application/json
+
+##############################
+### Request: PATCH /api/File
+##############################
+
+
+PATCH {{baseUrl}}/api/File
+Content-Type: {{contentType}}
+
+

@@ -37,7 +37,6 @@ public static class ApplicationExtensions
     public static IServiceCollection AddApplication(
         this IServiceCollection services)
     {
-        services.AddScoped<FileSecurityAspect>();
         services.AddScoped<UploadContext>();
 
         services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, AllFilesSearchStrategy>();

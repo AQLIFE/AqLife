@@ -1,0 +1,17 @@
+@baseUrl = 
+@contentType = application/json
+
+#############################
+### Request: POST /api/Todo
+#############################
+
+
+POST {{baseUrl}}/api/Todo
+Content-Type: {{contentType}}
+
+{
+  "desc": "desc",
+  "priority": 0,
+  "ftid": "ftid"
+}
+

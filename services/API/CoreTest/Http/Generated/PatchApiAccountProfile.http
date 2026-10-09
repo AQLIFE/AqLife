@@ -1,0 +1,16 @@
+@baseUrl = 
+@contentType = application/json
+
+#########################################
+### Request: PATCH /api/Account/profile
+#########################################
+
+
+PATCH {{baseUrl}}/api/Account/profile
+Content-Type: {{contentType}}
+
+{
+  "name": "name",
+  "desc": "desc"
+}
+

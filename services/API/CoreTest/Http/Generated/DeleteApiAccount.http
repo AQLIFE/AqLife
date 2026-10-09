@@ -1,0 +1,12 @@
+@baseUrl = 
+@contentType = application/json
+
+##################################
+### Request: DELETE /api/Account
+##################################
+
+
+DELETE {{baseUrl}}/api/Account
+Content-Type: {{contentType}}
+
+

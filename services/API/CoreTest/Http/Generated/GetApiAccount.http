@@ -1,0 +1,12 @@
+@baseUrl = 
+@contentType = application/json
+
+###############################
+### Request: GET /api/Account
+###############################
+
+
+GET {{baseUrl}}/api/Account
+Content-Type: {{contentType}}
+
+

@@ -1,0 +1,24 @@
+@baseUrl = 
+@contentType = application/json
+
+##############################
+### Request: GET /api/Corpus
+##############################
+
+### Query Parameter: UID
+@UID = str
+
+### Query Parameter: Content
+@Content = str
+
+### Query Parameter: Page
+@Page = 0
+
+### Query Parameter: PageSize
+@PageSize = 0
+
+
+GET {{baseUrl}}/api/Corpus?UID={{UID}}&Content={{Content}}&Page={{Page}}&PageSize={{PageSize}}
+Content-Type: {{contentType}}
+
+
