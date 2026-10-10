@@ -47,11 +47,13 @@ public class FileSearch(
         if(query.Scope == FileScope.Template && !IsValid) throw new RequestCheckException("You are not authorized to access template files.");// 前置验证已覆盖，确保未登录用户无法访问模板文件
         queryable = query.Scope switch
         {
-            FileScope.Image => queryable.Where(e => !e.IsTemplate && options.Value.AllowedImageExtensions.Contains(e.Extension)),
             FileScope.Template => queryable.Where(e => e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension)),
+            FileScope.Image => queryable.Where(e => !e.IsTemplate && options.Value.AllowedImageExtensions.Contains(e.Extension)),
             FileScope.Blog => queryable.Where(e => !e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension)),
-            _ => IsValid? queryable.Where(e => !e.IsTemplate && options.Value.AllowedExtensions.Contains(e.Extension)):queryable.Where(e=>!e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension))
+            FileScope.Default=> queryable.Where(e => !e.IsTemplate && options.Value.AllowedExtensions.Contains(e.Extension)),
+            FileScope.All => queryable.Where(e =>  options.Value.AllowedExtensions.Contains(e.Extension)),// 不区分模板查询全部匹配类型文件
+            _ => queryable.Where(e=>!e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension))
         };
-        return !IsValid?queryable.Where(e => !e.IsTemplate && e.PublishMeta.PublishStatus == FileStatus.Published):queryable;
+        return IsValid? queryable : queryable.Where(e => !e.IsTemplate && e.PublishMeta.PublishStatus == FileStatus.Published);
     }
 }

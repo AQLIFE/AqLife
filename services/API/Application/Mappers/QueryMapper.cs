@@ -32,6 +32,7 @@ namespace AqLife.Application.Mappers
         [MapperIgnoreSource(nameof(FileQuery.Page))]
         [MapperIgnoreSource(nameof(FileQuery.PageSize))]
         [MapperIgnoreSource(nameof(FileQuery.Order))]
+        [MapperIgnoreSource(nameof(FileQuery.Scope))]
         [MapProperty(nameof(FileQuery.Title), nameof(EntitySearchCriteria.Keyword))]
         public partial FileSearchCriteria ToCriteria(FileQuery query);
 

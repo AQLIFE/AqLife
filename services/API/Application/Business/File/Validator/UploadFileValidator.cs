@@ -5,6 +5,7 @@ using AqLife.Domain.CommandInterface;
 using AqLife.Shared.Options;
 using AqLife.Shared.Tools;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AqLife.Application.Business.File.Validator
@@ -24,14 +25,15 @@ namespace AqLife.Application.Business.File.Validator
     /// 文件上传策略：文件大小检查（使用你的指数幂逻辑）
     /// </summary>
     /// <param name="options"></param>
-    public class FileSizeValidator<T>(IOptions<FilePolicyOption> options) : AbstractValidator<T> where T : IHasFormFiles
+    public class FileSizeValidator<T>(IOptions<FilePolicyOption> options,ILogger<FileSizeValidator<T>> logger) : AbstractValidator<T> where T : IHasFormFiles
     {
-        private protected override string ErrorMessage { init; get; } = $"文件大小超出限制 (最大允许: {options.Value.MaxFileSize}";
+        private protected override string ErrorMessage { init; get; } = $"文件大小超出限制 (最大允许: {options.Value.MaxFileSize} KB)";
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
         {
             long limit = (long)options.Value.MaxFileSize << options.Value.StorageUnit;
             // 等于 2^ StorageUnit * MaxFileSize
             // dev 配置设置到100 KB=> 100 * 2^10 字节
+            logger.LogInformation("Checking file size against limit: {Limit} bytes,now :{CurrentSize}", limit, command.GetFiles().Sum(f => f.Length));
 
             return command.GetFiles().All(e => e.Length <= limit);
         }
@@ -75,6 +77,18 @@ namespace AqLife.Application.Business.File.Validator
             using var sha256 = System.Security.Cryptography.SHA256.Create();
             var hashBytes = await sha256.ComputeHashAsync(stream);
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+        }
+    }
+
+    public class FileTemplateValidator<T>(IOptions<FilePolicyOption> options,ILogger<FileTemplateValidator<T>> logger) : AbstractValidator<CreateFileCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "非 md 文件,禁止标记为模板文件";
+        private protected override async Task<bool> IsValidAsync(CreateFileCommand command, CancellationToken ct)
+        {
+            logger.LogInformation("Checking file template validation for command: {Command}", command);
+            return command.GetFiles().All(e => 
+                options.Value.AllowedImageExtensions.Contains(Path.GetExtension(e.FileName).ToLowerInvariant()) && !command.IsTemplate
+            );
         }
     }
 }

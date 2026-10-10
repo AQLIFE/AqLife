@@ -51,9 +51,8 @@ namespace AqLife.Application.Search
             ISearchStrategy<TEntity, TSearchCriteria> strategy = searchStrategies.FirstOrDefault(s => s.IsMatch(criteria)) ?? throw new RequestCheckException("无法完成搜索，请反馈");
 
             IQueryable<TEntity> queryable = await BuildBaseQueryAsync(storage.Set<TEntity>().AsNoTracking(), query);
-            queryable = await strategy.ExecuteAsync(queryable, criteria, ct);
-
             queryable = ApplyDefaultOrder(queryable,query);
+            queryable = await strategy.ExecuteAsync(queryable, criteria, ct);
 
             return queryable;
         }

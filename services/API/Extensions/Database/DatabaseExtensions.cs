@@ -38,14 +38,6 @@ public static class DatabaseExtensions
         {
             switch (dbConfig.DbType)
             {
-                case "MySQL":
-                    options.UseMySql(
-                        connectionString,
-                        MySqlServerVersion.Parse(dbConfig.DbVersion),
-                        mysql => mysql.MigrationsAssembly(
-                            typeof(AppStorage).Assembly.FullName));
-                    break;
-
                 case "PostgreSQL":
                     options.UseNpgsql(
                         connectionString,

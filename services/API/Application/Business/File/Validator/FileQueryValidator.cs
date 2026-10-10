@@ -24,7 +24,7 @@ namespace AqLife.Application.Business.File.Validator
         private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
         private protected override string ErrorMessage { init; get; } = "无权搜索";
         private protected override async Task<bool> IsValidAsync(FileQuery query, CancellationToken ct)
-        => !(query.Scope == FileScope.Template && !IsValid);
+        => !((query.Scope == FileScope.Template || query.Scope == FileScope.All) && !IsValid );
 
         private protected override Exception CreateException(string message)
         => new ForbiddenException(this.ErrorMessage);

@@ -2,7 +2,7 @@
   "FilePolicy": {
     "MaxFileSize": 100,
     "StoragePath": "Cache",
-    "StorageUnit": 1,
+    "StorageUnit": 10,
 
     "AllowedUpload": [
       ".jpeg",
@@ -21,7 +21,7 @@
       ".svg"
     ],
     "AllowedBlogExtensions": [
-      "md"
+      ".md"
     ]
   }
 }

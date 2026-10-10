@@ -27,7 +27,7 @@ namespace AqLife.Domain.Command
     /// <param name="PageSize"></param>
     /// <param name="Order"></param>
     /// <param name="Scope">查询文件的类型</param>
-    public record FileQuery(Guid? UID = null, string? Title = null,Guid? CategoryUID=null, int Page=1,int PageSize=10, FileOrder Order= FileOrder.Latest, FileScope Scope = FileScope.All) : IPageQuery, IQuery<PageResult<FileDto>>;
+    public record FileQuery(Guid? UID = null, string? Title = null,Guid? CategoryUID=null, int Page=1,int PageSize=10, FileOrder Order= FileOrder.Latest, FileScope Scope = FileScope.Blog) : IPageQuery, IQuery<PageResult<FileDto>>;
     /// <summary>
     /// 下载文件,返回文件流和相关元数据
     /// </summary>

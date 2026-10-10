@@ -28,16 +28,17 @@ namespace AqLife.Shared.Options
     }
 
     /// <summary>
-    /// 文件浏览范围,All 仅允许包含 Image、Blog 两种类型的文件,不包含 template 类型的文件
+    /// 文件浏览范围,Default 仅允许包含 Image、Blog 两种类型的文件,不包含 template 类型的文件
     /// </summary>
     public enum FileScope
     {
         /// <summary>
-        /// All 仅允许包含 Image、Blog 两种类型的文件,不包含 template 类型的文件
+        /// Default 仅允许包含 Image、Blog 两种类型的文件,不包含 template 类型的文件
         /// </summary>
-        All,
+        Default,
         Image,
         Blog,
-        Template
+        Template,
+        All
     }
 }
