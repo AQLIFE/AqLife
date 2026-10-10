@@ -271,7 +271,7 @@ example().catch(console.error);
 | **page** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **order** | `FileOrder` |  | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2] |
-| **scope** | `FileScope` |  | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2, 3] |
+| **scope** | `FileScope` |  | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2, 3, 4] |
 
 ### Return type
 
