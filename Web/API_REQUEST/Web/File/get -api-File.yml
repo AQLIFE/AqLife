@@ -7,14 +7,25 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/File"
+  url: "{{baseUrl}}/api/File?Title=test"
   params:
     - name: UID
-      value: 9d11ce57-4116-42c3-8b7e-30488b902eda
+      value: ""
       type: query
       disabled: true
     - name: Title
-      value: md
+      value: test
+      type: query
+    - name: CategoryUID
+      value: e676319d-cf0e-467b-8cda-75f1df214661
+      type: query
+      disabled: true
+    - name: Order
+      value: "2"
+      type: query
+      disabled: true
+    - name: IncludeTemplates
+      value: "1"
       type: query
       disabled: true
   auth:

@@ -7,13 +7,17 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/File/preview"
+  url: "{{baseUrl}}/api/File/preview?UID=0a6d0076-2002-4071-97dc-7ce1a71fe1a1&isTemplate=true"
   params:
     - name: UID
-      value: ""
+      value: 0a6d0076-2002-4071-97dc-7ce1a71fe1a1
       type: query
-      disabled: true
-  auth: inherit
+    - name: isTemplate
+      value: "true"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
 
 settings:
   encodeUrl: true

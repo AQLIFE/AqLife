@@ -12,10 +12,10 @@ http:
     type: json
     data: |-
       {
-        "name": "admin  ",
+        "name": "admin",
         "desc": "",
         "pwd": "pwd123456",
-        "serverKey": "584489F58C9B7B2673FC9A327A12C8DBDAAE1883721EAA93AB1232AA8CCA067F"
+        "serverKey": "9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08"
       }
   auth: inherit
 

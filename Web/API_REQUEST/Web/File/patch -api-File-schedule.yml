@@ -1,7 +1,7 @@
 info:
   name: patch /api/File/schedule
   type: http
-  seq: 9
+  seq: 8
   tags:
     - File
 
@@ -12,8 +12,8 @@ http:
     type: json
     data: |-
       {
-        "uid": "f7aa5670-3b5e-4c39-9d3b-d1214ad92e7c",
-        "scheduledAt": "2026-09-13T11:33:00+00:00"
+        "uid": "31c3a438-e9d4-4ba4-a277-7a7a2522f167",
+        "scheduledAt": null
       }
   auth:
     type: bearer

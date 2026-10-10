@@ -12,9 +12,11 @@ http:
     type: json
     data: |-
       {
-        "uid": ""
+        "uid": "b434308a-640d-46fc-b933-896e315a57dc"
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{token}}"
 
 settings:
   encodeUrl: true

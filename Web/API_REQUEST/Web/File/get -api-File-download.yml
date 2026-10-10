@@ -7,13 +7,14 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/File/download"
+  url: "{{baseUrl}}/api/File/download?UID=baddd968-2463-46f5-bd4d-5725d6132b0c"
   params:
     - name: UID
-      value: ""
+      value: baddd968-2463-46f5-bd4d-5725d6132b0c
       type: query
-      disabled: true
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{token}}"
 
 settings:
   encodeUrl: true

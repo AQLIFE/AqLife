@@ -12,9 +12,27 @@ http:
     type: multipart-form
     data:
       - name: File
-        type: text
-        value: ""
-  auth: inherit
+        type: file
+        value:
+          - G:\Code\Md\ADB 命令.md
+          - G:\Code\Md\ASP.Net.md
+          - G:\Code\Md\Can.md
+          - G:\Code\Md\CAPL.md
+          - G:\Code\Md\Car.md
+          - G:\Code\Md\Css.md
+          - G:\Code\Md\docker 命令文档.md
+          - G:\Code\Md\docker 使用手册.md
+          - G:\Code\Md\Docker 数据库创建一览.md
+          - G:\Code\Md\EF Core 数据库交互.md
+          - G:\Code\Md\Element UI.md
+          - G:\Code\Md\Git Command.md
+          - G:\Code\Md\NET Core 开发要点.md
+          - G:\Code\Md\NewTaskSystem.md
+          - G:\Code\Md\OTA 升级.md
+        contentType: multipart/mixed
+  auth:
+    type: bearer
+    token: "{{token}}"
 
 settings:
   encodeUrl: true
