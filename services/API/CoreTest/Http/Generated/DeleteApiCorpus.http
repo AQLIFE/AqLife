@@ -1,0 +1,15 @@
+@baseUrl = http://localhost:5110
+@contentType = application/json
+
+#################################
+### Request: DELETE /api/Corpus
+#################################
+
+
+DELETE {{baseUrl}}/api/Corpus
+Content-Type: {{contentType}}
+
+{
+  "uid": "uid"
+}
+

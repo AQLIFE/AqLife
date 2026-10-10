@@ -6,34 +6,32 @@
 
 - Node v24+
 - NET 8
-- Mysql 8.0.X
+- PostgreSQL 18.X
 
 ```shell
 ## 从0开始
 ## 第一步创建一个数据库,并同步创建一个程序账户,完成授权
-CREATE DATABASE aqlife;-- 此时数据库名称对应 NET 数据库连接字符串,也可以修改
-CREATE USER 'ubuntu'@'%' IDENTIFIED BY '密码';-- 创建 NET 程序数据库账户
-GRANT ALL PRIVILEGES ON `aqlife`.* TO 'ubuntu'@'%'; -- 授权aqlife 数据库所有权限给 ubuntu 账户(本地访问)
-FLUSH PRIVILEGES;-- 更新权限
+CREATE DATABASE aqlife;-- 此时数据库名称对应 NET 数据库连接字符串,也可以修改,参照 appsettings.Development.example.json
 
 ## 第二步 创建你自己的程序配置文件
 cp services/API/Web/Configurations/appsettings.Development.example.json services/API/Web/Configurations/appsettings.Development.json
 ## ! 请编辑这个文件,添加你的数据库链接字符串,JWT[可选]
 
 
-## 第三步完成 CodeFrist 生成,将数据模型迁移至 Mysql 数据库
-dotnet ef database update --project .\services\API\Infrastructure\Infrastructure.csproj --startup_project .\services\API\Web\Web.csproj
+## 第三步完成 CodeFrist 生成,将数据模型迁移至 PostgreSQL 数据库
+dotnet ef database update --project .\services\API\PostgreSqlMigrations\PostgreSqlMigrations.csproj --startup-project .\services\API\Web\Web.csproj
 ## 这里是示例,请根据实际部署路径修改
 
 ## 以Dev模式启动
 
 ### 启动 API服务器
 dotnet run --project .\services\API\Web\Web.csproj
+## 或者
+npm run dev:api
 ### 启动游客端
 npm run dev:web
 ### 启动 管理端
 npm run dev:mgs
-
 ```
 
 > 对于product 模式的,请等待后续 Releases
@@ -90,8 +88,8 @@ MGS & Web
 
 Other
 
-- 提供简单 CI/CD 检查,保障Commit 有效性
-- 预构 单元测试,提供API 可信度,后期引入 集成测试
+- 提供简单 CI 检查,保障Commit 有效性
+- 引入 单元测试 和集成测试,提供API 可信度
 - Monorepo 单体项目,B/S架构,约束 MGS & WEB 前端项目的TS 规范和语法,并提供统一的Npm包支持,减少单项目的npm 滥用
 
 ## 业务流程
@@ -162,9 +160,3 @@ gantt
 状态转换：将原始 API 返回的数据转换为 UI 需要的格式（View Model）。
 
 icons : 存储所有的svg图像
-
----
-
-2026-09-23 改造效果
-
-![alt text](image.png)

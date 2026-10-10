@@ -19,6 +19,5 @@
 
   <ItemGroup>
     <Folder Include="Interfaces\Authentication\" />
-    <Folder Include="Queries\" />
   </ItemGroup>
 </Project>

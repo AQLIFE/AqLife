@@ -1,3 +1,4 @@
+using AqLife.Application.Abstractions;
 using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.BackServices;
@@ -5,6 +6,7 @@ using AqLife.Application.Behaviors;
 using AqLife.Application.Business;
 using AqLife.Application.Business.Account;
 using AqLife.Application.Business.Account.Search;
+using AqLife.Application.Business.Account.Services;
 using AqLife.Application.Business.Corpus;
 using AqLife.Application.Business.Corpus.Search;
 using AqLife.Application.Business.File;
@@ -35,7 +37,6 @@ public static class ApplicationExtensions
     public static IServiceCollection AddApplication(
         this IServiceCollection services)
     {
-        services.AddScoped<FileSecurityAspect>();
         services.AddScoped<UploadContext>();
 
         services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, AllFilesSearchStrategy>();
@@ -99,7 +100,9 @@ public static class ApplicationExtensions
         services.AddSingleton<QueryMapper>();
         services.AddScoped(typeof(PageResultMapper<,>));
 
-        services.AddScoped<IBlogPublishService, BlogPublishService>();
+
+        services.AddScoped<SystemInitializationService>();
+        services.AddScoped<IFilePublishService, FilePublishService>();
         services.AddScoped<BlogSearch>();
         services.AddHostedService<ScheduledPublishWorker>();
 

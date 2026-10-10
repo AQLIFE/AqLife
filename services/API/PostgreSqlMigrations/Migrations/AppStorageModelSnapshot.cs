@@ -200,6 +200,26 @@ namespace PostgreSqlMigrations.Migrations
                     b.ToTable("Subscriptions");
                 });
 
+            modelBuilder.Entity("AqLife.Domain.Entities.SystemStateEntity", b =>
+                {
+                    b.Property<int>("UID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UID"));
+
+                    b.Property<bool>("IsInitialized")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SystemKeyHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UID");
+
+                    b.ToTable("SystemState");
+                });
+
             modelBuilder.Entity("AqLife.Domain.Entities.TagEntity", b =>
                 {
                     b.Property<Guid>("UID")

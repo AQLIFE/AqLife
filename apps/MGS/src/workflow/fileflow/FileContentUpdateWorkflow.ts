@@ -1,5 +1,5 @@
 
-import type { FileApi, FileDto } from "@/api"
+import { FileScope, type FileApi, type FileDto } from "@/api"
 import type { FileStore } from "@/stores/useFileStore"
 
 type UpdateFileCommand = { uID: string, file: Blob }
@@ -39,7 +39,7 @@ export class FileContentUpdateWorkflow {
   private async validate(result: string) {
     const latest = await this.api.apiFileGet({
       uID: this.file.uid,
-      includeTemplates: this.includeTemplates,
+      scope: FileScope.NUMBER_3,
     })
     const latestFile = latest.items?.[0]
 

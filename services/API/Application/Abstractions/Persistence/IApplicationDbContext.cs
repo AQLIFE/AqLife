@@ -13,6 +13,8 @@ namespace AqLife.Application.Abstractions.Persistence
         public DbSet<TodoEntity> Todo { get; }
         public DbSet<TagEntity> Tags { get; }
         public DbSet<FileTagEntity> BlogTags { get; }
+        public DbSet<SystemStateEntity> SystemStates { get; }
+
 
 
         Task<int> SaveChangesAsync(

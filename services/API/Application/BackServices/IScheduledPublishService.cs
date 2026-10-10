@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace AqLife.Application.BackServices
 {
-    public interface IBlogPublishService
+    public interface IFilePublishService
     {
         Task<Guid> PublishAsync(Guid guid,CancellationToken ct);
+        Task<int> PublishAsync(IEnumerable<Guid> guids, CancellationToken ct = default);
     }
 }

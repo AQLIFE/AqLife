@@ -7,20 +7,14 @@ using AqLife.Domain.CommandInterface;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.IView;
+using AqLife.Shared.Options;
 using AqLife.Shared.Tools;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 
 namespace AqLife.Application.Business.File.Search;
-
-public enum FileAccessMode
-{
-    Standard, // 默认模式：应用 AllowedDownload 扩展名过滤 [cite: 34]
-    [Obsolete("被文件发布机制取代,里程碑式进展,后续不再使用单独的检索逻辑")]
-    Preview,  // 预览模式：绕过扩展名检查，应用订阅/头像权限检查 [cite: 11]
-    Internal  // 内部模式：全量数据，用于后台管理
-}
 
 public readonly record struct FileSearchCriteria(
     Guid? UID,
@@ -29,8 +23,8 @@ public readonly record struct FileSearchCriteria(
 ) : ISearchCriteria;
 
 public class FileSearch(
+    IOptions<FilePolicyOption> options,
     QueryMapper queryMapper,
-    FileSecurityAspect fileSecurity,
     IApplicationDbContext storage, IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
     : BaseSearch<FileQuery, FileMetaEntity, FileDto, FileSearchCriteria>(storage, searchStrategies)
@@ -50,10 +44,14 @@ public class FileSearch(
     protected override async Task<IQueryable<FileMetaEntity>> BuildBaseQueryAsync(IQueryable<FileMetaEntity> queryable, FileQuery query)
     {
         queryable = queryable.Include(e => e.PublishMeta).Include(e => e.InteractionMeta).Include(e => e.FileTags).ThenInclude(x => x.Tag);
-        if (!IsValid || !query.IncludeTemplates) // 没有通过身份验证的用户或未请求包含模板文件时，过滤掉模板文件
-            queryable = queryable.Where(e => !e.IsTemplate);
-
-        FileAccessMode mode = IsValid ? FileAccessMode.Internal : FileAccessMode.Standard;
-        return await fileSecurity.ApplyAccessPolicy(queryable, mode);
+        if(query.Scope == FileScope.Template && !IsValid) throw new RequestCheckException("You are not authorized to access template files.");// 前置验证已覆盖，确保未登录用户无法访问模板文件
+        queryable = query.Scope switch
+        {
+            FileScope.Image => queryable.Where(e => !e.IsTemplate && options.Value.AllowedImageExtensions.Contains(e.Extension)),
+            FileScope.Template => queryable.Where(e => e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension)),
+            FileScope.Blog => queryable.Where(e => !e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension)),
+            _ => IsValid? queryable.Where(e => !e.IsTemplate && options.Value.AllowedExtensions.Contains(e.Extension)):queryable.Where(e=>!e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension))
+        };
+        return !IsValid?queryable.Where(e => !e.IsTemplate && e.PublishMeta.PublishStatus == FileStatus.Published):queryable;
     }
 }

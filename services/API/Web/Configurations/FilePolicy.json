@@ -1,13 +1,27 @@
 {
   "FilePolicy": {
     "MaxFileSize": 100,
-    "AllowedExtensions": [
-      ".md"
-    ],
     "StoragePath": "Cache",
     "StorageUnit": 1,
-    "AllowUpload": false,
-    "AllowedDownload":[],
-    "AllowDelete": false
+
+    "AllowedUpload": [
+      ".jpeg",
+      ".jpg",
+      ".png",
+      ".svg",
+      ".md"
+    ],
+    "AllowedDownload": [
+      ".md"
+    ],
+    "AllowedImageExtensions": [
+      ".jpeg",
+      ".jpg",
+      ".png",
+      ".svg"
+    ],
+    "AllowedBlogExtensions": [
+      "md"
+    ]
   }
 }
