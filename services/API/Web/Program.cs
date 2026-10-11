@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAqLifeSerilog();
+builder.Services.AddAqLifeSerilog(builder.Environment);
 
 builder.Configuration.AddAqLifeConfiguration(
     builder.Environment.ContentRootPath,

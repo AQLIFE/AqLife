@@ -11,7 +11,7 @@ using Microsoft.Testing.Platform.Services;
 namespace AqLife.CoreTest.Application.AccountIntegrationTests
 {
     [Collection<IntegrationTestCollection>]
-    public class UpdateAccountIntegrationTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
+    public class UpdateAccount(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
     {
         /// <summary>
         /// 验证需求: 更新有效账户的profile,账户名包含空格时触发异常,反之通过

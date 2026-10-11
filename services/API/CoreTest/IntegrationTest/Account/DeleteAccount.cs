@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AqLife.CoreTest.Application.AccountIntegrationTests
 {
     [Collection<IntegrationTestCollection>]
-    public class DeleteAccountIntegrationTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
+    public class DeleteAccount(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
     {
         /// <summary>
         /// 验证需求: 完整删除账户相关数据

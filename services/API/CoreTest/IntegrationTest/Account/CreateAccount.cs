@@ -7,13 +7,13 @@ using AqLife.Shared.Exceptions;
 using AqLife.Shared.Utils;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Testing.Platform.Services;
 
 
 namespace AqLife.CoreTest.Application.AccountIntegrationTests
 {
     [Collection<IntegrationTestCollection>]
-    public class CreateAccountIntegrationTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
+    public class CreateAccount(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
     {
         [Fact, ResetDatabase]
         public async Task CreateAccount_ShouldCreateAccount()

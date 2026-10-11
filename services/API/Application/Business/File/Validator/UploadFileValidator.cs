@@ -27,7 +27,7 @@ namespace AqLife.Application.Business.File.Validator
     /// <param name="options"></param>
     public class FileSizeValidator<T>(IOptions<FilePolicyOption> options,ILogger<FileSizeValidator<T>> logger) : AbstractValidator<T> where T : IHasFormFiles
     {
-        private protected override string ErrorMessage { init; get; } = $"文件大小超出限制 (最大允许: {options.Value.MaxFileSize} KB)";
+        private protected override string ErrorMessage { init; get; } = $"文件大小超出限制 [1 -: {options.Value.MaxFileSize} KB]";
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
         {
             long limit = (long)options.Value.MaxFileSize << options.Value.StorageUnit;
@@ -35,7 +35,7 @@ namespace AqLife.Application.Business.File.Validator
             // dev 配置设置到100 KB=> 100 * 2^10 字节
             logger.LogInformation("Checking file size against limit: {Limit} bytes,now :{CurrentSize}", limit, command.GetFiles().Sum(f => f.Length));
 
-            return command.GetFiles().All(e => e.Length <= limit);
+            return command.GetFiles().All(e => 0 < e.Length && e.Length <= limit);
         }
     }
 
@@ -80,14 +80,14 @@ namespace AqLife.Application.Business.File.Validator
         }
     }
 
-    public class FileTemplateValidator<T>(IOptions<FilePolicyOption> options,ILogger<FileTemplateValidator<T>> logger) : AbstractValidator<CreateFileCommand>
+    public class FileTemplateValidator(IOptions<FilePolicyOption> options,ILogger<FileTemplateValidator> logger) : AbstractValidator<CreateFileCommand>
     {
         private protected override string ErrorMessage { init; get; } = "非 md 文件,禁止标记为模板文件";
         private protected override async Task<bool> IsValidAsync(CreateFileCommand command, CancellationToken ct)
         {
             logger.LogInformation("Checking file template validation for command: {Command}", command);
             return command.GetFiles().All(e => 
-                options.Value.AllowedImageExtensions.Contains(Path.GetExtension(e.FileName).ToLowerInvariant()) && !command.IsTemplate
+                options.Value.AllowedBlogExtensions.Contains(Path.GetExtension(e.FileName).ToLowerInvariant()) || !command.IsTemplate
             );
         }
     }
