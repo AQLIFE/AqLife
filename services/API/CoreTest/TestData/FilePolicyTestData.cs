@@ -1,4 +1,6 @@
-﻿using AqLife.Shared.Options;
+﻿using AqLife.Domain.Command;
+using AqLife.Shared.Options;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System;
@@ -24,7 +26,7 @@ namespace AqLife.CoreTest.TestData
                     optional: false,
                     reloadOnChange: false)
                 .Build();
-            
+
 
             return configuration
                 .GetSection("FilePolicy")
@@ -75,7 +77,7 @@ namespace AqLife.CoreTest.TestData
                 .Select(extension => new object[] { extension });
         }
 
-        public static long MaxSize=> FilePolicy.Value.MaxFileSize <<FilePolicy.Value.StorageUnit ;
+        public static long MaxSize => FilePolicy.Value.MaxFileSize << FilePolicy.Value.StorageUnit;
 
         public static TheoryData<long> AbnormalFileSize =>
         [
@@ -90,6 +92,19 @@ namespace AqLife.CoreTest.TestData
             (MaxSize - 1),
             MaxSize
         ];
+
+
+        private static int i = 1;
+        public static TheoryData<CreateFileCommand> ExcetionCommand =>
+            [
+                new CreateFileCommand(false,[]),
+                new CreateFileCommand(true,
+                    [
+                        new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("content"+i.ToString())), 0, i++, "testfile", "testfile.md"),
+                        new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("content"+i.ToString())), 0, i++, "testfile", "testfile.png"),
+                        new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("content"+i.ToString())), 0, i++, "testfile", "testfile.exe")
+                    ])
+            ];
 
     }
 }

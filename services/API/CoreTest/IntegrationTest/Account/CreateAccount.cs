@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Business.Account.Services;
+using AqLife.CoreTest.IntegrationTest;
 using AqLife.CoreTest.TestData;
 using AqLife.Domain.Command;
 using AqLife.Extensions.Database;
@@ -10,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Testing.Platform.Services;
 
 
-namespace AqLife.CoreTest.Application.AccountIntegrationTests
+namespace AqLife.CoreTest.IntegrationTest.Account
 {
     [Collection<IntegrationTestCollection>]
     public class CreateAccount(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)

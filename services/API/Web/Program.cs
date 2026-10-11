@@ -14,9 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAqLifeSerilog(builder.Environment);
 
-builder.Configuration.AddAqLifeConfiguration(
-    builder.Environment.ContentRootPath,
-    builder.Environment.EnvironmentName);
+builder.Configuration.AddAqLifeConfiguration(builder.Environment);
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddCommandLine(args);

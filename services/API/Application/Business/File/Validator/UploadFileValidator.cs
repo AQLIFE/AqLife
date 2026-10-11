@@ -91,4 +91,11 @@ namespace AqLife.Application.Business.File.Validator
             );
         }
     }
+
+    public class FileListValidator : AbstractValidator<CreateFileCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "禁止空上传";
+        private protected override async Task<bool> IsValidAsync(CreateFileCommand command, CancellationToken ct)
+        =>command.File.Length > 0;
+    }
 }

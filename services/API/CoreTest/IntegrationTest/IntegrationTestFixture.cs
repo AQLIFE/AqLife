@@ -17,7 +17,7 @@ using Serilog;
 using System.Security.Claims;
 using System.Security.Principal;
 
-namespace AqLife.CoreTest.Application;
+namespace AqLife.CoreTest.IntegrationTest;
 
 /// <summary>
 /// 集成测试环境组装
@@ -34,13 +34,13 @@ public class IntegrationTestFixture : IDisposable
         services.AddSingleton<IHostEnvironment>(testEnvironment);
 
         IConfigurationBuilder testConfiguration = new ConfigurationBuilder();
-        var configuration = testConfiguration.AddAqLifeConfiguration(AppContext.BaseDirectory, testEnvironment.EnvironmentName).Build();
+        var configuration = testConfiguration.AddAqLifeConfiguration(testEnvironment).Build();
         
         
 
         services.AddLogging();
         services.AddAqLifeSerilog(testEnvironment);
-        services.AddFilePolicy(configuration, testEnvironment.EnvironmentName);
+        services.AddFilePolicy(configuration, testEnvironment.ContentRootPath);
         
         services.AddJwtAuthentication(configuration);
         services.AddApplication();
@@ -51,7 +51,7 @@ public class IntegrationTestFixture : IDisposable
             {
                 new Claim(JwtClaimTypes.Id, Guid.Empty.ToString())
             },
-            authenticationType: null);  // 非空才会 IsAuthenticated == true
+            authenticationType: null);  // 非空才会 IsAuthenticated == true;此处仅用于测试,不需要有效信息
         HttpContextAccessor accessor = new ()
         {
             HttpContext = new DefaultHttpContext
@@ -60,8 +60,6 @@ public class IntegrationTestFixture : IDisposable
             }
         };
         services.AddSingleton<IHttpContextAccessor>(accessor);
-
-
         Services = services.BuildServiceProvider();
     }
 

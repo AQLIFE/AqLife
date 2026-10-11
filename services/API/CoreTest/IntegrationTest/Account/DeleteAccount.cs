@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Business.Account.Services;
-using AqLife.CoreTest.Application;
+using AqLife.CoreTest.IntegrationTest;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Extensions.Database;
@@ -9,7 +9,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AqLife.CoreTest.Application.AccountIntegrationTests
+namespace AqLife.CoreTest.IntegrationTest.Account
 {
     [Collection<IntegrationTestCollection>]
     public class DeleteAccount(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)

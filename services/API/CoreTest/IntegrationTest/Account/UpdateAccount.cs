@@ -1,4 +1,4 @@
-﻿using AqLife.CoreTest.Application;
+﻿using AqLife.CoreTest.IntegrationTest;
 using AqLife.Domain.Command;
 using AqLife.Extensions.Database;
 using AqLife.Infrastructure;
@@ -8,7 +8,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Testing.Platform.Services;
 
-namespace AqLife.CoreTest.Application.AccountIntegrationTests
+namespace AqLife.CoreTest.IntegrationTest.Account
 {
     [Collection<IntegrationTestCollection>]
     public class UpdateAccount(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)

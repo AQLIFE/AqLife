@@ -1,5 +1,4 @@
 ﻿using Amazon.Runtime.Internal.Util;
-using AqLife.CoreTest.Application;
 using AqLife.CoreTest.TestData;
 using AqLife.Domain.Command;
 using AqLife.Infrastructure;
@@ -80,7 +79,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
             await Assert.ThrowsAsync<RequestCheckException>(async () => await mediator.Send(create, CancellationToken.None));
         }
         /// <summary>
-        /// 上传大文件,触发报错
+        /// 上传超限大小的文件,触发报错
         /// </summary>
         /// <returns></returns>
         [Theory, ResetDatabase]
@@ -148,6 +147,33 @@ namespace AqLife.CoreTest.IntegrationTest.File
             CreateFileCommand create = new(true, [file]);
 
             await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(create));
+        }
+
+        [Fact,ResetDatabase]
+        public async Task UploadFile_ShouldTemplateFile_Success()
+        {
+            using var scope = CreateScope();
+            var storage = scope.ServiceProvider
+                .GetRequiredService<AppStorage>();
+            FormFile file = new(memoryStream, 0, memoryStream.Length, "testfile", fileName: "testfile"+".md");
+            CreateFileCommand create = new(true, [file]);
+            IEnumerable<Guid> result = await UploadAsync(create);
+            var uploadedFile = await storage.File.SingleOrDefaultAsync(f => f.UID == result.First(), CancellationToken.None);
+            Assert.NotNull(uploadedFile);
+            Assert.Equal(file.FileName, uploadedFile.FileName + uploadedFile.Extension);
+            Assert.True(uploadedFile.IsTemplate);
+            Assert.Equal(".md", uploadedFile.Extension);
+        }
+
+        [MemberData(nameof(FilePolicyTestData.ExcetionCommand),MemberType = typeof(FilePolicyTestData))]
+        [Theory, ResetDatabase]
+        public async Task UploadFile_ShouldExceptionCommand(CreateFileCommand command)
+        {
+            using var scope = CreateScope();
+            var storage = scope.ServiceProvider
+                .GetRequiredService<AppStorage>();
+
+            await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(command));
         }
 
         private async Task<IEnumerable<Guid>> UploadAsync(CreateFileCommand command)
