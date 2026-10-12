@@ -20,7 +20,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
     [Collection<IntegrationTestCollection>]
     public class CreateFileMeta(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
     {
-        private readonly MemoryStream memoryStream = new(Encoding.UTF8.GetBytes("测试文件内容"));
+        private readonly MemoryStream memoryStream = new(new byte[FilePolicyTestData.MaxSize]);
         public static IEnumerable<object[]> AllowedExtensions => FilePolicyTestData.LoadAllExtensions();
         public static IEnumerable<object[]> AllowedImageExtensions => FilePolicyTestData.LoadImageExtensions();
         /// <summary>
@@ -52,55 +52,6 @@ namespace AqLife.CoreTest.IntegrationTest.File
         }
 
         /// <summary>
-        /// 验证上传错误的扩展名失败
-        /// </summary>
-        /// <returns></returns>
-        [InlineData(".md1")]
-        [InlineData(".1png")]
-        [InlineData(".png.exe")]
-        [InlineData(".pn")]
-        [InlineData(".jeg")]
-        [InlineData(".gif")]
-        [Theory, ResetDatabase]
-        public async Task UploadFile_ShouldFailExtension(string ext)
-        {
-            using var scope = CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            var mediator = scope.ServiceProvider
-                .GetRequiredService<IMediator>();
-
-
-            FormFile file = new(memoryStream, 0, memoryStream.Length, "testfile", "testfile" + ext);
-
-            CreateFileCommand create = new(false, [file]);
-            await Assert.ThrowsAsync<RequestCheckException>(async () => await mediator.Send(create, CancellationToken.None));
-        }
-        /// <summary>
-        /// 上传超限大小的文件,触发报错
-        /// </summary>
-        /// <returns></returns>
-        [Theory, ResetDatabase]
-        [MemberData(nameof(FilePolicyTestData.AbnormalFileSize), MemberType = typeof(FilePolicyTestData))]
-        public async Task WhenExceedsSize_ShouldThrow(long size)
-        {
-            using var scope = CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            var mediator = scope.ServiceProvider
-                .GetRequiredService<IMediator>();
-
-
-            FormFile file = new(memoryStream, 0, size, "testfile", "testfile.md");
-
-            CreateFileCommand create = new(false, [file]);
-            await Assert.ThrowsAsync<RequestCheckException>(async () => await mediator.Send(create, CancellationToken.None));
-        }
-        /// <summary>
         /// 合法文件大小上传成功
         /// </summary>
         /// <param name="size"></param>
@@ -126,29 +77,12 @@ namespace AqLife.CoreTest.IntegrationTest.File
             var uploadedFile = await storage.File.SingleOrDefaultAsync(f => f.UID == result.First(), CancellationToken.None);
             Assert.NotNull(uploadedFile);
             Assert.Equal(file.Length, (long)uploadedFile.FileSize);
-        }
+        }               
 
         /// <summary>
-        /// 上传非博文文件,但设置模板标记,触发上传拦截报错
+        ///  上传模板文件成功
         /// </summary>
-        /// <param name="ext"></param>
         /// <returns></returns>
-        [MemberData(nameof(AllowedImageExtensions))]
-        [Theory, ResetDatabase]
-        public async Task UploadFile_ShouldTemplateFile(string ext)
-        {
-            using var scope = CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            FormFile file = new(memoryStream, 0, memoryStream.Length, "testfile", fileName:"testfile" + ext);
-
-            CreateFileCommand create = new(true, [file]);
-
-            await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(create));
-        }
-
         [Fact,ResetDatabase]
         public async Task UploadFile_ShouldTemplateFile_Success()
         {
@@ -165,15 +99,90 @@ namespace AqLife.CoreTest.IntegrationTest.File
             Assert.Equal(".md", uploadedFile.Extension);
         }
 
+        /// <summary>
+        /// 上传超限大小的文件,触发报错
+        /// </summary>
+        /// <returns></returns>
+        [Theory, ResetDatabase]
+        [MemberData(nameof(FilePolicyTestData.AbnormalFileSize), MemberType = typeof(FilePolicyTestData))]
+        public async Task WhenExceedsSize_ShouldThrow(long size)
+        {
+            FormFile file = new(new MemoryStream(new byte[size<=0?0:size]), 0, size, "testfile", "testfile.md");
+
+            CreateFileCommand create = new(false, [file]);
+            var exception=await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(create));
+            Assert.Contains("文件大小超出限制", exception.Message);
+        }
+        /// <summary>
+        /// 上传非博文文件,但设置模板标记,触发上传拦截报错
+        /// </summary>
+        /// <param name="ext"></param>
+        /// <returns></returns>
+        [MemberData(nameof(AllowedImageExtensions))]
+        [Theory, ResetDatabase]
+        public async Task UploadFile_ShouldTemplateFile(string ext)
+        {
+
+            FormFile file = new(memoryStream, 0, memoryStream.Length, "testfile", fileName: "testfile" + ext);
+
+            CreateFileCommand create = new(true, [file]);
+
+            var exception=  await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(create));
+            Assert.Equal("非 md 文件,禁止标记为模板文件", exception.Message);
+        }
+
+        /// <summary>
+        /// 上传异常Files的命令,触发报错
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         [MemberData(nameof(FilePolicyTestData.ExcetionCommand),MemberType = typeof(FilePolicyTestData))]
         [Theory, ResetDatabase]
         public async Task UploadFile_ShouldExceptionCommand(CreateFileCommand command)
         {
-            using var scope = CreateScope();
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(command));
+            Assert.Equal("非 md 文件,禁止标记为模板文件", exception.Message);
+        }
 
-            await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(command));
+        /// <summary>
+        /// 上传空文件报错
+        /// </summary>
+        /// <returns></returns>
+        [Fact, ResetDatabase]
+        public async Task UploadFile_ShouldEmptyFileCommand()
+        {
+            CreateFileCommand command = new(false, []);
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(command));
+            Assert.Equal("禁止空上传", exception.Message);
+        }
+        /// <summary>
+        /// 上传重复文件报错
+        /// </summary>
+        /// <returns></returns>
+        [Fact, ResetDatabase]
+        public async Task UploadFile_ShouldRepeatFileCommand()
+        {
+            CreateFileCommand command = new(false, [
+                new FormFile(memoryStream,0,memoryStream.Length,"TETS","TEST.md"),
+                new FormFile(memoryStream,0,memoryStream.Length,"TETS","TEST.md")
+                ]);
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(command));
+            Assert.Equal("文件重复", exception.Message);
+        }
+
+        /// <summary>
+        /// 验证上传错误的扩展名失败
+        /// </summary>
+        /// <returns></returns>
+        [MemberData(nameof(FilePolicyTestData.UnValidExtensions),MemberType = typeof(FilePolicyTestData))]
+        [Theory, ResetDatabase]
+        public async Task UploadFile_ShouldFailExtension(string ext)
+        {
+            FormFile file = new(memoryStream, 0, memoryStream.Length, "testfile", "testfile" + ext);
+
+            CreateFileCommand create = new(false, [file]);
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(create));
+            Assert.Equal("不允许上传的文件类型", exception.Message);
         }
 
         private async Task<IEnumerable<Guid>> UploadAsync(CreateFileCommand command)

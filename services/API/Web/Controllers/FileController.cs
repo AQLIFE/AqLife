@@ -31,11 +31,11 @@ namespace AqLife.Web.Controllers
             return File(result.FileStream, result.ContentType, result.FileName);
         }
 
-        [HttpPost("Upload"), ServiceFilter(typeof(FileUploadFilter))]
+        [HttpPost("Upload"), ServiceFilter(typeof(FileUploadFilter)), RequestFormLimits(ValueLengthLimit = 100<<10)]
         public async Task<IEnumerable<Guid>> UploadFile([FromForm] CreateFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
 
-        [HttpPatch, ServiceFilter(typeof(FileUploadFilter))]
+        [HttpPatch, ServiceFilter(typeof(FileUploadFilter)), RequestSizeLimit(100<<10)]
         public async Task<Guid> UpdateFile([FromForm] UpdateFileCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);// 已实现
 

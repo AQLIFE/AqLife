@@ -110,8 +110,9 @@ public static class ApplicationExtensions
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblies(implementationAssembly);
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));   // Add ValidationBehavior to the pipeline:在后续上传业务开始前,进行文件类型、大小、重复性等验证
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UploadContextBehavior<,>));// Add UploadContextBehavior to the pipeline:在后续上传业务开始前,计算完成所有上传文件的hash值,并存储在UploadContext中,供后续使用
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));  // Add TransactionBehavior to the pipeline:在后续上传业务开始前,开启事务,在业务结束后提交事务
         });
 
         var validatorTypes = implementationAssembly

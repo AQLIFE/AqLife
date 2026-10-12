@@ -78,6 +78,14 @@ namespace AqLife.CoreTest.TestData
         }
 
         public static long MaxSize => FilePolicy.Value.MaxFileSize << FilePolicy.Value.StorageUnit;
+        public static TheoryData<string> UnValidExtensions =>
+            [
+                ".exe",
+                ".pn",
+                ".sh",
+                ".",
+                ""
+            ];
 
         public static TheoryData<long> AbnormalFileSize =>
         [
@@ -94,17 +102,38 @@ namespace AqLife.CoreTest.TestData
         ];
 
 
-        private static int i = 1;
+        
         public static TheoryData<CreateFileCommand> ExcetionCommand =>
             [
-                new CreateFileCommand(false,[]),
-                new CreateFileCommand(true,
-                    [
-                        new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("content"+i.ToString())), 0, i++, "testfile", "testfile.md"),
-                        new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("content"+i.ToString())), 0, i++, "testfile", "testfile.png"),
-                        new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("content"+i.ToString())), 0, i++, "testfile", "testfile.exe")
-                    ])
+                new CreateFileCommand(true,[..GetImageFormFiles()])
             ];
 
+        /// <summary>
+        /// 返回合法文件大小的 MemoryStream
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<MemoryStream> GetMemoryStreamList()
+        {
+            return LegalBoundarySize.Select(size => new MemoryStream(new byte[size]));
+        }
+        /// <summary>
+        /// 返回异常大小的 MemoryStream
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<MemoryStream> GetAbnormalMemoryStreamList()
+        {
+            return AbnormalFileSize.Select(size => new MemoryStream(new byte[size]));
+        }
+        /// <summary>
+        /// 返回有效大小的 FormFile
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<IFormFile> GetImageFormFiles()
+        {
+            IEnumerable<MemoryStream> list = GetMemoryStreamList();
+            string[] extension = FilePolicy.Value.AllowedImageExtensions;
+            int i = 0;
+            return list.Select(e => new FormFile(e, 0, list.Count(), "tets", "test" + extension.ElementAt(i++)));
+        }
     }
 }
