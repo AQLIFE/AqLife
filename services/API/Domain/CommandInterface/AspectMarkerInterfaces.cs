@@ -10,7 +10,7 @@ public interface IHasFormFiles
 
 public interface IRequireTransaction { }
 
-public interface IRequireValidEntity<TEntity> where TEntity : IEntity
+public interface IRequireValidEntity<out TEntity> where TEntity : IEntity
 {
     Guid UID { init; get; }
 }

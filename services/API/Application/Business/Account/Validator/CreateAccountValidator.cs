@@ -12,12 +12,13 @@ namespace AqLife.Application.Business.Account.Validator
     /// 创建时账户名唯一性检查:不允许重复
     /// </summary>
     /// <param name="storage"></param>
-    public class CreateAccountNameUniquenessValidator(IApplicationDbContext storage) : AbstractValidator<CreateAccountCommand>
-    {
-        private protected override string ErrorMessage { init; get; } = "账户名称已存在";
-        private protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
-        => !await storage.Accounts.AsNoTracking().AnyAsync(a => a.Name == command.Name);
-    }
+    // [Obsolete]
+    // public class CreateAccountNameUniquenessValidator(IApplicationDbContext storage) : AbstractValidator<CreateAccountCommand>
+    // {
+    //     private protected override string ErrorMessage { init; get; } = "账户名称已存在";
+    //     private protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
+    //     => !await storage.Accounts.AsNoTracking().AnyAsync(a => a.Name == command.Name);
+    // }
 
     public class CreateAccount_InvalidName_ShouldRejectValidator : AbstractValidator<CreateAccountCommand>
     {

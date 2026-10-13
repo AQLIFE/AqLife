@@ -1,6 +1,7 @@
 ﻿using AqLife.Domain.CommandInterface;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
+using AqLife.Shared.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 namespace AqLife.Domain.Command

@@ -1,7 +1,10 @@
 ﻿using AqLife.Application.Business.Account.Services;
 using AqLife.CoreTest.IntegrationTest;
 using AqLife.Domain.Command;
+using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Contracts;
 using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.File;
 using AqLife.Extensions.Database;
 using AqLife.Infrastructure;
 using AqLife.Shared.Exceptions;
@@ -12,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AqLife.CoreTest.IntegrationTest.Account
 {
     [Collection<IntegrationTestCollection>]
-    public class DeleteAccount(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
+    public class DeleteAccount(IntegrationTestFixture fixture) : AccountTest(fixture)
     {
         /// <summary>
         /// 验证需求: 完整删除账户相关数据
@@ -21,21 +24,14 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         [Fact, ResetDatabase]
         public async Task DeleteAccount_ShouldDeleteAccount()
         {
-            using var scope = CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            var mediator = scope.ServiceProvider
-                .GetRequiredService<IMediator>();
-
-            var account = await CreateTestAccount();
-            Assert.NotNull(account);
+            AccountEntity account = await CreateTestAccount();
+            
             DeleteAccountCommand command = new(account.UID);
-            await mediator.Send(command, CancellationToken.None);
+            await base.ExecuteAsync(command, CancellationToken.None);
 
-            Assert.False(await storage.Subscription.AnyAsync(e => e.AID == account.UID, CancellationToken.None));// 账户删除后，订阅也应该被删除
-            Assert.False(await storage.Accounts.AnyAsync(e => e.UID == account.UID, CancellationToken.None));// 删除后，账户应该不存在
+            bool isDelete = await IsDelete(e => e.UID == account.UID,account.UID, CancellationToken.None);
+            
+            Assert.True(isDelete);// 账户删除后，订阅也应该被删除            
         }
         /// <summary>
         /// 验证需求: 重复删除,捕获异常
@@ -44,24 +40,17 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         [Fact, ResetDatabase]
         public async Task DeleteAccount_DeleteRepeatedly()
         {
-            using var scope = CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            var mediator = scope.ServiceProvider
-                .GetRequiredService<IMediator>();
-
-            var account = await CreateTestAccount();
-            Assert.NotNull(account);
+            AccountEntity account = await CreateTestAccount();
+            
             DeleteAccountCommand command = new(account.UID);
-            await mediator.Send(command, CancellationToken.None);
+            await base.ExecuteAsync(command, CancellationToken.None);
+            bool isDelete = await IsDelete(e => e.UID == account.UID, account.UID, CancellationToken.None);
 
-            Assert.False(await storage.Subscription.AnyAsync(e => e.AID == account.UID, CancellationToken.None));// 账户删除后，订阅也应该被删除
-            Assert.False(await storage.Accounts.AnyAsync(e => e.UID == account.UID, CancellationToken.None));// 删除后，账户应该不存在
+            Assert.True(isDelete);// 账户删除后，订阅也应该被删除        
 
             // 删除成功后,再次删除,触发异常
-            await Assert.ThrowsAsync<ResourceNotFoundException>(() => mediator.Send(command, CancellationToken.None));
+            var exception=await Assert.ThrowsAsync<ResourceNotFoundException>(async () =>await base.ExecuteAsync(command, CancellationToken.None));
+            Assert.Equal("资源不存在", exception.Message);
         }
         /// <summary>
         /// 验证需求: 删除功能不受账户禁用状体影响
@@ -70,50 +59,15 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         [Fact(Skip = "需求废弃,核心验证逻辑由DeleteAccount_ShouldDeleteAccount完成"), ResetDatabase]
         public async Task DeleteAccount_DeleteInactiveAccount()
         {
-            using var scope = CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            var mediator = scope.ServiceProvider
-                .GetRequiredService<IMediator>();
-
-            // 构建测试环境
-            var account = await CreateTestAccount();
-            Assert.NotNull(account);
-            account.Disable();// 没有EF core 实体跟踪变化,需要手动保存变化
-            storage.Accounts.Update(account);
-            await storage.SaveChangesAsync(CancellationToken.None);
-
-            var cloudAccount = await storage.Accounts.SingleOrDefaultAsync(e => e.Name == account.Name, CancellationToken.None);
-            Assert.NotNull(cloudAccount);
-            Assert.False(cloudAccount.IsValid);
-
+            AccountEntity account = await base.CreateDisableAcount();
 
             DeleteAccountCommand command = new(account.UID);
-            await mediator.Send(command, CancellationToken.None);
+            await base.ExecuteAsync(command, CancellationToken.None);
+            bool isDelete = await IsDelete(e => e.UID == account.UID, account.UID, CancellationToken.None);
 
-            Assert.False(await storage.Subscription.AnyAsync(e => e.AID == account.UID, CancellationToken.None));// 账户删除后，订阅也应该被删除
-            Assert.False(await storage.Accounts.AnyAsync(e => e.UID == account.UID, CancellationToken.None));// 删除后，账户应该不存在
+            Assert.True(isDelete);// 账户删除后，订阅也应该被删除        
         }
 
-        private async Task<AccountEntity> CreateTestAccount()
-        {
-            using var scope = CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            var mediator = scope.ServiceProvider
-                .GetRequiredService<IMediator>();
-
-            string key = await fixture.Services.EnsureAndGetSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
-
-            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
-
-            var loginName = await mediator.Send(command, CancellationToken.None);
-
-            return await storage.Accounts.SingleAsync(e => e.LoginName == loginName);
-        }
+        
     }
 }

@@ -12,7 +12,7 @@ public static class LoggingExtensions
 {
     const string outputTemplate =
             "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u1}] {Message:lj}{NewLine}";
-    static private Logger DefaultLogger = new LoggerConfiguration()
+    static private Logger DefaultLogger => new LoggerConfiguration()
             .Enrich.FromLogContext()
             .WriteTo.Console(outputTemplate: outputTemplate)
             .WriteTo.File(
@@ -25,7 +25,7 @@ public static class LoggingExtensions
                 rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
-    static private Logger TestLogger = new LoggerConfiguration()
+    static private Logger TestLogger => new LoggerConfiguration()
             .Enrich.FromLogContext()
             .WriteTo.File(
                 "logs/db_log-.txt",

@@ -18,7 +18,10 @@ builder.Configuration.AddAqLifeConfiguration(builder.Environment);
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddCommandLine(args);
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.EnableAnnotations();
+});
 
 builder.Services.AddFilePolicy(
     builder.Configuration,
@@ -37,7 +40,6 @@ builder.Services.AddScoped<FileUploadFilter>();
 
 if(builder.Environment.IsDevelopment())
 {
-
     var corsOrigins =
         builder.Configuration
             .GetSection("Cors:AllowedOrigins")

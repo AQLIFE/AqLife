@@ -1,67 +1,56 @@
 ﻿using AqLife.CoreTest.IntegrationTest;
 using AqLife.Domain.Command;
+using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Entities;
 using AqLife.Extensions.Database;
 using AqLife.Infrastructure;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Utils;
 using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Testing.Platform.Services;
+using System.Security.Principal;
 
 namespace AqLife.CoreTest.IntegrationTest.Account
 {
     [Collection<IntegrationTestCollection>]
-    public class UpdateAccount(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
+    public class UpdateAccount(IntegrationTestFixture fixture) : AccountTest(fixture)
     {
         /// <summary>
-        /// 验证需求: 更新有效账户的profile,账户名包含空格时触发异常,反之通过
+        /// 验证需求: 更新有效账户的profile,账户名包含空格时触发异常
         /// </summary>
         /// <param name="testSource"></param>
         /// <returns></returns>
-        [Theory, ResetDatabase]
-        [InlineData("new Name")]
-        [InlineData("newName")]
-        public async Task UpdateAccount_UpdateProfile(string testSource)
+        [Fact, ResetDatabase]
+        public async Task UpdateAccount_UpdateProfile()
         {
-            using var scope = CreateScope();
+            AccountEntity account = await base.CreateTestAccount();
 
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            var mediator = scope.ServiceProvider
-                .GetRequiredService<IMediator>();
-            string key = await fixture.Services.EnsureAndGetSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
-            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
-
-            var loginName = await mediator.Send(command, CancellationToken.None);
-            var account = await storage.Accounts.SingleOrDefaultAsync(e => e.LoginName == loginName, CancellationToken.None);
-            var pwdHash = FastHash.GetSha256Hash(command.Pwd);
-
-            Assert.NotNull(account);
-            Assert.Equal("测试账户1", account.Name);
-            Assert.Equal("测试账户描述", account.Desc);
-            Assert.Equal(pwdHash, account.LoginPasswordHash);
-            Assert.True(account.IsValid);
-
-            UpdateAccountProfileCommand updateCommand = new(account.UID, testSource, "随机文本");
-
-            if (string.IsNullOrWhiteSpace(testSource) || testSource.Any(e => char.IsWhiteSpace(e)))
-            {
-                await Assert.ThrowsAsync<RequestCheckException>(() => mediator.Send(updateCommand, CancellationToken.None));
-                var nAccount = await storage.Accounts.SingleOrDefaultAsync(e => e.Name == testSource, CancellationToken.None);
-                Assert.Null(nAccount);
-                // 预期更新失败
-                var xAccount = await storage.Accounts.SingleOrDefaultAsync(e => e.Name == account.Name, CancellationToken.None);
-                Assert.NotNull(xAccount);
-            }
-            else
-            {
-                var xLoginname = await mediator.Send(updateCommand, CancellationToken.None);
-                var tAccount = await storage.Accounts.SingleOrDefaultAsync(e => e.LoginName == xLoginname, CancellationToken.None);
-                Assert.NotNull(tAccount);
-                Assert.Equal(tAccount.LoginName, account.LoginName);
-            }
+            UpdateAccountProfileCommand updateCommand = new(account.UID, string.Empty, "随机文本");
+            var exception =await Assert.ThrowsAsync<RequestCheckException>(async () =>await base.ExecuteAsync(updateCommand, CancellationToken.None));
+            Assert.Equal("账户名称不允许存在空格", exception.Message);
+            var nAccount = await base.QueryAsync(e => e.Name == updateCommand.Name,CancellationToken.None);
+            Assert.Null(nAccount);
+            Assert.NotEqual(account.Name, nAccount?.Name);
         }
+        /// <summary>
+        /// 验证需求:更新有效账户profile成功,,账户名不含空格
+        /// </summary>
+        /// <returns></returns>
+        [Fact,ResetDatabase]
+        public async Task UpdateAccount_ShouldNotEmptyName()
+        {
+            AccountEntity account = await base.CreateTestAccount();
+
+            UpdateAccountProfileCommand updateCommand = new(account.UID,"newName", "随机文本");
+            var xLoginname = await ExecuteAsync(updateCommand, CancellationToken.None);
+            var tAccount = await base.QueryAsync(e => e.LoginName == xLoginname, CancellationToken.None);
+            Assert.NotNull(tAccount);
+            Assert.Equal(tAccount.LoginName, account.LoginName);
+        }
+
+
         /// <summary>
         /// 验证需求: 更新无效的GUID触发异常
         /// </summary>
@@ -69,19 +58,12 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         [Fact, ResetDatabase]
         public async Task UpdateAccount_UpdateEmptyAccount()
         {
-            using var scope = CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            var mediator = scope.ServiceProvider
-                .GetRequiredService<IMediator>();
-
             UpdateAccountProfileCommand updateCommand = new(Guid.NewGuid(), "RADOM", "随机文本");
 
-            await Assert.ThrowsAsync<ResourceNotFoundException>(() => mediator.Send(updateCommand, CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await base.ExecuteAsync(updateCommand, CancellationToken.None));
             // 预期更新失败
-            var account = await storage.Accounts.SingleOrDefaultAsync(e => e.UID == updateCommand.UID, CancellationToken.None);
+            Assert.Equal("资源不存在", exception.Message);
+            var account = await base.QueryAsync(e => e.UID == updateCommand.UID, CancellationToken.None);
             Assert.Null(account);
 
         }

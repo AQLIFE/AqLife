@@ -1,12 +1,11 @@
 ﻿using AqLife.Domain.Contracts;
 using AqLife.Shared.Exceptions;
+using AqLife.Shared.Options;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AqLife.Domain.Entities
 {
-    public enum TodoStatus { Initial, Wait, Execute, Completed }
-
     [Table("TodoList")]
     public class TodoEntity : IEntity
     {

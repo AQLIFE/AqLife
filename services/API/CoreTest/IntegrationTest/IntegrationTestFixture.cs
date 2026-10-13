@@ -82,13 +82,3 @@ public class IntegrationTestFixture : IDisposable
         await storage.SaveChangesAsync();
     }
 }
-
-public abstract class IntegrationTestBase(
-    IntegrationTestFixture fixture)
-{
-    protected IServiceScope CreateScope()
-    => fixture.Services.CreateScope();
-
-    protected async Task<string?> EnsureSystemKeyAsync()
-        => await fixture.Services.EnsureAndGetSystemKeyAsync();
-}

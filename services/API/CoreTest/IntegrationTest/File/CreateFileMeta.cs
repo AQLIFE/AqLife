@@ -18,7 +18,7 @@ using System.Text;
 namespace AqLife.CoreTest.IntegrationTest.File
 {
     [Collection<IntegrationTestCollection>]
-    public class CreateFileMeta(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
+    public class CreateFileMeta(IntegrationTestFixture fixture) : FileTest(fixture)
     {
         private readonly MemoryStream memoryStream = new(new byte[FilePolicyTestData.MaxSize]);
         public static IEnumerable<object[]> AllowedExtensions => FilePolicyTestData.LoadAllExtensions();
