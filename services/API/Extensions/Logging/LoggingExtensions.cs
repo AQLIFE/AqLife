@@ -1,5 +1,6 @@
 using AqLife.Extensions.Infrastructure;
 using AqLife.Shared.Options;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -12,9 +13,8 @@ public static class LoggingExtensions
 {
     const string outputTemplate =
             "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u1}] {Message:lj}{NewLine}";
-    static private Logger DefaultLogger => new LoggerConfiguration()
+    static private LoggerConfiguration BaseLoggerConfig => new LoggerConfiguration()
             .Enrich.FromLogContext()
-            .WriteTo.Console(outputTemplate: outputTemplate)
             .WriteTo.File(
                 "logs/db_log-.txt",
                 rollingInterval: RollingInterval.Day,
@@ -22,31 +22,20 @@ public static class LoggingExtensions
             .WriteTo.File(
                 new CompactJsonFormatter(),
                 "logs/db_log-.json",
-                rollingInterval: RollingInterval.Day)
-            .CreateLogger();
+                rollingInterval: RollingInterval.Day);
+    static private LoggerConfiguration TestLogger => BaseLoggerConfig;
+    static private LoggerConfiguration DefaultLogger => BaseLoggerConfig.WriteTo.Console(outputTemplate:outputTemplate);
 
-    static private Logger TestLogger => new LoggerConfiguration()
-            .Enrich.FromLogContext()
-            .WriteTo.File(
-                "logs/db_log-.txt",
-                rollingInterval: RollingInterval.Day,
-                outputTemplate: outputTemplate)
-            .WriteTo.File(
-                new CompactJsonFormatter(),
-                "logs/db_log-.json",
-                rollingInterval: RollingInterval.Day)
-            .CreateLogger();
     public static IServiceCollection AddAqLifeSerilog(
-        this IServiceCollection services,IHostEnvironment environment)
+        this IServiceCollection services,IHostEnvironment environment,IConfiguration configuration)
     {
-        Log.Logger = environment.IsTest() ? TestLogger : DefaultLogger;
+        LoggerConfiguration loggerConfig = environment.IsTest() ? TestLogger : DefaultLogger;
+
+        Log.Logger = loggerConfig.ReadFrom.Configuration(configuration).CreateLogger();
 
         services.AddSerilog(dispose: true);
 
-        Log.Information(
-            "[Serilog][{@LogType}]=>{@LogDesc}",
-            BehavioralLevel.OptionType,
-            "Serilog 已经开始工作了!");
+        Log.Information("[Serilog][{@LogType}]=>{@LogDesc}",BehavioralLevel.OptionType,"Serilog 已经开始工作了!");
 
         return services;
     }

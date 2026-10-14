@@ -2,9 +2,11 @@
 using AqLife.Extensions.Database;
 using AqLife.Infrastructure;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq.Expressions;
+using System.Security.Claims;
 
 namespace AqLife.CoreTest.IntegrationTest
 {
@@ -70,6 +72,21 @@ namespace AqLife.CoreTest.IntegrationTest
             using var scope = CreateScope();
             var storage = scope.ServiceProvider.GetRequiredService<AppStorage>();
             return await storage.Set<TOther>().AnyAsync(query, cancellationToken);
+        }
+
+        protected void SetAnonymousUser()
+        {
+            var accessor = fixture.Services.GetRequiredService<IHttpContextAccessor>();
+            accessor.HttpContext ??= new DefaultHttpContext();
+            accessor.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
+        }
+
+        protected void SetAuthenticatedUser()
+        {
+            var accessor = fixture.Services.GetRequiredService<IHttpContextAccessor>();
+            accessor.HttpContext ??= new DefaultHttpContext();
+            accessor.HttpContext.User = new ClaimsPrincipal(
+                new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "test-user")], "test"));
         }
     }
 }

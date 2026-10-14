@@ -75,7 +75,7 @@ export interface AccountApiInterface {
     apiAccountAvatarPatchRequestOpts(requestParameters: ApiAccountAvatarPatchRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * 
+     * 发送一个图像用以更新账户头像,返回 Guid
      * @param {Blob} [avatar] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -84,6 +84,7 @@ export interface AccountApiInterface {
     apiAccountAvatarPatchRaw(requestParameters: ApiAccountAvatarPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
 
     /**
+     * 发送一个图像用以更新账户头像,返回 Guid
      */
     apiAccountAvatarPatch(requestParameters: ApiAccountAvatarPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
@@ -95,7 +96,7 @@ export interface AccountApiInterface {
     apiAccountDeleteRequestOpts(): Promise<runtime.RequestOpts>;
 
     /**
-     * 
+     * 删除指定ID的账户,无返回
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApiInterface
@@ -103,6 +104,7 @@ export interface AccountApiInterface {
     apiAccountDeleteRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
+     * 删除指定ID的账户,无返回
      */
     apiAccountDelete(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
@@ -114,7 +116,7 @@ export interface AccountApiInterface {
     apiAccountGetRequestOpts(): Promise<runtime.RequestOpts>;
 
     /**
-     * 
+     * 返回一个有效的账户,可能为 null
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApiInterface
@@ -122,6 +124,7 @@ export interface AccountApiInterface {
     apiAccountGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AccountDto>>;
 
     /**
+     * 返回一个有效的账户,可能为 null
      */
     apiAccountGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AccountDto>;
 
@@ -134,7 +137,7 @@ export interface AccountApiInterface {
     apiAccountLoginPostRequestOpts(requestParameters: ApiAccountLoginPostRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * 
+     * 登录账户成功后返回 JWT Beearer Token
      * @param {LoginCommand} [loginCommand] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -143,6 +146,7 @@ export interface AccountApiInterface {
     apiAccountLoginPostRaw(requestParameters: ApiAccountLoginPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
 
     /**
+     * 登录账户成功后返回 JWT Beearer Token
      */
     apiAccountLoginPost(requestParameters: ApiAccountLoginPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
@@ -155,7 +159,7 @@ export interface AccountApiInterface {
     apiAccountPostRequestOpts(requestParameters: ApiAccountPostRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * 
+     * 注册账户成功后返回唯一登录账户名
      * @param {CreateAccountCommand} [createAccountCommand] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -164,6 +168,7 @@ export interface AccountApiInterface {
     apiAccountPostRaw(requestParameters: ApiAccountPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
 
     /**
+     * 注册账户成功后返回唯一登录账户名
      */
     apiAccountPost(requestParameters: ApiAccountPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
@@ -176,7 +181,7 @@ export interface AccountApiInterface {
     apiAccountProfilePatchRequestOpts(requestParameters: ApiAccountProfilePatchRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * 
+     * 更新账户信息(包含公开名称,BIO);返回账户ID
      * @param {AccountProfile} [accountProfile] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -185,6 +190,7 @@ export interface AccountApiInterface {
     apiAccountProfilePatchRaw(requestParameters: ApiAccountProfilePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
 
     /**
+     * 更新账户信息(包含公开名称,BIO);返回账户ID
      */
     apiAccountProfilePatch(requestParameters: ApiAccountProfilePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
@@ -197,7 +203,7 @@ export interface AccountApiInterface {
     apiAccountSubscriptionsPutRequestOpts(requestParameters: ApiAccountSubscriptionsPutRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * 
+     * 更新账户个人主页列表,返回账户ID
      * @param {Array<SubscriptionDto>} [subscriptionDto] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -206,6 +212,7 @@ export interface AccountApiInterface {
     apiAccountSubscriptionsPutRaw(requestParameters: ApiAccountSubscriptionsPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
 
     /**
+     * 更新账户个人主页列表,返回账户ID
      */
     apiAccountSubscriptionsPut(requestParameters: ApiAccountSubscriptionsPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
@@ -257,6 +264,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 发送一个图像用以更新账户头像,返回 Guid
      */
     async apiAccountAvatarPatchRaw(requestParameters: ApiAccountAvatarPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const requestOptions = await this.apiAccountAvatarPatchRequestOpts(requestParameters);
@@ -270,6 +278,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 发送一个图像用以更新账户头像,返回 Guid
      */
     async apiAccountAvatarPatch(requestParameters: ApiAccountAvatarPatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiAccountAvatarPatchRaw(requestParameters, initOverrides);
@@ -296,6 +305,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 删除指定ID的账户,无返回
      */
     async apiAccountDeleteRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const requestOptions = await this.apiAccountDeleteRequestOpts();
@@ -305,6 +315,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 删除指定ID的账户,无返回
      */
     async apiAccountDelete(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.apiAccountDeleteRaw(initOverrides);
@@ -330,6 +341,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 返回一个有效的账户,可能为 null
      */
     async apiAccountGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AccountDto>> {
         const requestOptions = await this.apiAccountGetRequestOpts();
@@ -339,6 +351,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 返回一个有效的账户,可能为 null
      */
     async apiAccountGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AccountDto> {
         const response = await this.apiAccountGetRaw(initOverrides);
@@ -368,6 +381,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 登录账户成功后返回 JWT Beearer Token
      */
     async apiAccountLoginPostRaw(requestParameters: ApiAccountLoginPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const requestOptions = await this.apiAccountLoginPostRequestOpts(requestParameters);
@@ -381,6 +395,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 登录账户成功后返回 JWT Beearer Token
      */
     async apiAccountLoginPost(requestParameters: ApiAccountLoginPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiAccountLoginPostRaw(requestParameters, initOverrides);
@@ -410,6 +425,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 注册账户成功后返回唯一登录账户名
      */
     async apiAccountPostRaw(requestParameters: ApiAccountPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const requestOptions = await this.apiAccountPostRequestOpts(requestParameters);
@@ -423,6 +439,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 注册账户成功后返回唯一登录账户名
      */
     async apiAccountPost(requestParameters: ApiAccountPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiAccountPostRaw(requestParameters, initOverrides);
@@ -452,6 +469,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 更新账户信息(包含公开名称,BIO);返回账户ID
      */
     async apiAccountProfilePatchRaw(requestParameters: ApiAccountProfilePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const requestOptions = await this.apiAccountProfilePatchRequestOpts(requestParameters);
@@ -465,6 +483,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 更新账户信息(包含公开名称,BIO);返回账户ID
      */
     async apiAccountProfilePatch(requestParameters: ApiAccountProfilePatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiAccountProfilePatchRaw(requestParameters, initOverrides);
@@ -494,6 +513,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 更新账户个人主页列表,返回账户ID
      */
     async apiAccountSubscriptionsPutRaw(requestParameters: ApiAccountSubscriptionsPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const requestOptions = await this.apiAccountSubscriptionsPutRequestOpts(requestParameters);
@@ -507,6 +527,7 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
     }
 
     /**
+     * 更新账户个人主页列表,返回账户ID
      */
     async apiAccountSubscriptionsPut(requestParameters: ApiAccountSubscriptionsPutRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiAccountSubscriptionsPutRaw(requestParameters, initOverrides);

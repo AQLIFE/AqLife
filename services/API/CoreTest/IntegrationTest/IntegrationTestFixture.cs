@@ -34,7 +34,7 @@ public class IntegrationTestFixture : IDisposable
 
 
         services.AddLogging();
-        services.AddAqLifeSerilog(testEnvironment);
+        services.AddAqLifeSerilog(testEnvironment,configuration);
         services.AddFilePolicy(configuration, testEnvironment.ContentRootPath);
 
         services.AddJwtAuthentication(configuration);

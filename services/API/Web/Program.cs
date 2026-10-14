@@ -12,12 +12,13 @@ using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAqLifeSerilog(builder.Environment);
-
 builder.Configuration.AddAqLifeConfiguration(builder.Environment);
+
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddCommandLine(args);
+
+builder.Services.AddAqLifeSerilog(builder.Environment,builder.Configuration);
 builder.Services.AddSwaggerGen(c =>
 {
     c.EnableAnnotations();

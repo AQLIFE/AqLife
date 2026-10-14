@@ -13,15 +13,8 @@ using System.Security.Claims;
 namespace AqLife.CoreTest.IntegrationTest.File;
 
 [Collection<IntegrationTestCollection>]
-public class FileQueryTests : FileTest
+public class FileQueryTests(IntegrationTestFixture fixture) : IntegrationTestBase<FileMetaEntity>(fixture)
 {
-    private readonly IntegrationTestFixture _fixture;
-
-    public FileQueryTests(IntegrationTestFixture fixture) : base(fixture)
-    {
-        _fixture = fixture;
-    }
-
     [Fact, ResetDatabase]
     public async Task AnonymousQueries_ShouldReturnOnlyPublishedNonTemplateFilesWithAllowedExtensions()
     {
@@ -96,30 +89,19 @@ public class FileQueryTests : FileTest
         return await search.SearchPageAsync(query, TestContext.Current.CancellationToken);
     }
 
-    private void SetAnonymousUser()
-    {
-        var accessor = _fixture.Services.GetRequiredService<IHttpContextAccessor>();
-        accessor.HttpContext ??= new DefaultHttpContext();
-        accessor.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
-    }
-
-    private void SetAuthenticatedUser()
-    {
-        var accessor = _fixture.Services.GetRequiredService<IHttpContextAccessor>();
-        accessor.HttpContext ??= new DefaultHttpContext();
-        accessor.HttpContext.User = new ClaimsPrincipal(
-            new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "test-user")], "test"));
-    }
-
+    /// <summary>
+    /// 在数据库中构造一组虚拟文件(图像*1,普通博文*1,模板*1,以及不允许的扩展名文件*1)
+    /// </summary>
+    /// <returns></returns>
     private async Task<(Guid PublishedImage, Guid DraftImage, Guid PublishedBlog, Guid Template)> SeedFilesAsync()
     {
         var publishedImage = CreateFile("published.png");
-        publishedImage.PublishMeta.Publish();
-        var draftImage = CreateFile("draft.png");
+        publishedImage.PublishMeta.Publish();// 发布图像*1
+        var draftImage = CreateFile("draft.png");// 未发布图像*1
         var publishedBlog = CreateFile("published.md");
-        publishedBlog.PublishMeta.Publish();
-        var template = CreateFile("template.md").SetTemplate();
-        var unsupportedFile = CreateFile("unsupported.exe");
+        publishedBlog.PublishMeta.Publish();//发布博文*1
+        var template = CreateFile("template.md").SetTemplate();//模板*1
+        var unsupportedFile = CreateFile("unsupported.exe");// 不允许的扩展名文件*1
 
         using var scope = CreateScope();
         var storage = scope.ServiceProvider.GetRequiredService<AppStorage>();

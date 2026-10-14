@@ -14,8 +14,7 @@ using System.Threading.Tasks;
 
 namespace AqLife.Application.Business.File.Search
 {
-    public sealed class AllFilesSearchStrategy(IHttpContextAccessor httpContext,IOptions<FilePolicyOption> options)
-    : AllSearchStrategyBase<FileMetaEntity, FileSearchCriteria>
+    public sealed class AllFilesSearchStrategy : AllSearchStrategyBase<FileMetaEntity, FileSearchCriteria>
     {
         public override bool IsMatch(FileSearchCriteria c)
         => base.IsMatch(c) && c.CategoryUID is null;
