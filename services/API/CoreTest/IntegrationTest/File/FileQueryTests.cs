@@ -4,6 +4,7 @@ using AqLife.Domain.Entities.File;
 using AqLife.Extensions.Database;
 using AqLife.Infrastructure;
 using AqLife.Shared.Exceptions;
+using AqLife.Shared.IView;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -84,7 +85,7 @@ public class FileQueryTests : FileTest
         Assert.Equal("无效的搜索条件", exception.Message);
     }
 
-    private async Task<Shared.IView.PageResult<FileMetaEntity>> SearchAsync(FileQuery query)
+    private async Task<PageResult<FileMetaEntity>> SearchAsync(FileQuery query)
     {
         using var scope = CreateScope();
         var search = scope.ServiceProvider.GetRequiredService<FileSearch>();
