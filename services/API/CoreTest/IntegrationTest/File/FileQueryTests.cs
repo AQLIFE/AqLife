@@ -15,19 +15,20 @@ public class FileQueryTests(IntegrationTestFixture fixture) : FileTest(fixture)
     [Fact, ResetDatabase]
     public async Task AnonymousQueries_ShouldReturnOnlyPublishedNonTemplateFiles()
     {
+        SetAnonymousUser();
         var files = await SeedFilesAsync();
 
         var images = await ExecuteAsync(new FileQuery(Scope: FileScope.Image, Order: FileOrder.MostViewed));
         var blogs = await ExecuteAsync(new FileQuery(Scope: FileScope.Blog, Order: FileOrder.MostViewed));
         var allPublicFiles = await ExecuteAsync(new FileQuery(Scope: FileScope.Default, Order: FileOrder.MostViewed));
 
-        Assert.Equal([files.PublishedImage], images.Items.Select(item => item.UID));
-        Assert.Equal([files.PublishedBlog], blogs.Items.Select(item => item.UID));
+        Assert.Equal(new[] { files.PublishedImage }, images.Items.Select(item => item.UID));
+        Assert.Equal(new[] { files.PublishedBlog }, blogs.Items.Select(item => item.UID));
         Assert.Equal(
             new[] { files.PublishedImage, files.PublishedBlog }.Order(),
             allPublicFiles.Items.Select(item => item.UID).Order());
         Assert.DoesNotContain(allPublicFiles.Items, item => item.IsTemplate);
-        Assert.All(allPublicFiles.Items, item => Assert.Equal(FileStatus.Published, item.PublishStatus));
+        Assert.All(allPublicFiles.Items, item => Assert.Equal<FileStatus?>(FileStatus.Published, item.PublishStatus));
     }
 
     [Theory, ResetDatabase]
@@ -35,6 +36,7 @@ public class FileQueryTests(IntegrationTestFixture fixture) : FileTest(fixture)
     [InlineData(FileScope.All)]
     public async Task AnonymousTemplateOrAllScope_ShouldThrowForbiddenException(FileScope scope)
     {
+        SetAnonymousUser();
         await SeedFilesAsync();
 
         var exception = await Assert.ThrowsAsync<ForbiddenException>(
@@ -67,6 +69,13 @@ public class FileQueryTests(IntegrationTestFixture fixture) : FileTest(fixture)
             () => ExecuteAsync(new FileQuery(CategoryUID: Guid.NewGuid())));
 
         Assert.Equal("无效的搜索条件", exception.Message);
+    }
+
+    private void SetAnonymousUser()
+    {
+        var accessor = fixture.Services.GetRequiredService<IHttpContextAccessor>();
+        accessor.HttpContext ??= new DefaultHttpContext();
+        accessor.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
     }
 
     private void SetAuthenticatedUser()
