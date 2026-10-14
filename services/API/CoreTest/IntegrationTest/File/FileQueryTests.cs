@@ -45,16 +45,20 @@ public class FileQueryTests : FileTest
         Assert.DoesNotContain(defaultFiles.Items, item => item.Extension == ".exe");
     }
 
-    [Fact, ResetDatabase]
-    public async Task AnonymousTemplateScope_ShouldThrowRequestCheckException()
+    [Theory, ResetDatabase]
+    [InlineData(FileScope.Template)]
+    [InlineData(FileScope.All)]
+    public async Task AnonymousTemplateOrAllScope_ShouldThrowForbiddenException(FileScope scope)
     {
         SetAnonymousUser();
         await SeedFilesAsync();
 
-        var exception = await Assert.ThrowsAsync<RequestCheckException>(
-            () => SearchAsync(new FileQuery(Scope: FileScope.Template, Order: FileOrder.MostViewed)));
+        var exception = await Assert.ThrowsAsync<ForbiddenException>(
+            () => ExecuteAsync(
+                new FileQuery(Scope: scope, Order: FileOrder.MostViewed),
+                TestContext.Current.CancellationToken));
 
-        Assert.Equal("You are not authorized to access template files.", exception.Message);
+        Assert.Equal("无权搜索", exception.Message);
     }
 
     [Fact, ResetDatabase]
