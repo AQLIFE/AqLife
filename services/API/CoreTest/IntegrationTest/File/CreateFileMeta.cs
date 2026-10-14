@@ -1,26 +1,15 @@
-﻿using Amazon.Runtime.Internal.Util;
-using AqLife.CoreTest.TestData;
+﻿using AqLife.CoreTest.TestData;
 using AqLife.Domain.Command;
-using AqLife.Infrastructure;
+using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
-using AqLife.Shared.Options;
-using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.Testing.Platform.Logging;
-using Microsoft.Testing.Platform.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace AqLife.CoreTest.IntegrationTest.File
 {
     [Collection<IntegrationTestCollection>]
     public class CreateFileMeta(IntegrationTestFixture fixture) : FileTest(fixture)
     {
-        private readonly MemoryStream memoryStream = new(new byte[FilePolicyTestData.MaxSize]);
+        private static MemoryStream CreateMaxSizeStream() => new(new byte[FilePolicyTestData.MaxSize]);
         public static IEnumerable<object[]> AllowedExtensions => FilePolicyTestData.LoadAllExtensions();
         public static IEnumerable<object[]> AllowedImageExtensions => FilePolicyTestData.LoadImageExtensions();
         /// <summary>
@@ -29,23 +18,16 @@ namespace AqLife.CoreTest.IntegrationTest.File
         /// <returns></returns>
         [MemberData(nameof(AllowedExtensions))]
         [Theory, ResetDatabase]
-        public async Task UploadFile_ShouldAllowedExtension(string ext)
+        public async Task UploadFile_AllowedExtension_ShouldSucceed(string allowedExtension)
         {
-            using var scope = CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            var mediator = scope.ServiceProvider
-                .GetRequiredService<IMediator>();
-
-
-            FormFile file = new(memoryStream, 0, memoryStream.Length, "testfile", "testfile" + ext);
+            using var stream = CreateMaxSizeStream();
+            FormFile file = new(stream, 0, stream.Length, "testfile", "testfile" + allowedExtension);
 
             CreateFileCommand create = new(false, [file]);
-            IEnumerable<Guid> result = await mediator.Send(create, CancellationToken.None);
-
-            var uploadedFile = await storage.File.SingleOrDefaultAsync(f => f.UID == result.First(), CancellationToken.None);
+            IEnumerable<Guid> result = await base.ExecuteAsync(create, CancellationToken.None);
+            Guid guid = result.FirstOrDefault();
+            Assert.NotEqual(Guid.Empty, guid);
+            var uploadedFile = await FindFileAsync(guid);
             Assert.NotNull(uploadedFile);
             Assert.Equal(file.FileName, uploadedFile.FileName + uploadedFile.Extension);
             Assert.Equal(file.Length, (long)uploadedFile.FileSize);
@@ -58,41 +40,31 @@ namespace AqLife.CoreTest.IntegrationTest.File
         /// <returns></returns>
         [MemberData(nameof(FilePolicyTestData.LegalBoundarySize), MemberType = typeof(FilePolicyTestData))]
         [Theory, ResetDatabase]
-        public async Task UploadFile_ShouldAllowedSizeFile(long size)
+        public async Task UploadFile_LegalBoundarySize_ShouldSucceed(long legalSize)
         {
-            using var scope = CreateScope();
-
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            var mediator = scope.ServiceProvider
-                .GetRequiredService<IMediator>();
-
-
-            FormFile file = new(memoryStream, 0, size, "testfile", "testfile.md");
+            using var stream = CreateMaxSizeStream();
+            FormFile file = new(stream, 0, legalSize, "testfile", "testfile.md");
 
             CreateFileCommand create = new(false, [file]);
-            IEnumerable<Guid> result = await mediator.Send(create, CancellationToken.None);
+            IEnumerable<Guid> result = await base.ExecuteAsync(create, CancellationToken.None);
 
-            var uploadedFile = await storage.File.SingleOrDefaultAsync(f => f.UID == result.First(), CancellationToken.None);
+            var uploadedFile = await FindFileAsync(result.FirstOrDefault(), CancellationToken.None);
             Assert.NotNull(uploadedFile);
             Assert.Equal(file.Length, (long)uploadedFile.FileSize);
-        }               
+        }
 
         /// <summary>
         ///  上传模板文件成功
         /// </summary>
         /// <returns></returns>
-        [Fact,ResetDatabase]
-        public async Task UploadFile_ShouldTemplateFile_Success()
+        [Fact, ResetDatabase]
+        public async Task UploadFile_TemplateMarkdown_ShouldSucceed()
         {
-            using var scope = CreateScope();
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-            FormFile file = new(memoryStream, 0, memoryStream.Length, "testfile", fileName: "testfile"+".md");
+            using var stream = CreateMaxSizeStream();
+            FormFile file = new(stream, 0, stream.Length, "testfile", fileName: "testfile" + ".md");
             CreateFileCommand create = new(true, [file]);
-            IEnumerable<Guid> result = await UploadAsync(create);
-            var uploadedFile = await storage.File.SingleOrDefaultAsync(f => f.UID == result.First(), CancellationToken.None);
+            IEnumerable<Guid> result = await ExecuteAsync(create, CancellationToken.None);
+            var uploadedFile = await FindFileAsync(result.FirstOrDefault(), CancellationToken.None);
             Assert.NotNull(uploadedFile);
             Assert.Equal(file.FileName, uploadedFile.FileName + uploadedFile.Extension);
             Assert.True(uploadedFile.IsTemplate);
@@ -105,12 +77,12 @@ namespace AqLife.CoreTest.IntegrationTest.File
         /// <returns></returns>
         [Theory, ResetDatabase]
         [MemberData(nameof(FilePolicyTestData.AbnormalFileSize), MemberType = typeof(FilePolicyTestData))]
-        public async Task WhenExceedsSize_ShouldThrow(long size)
+        public async Task UploadFile_ExceedsSizeLimit_ShouldReject(long oversizedLength)
         {
-            FormFile file = new(new MemoryStream(new byte[size<=0?0:size]), 0, size, "testfile", "testfile.md");
+            FormFile file = new(new MemoryStream(new byte[Math.Max(oversizedLength, 0)]), 0, oversizedLength, "testfile", "testfile.md");
 
             CreateFileCommand create = new(false, [file]);
-            var exception=await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(create));
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(create, CancellationToken.None));
             Assert.Contains("文件大小超出限制", exception.Message);
         }
         /// <summary>
@@ -120,14 +92,14 @@ namespace AqLife.CoreTest.IntegrationTest.File
         /// <returns></returns>
         [MemberData(nameof(AllowedImageExtensions))]
         [Theory, ResetDatabase]
-        public async Task UploadFile_ShouldTemplateFile(string ext)
+        public async Task UploadFile_ImageWithTemplateFlag_ShouldReject(string imageExtension)
         {
-
-            FormFile file = new(memoryStream, 0, memoryStream.Length, "testfile", fileName: "testfile" + ext);
+            using var stream = CreateMaxSizeStream();
+            FormFile file = new(stream, 0, stream.Length, "testfile", fileName: "testfile" + imageExtension);
 
             CreateFileCommand create = new(true, [file]);
 
-            var exception=  await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(create));
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(create, CancellationToken.None));
             Assert.Equal("非 md 文件,禁止标记为模板文件", exception.Message);
         }
 
@@ -136,11 +108,11 @@ namespace AqLife.CoreTest.IntegrationTest.File
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        [MemberData(nameof(FilePolicyTestData.ExcetionCommand),MemberType = typeof(FilePolicyTestData))]
+        [MemberData(nameof(FilePolicyTestData.InvalidTemplateCommand), MemberType = typeof(FilePolicyTestData))]
         [Theory, ResetDatabase]
-        public async Task UploadFile_ShouldExceptionCommand(CreateFileCommand command)
+        public async Task UploadFile_InvalidTemplateCommand_ShouldReject(CreateFileCommand command)
         {
-            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(command));
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command, CancellationToken.None));
             Assert.Equal("非 md 文件,禁止标记为模板文件", exception.Message);
         }
 
@@ -149,10 +121,10 @@ namespace AqLife.CoreTest.IntegrationTest.File
         /// </summary>
         /// <returns></returns>
         [Fact, ResetDatabase]
-        public async Task UploadFile_ShouldEmptyFileCommand()
+        public async Task UploadFile_EmptyFileList_ShouldReject()
         {
             CreateFileCommand command = new(false, []);
-            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(command));
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command, CancellationToken.None));
             Assert.Equal("禁止空上传", exception.Message);
         }
         /// <summary>
@@ -160,13 +132,15 @@ namespace AqLife.CoreTest.IntegrationTest.File
         /// </summary>
         /// <returns></returns>
         [Fact, ResetDatabase]
-        public async Task UploadFile_ShouldRepeatFileCommand()
+        public async Task UploadFile_DuplicateFileName_ShouldReject()
         {
+            using var stream = CreateMaxSizeStream();
+
             CreateFileCommand command = new(false, [
-                new FormFile(memoryStream,0,memoryStream.Length,"TETS","TEST.md"),
-                new FormFile(memoryStream,0,memoryStream.Length,"TETS","TEST.md")
+                new FormFile(stream,0,stream.Length,"TETS","TEST.md"),
+                new FormFile(stream,0,stream.Length,"TETS","TEST.md")
                 ]);
-            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(command));
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command, CancellationToken.None));
             Assert.Equal("文件重复", exception.Message);
         }
 
@@ -174,23 +148,19 @@ namespace AqLife.CoreTest.IntegrationTest.File
         /// 验证上传错误的扩展名失败
         /// </summary>
         /// <returns></returns>
-        [MemberData(nameof(FilePolicyTestData.UnValidExtensions),MemberType = typeof(FilePolicyTestData))]
+        [MemberData(nameof(FilePolicyTestData.UnValidExtensions), MemberType = typeof(FilePolicyTestData))]
         [Theory, ResetDatabase]
-        public async Task UploadFile_ShouldFailExtension(string ext)
+        public async Task UploadFile_DisallowedExtension_ShouldReject(string disallowedExtension)
         {
-            FormFile file = new(memoryStream, 0, memoryStream.Length, "testfile", "testfile" + ext);
+            using var stream = CreateMaxSizeStream();
+            FormFile file = new(stream, 0, stream.Length, "testfile", "testfile" + disallowedExtension);
 
             CreateFileCommand create = new(false, [file]);
-            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await UploadAsync(create));
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(create, CancellationToken.None));
             Assert.Equal("不允许上传的文件类型", exception.Message);
         }
 
-        private async Task<IEnumerable<Guid>> UploadAsync(CreateFileCommand command)
-        {
-            using var scope = CreateScope();
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            // 注意：memoryStream 长度要和 length 一致，或按你项目里真实构造 FormFile 的方式
-            return await mediator.Send(command, CancellationToken.None);
-        }
+        private async Task<FileMetaEntity?> FindFileAsync(Guid guid, CancellationToken cancellation = default)
+            => await base.QueryAsync(e => e.UID == guid, cancellation);
     }
 }

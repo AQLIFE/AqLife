@@ -1,43 +1,34 @@
 ﻿using AqLife.Domain.Command;
-using AqLife.Domain.Contracts;
 using AqLife.Domain.Entities;
-using AqLife.Extensions.Database;
 using AqLife.Infrastructure;
 using AqLife.Shared.Utils;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Testing.Platform.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AqLife.CoreTest.IntegrationTest.Account
 {
     public class AccountTest(IntegrationTestFixture fixture) : IntegrationTestBase<AccountEntity>(fixture)
     {
-        public async Task<AccountEntity> CreateTestAccount()
+        public async Task<AccountEntity> CreateValidAccountAsync()
         {
-            string key = await base.EnsureSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
+            string key = await EnsureSystemKeyAsync();
 
             CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
 
             var loginName = await ExecuteAsync(command, CancellationToken.None);
 
-            var account = await base.QueryAsync(e => e.LoginName == loginName,CancellationToken.None);
-            var pwdHash = FastHash.GetSha256Hash(command.Pwd);
+            var account = await base.QueryAsync(e => e.LoginName == loginName, CancellationToken.None);
+            var expectedPwdHash = FastHash.GetSha256Hash(command.Pwd);
             Assert.NotNull(account);
             Assert.Equal("测试账户1", account.Name);
             Assert.Equal("测试账户描述", account.Desc);
-            Assert.Equal(pwdHash, account.LoginPasswordHash);
+            Assert.Equal(expectedPwdHash, account.LoginPasswordHash);
             Assert.True(account.IsValid);
             return account;
         }
 
-        public async Task<AccountEntity> CreateDisableAcount()
+        public async Task<AccountEntity> CreateDisabledAccountAsync()
         {
             using var scope = CreateScope();
 
@@ -45,33 +36,19 @@ namespace AqLife.CoreTest.IntegrationTest.Account
                 .GetRequiredService<AppStorage>();
 
             // 构建测试环境
-            AccountEntity account = await CreateTestAccount();
+            AccountEntity account = await CreateValidAccountAsync();
             account.Disable();// 没有EF core 实体跟踪变化,需要手动保存变化
             storage.Accounts.Update(account);
             await storage.SaveChangesAsync(CancellationToken.None);
 
-            var cloudAccount = await storage.Accounts.SingleOrDefaultAsync(e => e.Name == account.Name, CancellationToken.None);
-            Assert.NotNull(cloudAccount);
-            Assert.False(cloudAccount.IsValid);
-            return cloudAccount;
+            var disabledAccount = await storage.Accounts.SingleOrDefaultAsync(e => e.Name == account.Name, CancellationToken.None);
+            Assert.NotNull(disabledAccount);
+            Assert.False(disabledAccount.IsValid);
+            return disabledAccount;
         }
 
-        /// <summary>
-        ///  AccountEntity 专用检查
-        /// </summary>
-        /// <param name="query"></param>
-        /// <param name="aid"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns>当 AccountEntity & Subscrtions 两者都并不存在时,返回 true,反之为 false</returns>
-        public async Task<bool> IsDelete(Expression<Func<AccountEntity, bool>> query,Guid aid, CancellationToken cancellationToken = default)
-        {
-            using var scope = CreateScope();
+        public async Task<bool> IsAccountFullyRemovedAsync(Expression<Func<AccountEntity, bool>> accountQuery, Guid accountUid, CancellationToken cancellationToken = default)
+        => !await AnyAsync(accountQuery, cancellationToken) && !await AnyAsync<SubscriptionEntity>(e => e.AID == accountUid, cancellationToken);
 
-            var storage = scope.ServiceProvider
-                .GetRequiredService<AppStorage>();
-
-            return  !await base.AnyAsync(query, cancellationToken) && !await storage.Subscription.AnyAsync(e=>e.AID == aid);
-            // 当 两者都并不存在时,返回 true,反之为 false
-        }
     }
 }

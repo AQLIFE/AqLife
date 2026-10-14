@@ -2,12 +2,6 @@
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AqLife.CoreTest.TestData
 {
@@ -102,8 +96,8 @@ namespace AqLife.CoreTest.TestData
         ];
 
 
-        
-        public static TheoryData<CreateFileCommand> ExcetionCommand =>
+
+        public static TheoryData<CreateFileCommand> InvalidTemplateCommand =>
             [
                 new CreateFileCommand(true,[..GetImageFormFiles()])
             ];
@@ -130,10 +124,14 @@ namespace AqLife.CoreTest.TestData
         /// <returns></returns>
         public static IEnumerable<IFormFile> GetImageFormFiles()
         {
-            IEnumerable<MemoryStream> list = GetMemoryStreamList();
-            string[] extension = FilePolicy.Value.AllowedImageExtensions;
-            int i = 0;
-            return list.Select(e => new FormFile(e, 0, list.Count(), "tets", "test" + extension.ElementAt(i++)));
+            MemoryStream[] streams = [.. GetMemoryStreamList()];
+            string[] imageExtensions = FilePolicy.Value.AllowedImageExtensions;
+            if (imageExtensions.Length == 0) throw new InvalidOperationException("测试配置中 AllowedImageExtensions 不能为空。");
+
+            // 修正: length 必须是该流自身的长度(原来传的是流的个数);
+            // 扩展名按索引取,流多于扩展名时循环复用,避免越界
+            return streams.Select((stream, index) => new FormFile(stream, 0, stream.Length, "test", "test" + imageExtensions[index % imageExtensions.Length]));
         }
     }
+}
 }

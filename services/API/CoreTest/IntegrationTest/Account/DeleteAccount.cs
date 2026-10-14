@@ -1,16 +1,6 @@
-﻿using AqLife.Application.Business.Account.Services;
-using AqLife.CoreTest.IntegrationTest;
-using AqLife.Domain.Command;
-using AqLife.Domain.CommandInterface;
-using AqLife.Domain.Contracts;
+﻿using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
-using AqLife.Domain.Entities.File;
-using AqLife.Extensions.Database;
-using AqLife.Infrastructure;
 using AqLife.Shared.Exceptions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AqLife.CoreTest.IntegrationTest.Account
 {
@@ -22,34 +12,34 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         /// </summary>
         /// <returns></returns>
         [Fact, ResetDatabase]
-        public async Task DeleteAccount_ShouldDeleteAccount()
+        public async Task DeleteAccount_ShouldRemoveAccountAndSubscription()
         {
-            AccountEntity account = await CreateTestAccount();
-            
+            AccountEntity account = await CreateValidAccountAsync();
+
             DeleteAccountCommand command = new(account.UID);
             await base.ExecuteAsync(command, CancellationToken.None);
 
-            bool isDelete = await IsDelete(e => e.UID == account.UID,account.UID, CancellationToken.None);
-            
-            Assert.True(isDelete);// 账户删除后，订阅也应该被删除            
+            bool isFullyRemoved = await IsAccountFullyRemovedAsync(e => e.UID == account.UID, account.UID, CancellationToken.None);
+
+            Assert.True(isFullyRemoved);// 账户删除后，订阅也应该被删除            
         }
         /// <summary>
         /// 验证需求: 重复删除,捕获异常
         /// </summary>
         /// <returns></returns>
         [Fact, ResetDatabase]
-        public async Task DeleteAccount_DeleteRepeatedly()
+        public async Task DeleteAccount_RepeatedDelete_ShouldThrowResourceNotFound()
         {
-            AccountEntity account = await CreateTestAccount();
-            
+            AccountEntity account = await CreateValidAccountAsync();
+
             DeleteAccountCommand command = new(account.UID);
             await base.ExecuteAsync(command, CancellationToken.None);
-            bool isDelete = await IsDelete(e => e.UID == account.UID, account.UID, CancellationToken.None);
+            bool isFullyRemoved = await IsAccountFullyRemovedAsync(e => e.UID == account.UID, account.UID, CancellationToken.None);
 
-            Assert.True(isDelete);// 账户删除后，订阅也应该被删除        
+            Assert.True(isFullyRemoved);// 账户删除后，订阅也应该被删除        
 
             // 删除成功后,再次删除,触发异常
-            var exception=await Assert.ThrowsAsync<ResourceNotFoundException>(async () =>await base.ExecuteAsync(command, CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await base.ExecuteAsync(command, CancellationToken.None));
             Assert.Equal("资源不存在", exception.Message);
         }
         /// <summary>
@@ -59,15 +49,15 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         [Fact(Skip = "需求废弃,核心验证逻辑由DeleteAccount_ShouldDeleteAccount完成"), ResetDatabase]
         public async Task DeleteAccount_DeleteInactiveAccount()
         {
-            AccountEntity account = await base.CreateDisableAcount();
+            AccountEntity account = await base.CreateDisabledAccountAsync();
 
             DeleteAccountCommand command = new(account.UID);
             await base.ExecuteAsync(command, CancellationToken.None);
-            bool isDelete = await IsDelete(e => e.UID == account.UID, account.UID, CancellationToken.None);
+            bool isFullyRemoved = await IsAccountFullyRemovedAsync(e => e.UID == account.UID, account.UID, CancellationToken.None);
 
-            Assert.True(isDelete);// 账户删除后，订阅也应该被删除        
+            Assert.True(isFullyRemoved);// 账户删除后，订阅也应该被删除        
         }
 
-        
+
     }
 }

@@ -1,16 +1,6 @@
-﻿using AqLife.CoreTest.IntegrationTest;
-using AqLife.Domain.Command;
-using AqLife.Domain.CommandInterface;
+﻿using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
-using AqLife.Extensions.Database;
-using AqLife.Infrastructure;
 using AqLife.Shared.Exceptions;
-using AqLife.Shared.Utils;
-using MediatR;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Testing.Platform.Services;
-using System.Security.Principal;
 
 namespace AqLife.CoreTest.IntegrationTest.Account
 {
@@ -23,31 +13,36 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         /// <param name="testSource"></param>
         /// <returns></returns>
         [Fact, ResetDatabase]
-        public async Task UpdateAccount_UpdateProfile()
+        public async Task UpdateAccount_EmptyName_ShouldReject()
         {
-            AccountEntity account = await base.CreateTestAccount();
+            AccountEntity account = await base.CreateValidAccountAsync();
 
             UpdateAccountProfileCommand updateCommand = new(account.UID, string.Empty, "随机文本");
-            var exception =await Assert.ThrowsAsync<RequestCheckException>(async () =>await base.ExecuteAsync(updateCommand, CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await base.ExecuteAsync(updateCommand, CancellationToken.None));
             Assert.Equal("账户名称不允许存在空格", exception.Message);
-            var nAccount = await base.QueryAsync(e => e.Name == updateCommand.Name,CancellationToken.None);
-            Assert.Null(nAccount);
-            Assert.NotEqual(account.Name, nAccount?.Name);
+
+            var accountWithNewName = await QueryAsync(e => e.Name == updateCommand.Name, CancellationToken.None);
+            Assert.Null(accountWithNewName);
+            // 改为有意义的验证: 原账户名称未被修改
+            var unchangedAccount = await QueryAsync(e => e.UID == account.UID, CancellationToken.None);
+            Assert.NotNull(unchangedAccount);
+            Assert.Equal(account.Name, unchangedAccount.Name);
+
         }
         /// <summary>
         /// 验证需求:更新有效账户profile成功,,账户名不含空格
         /// </summary>
         /// <returns></returns>
-        [Fact,ResetDatabase]
-        public async Task UpdateAccount_ShouldNotEmptyName()
+        [Fact, ResetDatabase]
+        public async Task UpdateAccount_NewName_ShouldSucceed()
         {
-            AccountEntity account = await base.CreateTestAccount();
+            AccountEntity account = await base.CreateValidAccountAsync();
 
-            UpdateAccountProfileCommand updateCommand = new(account.UID,"newName", "随机文本");
+            UpdateAccountProfileCommand updateCommand = new(account.UID, "newName", "随机文本");
             var xLoginname = await ExecuteAsync(updateCommand, CancellationToken.None);
-            var tAccount = await base.QueryAsync(e => e.LoginName == xLoginname, CancellationToken.None);
-            Assert.NotNull(tAccount);
-            Assert.Equal(tAccount.LoginName, account.LoginName);
+            var updatedAccount = await base.QueryAsync(e => e.LoginName == xLoginname, CancellationToken.None);
+            Assert.NotNull(updatedAccount);
+            Assert.Equal(account.LoginName, updatedAccount.LoginName);
         }
 
 
@@ -56,9 +51,10 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         /// </summary>
         /// <returns></returns>
         [Fact, ResetDatabase]
-        public async Task UpdateAccount_UpdateEmptyAccount()
+        public async Task UpdateAccount_NonexistentAccount_ShouldThrow()
         {
-            UpdateAccountProfileCommand updateCommand = new(Guid.NewGuid(), "RADOM", "随机文本");
+            Guid nonexistentUid = Guid.NewGuid();
+            UpdateAccountProfileCommand updateCommand = new(nonexistentUid, "RADOM", "随机文本");
 
             var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await base.ExecuteAsync(updateCommand, CancellationToken.None));
             // 预期更新失败

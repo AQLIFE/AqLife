@@ -1,19 +1,10 @@
-﻿using AqLife.Application.Business.Account.Services;
-using AqLife.CoreTest.IntegrationTest;
-using AqLife.CoreTest.TestData;
+﻿using AqLife.CoreTest.TestData;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
-using AqLife.Extensions.Database;
-using AqLife.Infrastructure;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Utils;
-using MediatR;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Testing.Platform.Services;
 using Npgsql;
-using System.Xml.Linq;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 
 namespace AqLife.CoreTest.IntegrationTest.Account
@@ -27,14 +18,14 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         [Fact, ResetDatabase]
-        public async Task CreateAccount_ShouldCreateAccount()
+        public async Task CreateAccount_ValidSystemKey_ShouldCreateAccount()
         {
-            string key = await base.EnsureSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
+            string key = await base.EnsureSystemKeyAsync();
             CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
 
-            var loginName = await ExecuteAsync(command,CancellationToken.None);
+            var loginName = await ExecuteAsync(command, CancellationToken.None);
 
-            var account = await VerifyAsync(loginName);
+            var account = await FindByLoginNameAsync(loginName);
 
             var pwdHash = FastHash.GetSha256Hash(command.Pwd);
 
@@ -54,20 +45,20 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         [InlineData("一")]
         [InlineData("\\")]
         [Theory, ResetDatabase]
-        public async Task CreateAccount_NormalAccount(string testSource)
+        public async Task CreateAccount_ValidName_ShouldSucceed(string validName)
         {
-            string key = await base.EnsureSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
+            string key = await base.EnsureSystemKeyAsync();
             // 符合规则的测试数据
-            CreateAccountCommand command = new(testSource, "测试账户描述", "pwd123456", key);
+            CreateAccountCommand command = new(validName, "测试账户描述", "pwd123456", key);
 
             // 执行测试
-            var loginName = await ExecuteAsync(command,CancellationToken.None);
+            var loginName = await ExecuteAsync(command, CancellationToken.None);
             // 检查测试结果
-            var account = await VerifyAsync(loginName);
+            var account = await FindByLoginNameAsync(loginName);
 
             var pwdHash = FastHash.GetSha256Hash(command.Pwd);
             Assert.NotNull(account); // 这里通过即为PASS
-            Assert.Equal(testSource, account.Name);
+            Assert.Equal(validName, account.Name);
             Assert.Equal(command.Desc, account.Desc);
             Assert.Equal(pwdHash, account.LoginPasswordHash);
             Assert.True(account.IsValid);
@@ -82,18 +73,18 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         [InlineData("ab ")]
         [InlineData("a b c")]
         [Theory, ResetDatabase]
-        public async Task CreateAccount_EmptyNameAccount(string testSource)
+        public async Task CreateAccount_NameWithWhitespace_ShouldReject(string invalidName)
         {
-            string key = await base.EnsureSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
+            string key = await base.EnsureSystemKeyAsync();
 
             // 符合规则的测试数据
-            CreateAccountCommand command = new(testSource, "测试账户描述", "pwd123456", key);
+            CreateAccountCommand command = new(invalidName, "测试账户描述", "pwd123456", key);
 
             // 执行测试
-            var exception=await Assert.ThrowsAsync<RequestCheckException>(async() =>await ExecuteAsync(command,CancellationToken.None) );
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command, CancellationToken.None));
             // 检查测试结果
             Assert.Equal("账户名称不允许存在空格", exception.Message);
-            var account = await SearchAsync(command.Name);
+            var account = await FindByNameAsync(command.Name);
             Assert.Null(account); // 这里通过即为PASS                                  
         }
         /// <summary>
@@ -101,21 +92,21 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         /// </summary>
         /// <returns></returns>
         [Fact, ResetDatabase]
-        public async Task CreateAccount_LongNameAccount()
+        public async Task CreateAccount_OverlengthName_ShouldRejectByDatabase()// Name 列长度上限为 32
         {
-            string key = await base.EnsureSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
+            string key = await base.EnsureSystemKeyAsync();
             // 符合规则的测试数据
-            string longName = new string('a',33);
+            string longName = new string('a', 33);
             CreateAccountCommand command = new(longName, "测试账户描述", "pwd123456", key);
 
             // 执行测试
-            var exception = await Assert.ThrowsAsync<DbUpdateException>(async ()=>await ExecuteAsync(command,CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<DbUpdateException>(async () => await ExecuteAsync(command, CancellationToken.None));
             // 检查测试结果
             var postgresException = Assert.IsType<PostgresException>(exception.InnerException);
 
             Assert.Equal("22001", postgresException.SqlState);
-            Assert.Contains("value too long for type character varying(32)",postgresException.Message);
-            var account = await SearchAsync(command.Name);
+            Assert.Contains("value too long for type character varying(32)", postgresException.Message);
+            var account = await FindByNameAsync(command.Name);
             Assert.Null(account); // 这里通过即为PASS        
         }
         /// <summary>
@@ -124,16 +115,16 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         /// <returns></returns>
         [Theory, ResetDatabase]
         [MemberData(nameof(AccountTestData.InvalidDescData), MemberType = typeof(AccountTestData))]
-        public async Task CreateAccount_LongDescAccount(string testSource)
+        public async Task CreateAccount_OverlengthDesc_ShouldRejectByDatabase(string overlengthDesc)
         {
-            string key = await base.EnsureSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
+            string key = await base.EnsureSystemKeyAsync();
             // 符合规则的测试数据            
-            CreateAccountCommand command = new("测试账户1", testSource, "pwd123456", key);
+            CreateAccountCommand command = new("测试账户1", overlengthDesc, "pwd123456", key);
 
             // 执行测试
             // 检查测试结果
-            var exception = await Assert.ThrowsAsync<DbUpdateException>(async () =>await ExecuteAsync(command,CancellationToken.None));
-            var account = await SearchAsync(command.Name);
+            var exception = await Assert.ThrowsAsync<DbUpdateException>(async () => await ExecuteAsync(command, CancellationToken.None));
+            var account = await FindByNameAsync(command.Name);
             Assert.Null(account); // 这里通过即为PASS        
         }
         /// <summary>
@@ -142,17 +133,17 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         /// <param name="desc"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        [Theory,ResetDatabase]
+        [Theory, ResetDatabase]
         [MemberData(nameof(AccountTestData.ValidDescData), MemberType = typeof(AccountTestData))]
-        public async Task CreateAccount_ShouldValidDesc(string desc)
+        public async Task CreateAccount_ValidDesc_ShouldSucceed(string validDesc)
         {
-            string key = await base.EnsureSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
+            string key = await base.EnsureSystemKeyAsync();
             // 符合规则的测试数据            
-            CreateAccountCommand command = new("测试账户1", desc, "pwd123456", key);
-            var loginName = await ExecuteAsync(command,CancellationToken.None);
-            var account = await VerifyAsync(loginName);
+            CreateAccountCommand command = new("测试账户1", validDesc, "pwd123456", key);
+            var loginName = await ExecuteAsync(command, CancellationToken.None);
+            var account = await FindByLoginNameAsync(loginName);
             Assert.NotNull(account);
-            Assert.Equal(desc,account.Desc);
+            Assert.Equal(validDesc, account.Desc);
         }
 
 
@@ -161,20 +152,20 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         /// </summary>
         /// <returns></returns>
         [Fact, ResetDatabase]
-        public async Task CreateAccount_DuplicateAccountName()
+        public async Task CreateAccount_DuplicateRegistration_ShouldRejectSecond()
         {
-            string key = await base.EnsureSystemKeyAsync() ?? throw new Exception("意外的错误:来自SystemInitializationService");
+            string key = await base.EnsureSystemKeyAsync();
             // 符合规则的测试数据            
             CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
 
             // 执行测试
-            var loginName = await ExecuteAsync(command,CancellationToken.None);
+            var loginName = await ExecuteAsync(command, CancellationToken.None);
             // 确保第一次注册成功
-            var account = await VerifyAsync(loginName);
-            Assert.NotNull(account);
-            Assert.True(account.IsValid);
+            var firstAccount = await FindByLoginNameAsync(loginName);
+            Assert.NotNull(firstAccount);
+            Assert.True(firstAccount.IsValid);
 
-            var exception =await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command,CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command, CancellationToken.None));
             Assert.Equal("仅允许注册一个账户", exception.Message);
         }
 
@@ -186,23 +177,23 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         [InlineData("")]
         [InlineData("9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08")]
         [Theory, ResetDatabase]
-        public async Task CreateAccount_ErrorServerKey(string testSource)
+        public async Task CreateAccount_InvalidSystemKey_ShouldReject(string invalidServerKey)
         {
             // 符合规则的测试数据            
-            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", testSource);
+            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", invalidServerKey);
 
             // 执行测试
-            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () =>await ExecuteAsync(command,CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command, CancellationToken.None));
             // 检查测试结果
             Assert.Equal("系统密钥不匹配", exception.Message);
-            var account = await SearchAsync(command.Name);
+            var account = await FindByNameAsync(command.Name);
             Assert.Null(account); // 这里通过即为PASS
         }
-        
-        private async Task<AccountEntity?> VerifyAsync(string loginName)
+
+        private async Task<AccountEntity?> FindByLoginNameAsync(string loginName)
         => await base.QueryAsync(e => e.LoginName == loginName);
 
-        private async Task<AccountEntity?> SearchAsync(string name)
+        private async Task<AccountEntity?> FindByNameAsync(string name)
         => await base.QueryAsync(e => e.Name == name);
     }
 }

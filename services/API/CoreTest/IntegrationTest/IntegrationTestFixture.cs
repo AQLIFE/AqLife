@@ -1,4 +1,3 @@
-using AqLife.Application.Business.Account.Services;
 using AqLife.Extensions.Application;
 using AqLife.Extensions.Authentication;
 using AqLife.Extensions.Configurations;
@@ -6,16 +5,12 @@ using AqLife.Extensions.Database;
 using AqLife.Extensions.Infrastructure;
 using AqLife.Extensions.Logging;
 using AqLife.Infrastructure;
-using AqLife.Shared.Options;
 using Duende.IdentityModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using Serilog;
 using System.Security.Claims;
-using System.Security.Principal;
 
 namespace AqLife.CoreTest.IntegrationTest;
 
@@ -35,24 +30,24 @@ public class IntegrationTestFixture : IDisposable
 
         IConfigurationBuilder testConfiguration = new ConfigurationBuilder();
         var configuration = testConfiguration.AddAqLifeConfiguration(testEnvironment).Build();
-        
-        
+
+
 
         services.AddLogging();
         services.AddAqLifeSerilog(testEnvironment);
         services.AddFilePolicy(configuration, testEnvironment.ContentRootPath);
-        
+
         services.AddJwtAuthentication(configuration);
         services.AddApplication();
         services.AddDatabase(configuration);
         services.AddInfrastructure(testEnvironment);
-        ClaimsIdentity identity = new (
+        ClaimsIdentity identity = new(
             new[]
             {
                 new Claim(JwtClaimTypes.Id, Guid.Empty.ToString())
             },
             authenticationType: null);  // 非空才会 IsAuthenticated == true;此处仅用于测试,不需要有效信息
-        HttpContextAccessor accessor = new ()
+        HttpContextAccessor accessor = new()
         {
             HttpContext = new DefaultHttpContext
             {
