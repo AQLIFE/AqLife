@@ -27,6 +27,7 @@ const markdownFileResolver = {
 
 const container = ref<HTMLElement>()
 const markdown = ref('')
+const markdownRenderRef = ref<{ loading: boolean } | null>(null)
 const originalMarkdown = ref('')
 const file = ref<FileDto>()
 const loading = ref(false)
@@ -351,8 +352,8 @@ onBeforeUnmount(() => {
 
     <div class="editor-grid">
       <div ref="container" class="editor" />
-      <div class="render">
-        <MarkdownRender :markdown="markdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
+      <div class="render" v-loading="markdownRenderRef?.loading">
+        <MarkdownRender ref="markdownRenderRef" :markdown="markdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
       </div>
     </div>
   </div>
