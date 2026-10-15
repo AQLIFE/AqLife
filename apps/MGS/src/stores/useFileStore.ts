@@ -1,6 +1,6 @@
 import { reactive, ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { FileApi, FileDto } from '@/api'
+import { FileScope, type FileApi, type FileDto } from '@/api'
 import { isImageType } from '@aqlife/domain'
 
 export type FileStore = ReturnType<typeof useFileStore>
@@ -10,7 +10,7 @@ export const useFileStore = defineStore('file', () => {
   const previewUrl = reactive<Map<string, string>>(new Map())
   const isInitialized = ref(false)
 
-  async function fetchAllFiles(fileApi: FileApi) {
+  async function fetchAllFiles(fileApi: FileApi, scope: FileScope = FileScope.Blog) {
     if (isInitialized.value) return
 
     let page = 1
@@ -19,7 +19,8 @@ export const useFileStore = defineStore('file', () => {
     while (true) {
       const result = await fileApi.apiFileGet({
         page,
-        pageSize
+        pageSize,
+        scope
       })
 
       fileList.value.push(...(result.items ?? []))
