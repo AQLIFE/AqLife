@@ -9,6 +9,12 @@
         node.component === 'MermaidPreview'
       " :info="node.content" :info-type="node.info" />
 
+      <div
+        v-else-if="node.type === 'blockquote'"
+        class="markdown-blockquote"
+        v-html="renderTokenGroup(node.tokens)"
+      />
+
       <MarkdownTable v-else-if="node.type === 'table'" :table-tokens="node.tokens" />
 
       <img v-else-if="
@@ -183,5 +189,17 @@ defineExpose({
 <style scoped>
 #mdRender {
   padding: 0 20px;
+}
+
+.markdown-blockquote {
+  margin: 1rem 0;
+  padding: 0.25rem 1rem;
+  border-left: 4px solid var(--el-border-color);
+  color: var(--el-text-color-secondary);
+  background: var(--el-fill-color-lighter);
+}
+
+.markdown-blockquote :deep(p) {
+  margin: 0.5rem 0;
 }
 </style>
