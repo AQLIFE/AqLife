@@ -27,7 +27,7 @@
         value-format="YYYY-MM-DD" format="YYYY-MM-DD" v-model="dateRange" :disabled="filterDisabled" />
     </MgsToolbar>
 
-    <ElTable :data="tableData" highlight-current-row @row-click="activeRow" height="100%" class="data-table">
+    <ElTable :data="tableData" v-loading="isLoading" element-loading-text="正在加载文件..." empty-text="暂无文件" highlight-current-row @row-click="activeRow" height="100%" class="data-table">
       <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label"
         :width="column.width" :sortable="column.sortable"
         :filters="column.filter?.options.map(option => ({ text: option.label, value: option.value.toString() }))"
@@ -86,6 +86,8 @@ const segmentedMode = [
   { label: 'Markdown', value: 'md' },
 ]
 const selectMode = ref<string>('image')
+const isLoading = ref(false)
+let modeLoadVersion = 0
 const tableColumns: FileTableColumn[] = [
   {
     prop: 'uid',
@@ -228,9 +230,17 @@ const tableData = computed(() => (filterDisabled.value ? [] : filteredFileList.v
 
 
 async function loadFilesForMode() {
+  const version = ++modeLoadVersion
   const scope = selectMode.value === 'image' ? FileScope.Image : FileScope.Blog
+
+  isLoading.value = true
   fileStore.clearCache()
-  await fileStore.fetchAllFiles(fileApi, scope)
+
+  try {
+    await fileStore.fetchAllFiles(fileApi, scope)
+  } finally {
+    if (version === modeLoadVersion) isLoading.value = false
+  }
 }
 
 onBeforeMount(loadFilesForMode)
