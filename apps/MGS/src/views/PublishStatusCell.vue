@@ -5,17 +5,16 @@
 </template>
 
 <script lang="ts" setup>
-import { Brush, Promotion, Timer, Warning } from '@element-plus/icons-vue';
-import { computed } from 'vue';
+import { Brush, Promotion, Timer, Warning } from '@element-plus/icons-vue'
+import { computed } from 'vue'
+import { FileStatus } from '@/api'
 
-
-enum PublishStatus {Draft,Scheduled,Published}
-const props = defineProps<{value:PublishStatus}>()
+const props = defineProps<{ value: FileStatus }>()
 const icon = computed(() =>{
   switch (props.value){
-    case PublishStatus.Draft:   return Brush;
-    case PublishStatus.Scheduled:return Timer;
-    case PublishStatus.Published:return Promotion;
+    case FileStatus.Draft:   return Brush;
+    case FileStatus.Scheduled:return Timer;
+    case FileStatus.Published:return Promotion;
     default:return Warning;}
 })
 
