@@ -18,6 +18,12 @@ const router = useRouter()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const baseurl = import.meta.env.VITE_API
+const markdownFileResolver = {
+  async getFile(uid: string): Promise<FileDto | undefined> {
+    const result = await fileApi.apiFileGet({ uID: uid })
+    return result.items?.[0]
+  },
+}
 
 const container = ref<HTMLElement>()
 const markdown = ref('')
@@ -346,7 +352,7 @@ onBeforeUnmount(() => {
     <div class="editor-grid">
       <div ref="container" class="editor" />
       <div class="render">
-        <MarkdownRender :markdown="markdown" :baseurl="baseurl" />
+        <MarkdownRender :markdown="markdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
       </div>
     </div>
   </div>
