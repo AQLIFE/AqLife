@@ -47,6 +47,7 @@
 import {
   ElTable,
   ElDatePicker,
+  ElMessage,
   ElTableColumn,
   ElInput,
   ElSelect,
@@ -238,6 +239,8 @@ async function loadFilesForMode() {
 
   try {
     await fileStore.fetchAllFiles(fileApi, scope)
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '文件列表加载失败')
   } finally {
     if (version === modeLoadVersion) isLoading.value = false
   }
