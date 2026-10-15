@@ -450,7 +450,7 @@ async function createArticle() {
 
     creatingArticle.value = false
     ElMessage.success('博文已创建')
-    await router.push('/blog/' + uid)
+    await router.push('/file/' + uid)
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '博文创建失败')
   } finally {

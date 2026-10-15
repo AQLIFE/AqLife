@@ -145,7 +145,7 @@ const router = useRouter()
 
 const activeRow = (row: FileDto) => {
   if (!row.uid) return
-  router.push(`/blog/${row.uid}`)
+  router.push(`/file/${row.uid}`)
 }
 
 
@@ -247,7 +247,7 @@ function handleUploadFile() {
   router.push('/file/upload')
 }
 function handleAddFile() {
-  router.push('/blog/new')
+  router.push('/file/new')
 }
 
 </script>

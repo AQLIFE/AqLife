@@ -24,7 +24,7 @@ const acceptType = computed(() => defaultFilePolicy.allowedUpload.join(','))
 const canCommit = computed(() => fileList.value.length > 0 && !uploading.value)
 
 function goBack() {
-  router.push('/blog/list')
+  router.push('/file/list')
 }
 
 async function commit() {
@@ -72,7 +72,7 @@ async function commit() {
 
     fileList.value = []
     tags.value = []
-    router.push('/blog/list')
+    router.push('/file/list')
   } catch (error) {
     console.error('Blog upload error:', error)
     ElMessage.error(error instanceof Error ? error.message : '上传流程发生异常，请检查网络或后端日志')

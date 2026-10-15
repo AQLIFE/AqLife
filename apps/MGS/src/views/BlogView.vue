@@ -95,12 +95,12 @@ async function loadArticle(guid: string) {
 
 function enterEditMode() {
   const guid = typeof route.params.id === 'string' ? route.params.id : ''
-  if (guid) router.push(`/blog/${guid}/edit`)
+  if (guid) router.push(`/file/${guid}/edit`)
 }
 
 function leaveEditMode() {
   const guid = typeof route.params.id === 'string' ? route.params.id : ''
-  if (guid) router.push(`/blog/${guid}`)
+  if (guid) router.push(`/file/${guid}`)
 }
 
 async function onTagsChanged(value: FileDto['tags']) {
@@ -210,7 +210,7 @@ async function deleteArticle() {
     deleting.value = true
     await new FileDeleteWorkflow(current, fileApi, fileStore).run()
     ElMessage.success('文章已删除')
-    await router.push('/blog/list')
+    await router.push('/file/list')
   } catch (error) {
     if (error === 'cancel' || error === 'close') return
     ElMessage.error(error instanceof Error ? error.message : '删除文章失败')

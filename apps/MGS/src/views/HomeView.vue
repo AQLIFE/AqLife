@@ -17,14 +17,14 @@
             <h2>Recent articles</h2>
             <p>Continue where you left off.</p>
           </div>
-          <ElButton text @click="router.push('/blog/list')">View all</ElButton>
+          <ElButton text @click="router.push('/file/list')">View all</ElButton>
         </div>
         <div class="article-list">
           <div
           v-for="article in articles"
           :key="article.uid ?? article.title"
           class="article"
-          @click="article.uid && router.push(`/blog/${article.uid}`)"
+          @click="article.uid && router.push(`/file/${article.uid}`)"
         >
             <div class="article-icon">MD</div>
             <div class="article-copy">
@@ -43,11 +43,11 @@
             <p>Quick actions</p>
           </div>
         </div>
-        <button class="quick-action" @click="router.push('/blog/new')">
+        <button class="quick-action" @click="router.push('/file/new')">
           <span>+</span>
           <div><strong>New article</strong><small>Start from a template</small></div>
         </button>
-        <button class="quick-action" @click="router.push('/blog/list')">
+        <button class="quick-action" @click="router.push('/file/list')">
           <span>↗</span>
           <div><strong>Manage content</strong><small>Browse and edit articles</small></div>
         </button>
