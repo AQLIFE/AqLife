@@ -9,31 +9,37 @@ export const useFileStore = defineStore('file', () => {
   const fileList = ref<FileDto[]>([])
   const previewUrl = reactive<Map<string, string>>(new Map())
   const isInitialized = ref(false)
+  const loadedScope = ref<FileScope | null>(null)
+  let loadVersion = 0
 
   async function fetchAllFiles(fileApi: FileApi, scope: FileScope = FileScope.Blog) {
-    if (isInitialized.value) return
+    if (isInitialized.value && loadedScope.value === scope) return
 
+    if (loadedScope.value !== null && loadedScope.value !== scope) {
+      clearCache()
+    }
+
+    const version = ++loadVersion
     let page = 1
-    const pageSize = 10
+    const pageSize = 50
+    const files: FileDto[] = []
 
     while (true) {
-      const result = await fileApi.apiFileGet({
-        page,
-        pageSize,
-        scope
-      })
+      const result = await fileApi.apiFileGet({ page, pageSize, scope })
+      if (version !== loadVersion) return
 
-      fileList.value.push(...(result.items ?? []))
-
+      files.push(...(result.items ?? []))
       if (!result.hasMore) break
       page = (result.page ?? page) + 1
     }
 
-    const tasks = fileList.value.map(async item => {
-      if (!item.uid || previewUrl.has(item.uid) || !isImageType(item.fileType ?? '')) return
+    fileList.value = files
+    const tasks = files.map(async item => {
+      if (version !== loadVersion || !item.uid || previewUrl.has(item.uid) || !isImageType(item.fileType ?? '')) return
 
       try {
         const blob = await fileApi.apiFilePreviewGet({ uID: item.uid })
+        if (version !== loadVersion) return
         previewUrl.set(item.uid, URL.createObjectURL(blob))
       } catch (e) {
         console.error(`加载图片[${item.uid}]失败`, e)
@@ -41,13 +47,18 @@ export const useFileStore = defineStore('file', () => {
     })
 
     await Promise.all(tasks)
+    if (version !== loadVersion) return
+
+    loadedScope.value = scope
     isInitialized.value = true
   }
 
   function clearCache() {
+    loadVersion++
     previewUrl.forEach(url => URL.revokeObjectURL(url))
     previewUrl.clear()
     fileList.value = []
+    loadedScope.value = null
     isInitialized.value = false
   }
 
