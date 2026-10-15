@@ -1,5 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Command;
+using AqLife.Shared.Options;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,7 +12,7 @@ namespace AqLife.Application.BackServices
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation("Scheduled publish worker started.");
+            logger.LogInformation("[Serilog][{@LogType}]=>{@LogDesc}",BehavioralLevel.ServiceType,"Scheduled publish worker started.");
             while (!stoppingToken.IsCancellationRequested)
             {
                 logger.LogDebug("DateTimeOffset.UTCnow: {DateTimeOffsetUtcNow}", DateTimeOffset.UtcNow);
@@ -35,7 +36,7 @@ namespace AqLife.Application.BackServices
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError("后台任务执行失败:{0}", ex);
+                        logger.LogError($"后台任务执行失败:{ex}");
                         await transaction.RollbackAsync();
                     }
                 }

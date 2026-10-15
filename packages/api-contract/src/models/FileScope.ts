@@ -14,15 +14,34 @@
 
 
 /**
- * 
+ * 0 = Default：默认搜索策略,包含 Image & Blog 
+ * 1 = Image：Image 搜索策略
+ * 2 = Blog：Blog 搜索策略
+ * 3 = Template：Template 搜索策略
+ * 4 = All：全集搜索策略
  * @export
  */
 export const FileScope = {
-    NUMBER_0: 0,
-    NUMBER_1: 1,
-    NUMBER_2: 2,
-    NUMBER_3: 3,
-    NUMBER_4: 4
+    /**
+    * 默认搜索策略,包含 Image &amp; Blog 
+    */
+    Default: 0,
+    /**
+    * Image 搜索策略
+    */
+    Image: 1,
+    /**
+    * Blog 搜索策略
+    */
+    Blog: 2,
+    /**
+    * Template 搜索策略
+    */
+    Template: 3,
+    /**
+    * 全集搜索策略
+    */
+    All: 4
 } as const;
 export type FileScope = typeof FileScope[keyof typeof FileScope];
 

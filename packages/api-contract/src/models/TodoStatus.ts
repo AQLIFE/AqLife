@@ -14,14 +14,29 @@
 
 
 /**
- * 待办状态
+ * 0 = Initial：初始状态
+ * 1 = Wait：等待分配
+ * 2 = Execute：正在执行
+ * 3 = Completed：执行完成
  * @export
  */
 export const TodoStatus = {
-    NUMBER_0: 0,
-    NUMBER_1: 1,
-    NUMBER_2: 2,
-    NUMBER_3: 3
+    /**
+    * 初始状态
+    */
+    Initial: 0,
+    /**
+    * 等待分配
+    */
+    Wait: 1,
+    /**
+    * 正在执行
+    */
+    Execute: 2,
+    /**
+    * 执行完成
+    */
+    Completed: 3
 } as const;
 export type TodoStatus = typeof TodoStatus[keyof typeof TodoStatus];
 

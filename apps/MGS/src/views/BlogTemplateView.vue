@@ -211,7 +211,7 @@ const bodyLines = computed(() => draft.content.split('\n'))
 
 async function loadTemplates(selectUid?: string) {
   const result = await fileApi.apiFileGet({
-    scope: FileScope.NUMBER_3 ,
+    scope: FileScope.Template,
     page: 1,
     pageSize: 100,
   })

@@ -19,8 +19,7 @@ export const useFileStore = defineStore('file', () => {
     while (true) {
       const result = await fileApi.apiFileGet({
         page,
-        pageSize,
-
+        pageSize
       })
 
       fileList.value.push(...(result.items ?? []))

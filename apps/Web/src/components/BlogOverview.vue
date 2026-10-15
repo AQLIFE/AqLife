@@ -6,6 +6,7 @@ import { TagApi,FileApi, type BlogCategoryStatistics, type FileDto } from '@/api
 import { apiConfiguration } from '@/services/api';
 // import { View, Timer } from '@element-plus/icons-vue';
 import { useBlogStore } from '../stores/fileStore';
+import { onMounted } from 'vue';
 
 const BlogCategoryView = ref<BlogCategoryStatistics[]>([])
 
@@ -28,7 +29,11 @@ onBeforeMount(async () => {
     if(BlogCategoryView.value.length==0) BlogCategoryView.value = await tagApi.apiTagOverviewGet()
     const list = await fileApi.apiFileGet({order:2,pageSize:5})
     if( list.items) hotList.value = list.items
+})
+
+onMounted(()=>{
     BlogCategoryView.value.push({uid:'',categoryName:'ALL',categoryCount:fileStore.cacheBlogList.length})// 用于清除 filter的效果
+    
 })
 </script>
 

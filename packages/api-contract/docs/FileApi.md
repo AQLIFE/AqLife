@@ -242,9 +242,9 @@ async function example() {
     page: 56,
     // number (optional)
     pageSize: 56,
-    // FileOrder (optional)
+    // FileOrder | 0 = Latest 1 = Earliest 2 = MostViewed (optional)
     order: ...,
-    // FileScope (optional)
+    // FileScope | 0 = Default：默认搜索策略,包含 Image & Blog  1 = Image：Image 搜索策略 2 = Blog：Blog 搜索策略 3 = Template：Template 搜索策略 4 = All：全集搜索策略 (optional)
     scope: ...,
   } satisfies ApiFileGetRequest;
 
@@ -270,8 +270,8 @@ example().catch(console.error);
 | **categoryUID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **page** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
-| **order** | `FileOrder` |  | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2] |
-| **scope** | `FileScope` |  | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2, 3, 4] |
+| **order** | `FileOrder` | 0 &#x3D; Latest 1 &#x3D; Earliest 2 &#x3D; MostViewed | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2] |
+| **scope** | `FileScope` | 0 &#x3D; Default：默认搜索策略,包含 Image &amp; Blog  1 &#x3D; Image：Image 搜索策略 2 &#x3D; Blog：Blog 搜索策略 3 &#x3D; Template：Template 搜索策略 4 &#x3D; All：全集搜索策略 | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2, 3, 4] |
 
 ### Return type
 
