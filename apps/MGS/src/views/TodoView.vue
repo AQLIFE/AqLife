@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {
-  ElEmpty,
   ElRow,
   ElCol,
   ElTable,
   ElTableColumn,
   ElTag,
   ElText,
+  ElMessage,
 } from 'element-plus'
 import { onBeforeMount, ref } from 'vue'
 import { TodoApi, type TodoDto } from '@/api'
@@ -23,11 +23,19 @@ const columnMap: Record<string, string> = {
 
 const todoStore = useTodoStorage()
 const proxyTodos = ref<TodoDto[]>([])
+const isLoading = ref(true)
 const todoApi = new TodoApi(apiConfiguration)
 
 onBeforeMount(async () => {
-  await todoStore.fetchAllTodos(todoApi)
-  proxyTodos.value = [...todoStore.todoList]
+  isLoading.value = true
+  try {
+    await todoStore.fetchAllTodos(todoApi)
+    proxyTodos.value = [...todoStore.todoList]
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '待办数据加载失败')
+  } finally {
+    isLoading.value = false
+  }
 })
 
 const tableColumns = Object.keys(columnMap)
@@ -37,10 +45,12 @@ const tableColumns = Object.keys(columnMap)
   <ElRow>
     <ElTable
       :data="proxyTodos"
+      v-loading="isLoading"
+      element-loading-text="正在加载待办..."
+      empty-text="暂无待办"
       row-key="uid"
       class="fitHeight"
       highlight-current-row
-      v-if="todoStore.todoList.length > 0"
       :tree-props="{ children: 'todoList', hasChildren: 'hasChildren' }"
     >
       <ElTableColumn
@@ -59,8 +69,6 @@ const tableColumns = Object.keys(columnMap)
         </template>
       </ElTableColumn>
     </ElTable>
-
-    <ElEmpty v-else description="正在加载待办数据..." />
   </ElRow>
 </template>
 
