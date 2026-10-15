@@ -2,7 +2,7 @@
 import { useTagStore } from '@/stores/tagStore';
 import { onBeforeMount, ref } from 'vue';
 import { ElButton } from 'element-plus';
-import { FileScope, TagApi, FileApi, type BlogCategoryStatistics, type FileDto } from '@/api';
+import { FileOrder, FileScope, TagApi, FileApi, type BlogCategoryStatistics, type FileDto } from '@/api';
 import { apiConfiguration } from '@/services/api';
 // import { View, Timer } from '@element-plus/icons-vue';
 import { useBlogStore } from '../stores/fileStore';
@@ -55,7 +55,7 @@ onBeforeMount(async () => {
     const [categories, allPublishedBlogCount, popular] = await Promise.all([
         tagApi.apiTagOverviewGet(),
         loadAllPublishedBlogCount(),
-        fileApi.apiFileGet({ scope: FileScope.Blog, order: 2, pageSize: 5 }),
+        fileApi.apiFileGet({ scope: FileScope.Blog, order: FileOrder.MostViewed, pageSize: 5 }),
     ])
 
     BlogCategoryView.value = [
