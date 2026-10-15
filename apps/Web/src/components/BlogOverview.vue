@@ -41,7 +41,9 @@ async function handleFilter(tagId: string) {
         categoryUID: tagId || undefined,
     })
 
-    if (result.items) fileStore.setBlogList(result.items)
+    fileStore.setBlogList(result.items ?? [])
+    fileStore.page = (result.page ?? 1) + 1
+    fileStore.hasMore = result.hasMore ?? false
 }
 
 onBeforeMount(async () => {
