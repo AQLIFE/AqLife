@@ -133,7 +133,7 @@
               />
             </div>
             <div class="preview">
-              <MarkdownRender :markdown="draft.content" :baseurl="baseurl" />
+              <MarkdownRender :markdown="draft.content" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
             </div>
           </div>
         </div>
@@ -178,6 +178,12 @@ const baseurl = import.meta.env.VITE_API
 const router = useRouter()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
+const markdownFileResolver = {
+  async getFile(uid: string): Promise<FileDto | undefined> {
+    const result = await fileApi.apiFileGet({ uID: uid })
+    return result.items?.[0]
+  },
+}
 
 const templates = ref<BlogTemplate[]>([])
 const selectedTemplate = ref<BlogTemplate>()
@@ -210,13 +216,10 @@ const bodyLines = computed(() => draft.content.split('\n'))
 
 
 async function loadTemplates(selectUid?: string) {
-  const result = await fileApi.apiFileGet({
-    scope: FileScope.Template,
-    page: 1,
-    pageSize: 100,
-  })
+  fileStore.clearCache()
+  await fileStore.fetchAllFiles(fileApi, FileScope.Template)
 
-  templates.value = (result.items ?? []).filter(item => item.isTemplate)
+  templates.value = fileStore.fileList.filter(item => item.isTemplate)
 
   if (!templates.value.length) {
     selectedTemplate.value = undefined
@@ -446,8 +449,6 @@ async function createArticle() {
     })
 
     article = (await fileApi.apiFileGet({ uID: uid })).items?.[0] ?? article
-    fileStore.upsertFile(article)
-
     creatingArticle.value = false
     ElMessage.success('博文已创建')
     await router.push('/file/' + uid)
