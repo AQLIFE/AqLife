@@ -65,7 +65,7 @@ onBeforeMount(async () => {
 })
 
 const tableColumns = computed(() =>
-  tagStore.tags.length > 0 ? Object.keys(tagStore.tags[0]) : [],
+  tagStore.tags.length > 0 ? Object.keys(tagStore.tags[0]) : Object.keys(columnMap),
 )
 
 const tempList = computed(() => {
