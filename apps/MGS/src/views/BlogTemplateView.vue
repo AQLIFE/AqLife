@@ -132,8 +132,8 @@
                 :placeholder="creatingTemplate || editing || creatingArticle ? '编辑 Markdown 内容...' : '模板内容加载中...'"
               />
             </div>
-            <div class="preview">
-              <MarkdownRender :markdown="draft.content" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
+            <div class="preview" v-loading="markdownRenderRef?.loading">
+              <MarkdownRender ref="markdownRenderRef" :markdown="draft.content" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
             </div>
           </div>
         </div>
@@ -209,6 +209,7 @@ const articleDraft = reactive<{
 const draft = reactive({
   content: '',
 })
+const markdownRenderRef = ref<{ loading: boolean } | null>(null)
 
 const templateDirty = computed(() => draft.content !== selectedTemplateContent.value)
 const canSaveNewTemplate = computed(() => Boolean(templateDraft.name.trim() && draft.content.trim()))
