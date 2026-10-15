@@ -54,9 +54,9 @@ import {
   ElButton,
   ElSegmented
 } from 'element-plus'
-import { FileApi, type FileDto, type TagDto } from '@/api'
+import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { onBeforeMount, ref, computed, type Component } from 'vue'
+import { onBeforeMount, ref, computed, watch, type Component } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
 import { Plus, Upload } from '@element-plus/icons-vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
@@ -81,7 +81,10 @@ type FileTableColumn = {
   }
 }
 
-const segmentedMode = ['image','md']
+const segmentedMode = [
+  { label: 'Images', value: 'image' },
+  { label: 'Markdown', value: 'md' },
+]
 const selectMode = ref<string>('image')
 const tableColumns: FileTableColumn[] = [
   {
@@ -224,8 +227,20 @@ const filteredFileList = computed(() =>
 const tableData = computed(() => (filterDisabled.value ? [] : filteredFileList.value))
 
 
-onBeforeMount(async () => {
-  await fileStore.fetchAllFiles(fileApi)
+async function loadFilesForMode() {
+  const scope = selectMode.value === 'image' ? FileScope.Image : FileScope.Blog
+  fileStore.clearCache()
+  await fileStore.fetchAllFiles(fileApi, scope)
+}
+
+onBeforeMount(loadFilesForMode)
+
+watch(selectMode, async () => {
+  searchText.value = ''
+  searchTerm.value = ''
+  selectedTags.value = []
+  dateRange.value = null
+  await loadFilesForMode()
 })
 
 function handleUploadFile() {
