@@ -28,7 +28,7 @@
 
     <ElScrollbar class="markdown-scrollbar" @scroll="handleMarkdownScroll" @end-reached="handleEndReached">
       <div ref="markdownContainer" class="markdown-content" v-loading="markdownRenderRef?.loading">
-        <MarkdownRender :markdown="sourceMarkdown" :baseurl="baseurl" />
+        <MarkdownRender ref="markdownRenderRef" :markdown="sourceMarkdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
       </div>
     </ElScrollbar>
   </div>
@@ -71,6 +71,12 @@ const router = useRouter()
 const articleStore = useArticleStore()
 const fileApi = new FileApi(apiConfiguration)
 const baseurl = import.meta.env.VITE_API
+const markdownFileResolver = {
+  async getFile(uid: string): Promise<FileDto | undefined> {
+    const result = await fileApi.apiFileGet({ uID: uid })
+    return result.items?.[0]
+  },
+}
 const sourceMarkdown = ref('')
 const fileMeta = ref<FileDto | null>(null)
 
