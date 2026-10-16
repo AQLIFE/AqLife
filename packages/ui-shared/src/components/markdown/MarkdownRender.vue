@@ -109,7 +109,7 @@ function isBackendPreviewUrl(target: URL): boolean {
 
   try {
     const base = new URL(props.baseurl)
-    const isPreviewEndpoint = /(?:^|\\/)api\\/file\\/preview(?:\\/[0-9a-f-]{36})?\\/?$/i.test(target.pathname)
+    const isPreviewEndpoint = /(?:^|\/)api\/file\/preview(?:\/[0-9a-f-]{36})?\/?$/i.test(target.pathname)
     return target.origin === base.origin && isPreviewEndpoint
   } catch {
     return false
