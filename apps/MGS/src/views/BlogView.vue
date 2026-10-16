@@ -10,8 +10,10 @@ import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
-import { publishStatusOptions, publishStatus } from '@/types/TableFilterOption.ts'
+import { FileStatus } from "@/api"
 import TagSelect from '@/components/TagSelect.vue'
+import { publishStatusOptions } from '@/types/TableFilterOption'
+
 
 const route = useRoute()
 const router = useRouter()
@@ -37,7 +39,7 @@ let editor: monaco.editor.IStandaloneCodeEditor | undefined
 const isEditing = computed(() => route.path.endsWith('/edit'))
 const isDirty = computed(() => markdown.value !== originalMarkdown.value)
 const pageTitle = computed(() => file.value?.fileName || '博文')
-const publishStatusModel = ref<publishStatus>()
+const publishStatusModel = ref<FileStatus>()
 const publishing = ref(false)
 const scheduling = ref(false)
 const deleting = ref(false)
@@ -48,8 +50,8 @@ const segmentedOptions = computed(() =>
   publishStatusOptions.map(item => ({
     ...item,
     disabled:
-      item.value === publishStatus.Scheduled &&
-      file.value?.publishStatus === publishStatus.Published,
+      item.value === FileStatus.Scheduled &&
+      file.value?.publishStatus === FileStatus.Published,
   })),
 )
 
@@ -124,7 +126,7 @@ async function onTagsChanged(value: FileDto['tags']) {
   }
 }
 
-async function onPublishStatusChanged(value: publishStatus) {
+async function onPublishStatusChanged(value: FileStatus) {
   const current = file.value
   if (!current?.uid || current.publishStatus === value) return
 
@@ -134,14 +136,14 @@ async function onPublishStatusChanged(value: publishStatus) {
     let dto: FileDto
 
     switch (value) {
-      case publishStatus.Draft:
+      case FileStatus.Draft:
         dto = await new FileDraftWorkflow(current, fileApi, fileStore).run()
         break
-      case publishStatus.Published:
+      case FileStatus.Published:
         dto = await new FilePublishWorkflow(current, fileApi, fileStore).run()
         break
-      case publishStatus.Scheduled:
-        if (current.publishStatus === publishStatus.Published) {
+      case FileStatus.Scheduled:
+        if (current.publishStatus === FileStatus.Published) {
           throw new Error('禁止从已发布状态修改为预定发布状态')
         }
         if (!current.publishAt) {
@@ -178,7 +180,7 @@ async function onScheduledAtChanged(value: Date | null) {
   current.publishAt = nextPublishAt
   scheduledAt.value = value
 
-  if (current.publishStatus === publishStatus.Draft) {
+  if (current.publishStatus === FileStatus.Draft) {
     ElMessage.success('预定发布时间已设置')
     return
   }
@@ -321,7 +323,7 @@ onBeforeUnmount(() => {
           <ElDatePicker
             v-model="scheduledAt"
             type="datetime"
-            :disabled="publishing || scheduling || file.publishStatus === publishStatus.Published"
+            :disabled="publishing || scheduling || file.publishStatus === FileStatus.Published"
             placeholder="预定发布时间"
             @change="onScheduledAtChanged"
           />

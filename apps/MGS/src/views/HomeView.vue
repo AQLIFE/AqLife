@@ -60,10 +60,9 @@
 import { ElButton } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { onBeforeMount, computed, ref } from 'vue'
-import { OverviewApi } from '@/api'
+import { FileStatus, OverviewApi } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
-import { publishStatus } from '@/types/TableFilterOption.ts'
 
 const router = useRouter()
 const overviewApi = new OverviewApi(apiConfiguration)
@@ -81,15 +80,15 @@ const articles = computed(() =>
     title: file.fileName || 'Untitled article',
     meta: file.fileType ? file.fileType.replace('.', '').toUpperCase() : 'File',
     status:
-      file.publishStatus === publishStatus.Published
+      file.publishStatus === FileStatus.Published
         ? 'published'
-        : file.publishStatus === publishStatus.Scheduled
+        : file.publishStatus === FileStatus.Scheduled
           ? 'scheduled'
           : 'draft',
     label:
-      file.publishStatus === publishStatus.Published
+      file.publishStatus === FileStatus.Published
         ? 'Published'
-        : file.publishStatus === publishStatus.Scheduled
+        : file.publishStatus === FileStatus.Scheduled
           ? 'Scheduled'
           : 'Draft',
   })),

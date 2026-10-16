@@ -8,10 +8,8 @@ export type TableFilterOption = {
   icon?: Component
 }
 
-export const publishStatus = FileStatus
-export type PublishStatus = FileStatus
 export const publishStatusOptions: TableFilterOption[] = [
-  { label: '草稿', icon: Brush, value: publishStatus.Draft },
-  { label: '预约', icon: Timer, value: publishStatus.Scheduled },
-  { label: '发布', icon: Promotion, value: publishStatus.Published }
+  { label: '草稿', icon: Brush,     value: FileStatus.Draft },
+  { label: '预约', icon: Timer,     value: FileStatus.Scheduled },
+  { label: '发布', icon: Promotion, value: FileStatus.Published }
 ]
