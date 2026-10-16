@@ -21,14 +21,18 @@ defineProps<{
 
 .imageContainer{
   width:100vw;
-
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  justify-self: center;
 }
 #ImageBlock {
-  max-width: 50%;
+  max-width: 35%;
 }
 
 .image {
-  width: inherit;
+  width:inherit;
   max-height: 100%;
 }
 

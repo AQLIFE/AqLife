@@ -26,10 +26,9 @@
           class="article"
           @click="article.uid && router.push(`/file/${article.uid}`)"
         >
-            <div class="article-icon">MD</div>
+            <div class="article-icon">{{ article.meta }}</div>
             <div class="article-copy">
               <strong>{{ article.title }}</strong>
-              <span>{{ article.meta }}</span>
             </div>
             <span class="status" :class="article.status">{{ article.label }}</span>
           </div>
