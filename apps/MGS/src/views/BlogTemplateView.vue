@@ -48,10 +48,10 @@
       <main class="editor-panel">
         <div v-if="selectedTemplate || creatingTemplate || creatingArticle" class="template-toolbar">
           <div>
-            <div class="selected-template-name">{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName }}</div>
+            <div class="selected-template-name">{{ creatingArticle && !articleUsesTemplate ? '新建博文' : creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName }}</div>
             <div class="selected-template-state">
               {{ creatingTemplate ? '正在创建模板' : creatingArticle ? '正在设置博文' : editing ? '正在修改模板' : '只读预览' }}
-              <template v-if="!creatingTemplate"> · Version {{ selectedTemplate?.version ?? 1 }}</template>
+              <template v-if="!creatingTemplate && (!creatingArticle || articleUsesTemplate)"> · Version {{ selectedTemplate?.version ?? 1 }}</template>
             </div>
           </div>
           <div class="template-toolbar-actions">
@@ -143,10 +143,10 @@
         </div>
 
         <div class="status-bar">
-          <span>{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName || '未选择模板' }}</span>
+          <span>{{ creatingArticle && !articleUsesTemplate ? '新建博文' : creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName || '未选择模板' }}</span>
           <span>{{ bodyLines.length }} 行 · {{ draft.content.length }} 字符</span>
           <span :class="creatingTemplate || editing ? 'status-editing' : 'status-ready'">
-            {{ creatingTemplate ? '新模板编辑中' : editing ? '模板编辑中' : '模板只读' }}
+            {{ creatingTemplate ? '新模板编辑中' : creatingArticle ? (articleUsesTemplate ? '基于模板创建' : '空白博文编辑中') : editing ? '模板编辑中' : '模板只读' }}
           </span>
         </div>
       </main>
@@ -452,6 +452,8 @@ function startCreatingArticle() {
 }
 
 function startCreatingArticleWithoutTemplate() {
+  creatingTemplate.value = false
+  editing.value = false
   articleUsesTemplate.value = false
   creatingArticle.value = true
   articleDraft.title = ''
