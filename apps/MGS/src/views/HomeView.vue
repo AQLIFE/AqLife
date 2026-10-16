@@ -29,6 +29,7 @@
             <div class="article-icon">{{ article.meta }}</div>
             <div class="article-copy">
               <strong>{{ article.title }}</strong>
+              <small v-if="article.uploadedAgo" class="article-upload-time">{{ article.uploadedAgo }}</small>
             </div>
             <span class="status" :class="article.status">{{ article.label }}</span>
           </div>
@@ -77,6 +78,7 @@ const articles = computed(() =>
   (overview.value?.recentFiles ?? []).map(file => ({
     uid: file.uid,
     title: file.fileName || 'Untitled article',
+    uploadedAgo: formatUploadAge(file.uploadTime),
     meta: file.fileType ? file.fileType.replace('.', '').toUpperCase() : 'File',
     status:
       file.publishStatus === FileStatus.Published
@@ -92,6 +94,31 @@ const articles = computed(() =>
           : 'Draft',
   })),
 )
+
+function formatUploadAge(value?: string | null): string {
+  if (!value) return ''
+
+  const timestamp = new Date(value).getTime()
+  if (Number.isNaN(timestamp)) return ''
+
+  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000))
+  if (elapsedSeconds < 60) return 'Uploaded just now'
+  if (elapsedSeconds < 3600) {
+    const minutes = Math.floor(elapsedSeconds / 60)
+    return `Uploaded ${minutes} minute${minutes === 1 ? '' : 's'} ago`
+  }
+  if (elapsedSeconds < 86400) {
+    const hours = Math.floor(elapsedSeconds / 3600)
+    return `Uploaded ${hours} hour${hours === 1 ? '' : 's'} ago`
+  }
+
+  const days = Math.floor(elapsedSeconds / 86400)
+  if (days < 30) return `Uploaded ${days} day${days === 1 ? '' : 's'} ago`
+  const months = Math.floor(days / 30)
+  if (months < 12) return `Uploaded ${months} month${months === 1 ? '' : 's'} ago`
+  const years = Math.floor(months / 12)
+  return `Uploaded ${years} year${years === 1 ? '' : 's'} ago`
+}
 
 onBeforeMount(async () => {
   overview.value = await overviewApi.apiOverviewGet({ recentCount: 5 })
@@ -116,6 +143,7 @@ onBeforeMount(async () => {
 .article-copy { min-width:0;flex:1;display:flex;flex-direction:column;gap:3px; }
 .article-copy strong { font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .article-copy span { color:var(--mgs-muted);font-size:10px; }
+.article-upload-time { color:var(--mgs-muted);font-size:10px;font-weight:400; }
 .status { font-size:10px;padding:3px 7px;border-radius:99px; }
 .status.draft { background:#fff5df;color:#a56d13; }
 .status.published { background:#eaf8f0;color:#2f8a59; }
