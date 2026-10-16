@@ -17,10 +17,11 @@
 
       <MarkdownTable v-else-if="node.type === 'table'" :table-tokens="node.tokens" />
 
-      <img v-else-if="
-        node.type === 'resolved-link' &&
-        node.result.type === 'image'
-      " :src="node.result.src" :alt="node.result.alt" />
+      <MarkdownImage
+        v-else-if="node.type === 'resolved-link' && node.result.type === 'image'"
+        :src="node.result.src"
+        :alt="node.result.alt"
+      />
 
       <RouterLink v-else-if="
         node.type === 'resolved-link' &&
@@ -55,6 +56,7 @@ import type { MarkdownFileResolver } from '../../markdown/type.ts'
 import CodeBlock from './MarkdownCode.vue'
 import MarkdownMermaid from './MarkdownMermaid.vue'
 import MarkdownTable from './MarkdownTable.vue'
+import MarkdownImage from './MarkdownImage.vue'
 
 interface MarkdownRenderProps {
   markdown: string
@@ -102,14 +104,13 @@ function renderTokenGroup(tokens: any[]): string {
   )
 }
 
-function isSameOrigin(target: URL): boolean {
-  if (!props.baseurl) {
-    return false
-  }
+function isBackendPreviewUrl(target: URL): boolean {
+  if (!props.baseurl) return false
 
   try {
     const base = new URL(props.baseurl)
-    return target.origin === base.origin
+    const isPreviewEndpoint = /(?:^|\\/)api\\/file\\/preview(?:\\/[0-9a-f-]{36})?\\/?$/i.test(target.pathname)
+    return target.origin === base.origin && isPreviewEndpoint
   } catch {
     return false
   }
@@ -128,7 +129,7 @@ async function resolveInternalLink(
     return null
   }
 
-  if (!isSameOrigin(url)) {
+  if (!isBackendPreviewUrl(url)) {
     return null
   }
 
