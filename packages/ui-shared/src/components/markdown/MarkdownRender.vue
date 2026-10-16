@@ -84,13 +84,14 @@ async function renderMarkdown() {
 
   try {
     const parsed = mdRenderOption.parse(props.markdown, {})
-
+    
     rNode.value = await buildMarkdownRenderNodes(
       parsed,
       props.fileResolver
         ? resolveInternalLink
         : undefined,
     )
+    
   } finally {
     loading.value = false
   }

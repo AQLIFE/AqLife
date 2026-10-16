@@ -13,7 +13,6 @@ import { useArticleStore } from './stores/articleStore.ts'
 const articleStore = useArticleStore()
 const route = useRoute()
 const sideManager = computed(() => {
-  console.log(route.meta.sidebarType)
     switch (route.meta.sidebarType) {
         case SidebarType.Preview:
             return {

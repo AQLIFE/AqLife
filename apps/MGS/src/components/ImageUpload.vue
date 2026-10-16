@@ -56,10 +56,6 @@ function handleExceed(files: File[]):void {
 }
 
 function handleChange(uploadFile: UploadFile):void {
-  // if(props.src!='')
-  //   URL.revokeObjectURL(props.src as string)
-
-  // console.log("old=>"+modelValue.value?.name,'\t',"new=>"+uploadFile.name)
   modelValue.value = uploadFile.raw
   emit('change', uploadFile)
   ElMessage.success(`Selected file: ${uploadFile.name}`)
