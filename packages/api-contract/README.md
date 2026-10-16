@@ -102,6 +102,7 @@ All URIs are relative to *http://localhost*
 - [FileDto](docs/FileDto.md)
 - [FileDtoPageResult](docs/FileDtoPageResult.md)
 - [FileOrder](docs/FileOrder.md)
+- [FileScope](docs/FileScope.md)
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
 - [OverviewDto](docs/OverviewDto.md)

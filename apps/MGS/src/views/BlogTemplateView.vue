@@ -2,6 +2,7 @@
   <div class="template-view">
     <MgsPageHeader title="博文模板" description="选择模板、预览结构，再创建博文" :back="true">
       <template #actions>
+        <ElButton @click="startCreatingArticleWithoutTemplate">直接新建博文</ElButton>
         <ElButton :icon="Plus" @click="startCreatingTemplate">添加模板</ElButton>
       </template>
     </MgsPageHeader>
@@ -45,12 +46,12 @@
       </aside>
 
       <main class="editor-panel">
-        <div v-if="selectedTemplate || creatingTemplate" class="template-toolbar">
+        <div v-if="selectedTemplate || creatingTemplate || creatingArticle" class="template-toolbar">
           <div>
-            <div class="selected-template-name">{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName }}</div>
+            <div class="selected-template-name">{{ creatingArticle && !articleUsesTemplate ? '新建博文' : creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName }}</div>
             <div class="selected-template-state">
               {{ creatingTemplate ? '正在创建模板' : creatingArticle ? '正在设置博文' : editing ? '正在修改模板' : '只读预览' }}
-              <template v-if="!creatingTemplate"> · Version {{ selectedTemplate?.version ?? 1 }}</template>
+              <template v-if="!creatingTemplate && (!creatingArticle || articleUsesTemplate)"> · Version {{ selectedTemplate?.version ?? 1 }}</template>
             </div>
           </div>
           <div class="template-toolbar-actions">
@@ -80,9 +81,12 @@
           </div>
         </div>
 
-        <ElForm v-if="creatingTemplate" :model="templateDraft" label-position="top" class="meta-form">
-          <ElFormItem label="模板名称">
+        <ElForm v-if="creatingTemplate || editing" :model="templateDraft" label-position="top" class="meta-form template-meta-form">
+          <ElFormItem v-if="creatingTemplate" label="模板名称">
             <ElInput v-model="templateDraft.name" size="large" placeholder="例如：技术文章模板" clearable />
+          </ElFormItem>
+          <ElFormItem label="默认标签">
+            <TagSelect v-model:tag-list="templateTags" :select-disabled="saving" />
           </ElFormItem>
         </ElForm>
 
@@ -110,7 +114,7 @@
           </div>
         </ElForm>
 
-        
+
 
         <div class="sheet">
           <div class="sheet-toolbar">
@@ -132,17 +136,17 @@
                 :placeholder="creatingTemplate || editing || creatingArticle ? '编辑 Markdown 内容...' : '模板内容加载中...'"
               />
             </div>
-            <div class="preview">
-              <MarkdownRender :markdown="draft.content" :baseurl="baseurl" />
+            <div class="preview" v-loading="markdownRenderRef?.loading">
+              <MarkdownRender ref="markdownRenderRef" :markdown="draft.content" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
             </div>
           </div>
         </div>
 
         <div class="status-bar">
-          <span>{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName || '未选择模板' }}</span>
+          <span>{{ creatingArticle && !articleUsesTemplate ? '新建博文' : creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName || '未选择模板' }}</span>
           <span>{{ bodyLines.length }} 行 · {{ draft.content.length }} 字符</span>
           <span :class="creatingTemplate || editing ? 'status-editing' : 'status-ready'">
-            {{ creatingTemplate ? '新模板编辑中' : editing ? '模板编辑中' : '模板只读' }}
+            {{ creatingTemplate ? '新模板编辑中' : creatingArticle ? (articleUsesTemplate ? '基于模板创建' : '空白博文编辑中') : editing ? '模板编辑中' : '模板只读' }}
           </span>
         </div>
       </main>
@@ -166,7 +170,7 @@ import {
 import { Edit, InfoFilled, Plus } from '@element-plus/icons-vue'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
-import { FileApi, type FileDto, type TagDto } from '@/api'
+import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow } from '@/workflow'
@@ -178,6 +182,12 @@ const baseurl = import.meta.env.VITE_API
 const router = useRouter()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
+const markdownFileResolver = {
+  async getFile(uid: string): Promise<FileDto | undefined> {
+    const result = await fileApi.apiFileGet({ uID: uid,scope:FileScope.Image })
+    return result.items?.[0]
+  },
+}
 
 const templates = ref<BlogTemplate[]>([])
 const selectedTemplate = ref<BlogTemplate>()
@@ -187,10 +197,12 @@ const creatingTemplate = ref(false)
 const templateDraft = reactive({
   name: '',
 })
+const templateTags = ref<TagDto[]>([])
 const saving = ref(false)
 const loading = ref(false)
 const creatingArticle = ref(false)
 const creatingArticleBusy = ref(false)
+const articleUsesTemplate = ref(true)
 
 const articleDraft = reactive<{
   title: string
@@ -203,24 +215,26 @@ const articleDraft = reactive<{
 const draft = reactive({
   content: '',
 })
+const markdownRenderRef = ref<{ loading: boolean } | null>(null)
 
-const templateDirty = computed(() => draft.content !== selectedTemplateContent.value)
+const templateDirty = computed(() =>
+  draft.content !== selectedTemplateContent.value ||
+  !sameTagSelection(templateTags.value, selectedTemplate.value?.tags ?? []),
+)
 const canSaveNewTemplate = computed(() => Boolean(templateDraft.name.trim() && draft.content.trim()))
 const bodyLines = computed(() => draft.content.split('\n'))
 
 
 async function loadTemplates(selectUid?: string) {
-  const result = await fileApi.apiFileGet({
-    includeTemplates: true,
-    page: 1,
-    pageSize: 100,
-  })
+  fileStore.clearCache()
+  await fileStore.fetchAllFiles(fileApi, FileScope.Template)
 
-  templates.value = (result.items ?? []).filter(item => item.isTemplate)
+  templates.value = fileStore.fileList.filter(item => item.isTemplate)
 
   if (!templates.value.length) {
     selectedTemplate.value = undefined
     selectedTemplateContent.value = ''
+    templateTags.value = []
     draft.content = ''
     return
   }
@@ -249,6 +263,7 @@ async function selectTemplate(uid: string) {
     const content = await response.raw.text()
     selectedTemplate.value = metadata
     selectedTemplateContent.value = content
+    templateTags.value = [...(metadata.tags ?? [])]
     draft.content = content
     editing.value = false
   } catch (error) {
@@ -264,6 +279,7 @@ function startCreatingTemplate() {
   editing.value = false
   creatingTemplate.value = true
   templateDraft.name = ''
+  templateTags.value = []
   draft.content = '# {{title}}\n\n'
 
 }
@@ -271,6 +287,7 @@ function startCreatingTemplate() {
 function cancelCreatingTemplate() {
   creatingTemplate.value = false
   templateDraft.name = ''
+  templateTags.value = []
   draft.content = ''
   if (templates.value[0]?.uid) {
     void selectTemplate(templates.value[0].uid)
@@ -307,6 +324,15 @@ async function saveNewTemplate() {
     const uid = uids[0]
     if (!uid) throw new Error('模板创建失败')
 
+    const tagUids = templateTags.value
+      .map(tag => tag.uid)
+      .filter((tagUid): tagUid is string => Boolean(tagUid))
+    if (tagUids.length > 0) {
+      await fileApi.apiFileTagPatch({
+        updateFileTagCommand: { uid, tags: tagUids },
+      })
+    }
+
     creatingTemplate.value = false
     templateDraft.name = ''
     await loadTemplates(uid)
@@ -324,19 +350,34 @@ async function saveTemplate() {
 
   saving.value = true
   try {
-    const fileName = (current.fileName || 'template') + (current.fileType || '.md')
-    const contentFile = new File([draft.content], fileName, { type: 'text/markdown' })
+    let updated = current
 
-    const updated = await new FileContentUpdateWorkflow(
-      current,
-      contentFile,
-      fileApi,
-      fileStore,
-      true,
-    ).run()
+    if (draft.content !== selectedTemplateContent.value) {
+      const fileName = (current.fileName || 'template') + (current.fileType || '.md')
+      const contentFile = new File([draft.content], fileName, { type: 'text/markdown' })
+
+      updated = await new FileContentUpdateWorkflow(
+        current,
+        contentFile,
+        fileApi,
+        fileStore,
+        true,
+      ).run()
+    }
+
+    const tagUids = templateTags.value
+      .map(tag => tag.uid)
+      .filter((tagUid): tagUid is string => Boolean(tagUid))
+    if (!sameTagSelection(templateTags.value, current.tags ?? [])) {
+      await fileApi.apiFileTagPatch({
+        updateFileTagCommand: { uid: current.uid, tags: tagUids },
+      })
+      updated = (await fileApi.apiFileGet({ uID: current.uid, scope: FileScope.Template })).items?.[0] ?? updated
+    }
 
     selectedTemplate.value = updated
     selectedTemplateContent.value = draft.content
+    templateTags.value = [...(updated.tags ?? templateTags.value)]
     templates.value = templates.value.map(item => item.uid === updated.uid ? updated : item)
     editing.value = false
     ElMessage.success('模板已保存')
@@ -385,6 +426,12 @@ async function deleteTemplate(template: BlogTemplate) {
   }
 }
 
+function sameTagSelection(left: TagDto[], right: TagDto[]): boolean {
+  const leftUids = left.map(tag => tag.uid).filter((uid): uid is string => Boolean(uid)).sort()
+  const rightUids = right.map(tag => tag.uid).filter((uid): uid is string => Boolean(uid)).sort()
+  return leftUids.length === rightUids.length && leftUids.every((uid, index) => uid === rightUids[index])
+}
+
 function sanitizeFileName(value: string) {
   const normalized = value
     .trim()
@@ -398,23 +445,36 @@ function startCreatingArticle() {
   const template = selectedTemplate.value
   if (!template?.uid || !selectedTemplateContent.value) return
 
+  articleUsesTemplate.value = true
   creatingArticle.value = true
   articleDraft.title = ''
   articleDraft.tags = [...(template.tags ?? [])]
 }
 
+function startCreatingArticleWithoutTemplate() {
+  creatingTemplate.value = false
+  editing.value = false
+  articleUsesTemplate.value = false
+  creatingArticle.value = true
+  articleDraft.title = ''
+  articleDraft.tags = []
+  draft.content = '# {{title}}\n\n'
+}
+
 function cancelCreatingArticle() {
   creatingArticle.value = false
   creatingArticleBusy.value = false
+  articleUsesTemplate.value = true
   articleDraft.title = ''
   articleDraft.tags = []
+  draft.content = selectedTemplate.value ? selectedTemplateContent.value : ''
 }
 
 async function createArticle() {
-  const template = selectedTemplate.value
+  const template = articleUsesTemplate.value ? selectedTemplate.value : undefined
   const title = articleDraft.title.trim()
 
-  if (!template?.uid || !draft.content || !title || creatingArticleBusy.value) return
+  if ((articleUsesTemplate.value && !template?.uid) || !draft.content || !title || creatingArticleBusy.value) return
 
   const content = draft.content.replaceAll('{{title}}', title)
   const fileName = sanitizeFileName(title) + '.md'
@@ -446,11 +506,9 @@ async function createArticle() {
     })
 
     article = (await fileApi.apiFileGet({ uID: uid })).items?.[0] ?? article
-    fileStore.upsertFile(article)
-
     creatingArticle.value = false
     ElMessage.success('博文已创建')
-    await router.push('/blog/' + uid)
+    await router.push('/file/' + uid)
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '博文创建失败')
   } finally {
@@ -494,6 +552,8 @@ onBeforeMount(async () => {
 .selected-template-state { margin-top: 4px; color: var(--mgs-muted); font-size: 12px; }
 .template-toolbar-actions { display: flex; align-items: center; gap: 8px; }
 .meta-form { flex: 0 0 auto; }
+.template-meta-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 1fr); gap: 14px; }
+.template-meta-form :deep(.el-form-item) { margin-bottom: 12px; }
 .form-row { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 14px; }
 .article-form .form-row { grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr); }
 .meta-form :deep(.el-form-item) { margin-bottom: 12px; }

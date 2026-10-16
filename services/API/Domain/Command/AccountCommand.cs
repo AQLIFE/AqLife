@@ -14,7 +14,7 @@ namespace AqLife.Domain.Command
     [Required(ErrorMessage = "必填项:key")] string SecretKey
 ) : ICommand<string>;
 
-    public record DeleteAccountCommand(Guid UID) : IDeleteCommand, IRequireValidEntity<AccountEntity>;
+    public record DeleteAccountCommand(Guid UID) : IRequireValidEntity<AccountEntity>,IDeleteCommand;
 
     /// <summary>
     /// 创建账户
@@ -43,7 +43,7 @@ namespace AqLife.Domain.Command
     [Required, StringLength(15, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-15之间")]
     string Name,
     string? Desc
-    ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>;
+    ) : IRequireValidEntity<AccountEntity>,IUpdateCommand<string>;
 
     /// <summary>
     /// 更新账户订阅列表

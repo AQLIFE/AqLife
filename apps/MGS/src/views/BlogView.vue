@@ -4,23 +4,32 @@ import { ElButton, ElDatePicker, ElMessage, ElMessageBox, ElSegmented } from 'el
 import { Edit, Check, Lock, Delete } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
-import { FileApi, type FileDto, type TagDto } from '@/api'
+import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
-import { publishStatusOptions, publishStatus } from '@/types/TableFilterOption.ts'
+import { FileStatus } from "@/api"
 import TagSelect from '@/components/TagSelect.vue'
+import { publishStatusOptions } from '@/types/TableFilterOption'
+
 
 const route = useRoute()
 const router = useRouter()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const baseurl = import.meta.env.VITE_API
+const markdownFileResolver = {
+  async getFile(uid: string): Promise<FileDto | undefined> {
+    const result = await fileApi.apiFileGet({ uID: uid,scope:FileScope.Image})// 必须指定查询类型,否则默认只查博文,那就永远查不到
+    return result.items?.[0]
+  },
+}
 
 const container = ref<HTMLElement>()
 const markdown = ref('')
+const markdownRenderRef = ref<{ loading: boolean } | null>(null)
 const originalMarkdown = ref('')
 const file = ref<FileDto>()
 const loading = ref(false)
@@ -30,7 +39,7 @@ let editor: monaco.editor.IStandaloneCodeEditor | undefined
 const isEditing = computed(() => route.path.endsWith('/edit'))
 const isDirty = computed(() => markdown.value !== originalMarkdown.value)
 const pageTitle = computed(() => file.value?.fileName || '博文')
-const publishStatusModel = ref<publishStatus>()
+const publishStatusModel = ref<FileStatus>()
 const publishing = ref(false)
 const scheduling = ref(false)
 const deleting = ref(false)
@@ -41,8 +50,8 @@ const segmentedOptions = computed(() =>
   publishStatusOptions.map(item => ({
     ...item,
     disabled:
-      item.value === publishStatus.Scheduled &&
-      file.value?.publishStatus === publishStatus.Published,
+      item.value === FileStatus.Scheduled &&
+      file.value?.publishStatus === FileStatus.Published,
   })),
 )
 
@@ -95,12 +104,12 @@ async function loadArticle(guid: string) {
 
 function enterEditMode() {
   const guid = typeof route.params.id === 'string' ? route.params.id : ''
-  if (guid) router.push(`/blog/${guid}/edit`)
+  if (guid) router.push(`/file/${guid}/edit`)
 }
 
 function leaveEditMode() {
   const guid = typeof route.params.id === 'string' ? route.params.id : ''
-  if (guid) router.push(`/blog/${guid}`)
+  if (guid) router.push(`/file/${guid}`)
 }
 
 async function onTagsChanged(value: FileDto['tags']) {
@@ -117,7 +126,7 @@ async function onTagsChanged(value: FileDto['tags']) {
   }
 }
 
-async function onPublishStatusChanged(value: publishStatus) {
+async function onPublishStatusChanged(value: FileStatus) {
   const current = file.value
   if (!current?.uid || current.publishStatus === value) return
 
@@ -127,14 +136,14 @@ async function onPublishStatusChanged(value: publishStatus) {
     let dto: FileDto
 
     switch (value) {
-      case publishStatus.Draft:
+      case FileStatus.Draft:
         dto = await new FileDraftWorkflow(current, fileApi, fileStore).run()
         break
-      case publishStatus.Published:
+      case FileStatus.Published:
         dto = await new FilePublishWorkflow(current, fileApi, fileStore).run()
         break
-      case publishStatus.Scheduled:
-        if (current.publishStatus === publishStatus.Published) {
+      case FileStatus.Scheduled:
+        if (current.publishStatus === FileStatus.Published) {
           throw new Error('禁止从已发布状态修改为预定发布状态')
         }
         if (!current.publishAt) {
@@ -171,7 +180,7 @@ async function onScheduledAtChanged(value: Date | null) {
   current.publishAt = nextPublishAt
   scheduledAt.value = value
 
-  if (current.publishStatus === publishStatus.Draft) {
+  if (current.publishStatus === FileStatus.Draft) {
     ElMessage.success('预定发布时间已设置')
     return
   }
@@ -210,7 +219,7 @@ async function deleteArticle() {
     deleting.value = true
     await new FileDeleteWorkflow(current, fileApi, fileStore).run()
     ElMessage.success('文章已删除')
-    await router.push('/blog/list')
+    await router.push('/file/list')
   } catch (error) {
     if (error === 'cancel' || error === 'close') return
     ElMessage.error(error instanceof Error ? error.message : '删除文章失败')
@@ -314,7 +323,7 @@ onBeforeUnmount(() => {
           <ElDatePicker
             v-model="scheduledAt"
             type="datetime"
-            :disabled="publishing || scheduling || file.publishStatus === publishStatus.Published"
+            :disabled="publishing || scheduling || file.publishStatus === FileStatus.Published"
             placeholder="预定发布时间"
             @change="onScheduledAtChanged"
           />
@@ -345,8 +354,8 @@ onBeforeUnmount(() => {
 
     <div class="editor-grid">
       <div ref="container" class="editor" />
-      <div class="render">
-        <MarkdownRender :markdown="markdown" :baseurl="baseurl" />
+      <div class="render" v-loading="markdownRenderRef?.loading">
+        <MarkdownRender ref="markdownRenderRef" :markdown="markdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
       </div>
     </div>
   </div>

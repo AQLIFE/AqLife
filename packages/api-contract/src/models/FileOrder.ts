@@ -14,13 +14,24 @@
 
 
 /**
- * 
+ * 0 = Latest
+ * 1 = Earliest
+ * 2 = MostViewed
  * @export
  */
 export const FileOrder = {
-    NUMBER_0: 0,
-    NUMBER_1: 1,
-    NUMBER_2: 2
+    /**
+    * 
+    */
+    Latest: 0,
+    /**
+    * 
+    */
+    Earliest: 1,
+    /**
+    * 
+    */
+    MostViewed: 2
 } as const;
 export type FileOrder = typeof FileOrder[keyof typeof FileOrder];
 

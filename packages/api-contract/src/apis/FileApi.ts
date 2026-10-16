@@ -34,6 +34,11 @@ import {
     FileOrderToJSON,
 } from '../models/FileOrder';
 import {
+    type FileScope,
+    FileScopeFromJSON,
+    FileScopeToJSON,
+} from '../models/FileScope';
+import {
     type ScheduledFileCommand,
     ScheduledFileCommandFromJSON,
     ScheduledFileCommandToJSON,
@@ -63,7 +68,7 @@ export interface ApiFileGetRequest {
     page?: number;
     pageSize?: number;
     order?: FileOrder;
-    includeTemplates?: boolean;
+    scope?: FileScope;
 }
 
 export interface ApiFilePatchRequest {
@@ -170,8 +175,8 @@ export interface FileApiInterface {
      * @param {string} [categoryUID] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
-     * @param {FileOrder} [order] 
-     * @param {boolean} [includeTemplates] 
+     * @param {FileOrder} [order] 0 &#x3D; Latest 1 &#x3D; Earliest 2 &#x3D; MostViewed
+     * @param {FileScope} [scope] 0 &#x3D; Default：默认搜索策略,包含 Image &amp; Blog  1 &#x3D; Image：Image 搜索策略 2 &#x3D; Blog：Blog 搜索策略 3 &#x3D; Template：Template 搜索策略 4 &#x3D; All：全集搜索策略
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -184,8 +189,8 @@ export interface FileApiInterface {
      * @param {string} [categoryUID] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
-     * @param {FileOrder} [order] 
-     * @param {boolean} [includeTemplates] 
+     * @param {FileOrder} [order] 0 &#x3D; Latest 1 &#x3D; Earliest 2 &#x3D; MostViewed
+     * @param {FileScope} [scope] 0 &#x3D; Default：默认搜索策略,包含 Image &amp; Blog  1 &#x3D; Image：Image 搜索策略 2 &#x3D; Blog：Blog 搜索策略 3 &#x3D; Template：Template 搜索策略 4 &#x3D; All：全集搜索策略
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -483,8 +488,8 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             queryParameters['Order'] = requestParameters['order'];
         }
 
-        if (requestParameters['includeTemplates'] != null) {
-            queryParameters['IncludeTemplates'] = requestParameters['includeTemplates'];
+        if (requestParameters['scope'] != null) {
+            queryParameters['Scope'] = requestParameters['scope'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

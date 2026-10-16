@@ -37,9 +37,30 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.Test.json">
+    <!-- 链接 Web 的配置，编译时复制到测试输出目录的 Configurations/ 下 -->
+    <None Include="..\Web\Configurations\FilePolicy.json"
+          Link="Configurations\FilePolicy.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+
+    <!-- AddAqLifeConfiguration 也要求 appsettings.json，建议一并链接 -->
+    <None Include="..\Web\Configurations\appsettings.Test.json"
+          Link="Configurations\appsettings.Test.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+
+    <!-- 如果有环境覆盖文件也可以按需加 -->
+    <!--
+    <None Include="..\Web\Configurations\FilePolicy.Test.json"
+          Link="Configurations\FilePolicy.Test.json"
+          Condition="Exists('..\Web\Configurations\FilePolicy.Test.json')">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Http\Scenarios\" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,3 @@
-using AqLife.Application.Abstractions;
 using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.BackServices;
@@ -21,6 +20,7 @@ using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
+using AqLife.Domain.CommandInterface;
 using AqLife.Domain.Contracts;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
@@ -37,7 +37,6 @@ public static class ApplicationExtensions
     public static IServiceCollection AddApplication(
         this IServiceCollection services)
     {
-        services.AddScoped<FileSecurityAspect>();
         services.AddScoped<UploadContext>();
 
         services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, AllFilesSearchStrategy>();
@@ -112,8 +111,9 @@ public static class ApplicationExtensions
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblies(implementationAssembly);
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));   // Add ValidationBehavior to the pipeline:在后续上传业务开始前,进行文件类型、大小、重复性等验证
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UploadContextBehavior<,>));// Add UploadContextBehavior to the pipeline:在后续上传业务开始前,计算完成所有上传文件的hash值,并存储在UploadContext中,供后续使用
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));  // Add TransactionBehavior to the pipeline:在后续上传业务开始前,开启事务,在业务结束后提交事务
         });
 
         var validatorTypes = implementationAssembly
@@ -125,19 +125,35 @@ public static class ApplicationExtensions
                 t.GetInterfaces().Any(i =>
                     i.IsGenericType &&
                     i.GetGenericTypeDefinition() == typeof(IValidator<>)));
-
-        services.AddScoped(typeof(IValidator<>), typeof(ExistenceValidator<>));
+        //services.AddScoped(typeof(IValidator<>), typeof(ExistenceValidator<>));
         services.AddScoped(typeof(IValidator<>), typeof(FileTypeValidator<>));
         services.AddScoped(typeof(IValidator<>), typeof(FileSizeValidator<>));
         services.AddScoped(typeof(IValidator<>), typeof(FileDuplicateValidator<>));
-
         foreach (var type in validatorTypes)
-        {
             foreach (var item in type.GetInterfaces())
             {
                 services.AddScoped(item, type);
             }
+
+        var commandAssembly = typeof(IRequireValidEntity<>).Assembly;
+
+        var commandTypes = commandAssembly
+            .GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface &&
+             t.GetInterfaces().Any(i => i.IsGenericType &&
+             i.GetGenericTypeDefinition() == typeof(IRequireValidEntity<>)));
+
+        foreach (var commandType in commandTypes)
+        {
+            var entityType = commandType
+                .GetInterfaces()
+                .First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequireValidEntity<>))
+                .GetGenericArguments()[0];
+
+            var validatorType = typeof(ExistenceValidator<,>).MakeGenericType(commandType, entityType);
+            services.AddScoped(typeof(IValidator<>).MakeGenericType(commandType), validatorType);
         }
+
 
         return services;
     }

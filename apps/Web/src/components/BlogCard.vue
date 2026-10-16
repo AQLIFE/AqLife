@@ -139,8 +139,7 @@ function handleClick() {
 }
 
 .blog-card-content {
-  /* min-height: 300px; */
-
+  min-height: 230px;
   display: flex;
   flex-direction: column;
 

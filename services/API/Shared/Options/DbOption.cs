@@ -1,6 +1,6 @@
 ﻿namespace AqLife.Shared.Options
 {
-    public enum BehavioralLevel { DbType, OptionType, ValidType, ApiType }
+    public enum BehavioralLevel { DbType, OptionType, ValidType, ApiType,ServiceType }
 
     public record DbOption(string DbType, string DbVersion,string? MigrationAssembly);
     public enum ExceptionCategory

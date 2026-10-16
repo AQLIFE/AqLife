@@ -1,5 +1,4 @@
-﻿using AqLife.Domain.Entities;
-using AqLife.Domain.Entities.File;
+﻿using AqLife.Domain.Entities.File;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 

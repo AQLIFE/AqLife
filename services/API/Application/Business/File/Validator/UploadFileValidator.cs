@@ -5,7 +5,9 @@ using AqLife.Domain.CommandInterface;
 using AqLife.Shared.Options;
 using AqLife.Shared.Tools;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using static System.Net.WebRequestMethods;
 
 namespace AqLife.Application.Business.File.Validator
 {
@@ -24,16 +26,17 @@ namespace AqLife.Application.Business.File.Validator
     /// 文件上传策略：文件大小检查（使用你的指数幂逻辑）
     /// </summary>
     /// <param name="options"></param>
-    public class FileSizeValidator<T>(IOptions<FilePolicyOption> options) : AbstractValidator<T> where T : IHasFormFiles
+    public class FileSizeValidator<T>(IOptions<FilePolicyOption> options, ILogger<FileSizeValidator<T>> logger) : AbstractValidator<T> where T : IHasFormFiles
     {
-        private protected override string ErrorMessage { init; get; } = $"文件大小超出限制 (最大允许: {options.Value.MaxFileSize}";
+        private protected override string ErrorMessage { init; get; } = $"文件大小超出限制 [1 -: {options.Value.MaxFileSize} KB]";
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
         {
             long limit = (long)options.Value.MaxFileSize << options.Value.StorageUnit;
             // 等于 2^ StorageUnit * MaxFileSize
             // dev 配置设置到100 KB=> 100 * 2^10 字节
+            logger.LogInformation("Checking file size against limit: {Limit} bytes,now :{CurrentSize}", limit, command.GetFiles().Sum(f => f.Length));
 
-            return command.GetFiles().All(e => e.Length <= limit);
+            return command.GetFiles().All(e => 0 < e.Length && e.Length <= limit);
         }
     }
 
@@ -42,39 +45,34 @@ namespace AqLife.Application.Business.File.Validator
     /// </summary>
     /// <param name="storage"></param>
     /// <param name="context"></param>
-    public class FileDuplicateValidator<T>(UploadContext context,IApplicationDbContext dbContext) : AbstractValidator<T> where T : IHasFormFiles
+    public class FileDuplicateValidator<T> : AbstractValidator<T> where T : IHasFormFiles
     {
         private protected override string ErrorMessage { init; get; } = "文件重复";
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
         {
             var files = command.GetFiles();
-
-            foreach (var file in files)
-            {
-                var tempHash = await CalculateHashAsync(file);
-                context.FileHashes.Add(file, tempHash);
-                var allowTemplateDuplicate =
-                    command is CreateFileCommand createCommand &&
-                    !createCommand.IsTemplate;
-
-                if (dbContext.File.Any(e =>
-                    e.FileHash == tempHash &&
-                    (!allowTemplateDuplicate || !e.IsTemplate)))
-                {
-                    return false;
-                }
-            }
-            return true;
-
-            // 文件不存在[也会存在新HASH] 和 文件存在但哈希不同 都算有效
-            // 对于文件存在但hash不同,属于update,后续业务需要做合并或者更新处理
+            var keys = files.Select(f => (Name: f.FileName.Trim().ToLowerInvariant(),f.Length)).ToList();
+            return keys.Count == keys.Distinct().Count();
         }
-        private static async Task<string> CalculateHashAsync(IFormFile file)
+
+    }
+
+    public class FileTemplateValidator(IOptions<FilePolicyOption> options, ILogger<FileTemplateValidator> logger) : AbstractValidator<CreateFileCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "非 md 文件,禁止标记为模板文件";
+        private protected override async Task<bool> IsValidAsync(CreateFileCommand command, CancellationToken ct)
         {
-            using var stream = file.OpenReadStream();
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-            var hashBytes = await sha256.ComputeHashAsync(stream);
-            return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            logger.LogInformation("Checking file template validation for command: {Command}", command);
+            return command.GetFiles().All(e =>
+                options.Value.AllowedBlogExtensions.Contains(Path.GetExtension(e.FileName).ToLowerInvariant()) || !command.IsTemplate
+            );
         }
+    }
+
+    public class FileListValidator : AbstractValidator<CreateFileCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "禁止空上传";
+        private protected override async Task<bool> IsValidAsync(CreateFileCommand command, CancellationToken ct)
+        => command.File.Length > 0;
     }
 }

@@ -56,6 +56,6 @@ public static class InfrastructureExtensions
 
         return services;
     }
-    private static bool IsTest(this IHostEnvironment hostEnvironment)
+    public static bool IsTest(this IHostEnvironment hostEnvironment)
     => hostEnvironment.IsEnvironment("Test");
 }

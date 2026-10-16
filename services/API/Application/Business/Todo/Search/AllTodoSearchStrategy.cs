@@ -1,5 +1,6 @@
 ﻿using AqLife.Application.Search;
 using AqLife.Domain.Entities;
+using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

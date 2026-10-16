@@ -15,9 +15,9 @@
       </RouterLink>
 
       <div class="nav-section">CONTENT</div>
-      <RouterLink class="nav-item" to="/blog/list">
+      <RouterLink class="nav-item" to="/file/list">
         <ElIcon><Document /></ElIcon>
-        <span>Blog</span>
+        <span>File</span>
       </RouterLink>
       <RouterLink class="nav-item" to="/todo">
         <ElIcon><List /></ElIcon>

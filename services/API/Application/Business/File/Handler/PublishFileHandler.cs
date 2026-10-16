@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.BackServices;
 using AqLife.Application.Business.File.Service;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.File;
@@ -22,14 +23,12 @@ namespace AqLife.Application.Business.File.Handler
     /// </summary>
     /// <param name="context"></param>
 
-    public class ScheduledBlogHandler(IApplicationDbContext context) : IRequestHandler<ScheduledFileCommand,Guid>
+    public class ScheduledBlogHandler(IFilePublishService publishService) : IRequestHandler<ScheduledFileCommand,Guid>
     {
         public async Task<Guid> Handle(ScheduledFileCommand command,CancellationToken ct)
         {
-            FileMetaEntity file = await context.File.Include(e => e.PublishMeta).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("不存在的文件");
-            if (command.ScheduledAt is DateTimeOffset offset) file.PublishMeta.Schedule( offset );
-            else file.PublishMeta.Publish();
-            return command.UID;
+            if (command.ScheduledAt is DateTimeOffset offset)return await publishService.Agreement(command.UID, offset, ct);
+            else return await publishService.PublishAsync(command.UID,ct);            
         }
     }
 }

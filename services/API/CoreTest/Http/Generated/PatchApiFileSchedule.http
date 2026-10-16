@@ -1,0 +1,16 @@
+@baseUrl = http://localhost:5110
+@contentType = application/json
+
+#######################################
+### Request: PATCH /api/File/schedule
+#######################################
+
+
+PATCH {{baseUrl}}/api/File/schedule
+Content-Type: {{contentType}}
+
+{
+  "uid": "uid",
+  "scheduledAt": "2026-10-09T13:58:51.9760406+00:00"
+}
+

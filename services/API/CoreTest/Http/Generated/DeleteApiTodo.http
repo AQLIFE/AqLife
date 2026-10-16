@@ -1,0 +1,15 @@
+@baseUrl = http://localhost:5110
+@contentType = application/json
+
+###############################
+### Request: DELETE /api/Todo
+###############################
+
+
+DELETE {{baseUrl}}/api/Todo
+Content-Type: {{contentType}}
+
+{
+  "uid": "uid"
+}
+

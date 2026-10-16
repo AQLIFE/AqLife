@@ -1,0 +1,15 @@
+@baseUrl = http://localhost:5110
+@contentType = application/json
+
+###############################
+### Request: DELETE /api/File
+###############################
+
+
+DELETE {{baseUrl}}/api/File
+Content-Type: {{contentType}}
+
+{
+  "uid": "uid"
+}
+

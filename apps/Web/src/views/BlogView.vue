@@ -3,11 +3,11 @@
     <header class="blog-page-header">
       <div>
         <div class="blog-page-eyebrow">
-          ARTICLES
+          LATEST ARTICLES
         </div>
 
         <h1 class="blog-page-title">
-          文章
+          最新文章
         </h1>
       </div>
 

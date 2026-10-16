@@ -9,12 +9,19 @@
         node.component === 'MermaidPreview'
       " :info="node.content" :info-type="node.info" />
 
+      <div
+        v-else-if="node.type === 'blockquote'"
+        class="markdown-blockquote"
+        v-html="renderTokenGroup(node.tokens)"
+      />
+
       <MarkdownTable v-else-if="node.type === 'table'" :table-tokens="node.tokens" />
 
-      <img v-else-if="
-        node.type === 'resolved-link' &&
-        node.result.type === 'image'
-      " :src="node.result.src" :alt="node.result.alt" />
+      <MarkdownImage
+        v-else-if="node.type === 'resolved-link' && node.result.type === 'image'"
+        :src="node.result.src"
+        :alt="node.result.alt"
+      />
 
       <RouterLink v-else-if="
         node.type === 'resolved-link' &&
@@ -49,6 +56,7 @@ import type { MarkdownFileResolver } from '../../markdown/type.ts'
 import CodeBlock from './MarkdownCode.vue'
 import MarkdownMermaid from './MarkdownMermaid.vue'
 import MarkdownTable from './MarkdownTable.vue'
+import MarkdownImage from './MarkdownImage.vue'
 
 interface MarkdownRenderProps {
   markdown: string
@@ -76,13 +84,14 @@ async function renderMarkdown() {
 
   try {
     const parsed = mdRenderOption.parse(props.markdown, {})
-
+    
     rNode.value = await buildMarkdownRenderNodes(
       parsed,
       props.fileResolver
         ? resolveInternalLink
         : undefined,
     )
+    
   } finally {
     loading.value = false
   }
@@ -96,14 +105,13 @@ function renderTokenGroup(tokens: any[]): string {
   )
 }
 
-function isSameOrigin(target: URL): boolean {
-  if (!props.baseurl) {
-    return false
-  }
+function isBackendPreviewUrl(target: URL): boolean {
+  if (!props.baseurl) return false
 
   try {
     const base = new URL(props.baseurl)
-    return target.origin === base.origin
+    const isPreviewEndpoint = /(?:^|\/)api\/file\/preview(?:\/[0-9a-f-]{36})?\/?$/i.test(target.pathname)
+    return target.origin === base.origin && isPreviewEndpoint
   } catch {
     return false
   }
@@ -122,7 +130,7 @@ async function resolveInternalLink(
     return null
   }
 
-  if (!isSameOrigin(url)) {
+  if (!isBackendPreviewUrl(url)) {
     return null
   }
 
@@ -183,5 +191,17 @@ defineExpose({
 <style scoped>
 #mdRender {
   padding: 0 20px;
+}
+
+.markdown-blockquote {
+  margin: 1rem 0;
+  padding: 0.25rem 1rem;
+  border-left: 4px solid var(--el-border-color);
+  color: var(--el-text-color-secondary);
+  background: var(--el-fill-color-lighter);
+}
+
+.markdown-blockquote :deep(p) {
+  margin: 0.5rem 0;
 }
 </style>

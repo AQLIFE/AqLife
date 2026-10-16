@@ -20,6 +20,8 @@ All URIs are relative to *http://localhost*
 
 
 
+发送一个图像用以更新账户头像,返回 Guid
+
 ### Example
 
 ```ts
@@ -85,6 +87,8 @@ No authorization required
 
 
 
+删除指定ID的账户,无返回
+
 ### Example
 
 ```ts
@@ -142,6 +146,8 @@ No authorization required
 
 
 
+返回一个有效的账户,可能为 null
+
 ### Example
 
 ```ts
@@ -198,6 +204,8 @@ No authorization required
 > string apiAccountLoginPost(loginCommand)
 
 
+
+登录账户成功后返回 JWT Beearer Token
 
 ### Example
 
@@ -264,6 +272,8 @@ No authorization required
 
 
 
+注册账户成功后返回唯一登录账户名
+
 ### Example
 
 ```ts
@@ -329,6 +339,8 @@ No authorization required
 
 
 
+更新账户信息(包含公开名称,BIO);返回账户ID
+
 ### Example
 
 ```ts
@@ -393,6 +405,8 @@ No authorization required
 > string apiAccountSubscriptionsPut(subscriptionDto)
 
 
+
+更新账户个人主页列表,返回账户ID
 
 ### Example
 

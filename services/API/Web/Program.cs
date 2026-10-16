@@ -6,21 +6,26 @@ using AqLife.Extensions.Exceptions;
 using AqLife.Extensions.Infrastructure;
 using AqLife.Extensions.Logging;
 using AqLife.Extensions.Routing;
+using AqLife.Extensions.SwaggerDoc;
 using AqLife.Shared.Exceptions;
 using AqLife.Web.Middlewares;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.OpenApi;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAqLifeSerilog();
+builder.Configuration.AddAqLifeConfiguration(builder.Environment);
 
-builder.Configuration.AddAqLifeConfiguration(
-    builder.Environment.ContentRootPath,
-    builder.Environment.EnvironmentName);
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddCommandLine(args);
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddAqLifeSerilog(builder.Environment,builder.Configuration);
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SchemaFilter<EnumDescriptionSchemaFilter>();
+});
 
 builder.Services.AddFilePolicy(
     builder.Configuration,
@@ -39,7 +44,6 @@ builder.Services.AddScoped<FileUploadFilter>();
 
 if(builder.Environment.IsDevelopment())
 {
-
     var corsOrigins =
         builder.Configuration
             .GetSection("Cors:AllowedOrigins")
@@ -76,7 +80,10 @@ app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger(options =>
+    {
+        options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
+    });
     app.UseSwaggerUI();
 }
 

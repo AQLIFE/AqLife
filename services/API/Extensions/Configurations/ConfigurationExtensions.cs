@@ -1,6 +1,7 @@
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace AqLife.Extensions.Configurations;
@@ -9,17 +10,15 @@ public static class ConfigurationExtensions
 {
     public static IConfigurationBuilder AddAqLifeConfiguration(
         this IConfigurationBuilder configuration,
-        string contentRootPath,
-        string environmentName)
+        IHostEnvironment environment
+        )
     {
-        var configFolder = Path.Combine(contentRootPath, "Configurations");
+        var configFolder = Path.Combine(environment.ContentRootPath, "Configurations");
 
-        AddRequiredFile(configuration, configFolder, "appsettings.json");
-        AddOptionalFile(configuration, configFolder, $"appsettings.{environmentName}.json");
+        AddRequiredFile(configuration, configFolder, "appsettings.json");//环境文件可以替代
+        AddOptionalFile(configuration, configFolder, $"appsettings.{environment.EnvironmentName}.json");
 
         AddRequiredFile(configuration, configFolder, "FilePolicy.json");
-        AddOptionalFile(configuration, configFolder, $"FilePolicy.{environmentName}.json");
-
 
         return configuration;
     }

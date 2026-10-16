@@ -7,7 +7,6 @@ import {
   ElFormItem,
   ElSwitch,
   ElText,
-  ElEmpty,
   ElTableColumn,
   ElSelect,
   ElOption,
@@ -42,6 +41,7 @@ const segmentedOptions = [
 
 const tagStore = useTagStore()
 const proxyTags = ref<TagDto[]>([])
+const isLoading = ref(true)
 
 const addTagDto = ref<CreateTagCommand>({
   name: '',
@@ -53,12 +53,19 @@ const isAdd: Ref<boolean> = ref(false)
 const tagApi = new TagApi(apiConfiguration)
 
 onBeforeMount(async () => {
-  await tagStore.fetchAllTags(tagApi)
-  proxyTags.value = [...tagStore.tags]
+  isLoading.value = true
+  try {
+    await tagStore.fetchAllTags(tagApi)
+    proxyTags.value = [...tagStore.tags]
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '标签数据加载失败')
+  } finally {
+    isLoading.value = false
+  }
 })
 
 const tableColumns = computed(() =>
-  tagStore.tags.length > 0 ? Object.keys(tagStore.tags[0]) : [],
+  tagStore.tags.length > 0 ? Object.keys(tagStore.tags[0]) : Object.keys(columnMap),
 )
 
 const tempList = computed(() => {
@@ -195,9 +202,11 @@ async function addTag() {
 
     <ElTable
       :data="proxyTags"
+      v-loading="isLoading"
+      element-loading-text="正在加载标签..."
+      empty-text="暂无标签"
       class="fitHeight"
       highlight-current-row
-      v-if="tagStore.tags.length > 0"
     >
       <ElTableColumn
         v-for="(item, index) in tableColumns"
@@ -216,8 +225,6 @@ async function addTag() {
         </template>
       </ElTableColumn>
     </ElTable>
-
-    <ElEmpty v-else description="正在加载标签数据..." />
   </ElRow>
 </template>
 

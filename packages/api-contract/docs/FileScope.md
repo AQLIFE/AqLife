@@ -1,0 +1,33 @@
+
+# FileScope
+
+0 = Default：默认搜索策略,包含 Image & Blog  1 = Image：Image 搜索策略 2 = Blog：Blog 搜索策略 3 = Template：Template 搜索策略 4 = All：全集搜索策略
+
+## Properties
+
+Name | Type
+------------ | -------------
+
+## Example
+
+```typescript
+import type { FileScope } from '@aqlife/api-contract'
+
+// TODO: Update the object below with actual values
+const example = {
+} satisfies FileScope
+
+console.log(example)
+
+// Convert the instance to a JSON string
+const exampleJSON: string = JSON.stringify(example)
+console.log(exampleJSON)
+
+// Parse the JSON string back to an object
+const exampleParsed = JSON.parse(exampleJSON) as FileScope
+console.log(exampleParsed)
+```
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+

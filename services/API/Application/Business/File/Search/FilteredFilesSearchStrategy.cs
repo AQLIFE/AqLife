@@ -32,7 +32,7 @@ namespace AqLife.Application.Business.File.Search
             else if (!string.IsNullOrWhiteSpace(c.Keyword))
                 return ApplyKeywordFilter(queryable, c.Keyword.Trim());
             else if (c.CategoryUID is Guid categoryId)
-                return queryable.Where(e => e.FileTags.Any(ft => ft.TagId == categoryId) && e.PublishMeta.PublishStatus == FileStatus.Published );
+                return queryable.Where(e => e.FileTags.Any(ft => ft.TagId == categoryId));
                     
             else throw new RequestFailException("不合规的操作，该请求不应被处理");
         }

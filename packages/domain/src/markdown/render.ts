@@ -169,7 +169,7 @@ export async function buildMarkdownRenderNodes(
       token.children &&
       resolveLink
     ) {
-      const children = getLinkChildren(token)
+      const children = getLinkChildren(token)//其中link_open 存有路由地址,之后的inline存在名称
 
       let hasInternalLink = false
       for (let j = 0; j < children.length; j++) {
@@ -181,7 +181,6 @@ export async function buildMarkdownRenderNodes(
 
         const href = child.attrGet('href')
         
-
         if (!href) {
           continue
         }

@@ -1,6 +1,0 @@
-name: dev
-variables:
-  - name: token
-    value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg2NjlhZDgxLTk2ODItNDNmZi1hOTEwLTQ1MTZjMTRmNGVkZCIsIm5iZiI6MTc4OTczODAxNywiZXhwIjoxNzg5NzQxNjE3LCJpc3MiOiJXZWJBcHBJc3N1ZXIiLCJhdWQiOiJXZWJBcHBBdWRpZW5jZSJ9.QLkupZbtEPkUjo80UA3FgncjyjNiBiskg21uwGfQjvQ
-  - name: baseUrl
-    value: 192.168.0.100:5110

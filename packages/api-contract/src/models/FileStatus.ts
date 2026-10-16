@@ -14,13 +14,24 @@
 
 
 /**
- * 
+ * 0 = Draft
+ * 1 = Scheduled
+ * 2 = Published
  * @export
  */
 export const FileStatus = {
-    NUMBER_0: 0,
-    NUMBER_1: 1,
-    NUMBER_2: 2
+    /**
+    * 
+    */
+    Draft: 0,
+    /**
+    * 
+    */
+    Scheduled: 1,
+    /**
+    * 
+    */
+    Published: 2
 } as const;
 export type FileStatus = typeof FileStatus[keyof typeof FileStatus];
 
