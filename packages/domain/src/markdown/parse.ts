@@ -39,14 +39,17 @@ const extractToc = (markdown: string): TocItem[] => {
 }
 
 export function extractFileUid(url: URL): string | null {
+  // Query parameter names may differ in casing across existing preview links.
   const queryUid = url.searchParams.get('UID')
+    ?? url.searchParams.get('uid')
+    ?? url.searchParams.get('Uid')
 
   if (queryUid) {
     return queryUid
   }
 
   const match = url.pathname.match(
-    /\/api\/file\/preview\/([0-9a-f-]{36})$/i
+    /\/api\/file\/preview\/([0-9a-f-]{36})\/?$/i
   )
 
   return match?.[1] ?? null
