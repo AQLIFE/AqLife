@@ -1,7 +1,7 @@
 <template>
   <ElCol id="ImageBlock">
     <ElImage class="image" :src="src" :alt="alt" :preview-src-list="[src]" preview-teleported fit="contain" />
-    <ElCol class="title">demo</ElCol>
+    <ElCol v-if="title || alt" class="title">{{ title || alt }}</ElCol>
   </ElCol>
 </template>
 
