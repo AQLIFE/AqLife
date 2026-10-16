@@ -4,7 +4,7 @@ import { ElButton, ElDatePicker, ElMessage, ElMessageBox, ElSegmented } from 'el
 import { Edit, Check, Lock, Delete } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
-import { FileApi, type FileDto, type TagDto } from '@/api'
+import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
@@ -22,7 +22,7 @@ const fileStore = useFileStore()
 const baseurl = import.meta.env.VITE_API
 const markdownFileResolver = {
   async getFile(uid: string): Promise<FileDto | undefined> {
-    const result = await fileApi.apiFileGet({ uID: uid })
+    const result = await fileApi.apiFileGet({ uID: uid,scope:FileScope.Image})// 必须指定查询类型,否则默认只查博文,那就永远查不到
     return result.items?.[0]
   },
 }

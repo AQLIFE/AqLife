@@ -180,7 +180,7 @@ const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const markdownFileResolver = {
   async getFile(uid: string): Promise<FileDto | undefined> {
-    const result = await fileApi.apiFileGet({ uID: uid })
+    const result = await fileApi.apiFileGet({ uID: uid,scope:FileScope.Image })
     return result.items?.[0]
   },
 }
