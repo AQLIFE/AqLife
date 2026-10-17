@@ -100,7 +100,7 @@ function statusType(status?: string | null): "primary" | "success" | "warning" |
 
 <template>
   <div class="todo-view-root">
-    <ElRow class="todo-page" :gutter="16">
+    <ElRow class="todo-page">
       <ElCol :span="24" class="toolbar">
         <div>
           <h2>待办事项</h2>

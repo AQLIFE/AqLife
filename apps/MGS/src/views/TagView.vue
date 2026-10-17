@@ -92,7 +92,7 @@ async function deleteTag(tag: TagDto) {
 
 <template>
   <div class="todo-view-root">
-    <ElRow class="tag-page" :gutter="16">
+    <ElRow class="tag-page">
     <ElCol :span="24" class="toolbar">
       <div><h2>标签管理</h2><p>维护标签名称、别名和分类属性。</p></div>
       <div class="toolbar-actions">
