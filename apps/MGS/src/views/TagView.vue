@@ -1,249 +1,140 @@
 <script setup lang="ts">
-import {
-  ElTable,
-  ElSegmented,
-  ElTag,
-  ElForm,
-  ElFormItem,
-  ElSwitch,
-  ElText,
-  ElTableColumn,
-  ElSelect,
-  ElOption,
-  ElInput,
-  ElButton,
-  ElCol,
-  ElMessage,
-  ElRow,
-} from 'element-plus'
-import { Plus, Search, Upload } from '@element-plus/icons-vue'
-import { onBeforeMount, computed, ref, type Ref } from 'vue'
-import { TagApi, type CreateTagCommand, type TagDto } from '@/api'
+import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox, ElOption, ElRow, ElSegmented, ElSelect, ElSwitch, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
+import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { computed, onBeforeMount, ref } from 'vue'
+import { TagApi, type CreateTagCommand, type TagDto, type UpdateTagCommand } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useTagStore } from '@/stores/uuseTagStore'
 
-const columnMap: Record<string, string> = {
-  uid: '唯一标识',
-  name: '标签名称',
-  aliasName: '标签别名',
-  isCategory: '分类标识',
-}
-
+const columnMap: Record<string, string> = { uid: '唯一标识', name: '标签名称', aliasName: '标签别名', isCategory: '分类标识' }
 const activeSelect = ref<string>('选择字段')
-const searchQuery = ref<string>('')
+const searchQuery = ref('')
 const selectCategory = ref<number>(-1)
-
-const segmentedOptions = [
-  { label: 'Clear', value: -1 },
-  { label: 'normal', value: 0 },
-  { label: 'category', value: 1 },
-]
-
+const segmentedOptions = [{ label: '全部', value: -1 }, { label: '普通标签', value: 0 }, { label: '分类', value: 1 }]
 const tagStore = useTagStore()
 const proxyTags = ref<TagDto[]>([])
 const isLoading = ref(true)
-
-const addTagDto = ref<CreateTagCommand>({
-  name: '',
-  aliasName: '',
-  isCategory: false,
-})
-const isAdd: Ref<boolean> = ref(false)
-
+const dialogVisible = ref(false)
+const isSaving = ref(false)
+const editingTag = ref<TagDto | null>(null)
+const addTagDto = ref<CreateTagCommand>({ name: '', aliasName: '', isCategory: false })
 const tagApi = new TagApi(apiConfiguration)
 
 onBeforeMount(async () => {
   isLoading.value = true
-  try {
-    await tagStore.fetchAllTags(tagApi)
-    proxyTags.value = [...tagStore.tags]
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '标签数据加载失败')
-  } finally {
-    isLoading.value = false
-  }
+  try { await tagStore.fetchAllTags(tagApi); filterData() }
+  catch (error) { ElMessage.error(error instanceof Error ? error.message : '标签数据加载失败') }
+  finally { isLoading.value = false }
 })
-
-const tableColumns = computed(() =>
-  tagStore.tags.length > 0 ? Object.keys(tagStore.tags[0]) : Object.keys(columnMap),
-)
-
-const tempList = computed(() => {
-  const list = Object.keys(columnMap)
-  list.pop()
-  return list
-})
+const tableColumns = computed(() => Object.keys(columnMap))
+const tempList = computed(() => Object.keys(columnMap).filter(key => key !== 'isCategory'))
 
 function filterData() {
   let result = [...tagStore.tags]
-
-  if (selectCategory.value !== -1) {
-    const targetBool = Boolean(Number(selectCategory.value))
-    result = result.filter(e => e.isCategory === targetBool)
-  }
-
-  if (searchQuery.value.trim() !== '') {
+  if (selectCategory.value !== -1) result = result.filter(tag => tag.isCategory === Boolean(selectCategory.value))
+  const keyword = searchQuery.value.trim().toLowerCase()
+  if (keyword && activeSelect.value !== '选择字段') {
     const field = activeSelect.value as keyof TagDto
-    const keyword = searchQuery.value.trim().toLowerCase()
-
-    result = result.filter(e => {
-      const val = e[field]
-      return val !== undefined && String(val).toLowerCase().includes(keyword)
-    })
+    result = result.filter(tag => String(tag[field] ?? '').toLowerCase().includes(keyword))
   }
-
   proxyTags.value = result
 }
-
-function handleRadioChange() {
-  filterData()
+function openCreate() {
+  editingTag.value = null
+  addTagDto.value = { name: '', aliasName: '', isCategory: false }
+  dialogVisible.value = true
 }
-
-function handleSearch() {
-  filterData()
+function openEdit(tag: TagDto) {
+  editingTag.value = tag
+  addTagDto.value = { name: tag.name ?? '', aliasName: tag.aliasName ?? '', isCategory: !!tag.isCategory }
+  dialogVisible.value = true
 }
-
-async function addTag() {
-  if (isAdd.value && addTagDto.value.name?.trim()) {
-    try {
-      const tagUid = await tagApi.apiTagPost({
-        createTagCommand: addTagDto.value,
-      })
-      const result = await tagApi.apiTagGet({ uID: tagUid })
-      const newTag = result.items?.[0]
-
-      if (!newTag) {
-        throw new Error('创建 Tag 后未找到对应数据')
-      }
-
-      tagStore.tags.push(newTag)
-      proxyTags.value = [...tagStore.tags]
-      ElMessage.success('上传 Tag 成功')
-
-      addTagDto.value = {
-        name: '',
-        aliasName: '',
-        isCategory: false,
-      }
-    } catch (error) {
-      ElMessage.error('上传 Tag 失败')
-      console.error('Create Tag Error:', error)
+async function saveTag() {
+  const name = addTagDto.value.name?.trim()
+  if (!name) { ElMessage.warning('请填写标签名称'); return }
+  isSaving.value = true
+  try {
+    if (editingTag.value?.uid) {
+      const command: UpdateTagCommand = { uid: editingTag.value.uid, tagName: name, aliasName: addTagDto.value.aliasName?.trim() || null, isCategory: !!addTagDto.value.isCategory }
+      await tagApi.apiTagPatch({ updateTagCommand: command })
+      const index = tagStore.tags.findIndex(tag => tag.uid === editingTag.value?.uid)
+      if (index >= 0) tagStore.tags[index] = { ...tagStore.tags[index], name, aliasName: command.aliasName, isCategory: command.isCategory }
+      ElMessage.success('标签已更新')
+    } else {
+      const uid = await tagApi.apiTagPost({ createTagCommand: { name, aliasName: addTagDto.value.aliasName?.trim() || null, isCategory: !!addTagDto.value.isCategory } })
+      const result = await tagApi.apiTagGet({ uID: uid })
+      const created = result.items?.[0]
+      if (!created) throw new Error('创建后未找到对应标签')
+      tagStore.tags.push(created)
+      ElMessage.success('标签已创建')
     }
+    dialogVisible.value = false
+    filterData()
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '保存标签失败') }
+  finally { isSaving.value = false }
+}
+async function deleteTag(tag: TagDto) {
+  try {
+    await ElMessageBox.confirm(`确定删除标签「${tag.name || '未命名标签'}」吗？如果该标签仍被博文使用，服务器会拒绝删除。`, '删除标签确认', {
+      type: 'warning', confirmButtonText: '确认删除', cancelButtonText: '取消', distinguishCancelAndClose: true,
+    })
+    await tagApi.apiTagDelete({ deleteTagCommand: { uid: tag.uid ?? undefined } })
+    const index = tagStore.tags.findIndex(item => item.uid === tag.uid)
+    if (index >= 0) tagStore.tags.splice(index, 1)
+    filterData()
+    ElMessage.success('标签已删除')
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(error instanceof Error ? error.message : '删除失败：标签可能仍被博文使用')
   }
-
-  isAdd.value = !isAdd.value
 }
 </script>
 
 <template>
-  <ElRow>
-    <ElCol class="flex">
-      <ElCol :span="6">
-        <ElInput
-          v-model="searchQuery"
-          :disabled="activeSelect === '选择字段'"
-        >
-          <template #prepend>
-            <ElSelect
-              v-model="activeSelect"
-              :placeholder="activeSelect"
-              style="width: 100px"
-            >
-              <ElOption
-                v-for="(item, index) in tempList"
-                :key="index"
-                :label="columnMap[item]"
-                :value="item"
-              />
-            </ElSelect>
-          </template>
-          <template #append>
-            <ElButton
-              :icon="isAdd ? Upload : Search"
-              :disabled="activeSelect === '选择字段'"
-              :type="isAdd ? 'success' : 'info'"
-              @click="handleSearch"
-            />
-          </template>
+  <ElRow class="tag-page" :gutter="16">
+    <ElCol :span="24" class="toolbar">
+      <div><h2>标签管理</h2><p>维护标签名称、别名和分类属性。</p></div>
+      <div class="toolbar-actions">
+        <ElButton :icon="Refresh" @click="filterData">刷新列表</ElButton>
+        <ElButton type="primary" :icon="Plus" @click="openCreate">添加标签</ElButton>
+      </div>
+    </ElCol>
+    <ElCol :span="24" class="filter-bar">
+      <ElCol :span="8">
+        <ElInput v-model="searchQuery" placeholder="输入关键词" clearable @keyup.enter="filterData" @clear="filterData">
+          <template #prepend><ElSelect v-model="activeSelect" placeholder="搜索字段" style="width:120px"><ElOption v-for="item in tempList" :key="item" :label="columnMap[item]" :value="item" /></ElSelect></template>
+          <template #append><ElButton :icon="Search" @click="filterData" /></template>
         </ElInput>
       </ElCol>
-
-      <ElSegmented
-        v-model="selectCategory"
-        :options="segmentedOptions"
-        @change="handleRadioChange"
-      />
-      <ElButton
-        :icon="Plus"
-        @click="addTag"
-        :title="isAdd ? '点击一次关闭表单并上传' : '点击一次打开添加表单'"
-      />
+      <ElSegmented v-model="selectCategory" :options="segmentedOptions" @change="filterData" />
     </ElCol>
-
-    <ElForm v-if="isAdd" inline class="inline-form">
-      <ElFormItem :label="Object.values(columnMap)[1]">
-        <ElInput v-model="addTagDto.name" clearable />
-      </ElFormItem>
-      <ElFormItem :label="Object.values(columnMap)[2]">
-        <ElInput
-          v-model="addTagDto.aliasName"
-          clearable
-          :disabled="!addTagDto.name"
-        />
-      </ElFormItem>
-      <ElFormItem :label="Object.values(columnMap)[3]">
-        <ElSwitch
-          v-model="addTagDto.isCategory"
-          inline-prompt
-          active-text="标识为 分类"
-        />
-      </ElFormItem>
-    </ElForm>
-
-    <ElTable
-      :data="proxyTags"
-      v-loading="isLoading"
-      element-loading-text="正在加载标签..."
-      empty-text="暂无标签"
-      class="fitHeight"
-      highlight-current-row
-    >
-      <ElTableColumn
-        v-for="(item, index) in tableColumns"
-        :key="item"
-        :prop="item"
-        :label="columnMap[item] ?? item"
-        :sortable="index !== tableColumns.length - 1"
-      >
-        <template #default="scope">
-          <ElTag v-if="item === 'name' && scope.row.name">
-            {{ scope.row.name }}
-          </ElTag>
-          <ElText v-else>
-            {{ scope.row[item] }}
-          </ElText>
-        </template>
-      </ElTableColumn>
-    </ElTable>
+    <ElCol :span="24">
+      <ElTable :data="proxyTags" v-loading="isLoading" element-loading-text="正在加载标签..." empty-text="暂无标签" class="tag-table" row-key="uid" highlight-current-row>
+        <ElTableColumn prop="name" label="标签名称" min-width="180"><template #default="{ row }"><ElTag v-if="row.name">{{ row.name }}</ElTag><ElText v-else>未命名</ElText></template></ElTableColumn>
+        <ElTableColumn prop="aliasName" label="标签别名" min-width="160"><template #default="{ row }">{{ row.aliasName || '—' }}</template></ElTableColumn>
+        <ElTableColumn prop="isCategory" label="类型" width="120"><template #default="{ row }"><ElTag :type="row.isCategory ? 'success' : 'info'">{{ row.isCategory ? '分类' : '普通标签' }}</ElTag></template></ElTableColumn>
+        <ElTableColumn prop="uid" label="UID" min-width="220" show-overflow-tooltip />
+        <ElTableColumn label="操作" width="150" fixed="right"><template #default="{ row }"><ElButton link type="primary" :icon="Edit" @click="openEdit(row)">编辑</ElButton><ElButton link type="danger" :icon="Delete" @click="deleteTag(row)">删除</ElButton></template></ElTableColumn>
+      </ElTable>
+    </ElCol>
   </ElRow>
+  <ElDialog v-model="dialogVisible" :title="editingTag ? '编辑标签' : '添加标签'" width="min(520px, 92vw)" destroy-on-close>
+    <ElForm label-position="top">
+      <ElFormItem label="标签名称" required><ElInput v-model="addTagDto.name" maxlength="100" show-word-limit /></ElFormItem>
+      <ElFormItem label="标签别名"><ElInput v-model="addTagDto.aliasName" maxlength="100" /></ElFormItem>
+      <ElFormItem label="分类标签"><ElSwitch v-model="addTagDto.isCategory" inline-prompt active-text="分类" inactive-text="普通" /></ElFormItem>
+    </ElForm>
+    <template #footer><ElButton @click="dialogVisible = false">取消</ElButton><ElButton type="primary" :loading="isSaving" @click="saveTag">保存</ElButton></template>
+  </ElDialog>
 </template>
 
-<style lang="css" scoped>
-.flex {
-  display: flex;
-  padding: 20px;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.inline-form {
-  padding: 20px;
-  width: 100%;
-  background-color: #DCDCDC;
-  box-shadow: inset #DCDCDC 0px 3px 3px;
-}
-
-.inline-form > :deep(.el-form-item) {
-  margin-bottom: 0px;
-}
+<style scoped>
+.tag-page { height:100%; align-content:flex-start; }
+.toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 8px; }
+.toolbar h2 { margin:0; color:var(--mgs-text, var(--el-text-color-primary)); font-size:22px; font-weight:700; }
+.toolbar p { margin:8px 0 0; color:var(--mgs-muted, var(--el-text-color-secondary)); }
+.toolbar-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.filter-bar { display:flex; align-items:center; gap:16px; padding:0 8px 18px; }
+.tag-table { width:100%; }
+@media (max-width:760px) { .toolbar { align-items:flex-start; flex-direction:column; } .filter-bar { flex-direction:column; align-items:stretch; } }
 </style>
