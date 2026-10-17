@@ -35,7 +35,7 @@ function openCreate(parent?: TodoDto) {
 }
 function openEdit(todo: TodoDto) {
   editingTodo.value = todo
-  form.value = { desc: todo.desc ?? '', priority: todo.priority ?? 1, ftid: todo.ftid ?? null, status: Number(todo.status ?? TodoStatus.Initial) }
+  form.value = { desc: todo.desc ?? '', priority: todo.priority ?? 1, ftid: todo.ftid ?? null, status: statusValue(todo.status) }
   dialogVisible.value = true
 }
 async function saveTodo() {
@@ -77,12 +77,21 @@ async function deleteTodo(todo: TodoDto) {
     ElMessage.error(error instanceof Error ? error.message : '删除待办失败')
   }
 }
+function statusValue(status?: string | null): number {
+  if (status == null || status === '') return TodoStatus.Initial
+  const numeric = Number(status)
+  if (Number.isInteger(numeric) && numeric >= 0 && numeric <= 3) return numeric
+  const normalized = status.toLowerCase()
+  if (normalized.includes('wait')) return TodoStatus.Wait
+  if (normalized.includes('execut') || normalized.includes('progress')) return TodoStatus.Execute
+  if (normalized.includes('complet') || normalized.includes('done')) return TodoStatus.Completed
+  return TodoStatus.Initial
+}
 function statusLabel(status?: string | null) {
-  const value = Number(status)
-  return ({ 0: '初始', 1: '等待分配', 2: '进行中', 3: '已完成' } as Record<number, string>)[value] ?? status ?? '初始'
+  return ({ 0: '初始', 1: '等待分配', 2: '进行中', 3: '已完成' } as Record<number, string>)[statusValue(status)]
 }
 function statusType(status?: string | null) {
-  const value = Number(status)
+  const value = statusValue(status)
   return value === 3 ? 'success' : value === 2 ? 'warning' : value === 1 ? 'info' : ''
 }
 </script>
