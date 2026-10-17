@@ -179,77 +179,18 @@ function statusType(status?: string | null): "primary" | "success" | "warning" |
 </template>
 
 <style scoped>
-.todo-page {
-  height: 100%;
-  align-content: flex-start;
-}
-
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 20px 8px;
-}
-
-.toolbar h2 {
-  margin: 0;
-  color: var(--mgs-text, var(--el-text-color-primary));
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.toolbar p {
-  margin: 8px 0 0;
-  color: var(--mgs-muted, var(--el-text-color-secondary));
-}
-
-.toolbar-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.todo-table {
-  width: 100%;
-}
-
-.todo-title {
-  font-weight: 600;
-}
-
-.todo-meta {
-  margin-top: 4px;
-  color: var(--el-color-info);
-  font-size: 12px;
-}
-
-.full-width {
-  width: 100%;
-}
-
-.parent-hint {
-  color: var(--el-color-info);
-  margin: 0;
-  font-size: 13px;
-}
-
-:global(.todo-delete-warning__title) {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--el-color-danger);
-  margin: 0 0 8px;
-}
-
-:global(.todo-delete-warning p:last-child) {
-  line-height: 1.7;
-  margin: 0;
-}
-
-@media (max-width:760px) {
-  .toolbar {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-}
+.todo-view-root { min-height:100%; }
+.todo-page { height:100%; align-content:flex-start; }
+.toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 8px; }
+.toolbar h2 { margin:0; color:var(--mgs-text, var(--el-text-color-primary)); font-size:22px; font-weight:700; }
+.toolbar p { margin:8px 0 0; color:var(--mgs-muted, var(--el-text-color-secondary)); }
+.toolbar-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.todo-table { width:100%; }
+.todo-title { font-weight:600; }
+.todo-meta { margin-top:4px; color:var(--el-color-info); font-size:12px; }
+.full-width { width:100%; }
+.parent-hint { color:var(--el-color-info); margin:0; font-size:13px; }
+:global(.todo-delete-warning__title) { font-size:16px; font-weight:800; color:var(--el-color-danger); margin:0 0 8px; }
+:global(.todo-delete-warning p:last-child) { line-height:1.7; margin:0; }
+@media (max-width:760px) { .toolbar { align-items:flex-start; flex-direction:column; } }
 </style>
