@@ -2,7 +2,6 @@
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
-using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Todo.Validator
@@ -12,6 +11,6 @@ namespace AqLife.Application.Business.Todo.Validator
         private protected override string ErrorMessage { init; get; } = "已完成的待办不允许删除";
 
         private protected override async Task<bool> IsValidAsync(DeleteTodoCommand source, CancellationToken ct)
-        => !await storage.Todo.AnyAsync(e => e.Status == TodoStatus.Completed);
+            => !await storage.Todo.AnyAsync(e => e.UID == source.UID && e.Status == TodoStatus.Completed, ct);
     }
 }
