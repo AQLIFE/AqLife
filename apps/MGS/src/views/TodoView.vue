@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox, ElOption, ElRow, ElSelect, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
 import { Plus, Edit, Delete, Refresh } from '@element-plus/icons-vue'
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, h, onBeforeMount, ref } from 'vue'
 import { TodoApi, TodoStatus, type CreateTodoCommand, type TodoDto, type UpdateTodoCommand } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useTodoStorage } from '@/stores/useTodoStore'
@@ -85,7 +85,6 @@ function statusType(status?: string | null) {
   const value = Number(status)
   return value === 3 ? 'success' : value === 2 ? 'warning' : value === 1 ? 'info' : ''
 }
-import { h } from 'vue'
 </script>
 
 <template>
