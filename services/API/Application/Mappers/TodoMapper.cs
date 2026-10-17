@@ -14,12 +14,7 @@ namespace AqLife.Application.Business.Todo
         [MapProperty(nameof(TodoEntity.Children), nameof(TodoDto.TodoList))]
         public partial TodoDto ToDto(TodoEntity entity);
 
-        [MapperIgnoreTarget(nameof(TodoEntity.UID))]
-        [MapperIgnoreTarget(nameof(TodoEntity.Status))]
-        [MapperIgnoreTarget(nameof(TodoEntity.CompletedAt))]
-        [MapperIgnoreTarget(nameof(TodoEntity.CreatedAt))]
-        [MapperIgnoreTarget(nameof(TodoEntity.Children))]
-        public partial TodoEntity ToEntity(CreateTodoCommand command);
+        public TodoEntity ToEntity(CreateTodoCommand command) => new (desc: command.Desc, ftid: command.FTID,priority:command.Priority);
 
         public string Convert(TodoStatus status)
            => status.ToString();

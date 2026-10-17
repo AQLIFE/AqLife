@@ -91,7 +91,8 @@ async function deleteTag(tag: TagDto) {
 </script>
 
 <template>
-  <ElRow class="tag-page" :gutter="16">
+  <div class="todo-view-root">
+    <ElRow class="tag-page" :gutter="16">
     <ElCol :span="24" class="toolbar">
       <div><h2>标签管理</h2><p>维护标签名称、别名和分类属性。</p></div>
       <div class="toolbar-actions">
@@ -126,6 +127,7 @@ async function deleteTag(tag: TagDto) {
     </ElForm>
     <template #footer><ElButton @click="dialogVisible = false">取消</ElButton><ElButton type="primary" :loading="isSaving" @click="saveTag">保存</ElButton></template>
   </ElDialog>
+  </div>
 </template>
 
 <style scoped>
