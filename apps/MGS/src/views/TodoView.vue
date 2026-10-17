@@ -99,6 +99,7 @@ function statusType(status?: string | null) {
 </script>
 
 <template>
+  <div class="todo-view-root">
   <ElRow class="todo-page" :gutter="16">
     <ElCol :span="24" class="toolbar">
       <div><h2>待办事项</h2><p>管理任务、优先级与子待办，随时更新进度。</p></div>
@@ -137,9 +138,11 @@ function statusType(status?: string | null) {
     </ElForm>
     <template #footer><ElButton @click="dialogVisible = false">取消</ElButton><ElButton type="primary" :loading="isSaving" @click="saveTodo">保存</ElButton></template>
   </ElDialog>
+  </div>
 </template>
 
 <style scoped>
+.todo-view-root { min-height:100%; }
 .todo-page { height:100%; align-content:flex-start; }
 .toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 8px; }
 .toolbar h2 { margin:0; color:var(--mgs-text, var(--el-text-color-primary)); font-size:22px; font-weight:700; }
