@@ -58,17 +58,18 @@ async function saveTodo() {
 async function deleteTodo(todo: TodoDto) {
   const childCount = todo.todoList?.length ?? 0
   try {
-    await ElMessageBox.confirm(
-      childCount
-        ? `待办「${todo.desc || '未命名待办'}」包含 ${childCount} 个子待办。删除父待办可能影响这些子待办的关联，请确认是否继续。`
-        : `确定删除待办「${todo.desc || '未命名待办'}」吗？此操作无法撤销。`,
-      '删除待办确认',
-      { type: 'warning', confirmButtonText: '确认删除', cancelButtonText: '取消', distinguishCancelAndClose: true,
-        message: childCount ? h => h('div', { class: 'todo-delete-warning' }, [
+    const message = childCount
+      ? h('div', { class: 'todo-delete-warning' }, [
           h('p', { class: 'todo-delete-warning__title' }, '⚠ 此待办包含子待办'),
           h('p', {}, `「${todo.desc || '未命名待办'}」下有 ${childCount} 个子待办。删除父待办可能导致子待办失去关联，请谨慎操作。`),
-        ]) : undefined }
-    )
+        ])
+      : `确定删除待办「${todo.desc || '未命名待办'}」吗？此操作无法撤销。`
+    await ElMessageBox.confirm(message, '删除待办确认', {
+      type: 'warning',
+      confirmButtonText: '确认删除',
+      cancelButtonText: '取消',
+      distinguishCancelAndClose: true,
+    })
     await todoApi.apiTodoDelete({ deleteTodoCommand: { uid: todo.uid } })
     ElMessage.success('待办已删除')
     await loadTodos(true)
@@ -77,6 +78,7 @@ async function deleteTodo(todo: TodoDto) {
     ElMessage.error(error instanceof Error ? error.message : '删除待办失败')
   }
 }
+
 function statusValue(status?: string | null): number {
   if (status == null || status === '') return TodoStatus.Initial
   const numeric = Number(status)
