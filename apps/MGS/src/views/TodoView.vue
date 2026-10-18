@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox, ElOption, ElRow, ElSelect, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
+import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox, ElOption, ElRow, ElSelect, ElSegmented, ElSlider, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
 import { Plus, Edit, Delete, Refresh } from '@element-plus/icons-vue'
 import { computed, h, onBeforeMount, ref } from 'vue'
 import { TodoApi, TodoStatus, type CreateTodoCommand, type TodoDto, type UpdateTodoCommand } from '@/api'
@@ -17,6 +17,29 @@ const editingTodo = ref<TodoDto | null>(null)
 const form = ref<CreateTodoCommand & { status?: number }>({ desc: '', priority: 1, ftid: null, status: TodoStatus.Initial })
 const isEditing = computed(() => editingTodo.value !== null)
 const parentOptions = computed(() => todoStore.todoList.filter(todo => !todo.ftid && todo.uid !== editingTodo.value?.uid))
+const selectedStatus = ref<number | 'default'>('default')
+const priorityRange = ref<[number, number]>([1, 99])
+const statusFilterOptions = [
+  { label: 'Default', value: 'default' },
+  { label: '初始', value: TodoStatus.Initial },
+  { label: '等待分配', value: TodoStatus.Wait },
+  { label: '进行中', value: TodoStatus.Execute },
+  { label: '已完成', value: TodoStatus.Completed },
+]
+
+function filterTodoTree(todos: TodoDto[]): TodoDto[] {
+  return todos.reduce<TodoDto[]>((result, todo) => {
+    const children = filterTodoTree(todo.todoList ?? [])
+    const priority = Number(todo.priority ?? 1)
+    const matchesStatus = selectedStatus.value === 'default' || statusValue(todo.status) === selectedStatus.value
+    const matchesPriority = priority >= priorityRange.value[0] && priority <= priorityRange.value[1]
+    if ((matchesStatus && matchesPriority) || children.length > 0) {
+      result.push({ ...todo, todoList: children })
+    }
+    return result
+  }, [])
+}
+const filteredTodos = computed(() => filterTodoTree(proxyTodos.value))
 
 function syncTodos() { proxyTodos.value = [...todoStore.todoList] }
 async function loadTodos(force = false) {
@@ -108,7 +131,16 @@ function statusType(status?: string | null): "primary" | "success" | "warning" |
       </template>
     </MgsPageHeader>
 
-    <ElTable :data="proxyTodos" v-loading="isLoading" element-loading-text="正在加载待办..." empty-text="暂无待办，点击右上角添加第一项"
+    <MgsToolbar>
+      <ElSegmented v-model="selectedStatus" :options="statusFilterOptions" />
+      <div class="priority-filter">
+        <span>优先级</span>
+        <ElSlider v-model="priorityRange" range :min="1" :max="99" :step="1" />
+        <span class="priority-filter__value">{{ priorityRange[0] }}–{{ priorityRange[1] }}</span>
+      </div>
+    </MgsToolbar>
+
+    <ElTable :data="filteredTodos" v-loading="isLoading" element-loading-text="正在加载待办..." empty-text="暂无待办，点击右上角添加第一项"
       row-key="uid" class="todo-table" :tree-props="{ children: 'todoList', hasChildren: 'hasChildren' }">
       <ElTableColumn prop="desc" label="待办内容" min-width="220">
         <template #default="{ row }">
@@ -178,36 +210,25 @@ function statusType(status?: string | null): "primary" | "success" | "warning" |
   min-height: 100%;
 }
 
-.todo-page {
-  height: 100%;
-  align-content: flex-start;
-  text-align: left;
-}
-
-.toolbar {
+.priority-filter {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  padding: 20px 8px;
-}
-
-.toolbar h2 {
-  margin: 0;
-  color: var(--mgs-text, var(--el-text-color-primary));
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.toolbar p {
-  margin: 8px 0 0;
-  color: var(--mgs-muted, var(--el-text-color-secondary));
-}
-
-.toolbar-actions {
-  display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  min-width: 260px;
+  max-width: 360px;
+  flex: 1;
+}
+
+.priority-filter > span:first-child {
+  white-space: nowrap;
+  color: var(--el-text-color-regular);
+}
+
+.priority-filter__value {
+  min-width: 52px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--el-text-color-secondary);
 }
 
 .todo-table {
@@ -247,9 +268,10 @@ function statusType(status?: string | null): "primary" | "success" | "warning" |
 }
 
 @media (max-width:760px) {
-  .toolbar {
-    align-items: flex-start;
-    flex-direction: column;
+  .priority-filter {
+    min-width: 220px;
+    max-width: none;
+    width: 100%;
   }
 }
 </style>
