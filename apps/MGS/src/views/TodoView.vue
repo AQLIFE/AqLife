@@ -19,6 +19,12 @@ const isEditing = computed(() => editingTodo.value !== null)
 const parentOptions = computed(() => todoStore.todoList.filter(todo => !todo.ftid && todo.uid !== editingTodo.value?.uid))
 const selectedStatus = ref<number | 'default'>('default')
 const priorityRange = ref<[number, number]>([1, 99])
+const priorityMarks = Object.fromEntries(
+  Array.from({ length: 9 }, (_, index) => {
+    const value = (index + 1) * 10
+    return [value, String(value)]
+  }),
+)
 const statusFilterOptions = [
   { label: 'Default', value: 'default' },
   { label: '初始', value: TodoStatus.Initial },
@@ -135,7 +141,7 @@ function statusType(status?: string | null): "primary" | "success" | "warning" |
       <ElSegmented v-model="selectedStatus" :options="statusFilterOptions" />
       <div class="priority-filter">
         <span>优先级</span>
-        <ElSlider v-model="priorityRange" range :min="1" :max="99" :step="1" />
+        <ElSlider v-model="priorityRange" range :min="1" :max="99" :step="1" :marks="priorityMarks" />
         <span class="priority-filter__value">{{ priorityRange[0] }}–{{ priorityRange[1] }}</span>
       </div>
     </MgsToolbar>
