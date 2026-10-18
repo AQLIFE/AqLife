@@ -154,58 +154,7 @@ async function deleteTag(tag: TagDto) {
 </template>
 
 <style scoped>
-.tag-page {
-  height: 100%;
-  align-content: flex-start;
-}
-
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 20px 8px;
-  text-align: left;
-}
-
-.toolbar h2 {
-  margin: 0;
-  color: var(--mgs-text, var(--el-text-color-primary));
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.toolbar p {
-  margin: 8px 0 0;
-  color: var(--mgs-muted, var(--el-text-color-secondary));
-}
-
-.toolbar-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0 8px 18px;
-}
-
 .tag-table {
   width: 100%;
-}
-
-@media (max-width:760px) {
-  .toolbar {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .filter-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
 }
 </style>
