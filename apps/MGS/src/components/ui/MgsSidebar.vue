@@ -23,16 +23,11 @@
         <ElIcon><List /></ElIcon>
         <span>Todo</span>
       </RouterLink>
-
-      <div class="nav-section">SYSTEM</div>
       <RouterLink class="nav-item" to="/tag">
         <ElIcon><PriceTag /></ElIcon>
         <span>Tags</span>
       </RouterLink>
-      <RouterLink class="nav-item" to="/account/profile">
-        <ElIcon><User /></ElIcon>
-        <span>Account</span>
-      </RouterLink>
+
     </nav>
 
     <div class="sidebar-footer">
@@ -44,7 +39,7 @@
 
 <script setup lang="ts">
 import { ElIcon } from 'element-plus'
-import { Document, House, List, PriceTag, User } from '@element-plus/icons-vue'
+import { Document, House, List, PriceTag } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>

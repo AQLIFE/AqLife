@@ -42,7 +42,7 @@ export const routes = [
     path: '/account',
     redirect: '/account/profile',
     component: AccountView,
-    meta: { navTitle: 'Account', navIcon: User, showInNav: true, order: 4, sidebarType: SidebarType.None },
+    meta: { navTitle: 'Account', navIcon: User, showInNav: false, order: 4, sidebarType: SidebarType.None },
     children: [
       { path: 'profile', component: ProfileView },
       { path: 'subscriptions', component: SubscriptionsView },

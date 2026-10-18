@@ -221,7 +221,7 @@ function statusType(status?: string | null): "primary" | "success" | "warning" |
   align-items: center;
   gap: 10px;
   min-width: 260px;
-  max-width: 360px;
+  /* max-width: 360px; */
   flex: 1;
 }
 

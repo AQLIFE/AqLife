@@ -56,7 +56,7 @@ async function submitLogin() {
         <p>登录你的博客管理工作区，继续管理内容与发布。</p>
       </div>
 
-      <ElForm class="login-form" @submit.prevent="submitLogin">
+      <ElForm class="login-form" @submit.prevent="submitLogin" label-width="50">
         <ElFormItem label="账户名">
           <ElInput
             v-model="login.accountName"

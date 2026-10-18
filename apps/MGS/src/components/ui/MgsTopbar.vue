@@ -8,16 +8,22 @@
     <div class="actions">
       <div class="shortcut">⌘ K</div>
       <ElButton text circle :icon="Setting" aria-label="Settings" />
-      <ElAvatar :size="28">M</ElAvatar>
+      <ElButton @click="goToAccount" :icon="User" link/>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ElAvatar, ElButton } from 'element-plus'
-import { Setting } from '@element-plus/icons-vue'
+import { ElButton } from 'element-plus'
+import { Setting, User } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router';
 
 defineProps<{ title: string }>()
+
+const router = useRouter();
+function goToAccount(){
+  router.push('/account')
+}
 </script>
 
 <style scoped>
