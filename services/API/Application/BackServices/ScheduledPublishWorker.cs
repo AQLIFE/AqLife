@@ -15,8 +15,6 @@ namespace AqLife.Application.BackServices
             logger.LogInformation("[Serilog][{@LogType}]=>{@LogDesc}",BehavioralLevel.ServiceType,"Scheduled publish worker started.");
             while (!stoppingToken.IsCancellationRequested)
             {
-                logger.LogDebug("DateTimeOffset.UTCnow: {DateTimeOffsetUtcNow}", DateTimeOffset.UtcNow);
-                logger.LogDebug("DateTimeOffset.now: {DateTimeOffsetNow}", DateTimeOffset.Now);
                 try
                 {
                     using var scope = scopeFactory.CreateScope();
@@ -32,7 +30,7 @@ namespace AqLife.Application.BackServices
                         var result = await mediator.Send(new ProcessScheduledPostsCommand(), stoppingToken);
                         await context.SaveChangesAsync();
                         await transaction.CommitAsync();
-                        logger.LogInformation("Scheduled posts processed. Found: {Found}, Published: {Published}, Failed: {Failed}", result.Found, result.Published, result.Failed);
+                        logger.LogInformation("[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.ServiceType,$"Scheduled posts processed. Found: {result.Found}, Published: {result.Published}, Failed: {result.Failed}");
                     }
                     catch (Exception ex)
                     {

@@ -5,7 +5,8 @@ import { computed, h, onBeforeMount, ref } from 'vue'
 import { TodoApi, TodoStatus, type CreateTodoCommand, type TodoDto, type UpdateTodoCommand } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useTodoStorage } from '@/stores/useTodoStore'
-
+import MgsPageHeader from '../components/ui/MgsPageHeader.vue'
+import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 const todoStore = useTodoStorage()
 const todoApi = new TodoApi(apiConfiguration)
 const proxyTodos = ref<TodoDto[]>([])
@@ -100,44 +101,38 @@ function statusType(status?: string | null): "primary" | "success" | "warning" |
 
 <template>
   <div class="todo-view-root">
-    <ElRow class="todo-page">
-      <ElCol :span="24" class="toolbar">
-        <div>
-          <h2>待办事项</h2>
-          <p>管理任务、优先级与子待办，随时更新进度。</p>
-        </div>
-        <div class="toolbar-actions">
-          <ElButton :icon="Refresh" @click="loadTodos(true)">刷新</ElButton>
-          <ElButton type="primary" :icon="Plus" @click="openCreate()">添加待办</ElButton>
-        </div>
-      </ElCol>
-      <ElCol :span="24">
-        <ElTable :data="proxyTodos" v-loading="isLoading" element-loading-text="正在加载待办..." empty-text="暂无待办，点击右上角添加第一项"
-          row-key="uid" class="todo-table" :tree-props="{ children: 'todoList', hasChildren: 'hasChildren' }">
-          <ElTableColumn prop="desc" label="待办内容" min-width="220">
-            <template #default="{ row }">
-              <div class="todo-title">{{ row.desc || '（未填写）' }}</div>
-              <div v-if="row.ftid" class="todo-meta">子待办</div>
-            </template>
-          </ElTableColumn>
-          <ElTableColumn prop="status" label="状态" width="110"><template #default="{ row }">
-              <ElTag :type="statusType(row.status)">{{ statusLabel(row.status) }}</ElTag>
-            </template>
-          </ElTableColumn>
-          <ElTableColumn prop="priority" label="优先级" width="100" />
-          <ElTableColumn prop="ftid" label="父待办 UID" min-width="160"><template #default="{ row }">
-              <ElText size="small">{{ row.ftid || '无' }}</ElText>
-            </template></ElTableColumn>
-          <ElTableColumn label="操作" width="240" fixed="right">
-            <template #default="{ row }">
-              <ElButton link type="primary" :icon="Plus" :disabled="!!row.ftid" @click="openCreate(row)">添加子项</ElButton>
-              <ElButton link type="primary" :icon="Edit" @click="openEdit(row)">编辑</ElButton>
-              <ElButton link type="danger" :icon="Delete" @click="deleteTodo(row)">删除</ElButton>
-            </template>
-          </ElTableColumn>
-        </ElTable>
-      </ElCol>
-    </ElRow>
+    <MgsPageHeader title="待办事项" description="管理任务、优先级与子待办，随时更新进度。">
+      <template #actions>
+        <ElButton :icon="Refresh" @click="loadTodos(true)">刷新</ElButton>
+        <ElButton type="primary" :icon="Plus" @click="openCreate()">添加待办</ElButton>
+      </template>
+    </MgsPageHeader>
+
+    <ElTable :data="proxyTodos" v-loading="isLoading" element-loading-text="正在加载待办..." empty-text="暂无待办，点击右上角添加第一项"
+      row-key="uid" class="todo-table" :tree-props="{ children: 'todoList', hasChildren: 'hasChildren' }">
+      <ElTableColumn prop="desc" label="待办内容" min-width="220">
+        <template #default="{ row }">
+          <div class="todo-title">{{ row.desc || '（未填写）' }}</div>
+          <div v-if="row.ftid" class="todo-meta">子待办</div>
+        </template>
+      </ElTableColumn>
+      <ElTableColumn prop="status" label="状态" width="110"><template #default="{ row }">
+          <ElTag :type="statusType(row.status)">{{ statusLabel(row.status) }}</ElTag>
+        </template>
+      </ElTableColumn>
+      <ElTableColumn prop="priority" label="优先级" width="100" />
+      <ElTableColumn prop="ftid" label="父待办 UID" min-width="160"><template #default="{ row }">
+          <ElText size="small">{{ row.ftid || '无' }}</ElText>
+        </template></ElTableColumn>
+      <ElTableColumn label="操作" width="240" fixed="right">
+        <template #default="{ row }">
+          <ElButton link type="primary" :icon="Plus" :disabled="!!row.ftid" @click="openCreate(row)">添加子项</ElButton>
+          <ElButton link type="primary" :icon="Edit" @click="openEdit(row)">编辑</ElButton>
+          <ElButton link type="danger" :icon="Delete" @click="deleteTodo(row)">删除</ElButton>
+        </template>
+      </ElTableColumn>
+    </ElTable>
+
     <ElDialog v-model="dialogVisible" :title="isEditing ? '编辑待办' : (form.ftid ? '添加子待办' : '添加待办')"
       width="min(560px, 92vw)" destroy-on-close>
       <ElForm label-position="top">
@@ -179,18 +174,82 @@ function statusType(status?: string | null): "primary" | "success" | "warning" |
 </template>
 
 <style scoped>
-.todo-view-root { min-height:100%; }
-.todo-page { height:100%; align-content:flex-start; }
-.toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 8px; }
-.toolbar h2 { margin:0; color:var(--mgs-text, var(--el-text-color-primary)); font-size:22px; font-weight:700; }
-.toolbar p { margin:8px 0 0; color:var(--mgs-muted, var(--el-text-color-secondary)); }
-.toolbar-actions { display:flex; gap:10px; flex-wrap:wrap; }
-.todo-table { width:100%; }
-.todo-title { font-weight:600; }
-.todo-meta { margin-top:4px; color:var(--el-color-info); font-size:12px; }
-.full-width { width:100%; }
-.parent-hint { color:var(--el-color-info); margin:0; font-size:13px; }
-:global(.todo-delete-warning__title) { font-size:16px; font-weight:800; color:var(--el-color-danger); margin:0 0 8px; }
-:global(.todo-delete-warning p:last-child) { line-height:1.7; margin:0; }
-@media (max-width:760px) { .toolbar { align-items:flex-start; flex-direction:column; } }
+.todo-view-root {
+  min-height: 100%;
+}
+
+.todo-page {
+  height: 100%;
+  align-content: flex-start;
+  text-align: left;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 8px;
+}
+
+.toolbar h2 {
+  margin: 0;
+  color: var(--mgs-text, var(--el-text-color-primary));
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.toolbar p {
+  margin: 8px 0 0;
+  color: var(--mgs-muted, var(--el-text-color-secondary));
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.todo-table {
+  width: 100%;
+}
+
+.todo-title {
+  font-weight: 600;
+}
+
+.todo-meta {
+  margin-top: 4px;
+  color: var(--el-color-info);
+  font-size: 12px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.parent-hint {
+  color: var(--el-color-info);
+  margin: 0;
+  font-size: 13px;
+}
+
+:global(.todo-delete-warning__title) {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--el-color-danger);
+  margin: 0 0 8px;
+}
+
+:global(.todo-delete-warning p:last-child) {
+  line-height: 1.7;
+  margin: 0;
+}
+
+@media (max-width:760px) {
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
 </style>

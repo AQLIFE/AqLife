@@ -1,6 +1,6 @@
 <template>
   <div class="dataview">
-    <MgsPageHeader title="File" description="Manage Files, drafts and published content"><template #actions>
+    <MgsPageHeader title="文件" description="管理文件, 编写草稿和发布文件"><template #actions>
         <ElButton :icon="Upload" @click="handleUploadFile">Upload</ElButton>
         <ElButton type="primary" :icon="Plus" @click="handleAddFile">New article</ElButton>
       </template>

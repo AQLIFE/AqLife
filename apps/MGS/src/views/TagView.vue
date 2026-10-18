@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox, ElOption, ElRow, ElSegmented, ElSelect, ElSwitch, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
+import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox, ElOption, ElSegmented, ElSelect, ElSwitch, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { computed, onBeforeMount, ref } from 'vue'
 import { TagApi, type CreateTagCommand, type TagDto, type UpdateTagCommand } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useTagStore } from '@/stores/uuseTagStore'
-
+import MgsPageHeader from '../components/ui/MgsPageHeader.vue'
+import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 const columnMap: Record<string, string> = { uid: '唯一标识', name: '标签名称', aliasName: '标签别名', isCategory: '分类标识' }
 const activeSelect = ref<string>('选择字段')
 const searchQuery = ref('')
@@ -26,7 +27,7 @@ onBeforeMount(async () => {
   catch (error) { ElMessage.error(error instanceof Error ? error.message : '标签数据加载失败') }
   finally { isLoading.value = false }
 })
-const tableColumns = computed(() => Object.keys(columnMap))
+// const tableColumns = computed(() => Object.keys(columnMap))
 const tempList = computed(() => Object.keys(columnMap).filter(key => key !== 'isCategory'))
 
 function filterData() {
@@ -92,51 +93,119 @@ async function deleteTag(tag: TagDto) {
 
 <template>
   <div class="todo-view-root">
-    <ElRow class="tag-page">
-    <ElCol :span="24" class="toolbar">
-      <div><h2>标签管理</h2><p>维护标签名称、别名和分类属性。</p></div>
-      <div class="toolbar-actions">
-        <ElButton :icon="Refresh" @click="filterData">刷新列表</ElButton>
-        <ElButton type="primary" :icon="Plus" @click="openCreate">添加标签</ElButton>
-      </div>
-    </ElCol>
-    <ElCol :span="24" class="filter-bar">
-      <ElCol :span="8">
-        <ElInput v-model="searchQuery" placeholder="输入关键词" clearable @keyup.enter="filterData" @clear="filterData">
-          <template #prepend><ElSelect v-model="activeSelect" placeholder="搜索字段" style="width:120px"><ElOption v-for="item in tempList" :key="item" :label="columnMap[item]" :value="item" /></ElSelect></template>
-          <template #append><ElButton :icon="Search" @click="filterData" /></template>
-        </ElInput>
-      </ElCol>
+    <MgsPageHeader title="标签" description="管理标签,维护标签名称、别名和分类属性">
+      <template #actions>
+        <ElButton :icon="Refresh" @click="filterData">Refresh</ElButton>
+        <ElButton type="primary" :icon="Plus" @click="openCreate">New Tag</ElButton>
+      </template>
+    </MgsPageHeader>
+    <MgsToolbar>
       <ElSegmented v-model="selectCategory" :options="segmentedOptions" @change="filterData" />
-    </ElCol>
-    <ElCol :span="24">
-      <ElTable :data="proxyTags" v-loading="isLoading" element-loading-text="正在加载标签..." empty-text="暂无标签" class="tag-table" row-key="uid" highlight-current-row>
-        <ElTableColumn prop="name" label="标签名称" min-width="180"><template #default="{ row }"><ElTag v-if="row.name">{{ row.name }}</ElTag><ElText v-else>未命名</ElText></template></ElTableColumn>
-        <ElTableColumn prop="aliasName" label="标签别名" min-width="160"><template #default="{ row }">{{ row.aliasName || '—' }}</template></ElTableColumn>
-        <ElTableColumn prop="isCategory" label="类型" width="120"><template #default="{ row }"><ElTag :type="row.isCategory ? 'success' : 'info'">{{ row.isCategory ? '分类' : '普通标签' }}</ElTag></template></ElTableColumn>
-        <ElTableColumn prop="uid" label="UID" min-width="220" show-overflow-tooltip />
-        <ElTableColumn label="操作" width="150" fixed="right"><template #default="{ row }"><ElButton link type="primary" :icon="Edit" @click="openEdit(row)">编辑</ElButton><ElButton link type="danger" :icon="Delete" @click="deleteTag(row)">删除</ElButton></template></ElTableColumn>
-      </ElTable>
-    </ElCol>
-  </ElRow>
-  <ElDialog v-model="dialogVisible" :title="editingTag ? '编辑标签' : '添加标签'" width="min(520px, 92vw)" destroy-on-close>
-    <ElForm label-position="top">
-      <ElFormItem label="标签名称" required><ElInput v-model="addTagDto.name" maxlength="100" show-word-limit /></ElFormItem>
-      <ElFormItem label="标签别名"><ElInput v-model="addTagDto.aliasName" maxlength="100" /></ElFormItem>
-      <ElFormItem label="分类标签"><ElSwitch v-model="addTagDto.isCategory" inline-prompt active-text="分类" inactive-text="普通" /></ElFormItem>
-    </ElForm>
-    <template #footer><ElButton @click="dialogVisible = false">取消</ElButton><ElButton type="primary" :loading="isSaving" @click="saveTag">保存</ElButton></template>
-  </ElDialog>
+      <ElInput v-model="searchQuery" placeholder="输入关键词" clearable @keyup.enter="filterData" @clear="filterData">
+        <template #prepend>
+          <ElSelect v-model="activeSelect" placeholder="搜索字段" style="width:120px">
+            <ElOption v-for="item in tempList" :key="item" :label="columnMap[item]" :value="item" />
+          </ElSelect>
+        </template>
+        <template #append>
+          <ElButton :icon="Search" @click="filterData" />
+        </template>
+      </ElInput>
+    </MgsToolbar>
+
+    <ElTable :data="proxyTags" v-loading="isLoading" element-loading-text="正在加载标签..." empty-text="暂无标签"
+      class="tag-table" row-key="uid" highlight-current-row>
+      <ElTableColumn prop="name" label="标签名称" min-width="180"><template #default="{ row }">
+          <ElTag v-if="row.name">{{ row.name }}</ElTag>
+          <ElText v-else>未命名</ElText>
+        </template>
+      </ElTableColumn>
+      <ElTableColumn prop="aliasName" label="标签别名" min-width="160"><template #default="{ row }">{{ row.aliasName || '—'
+          }}</template></ElTableColumn>
+      <ElTableColumn prop="isCategory" label="类型" width="120"><template #default="{ row }">
+          <ElTag :type="row.isCategory ? 'success' : 'info'">{{ row.isCategory ? '分类' : '普通标签' }}</ElTag>
+        </template>
+      </ElTableColumn>
+      <ElTableColumn prop="uid" label="UID" min-width="220" show-overflow-tooltip />
+      <ElTableColumn label="操作" width="150" fixed="right"><template #default="{ row }">
+          <ElButton link type="primary" :icon="Edit" @click="openEdit(row)">编辑</ElButton>
+          <ElButton link type="danger" :icon="Delete" @click="deleteTag(row)">删除</ElButton>
+        </template>
+      </ElTableColumn>
+    </ElTable>
+    <ElDialog v-model="dialogVisible" :title="editingTag ? '编辑标签' : '添加标签'" width="min(520px, 92vw)" destroy-on-close>
+      <ElForm label-position="top">
+        <ElFormItem label="标签名称" required>
+          <ElInput v-model="addTagDto.name" maxlength="100" show-word-limit />
+        </ElFormItem>
+        <ElFormItem label="标签别名">
+          <ElInput v-model="addTagDto.aliasName" maxlength="100" />
+        </ElFormItem>
+        <ElFormItem label="分类标签">
+          <ElSwitch v-model="addTagDto.isCategory" inline-prompt active-text="分类" inactive-text="普通" />
+        </ElFormItem>
+      </ElForm>
+      <template #footer>
+        <ElButton @click="dialogVisible = false">取消</ElButton>
+        <ElButton type="primary" :loading="isSaving" @click="saveTag">保存</ElButton>
+      </template>
+    </ElDialog>
   </div>
 </template>
 
 <style scoped>
-.tag-page { height:100%; align-content:flex-start; }
-.toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 8px; }
-.toolbar h2 { margin:0; color:var(--mgs-text, var(--el-text-color-primary)); font-size:22px; font-weight:700; }
-.toolbar p { margin:8px 0 0; color:var(--mgs-muted, var(--el-text-color-secondary)); }
-.toolbar-actions { display:flex; gap:10px; flex-wrap:wrap; }
-.filter-bar { display:flex; align-items:center; gap:16px; padding:0 8px 18px; }
-.tag-table { width:100%; }
-@media (max-width:760px) { .toolbar { align-items:flex-start; flex-direction:column; } .filter-bar { flex-direction:column; align-items:stretch; } }
+.tag-page {
+  height: 100%;
+  align-content: flex-start;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 8px;
+  text-align: left;
+}
+
+.toolbar h2 {
+  margin: 0;
+  color: var(--mgs-text, var(--el-text-color-primary));
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.toolbar p {
+  margin: 8px 0 0;
+  color: var(--mgs-muted, var(--el-text-color-secondary));
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 8px 18px;
+}
+
+.tag-table {
+  width: 100%;
+}
+
+@media (max-width:760px) {
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
 </style>
