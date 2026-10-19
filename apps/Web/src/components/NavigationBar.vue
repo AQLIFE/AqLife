@@ -21,6 +21,24 @@ const { navList } = useNavigation();
   align-items: center;
   justify-content: center;
 
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.navigation-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.navigation-bar :deep(*) {
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .navigation-bar {
+    justify-content: flex-start;
+    padding: 0 10px;
+    gap: 4px;
+  }
 }
 </style>

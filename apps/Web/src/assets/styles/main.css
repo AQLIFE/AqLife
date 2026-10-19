@@ -2,51 +2,72 @@ html,
 body,
 #app {
   width: 100%;
+  min-width: 0;
   height: 100%;
+  min-height: 0;
   margin: 0;
   padding: 0;
   border: 0;
-
   overscroll-behavior: none;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body,
 #app {
-  font-family: 'Cascadia Code PL', 'Consolas';
-
+  font-family: 'Cascadia Code PL', 'Consolas', monospace;
   -webkit-user-drag: none;
-
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
 }
 
-
-/* =========================================================
-   Global Variables
-   ========================================================= */
+body {
+  overflow: hidden;
+}
 
 :root {
   --topColor: rgb(255, 255, 255);
-
   --back_color_lv1: rgb(233, 233, 235);
   --back_color_lv2: rgb(222, 223, 224);
   --back_color_lv3: rgb(200, 201, 202);
   --back_color_lv4: rgb(180, 181, 182);
   --back_color_lv5: rgb(150, 151, 152);
-
   --inlineCenter: 100px;
-
   --Focus: hsla(160, 100%, 37%, 1);
+  --app-safe-top: env(safe-area-inset-top, 0px);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-
-/* =========================================================
-   Global Component Style
-   ========================================================= */
-
 * {
+  box-sizing: border-box;
   border-radius: 0px !important;
-  font-family: 'Cascadia Code PL', 'Consolas';
+  font-family: 'Cascadia Code PL', 'Consolas', monospace;
+}
+
+button,
+a,
+[role='button'] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 900px) {
+  html,
+  body,
+  #app {
+    height: 100%;
+    min-height: 100%;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  pre,
+  code {
+    overflow-wrap: anywhere;
+  }
 }
