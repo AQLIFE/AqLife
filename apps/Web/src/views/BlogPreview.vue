@@ -348,4 +348,65 @@ onBeforeUnmount(() => {
 
   overflow-x: hidden;
 }
+
+@media (max-width: 900px) {
+  .header :deep(.el-page-header__header) {
+    min-height: 56px;
+    height: auto;
+    padding: 8px 12px;
+    align-items: flex-start;
+  }
+
+  .header :deep(.el-page-header__left) {
+    margin-right: 8px;
+  }
+
+  .header :deep(.el-page-header__content) {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .header :deep(.el-page-header__extra) {
+    margin-left: 4px;
+  }
+
+  .article-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .article-title {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+  }
+
+  .article-tags {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .markdown-content {
+    padding: 0 14px 20px;
+    overflow-wrap: anywhere;
+  }
+
+  .markdown-content :deep(img),
+  .markdown-content :deep(video),
+  .markdown-content :deep(table) {
+    max-width: 100%;
+  }
+
+  .markdown-content :deep(table) {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .markdown-content :deep(pre) {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
 </style>
