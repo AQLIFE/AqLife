@@ -181,4 +181,39 @@ onBeforeMount(async () => {
 
   box-sizing: border-box;
 }
+
+@media (max-width: 900px) {
+  .blog-page {
+    padding: 18px 12px 16px;
+  }
+
+  .blog-page-header {
+    padding: 0 4px;
+    margin-bottom: 14px;
+  }
+
+  .blog-page-title {
+    font-size: 21px;
+  }
+
+  .blog-scrollbar {
+    padding: 0 4px;
+  }
+
+  .blog-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 2px 0 12px;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1200px) {
+  .blog-page {
+    padding: 24px 18px;
+  }
+
+  .blog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 </style>
