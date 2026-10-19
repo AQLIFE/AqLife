@@ -286,6 +286,11 @@ const sideManager = computed(() => {
   gap: 12px;
 }
 
+.mobile-drawer-account :deep(.author-skeleton) {
+  height: auto;
+  flex: 0 0 auto;
+}
+
 @media (max-width: 1100px) {
   #baseLayout {
     grid-template-columns: 240px minmax(0, 1fr) 240px;
@@ -296,6 +301,8 @@ const sideManager = computed(() => {
   #baseLayout {
     height: 100dvh;
     min-height: 100dvh;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
   }
