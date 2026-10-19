@@ -59,11 +59,6 @@ a,
     min-height: 100%;
   }
 
-  body {
-    padding-top: var(--app-safe-top);
-    padding-bottom: var(--app-safe-bottom);
-  }
-
   img,
   video,
   canvas,
