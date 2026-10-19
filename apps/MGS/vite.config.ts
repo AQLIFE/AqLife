@@ -7,12 +7,18 @@ import { getAqlifeHttpsOptions } from '../../config/vite/https'
 
 const appRoot = path.dirname(fileURLToPath(import.meta.url))
 
-export default mergeConfig(
-  createAqlifeViteConfig(appRoot, { port: 5200 }),
-  defineConfig({
-    plugins: [vueDevTools()],
-    server: {
-      https: getAqlifeHttpsOptions(),
+export default defineConfig(({ command }) =>
+  mergeConfig(
+    createAqlifeViteConfig(appRoot, { port: 5200 }),
+    {
+      plugins: [vueDevTools()],
+      ...(command === 'serve'
+        ? {
+            server: {
+              https: getAqlifeHttpsOptions(),
+            },
+          }
+        : {}),
     },
-  }),
+  ),
 )
