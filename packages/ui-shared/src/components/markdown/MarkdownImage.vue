@@ -20,7 +20,6 @@ defineProps<{
 <style scoped>
 
 .imageContainer{
-  width:100vw;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;

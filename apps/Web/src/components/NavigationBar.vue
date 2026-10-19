@@ -36,7 +36,7 @@ const { navList } = useNavigation();
 
 @media (max-width: 900px) {
   .navigation-bar {
-    justify-content: flex-start;
+    justify-content: flex-center;
     padding: 0 10px;
     gap: 4px;
   }

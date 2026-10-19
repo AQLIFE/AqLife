@@ -27,15 +27,12 @@ const wishs = [
 </script>
 
 <template>
-  <ElRow>
-    <ElCol :span="8" v-for="(item, index) in wishs" :key="index">
+  <ElRow :gutter="10">
+    <ElCol :xs="24" :sm="12" :md="12" :lg="8" :span="8"  v-for="(item, index) in wishs" :key="index">
       <WishCard :wish-image="item.imageLink" :wish-name="item.wishName" />
     </ElCol>
   </ElRow>
 </template>
 
 <style scoped>
-.el-row {
-  /* background-color: var(--back_color_lv1); */
-}
 </style>
