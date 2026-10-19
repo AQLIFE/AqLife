@@ -3,12 +3,12 @@
     "Development": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://::5110/swagger",
+      "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://::5110"
+      "applicationUrl": "https://localhost:7110;http://localhost:5110"
     },
     "Production": {
       "commandName": "Project",
