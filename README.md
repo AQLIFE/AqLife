@@ -42,6 +42,8 @@ dotnet dev-certs https --trust
 
 Linux 上如果平台不支持自动信任，请按浏览器/发行版的方式手动信任本机 ASP.NET Core 开发证书。若浏览器提示证书不受信任，先运行上面的命令（或手动信任证书）后重启浏览器。
 
+如果在本地 `.env` 文件中手动设置了 `VITE_API`，请将其值设为 `https://localhost:7110`；未设置时，API Client 会使用该 HTTPS 地址作为默认值。
+
 运行前端：
 
 ```shell
