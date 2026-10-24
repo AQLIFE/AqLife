@@ -22,9 +22,98 @@ const fileStore = useFileStore()
 const baseurl = import.meta.env.VITE_API
 const markdownFileResolver = {
   async getFile(uid: string): Promise<FileDto | undefined> {
-    const result = await fileApi.apiFileGet({ uID: uid,scope:FileScope.Image})// 必须指定查询类型,否则默认只查博文,那就永远查不到
+    const result = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Image })
     return result.items?.[0]
   },
+}
+
+type PendingClipboardImage = {
+  id: string
+  file: File
+  previewUrl: string
+  uploadedUid?: string
+}
+
+const pendingClipboardImages = new Map<string, PendingClipboardImage>()
+
+const imageExtensionByMime: Record<string, string> = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/jpg': '.jpg',
+  'image/svg+xml': '.svg',
+}
+
+function clearPendingClipboardImages() {
+  for (const image of pendingClipboardImages.values()) {
+    URL.revokeObjectURL(image.previewUrl)
+  }
+  pendingClipboardImages.clear()
+}
+
+function clipboardImageFile(file: File): PendingClipboardImage | undefined {
+  const mime = file.type.toLowerCase()
+  const extension = imageExtensionByMime[mime]
+  if (!extension) return undefined
+
+  const id = crypto.randomUUID()
+  const normalizedFile = new File(
+    [file],
+    `clipboard-image-${id}${extension}`,
+    { type: mime },
+  )
+
+  return {
+    id,
+    file: normalizedFile,
+    previewUrl: URL.createObjectURL(normalizedFile),
+  }
+}
+
+function onEditorPaste(event: ClipboardEvent) {
+  if (!isEditing.value || !editor || !event.clipboardData) return
+
+  const clipboardFiles: File[] = []
+  for (const item of Array.from(event.clipboardData.items)) {
+    if (item.kind !== 'file' || !imageExtensionByMime[item.type.toLowerCase()]) continue
+    const file = item.getAsFile()
+    if (file) clipboardFiles.push(file)
+  }
+
+  // Some applications expose copied SVG as an image/svg+xml clipboard payload.
+  if (clipboardFiles.length === 0) {
+    const svg = event.clipboardData.getData('image/svg+xml')
+    if (svg.trim().startsWith('<svg') || svg.includes('<svg')) {
+      clipboardFiles.push(new File([svg], 'clipboard-image.svg', { type: 'image/svg+xml' }))
+    }
+  }
+
+  if (clipboardFiles.length === 0) return
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  const images = clipboardFiles
+    .map(clipboardImageFile)
+    .filter((image): image is PendingClipboardImage => image !== undefined)
+
+  if (images.length === 0) {
+    ElMessage.warning('剪贴板中的图像格式不受支持，请使用 PNG、JPEG、JPG 或 SVG。')
+    return
+  }
+
+  for (const image of images) pendingClipboardImages.set(image.id, image)
+
+  const selection = editor.getSelection()
+  if (!selection) return
+
+  const snippets = images.map(image => `![未命名图像](${image.previewUrl})`)
+  editor.executeEdits('clipboard-image-paste', [{
+    range: selection,
+    text: snippets.join('\n'),
+    forceMoveMarkers: true,
+  }])
+  editor.focus()
+  markdown.value = editor.getValue()
 }
 
 const container = ref<HTMLElement>()
@@ -68,6 +157,7 @@ function parsePublishAt(value: FileDto['publishAt']): Date | null {
 }
 
 async function loadArticle(guid: string) {
+  clearPendingClipboardImages()
   loading.value = true
 
   try {
@@ -229,14 +319,48 @@ async function deleteArticle() {
 }
 
 async function saveVersion() {
-  if (!file.value?.uid || !isDirty.value) return
+  if (!file.value?.uid || !isDirty.value || loading.value) return
 
   loading.value = true
 
   try {
+    // Upload only images whose temporary preview URL is still referenced by the Markdown.
+    const referencedImages = Array.from(pendingClipboardImages.values())
+      .filter(image => markdown.value.includes(image.previewUrl))
+    const imagesToUpload = referencedImages.filter(image => !image.uploadedUid)
+
+    if (imagesToUpload.length > 0) {
+      const uploadedUids = await fileApi.apiFileUploadPost({
+        file: imagesToUpload.map(image => image.file),
+      })
+
+      if (uploadedUids.length !== imagesToUpload.length) {
+        throw new Error('图片上传结果数量与待上传图片数量不一致，请检查上传结果后重试。')
+      }
+
+      imagesToUpload.forEach((image, index) => {
+        image.uploadedUid = uploadedUids[index]
+      })
+    }
+
+    let resolvedMarkdown = markdown.value
+    for (const image of referencedImages) {
+      if (!image.uploadedUid) {
+        throw new Error('存在尚未完成上传的剪贴板图片，请重试保存。')
+      }
+      const permanentPreviewUrl = new URL('/api/File/preview', baseurl)
+      permanentPreviewUrl.searchParams.set('UID', image.uploadedUid)
+      resolvedMarkdown = resolvedMarkdown.replaceAll(image.previewUrl, permanentPreviewUrl.toString())
+    }
+
+    if (resolvedMarkdown !== markdown.value) {
+      markdown.value = resolvedMarkdown
+      editor?.setValue(resolvedMarkdown)
+    }
+
     const fileName = `${file.value.fileName || '未命名'}${file.value.fileType || '.md'}`
     const contentFile = new File(
-      [markdown.value],
+      [resolvedMarkdown],
       fileName,
       { type: 'text/markdown' },
     )
@@ -250,7 +374,8 @@ async function saveVersion() {
 
     const updated = await workflow.run()
     file.value = updated
-    originalMarkdown.value = markdown.value
+    originalMarkdown.value = resolvedMarkdown
+    clearPendingClipboardImages()
     ElMessage.success('已保存为新版本')
     leaveEditMode()
   } catch (error) {
@@ -277,6 +402,9 @@ onMounted(async () => {
     markdown.value = editor!.getValue()
   })
 
+  // Capture image pastes before Monaco handles the clipboard event.
+  container.value?.addEventListener('paste', onEditorPaste, true)
+
   const guid = typeof route.params.id === 'string' ? route.params.id : ''
   if (guid) {
     await loadArticle(guid)
@@ -296,6 +424,8 @@ watch(isEditing, value => {
 })
 
 onBeforeUnmount(() => {
+  container.value?.removeEventListener('paste', onEditorPaste, true)
+  clearPendingClipboardImages()
   editor?.dispose()
 })
 </script>
