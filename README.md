@@ -22,6 +22,43 @@ cp services/API/Web/Configurations/appsettings.Development.example.json services
 dotnet ef database update --project .\services\API\PostgreSqlMigrations\PostgreSqlMigrations.csproj --startup-project .\services\API\Web\Web.csproj
 ## 这里是示例,请根据实际部署路径修改
 
+## HTTPS 开发环境
+
+开发模式下，API 与两个 Vue 前端默认使用本地 HTTPS：
+
+| 服务 | HTTPS 地址 | HTTP 兼容地址 |
+|---|---|---|
+| API / Swagger | https://localhost:7110/swagger | http://localhost:5110 |
+| Web | https://localhost:5173 | Vite 的 HTTP 服务关闭 |
+| MGS | https://localhost:5200 | Vite 的 HTTP 服务关闭 |
+
+首次启动需要安装 .NET 8 SDK。启动任意开发服务时，脚本会尝试信任 ASP.NET Core 开发证书，并导出给 Vite 使用的本地 PFX 到仓库根目录 `.https/localhost.pfx`。证书目录已加入 `.gitignore`，不要提交该证书。
+
+Windows / macOS 通常可以通过以下命令信任开发证书：
+
+```shell
+dotnet dev-certs https --trust
+```
+
+Linux 上如果平台不支持自动信任，请按浏览器/发行版的方式手动信任本机 ASP.NET Core 开发证书。若浏览器提示证书不受信任，先运行上面的命令（或手动信任证书）后重启浏览器。
+
+如果在本地 `.env` 文件中手动设置了 `VITE_API`，请将其值设为 `https://localhost:7110`；未设置时，API Client 会使用该 HTTPS 地址作为默认值。
+
+运行前端：
+
+```shell
+npm run dev:web
+npm run dev:mgs
+```
+
+运行 API：
+
+```shell
+npm run dev:api
+```
+
+HTTPS 开发证书只用于本机开发，不可用于生产环境。生产部署应由反向代理/托管平台终止 TLS，或为 Kestrel 配置由可信 CA 签发的证书；生产证书和密码通过部署环境的 Secret 管理，不要放进仓库。
+
 ## 以Dev模式启动
 
 ### 启动 API服务器

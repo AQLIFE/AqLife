@@ -1,6 +1,6 @@
 export function resolveApiBasePath(
   envValue?: string,
-  fallback = 'http://localhost:5110',
+  fallback = 'https://localhost:7110',
 ): string {
   const base = envValue?.trim() || fallback
   return base.replace(/\/+$/, '')

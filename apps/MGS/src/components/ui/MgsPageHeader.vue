@@ -27,7 +27,7 @@ withDefaults(defineProps<{
 }>(), { back: false })
 
 const router = useRouter()
-const handleBack = () => router.back()
+const handleBack = () => router.push('/file')
 </script>
 
 <style scoped>

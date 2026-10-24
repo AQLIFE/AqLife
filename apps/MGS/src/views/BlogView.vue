@@ -252,6 +252,7 @@ async function saveVersion() {
     file.value = updated
     originalMarkdown.value = markdown.value
     ElMessage.success('已保存为新版本')
+    leaveEditMode()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '保存失败')
   } finally {

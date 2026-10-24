@@ -44,12 +44,17 @@ builder.Services.AddScoped<FileUploadFilter>();
 
 if(builder.Environment.IsDevelopment())
 {
-    var corsOrigins =
+    var configuredCorsOrigins =
         builder.Configuration
             .GetSection("Cors:AllowedOrigins")
             .Get<string[]>()
         ?? throw new ConfigurationNotFoundException(
             "未找到 Cors 配置");
+    Console.WriteLine(configuredCorsOrigins.Length);
+
+    // Keep HTTPS development origins available even when an existing local
+    // appsettings.Development.json has not yet been refreshed from the example.
+    
 
     builder.Services.AddCors(options =>
     {
@@ -58,7 +63,7 @@ if(builder.Environment.IsDevelopment())
             policy =>
             {
                 policy
-                    .WithOrigins(corsOrigins)
+                    .WithOrigins(configuredCorsOrigins)
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials()

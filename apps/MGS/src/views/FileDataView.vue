@@ -83,10 +83,10 @@ type FileTableColumn = {
 }
 
 const segmentedMode = [
-  { label: 'Images', value: 'image' },
   { label: 'Markdown', value: 'md' },
+  { label: 'Images', value: 'image' },
 ]
-const selectMode = ref<string>('image')
+const selectMode = ref<string>('md')
 const isLoading = ref(false)
 let modeLoadVersion = 0
 const tableColumns: FileTableColumn[] = [

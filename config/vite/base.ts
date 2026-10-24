@@ -20,6 +20,7 @@ export function createAqlifeViteConfig(appRoot: string, options?: { port?: numbe
   const appSrc = path.join(appRoot, 'src')
 
   return {
+    envDir: path.join(monorepoRoot, 'config', 'env'),
     plugins: [
       vue(),
       Icons({
