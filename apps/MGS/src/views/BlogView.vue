@@ -350,7 +350,7 @@ async function saveVersion() {
       }
       const permanentPreviewUrl = new URL(baseurl)
       permanentPreviewUrl.pathname =
-        `${permanentPreviewUrl.pathname.replace(/\\/$/, '')}/api/File/preview`
+        `${permanentPreviewUrl.pathname.endsWith('/') ? permanentPreviewUrl.pathname.slice(0, -1) : permanentPreviewUrl.pathname}/api/File/preview`
       permanentPreviewUrl.search = ''
       permanentPreviewUrl.searchParams.set('UID', image.uploadedUid)
       resolvedMarkdown = resolvedMarkdown.replaceAll(image.previewUrl, permanentPreviewUrl.toString())
