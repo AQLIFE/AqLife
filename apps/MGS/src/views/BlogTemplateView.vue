@@ -130,6 +130,7 @@
             <div class="markdown-input">
               <ElInput
                 v-model="draft.content"
+                @paste="onMarkdownPaste"
                 type="textarea"
                 resize="none"
                 :readonly="!creatingTemplate && !editing && !creatingArticle"
@@ -155,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, reactive, ref } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ElButton,
@@ -184,10 +185,124 @@ const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const markdownFileResolver = {
   async getFile(uid: string): Promise<FileDto | undefined> {
-    const result = await fileApi.apiFileGet({ uID: uid,scope:FileScope.Image })
+    const result = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Image })
     return result.items?.[0]
   },
 }
+
+type PendingClipboardImage = {
+  id: string
+  file: File
+  previewUrl: string
+  uploadedUid?: string
+}
+
+const pendingClipboardImages = new Map<string, PendingClipboardImage>()
+const imageExtensionByMime: Record<string, string> = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/jpg': '.jpg',
+  'image/svg+xml': '.svg',
+}
+
+function clearPendingClipboardImages() {
+  pendingClipboardImages.clear()
+}
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => typeof reader.result === 'string'
+      ? resolve(reader.result)
+      : reject(new Error('无法读取剪贴板图片'))
+    reader.onerror = () => reject(reader.error ?? new Error('无法读取剪贴板图片'))
+    reader.readAsDataURL(file)
+  })
+}
+
+async function onMarkdownPaste(event: ClipboardEvent) {
+  if (!(creatingTemplate.value || editing.value || creatingArticle.value) || !event.clipboardData) return
+
+  const files: File[] = []
+  for (const item of Array.from(event.clipboardData.items)) {
+    if (item.kind !== 'file' || !imageExtensionByMime[item.type.toLowerCase()]) continue
+    const file = item.getAsFile()
+    if (file) files.push(file)
+  }
+  if (files.length === 0) {
+    const svg = event.clipboardData.getData('image/svg+xml')
+    if (svg.includes('<svg')) files.push(new File([svg], 'clipboard-image.svg', { type: 'image/svg+xml' }))
+  }
+  if (files.length === 0) return
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  const target = event.target
+  if (!(target instanceof HTMLTextAreaElement)) return
+  const start = target.selectionStart
+  const end = target.selectionEnd
+  const previousContent = draft.content
+
+  try {
+    const images = (await Promise.all(files.map(async file => {
+      const mime = file.type.toLowerCase()
+      const extension = imageExtensionByMime[mime]
+      if (!extension) return undefined
+      const id = crypto.randomUUID()
+      const normalizedFile = new File([file], `clipboard-image-${id}${extension}`, { type: mime })
+      return {
+        id,
+        file: normalizedFile,
+        previewUrl: await readFileAsDataUrl(normalizedFile),
+      } satisfies PendingClipboardImage
+    }))).filter((image): image is PendingClipboardImage => image !== undefined)
+
+    if (images.length === 0) {
+      ElMessage.warning('剪贴板中的图像格式不受支持，请使用 PNG、JPEG/JPG 或 SVG。')
+      return
+    }
+
+    if (!(creatingTemplate.value || editing.value || creatingArticle.value)) return
+    const snippets = images.map(image => `![未命名图像](${image.previewUrl})`).join('\n')
+    draft.content = previousContent.slice(0, start) + snippets + previousContent.slice(end)
+    for (const image of images) pendingClipboardImages.set(image.id, image)
+    requestAnimationFrame(() => {
+      target.focus()
+      const caret = start + snippets.length
+      target.setSelectionRange(caret, caret)
+    })
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '读取剪贴板图片失败')
+  }
+}
+
+async function resolvePendingImages(content: string): Promise<string> {
+  const referenced = Array.from(pendingClipboardImages.values())
+    .filter(image => content.includes(image.previewUrl))
+  const toUpload = referenced.filter(image => !image.uploadedUid)
+
+  if (toUpload.length > 0) {
+    const uids = await fileApi.apiFileUploadPost({ file: toUpload.map(image => image.file) })
+    if (uids.length !== toUpload.length) {
+      throw new Error('图片上传结果数量与待上传图片数量不一致，请检查上传结果后重试。')
+    }
+    toUpload.forEach((image, index) => { image.uploadedUid = uids[index] })
+  }
+
+  let resolved = content
+  for (const image of referenced) {
+    if (!image.uploadedUid) throw new Error('存在尚未完成上传的剪贴板图片，请重试保存。')
+    const url = new URL(baseurl)
+    url.pathname = `${url.pathname.endsWith('/') ? url.pathname.slice(0, -1) : url.pathname}/api/File/preview`
+    url.search = ''
+    url.searchParams.set('UID', image.uploadedUid)
+    resolved = resolved.replaceAll(image.previewUrl, url.toString())
+  }
+  return resolved
+}
+
+onBeforeUnmount(clearPendingClipboardImages)
 
 const templates = ref<BlogTemplate[]>([])
 const selectedTemplate = ref<BlogTemplate>()
@@ -315,7 +430,8 @@ async function saveNewTemplate() {
 
   saving.value = true
   try {
-    const contentFile = new File([draft.content], name, { type: 'text/markdown' })
+    const resolvedContent = await resolvePendingImages(draft.content)
+    const contentFile = new File([resolvedContent], name, { type: 'text/markdown' })
     const uids = await fileApi.apiFileUploadPost({
       isTemplate: true,
       file: [contentFile],
@@ -335,6 +451,8 @@ async function saveNewTemplate() {
 
     creatingTemplate.value = false
     templateDraft.name = ''
+    draft.content = resolvedContent
+    clearPendingClipboardImages()
     await loadTemplates(uid)
     ElMessage.success('模板已创建')
   } catch (error) {
@@ -351,10 +469,12 @@ async function saveTemplate() {
   saving.value = true
   try {
     let updated = current
+    let resolvedContent = draft.content
 
     if (draft.content !== selectedTemplateContent.value) {
+      resolvedContent = await resolvePendingImages(draft.content)
       const fileName = (current.fileName || 'template') + (current.fileType || '.md')
-      const contentFile = new File([draft.content], fileName, { type: 'text/markdown' })
+      const contentFile = new File([resolvedContent], fileName, { type: 'text/markdown' })
 
       updated = await new FileContentUpdateWorkflow(
         current,
@@ -376,7 +496,9 @@ async function saveTemplate() {
     }
 
     selectedTemplate.value = updated
-    selectedTemplateContent.value = draft.content
+    draft.content = resolvedContent
+    selectedTemplateContent.value = resolvedContent
+    clearPendingClipboardImages()
     templateTags.value = [...(updated.tags ?? templateTags.value)]
     templates.value = templates.value.map(item => item.uid === updated.uid ? updated : item)
     editing.value = false
@@ -483,9 +605,10 @@ async function createArticle() {
   loading.value = true
 
   try {
+    const resolvedContent = await resolvePendingImages(content)
     const uids = await fileApi.apiFileUploadPost({
       isTemplate: false,
-      file: [new File([content], fileName, { type: 'text/markdown' })],
+      file: [new File([resolvedContent], fileName, { type: 'text/markdown' })],
     })
 
     const uid = uids[0]
@@ -507,6 +630,8 @@ async function createArticle() {
 
     article = (await fileApi.apiFileGet({ uID: uid })).items?.[0] ?? article
     creatingArticle.value = false
+    draft.content = resolvedContent
+    clearPendingClipboardImages()
     ElMessage.success('博文已创建')
     await router.push('/file/' + uid)
   } catch (error) {
