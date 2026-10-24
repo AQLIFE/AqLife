@@ -348,7 +348,10 @@ async function saveVersion() {
       if (!image.uploadedUid) {
         throw new Error('存在尚未完成上传的剪贴板图片，请重试保存。')
       }
-      const permanentPreviewUrl = new URL('/api/File/preview', baseurl)
+      const permanentPreviewUrl = new URL(baseurl)
+      permanentPreviewUrl.pathname =
+        `${permanentPreviewUrl.pathname.replace(/\\/$/, '')}/api/File/preview`
+      permanentPreviewUrl.search = ''
       permanentPreviewUrl.searchParams.set('UID', image.uploadedUid)
       resolvedMarkdown = resolvedMarkdown.replaceAll(image.previewUrl, permanentPreviewUrl.toString())
     }
