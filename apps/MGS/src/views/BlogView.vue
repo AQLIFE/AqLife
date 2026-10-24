@@ -121,7 +121,7 @@ async function onEditorPaste(event: ClipboardEvent) {
     const snippets = images.map(image => `![未命名图像](${image.previewUrl})`)
     editor.executeEdits('clipboard-image-paste', [{
       range: selection,
-      text: snippets.join('\\n'),
+      text: snippets.join('\n'),
       forceMoveMarkers: true,
     }])
     editor.focus()
