@@ -72,6 +72,7 @@ const router = useRouter()
 const articleStore = useArticleStore()
 const fileApi = new FileApi(apiConfiguration)
 const baseurl = import.meta.env.VITE_API
+
 const markdownFileResolver = {
   async getFile(uid: string): Promise<FileDto | undefined> {
     const result = await fileApi.apiFileGet({ uID: uid,scope:FileScope.Image })

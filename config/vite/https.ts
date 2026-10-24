@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { monorepoRoot } from './base'
+import { monorepoRoot } from './base.ts'
 
 const certificatePath = path.join(monorepoRoot, '.https', 'localhost.pfx')
 

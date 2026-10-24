@@ -39,7 +39,7 @@ export class FileContentUpdateWorkflow {
   private async validate(result: string) {
     const latest = await this.api.apiFileGet({
       uID: this.file.uid,
-      scope: FileScope.Template,
+      scope: this.includeTemplates? FileScope.Template:FileScope.Blog,
     })
     const latestFile = latest.items?.[0]
 
