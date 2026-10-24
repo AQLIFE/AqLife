@@ -44,13 +44,22 @@ const imageExtensionByMime: Record<string, string> = {
 }
 
 function clearPendingClipboardImages() {
-  for (const image of pendingClipboardImages.values()) {
-    URL.revokeObjectURL(image.previewUrl)
-  }
   pendingClipboardImages.clear()
 }
 
-function clipboardImageFile(file: File): PendingClipboardImage | undefined {
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === 'string') resolve(reader.result)
+      else reject(new Error('无法读取剪贴板图片'))
+    }
+    reader.onerror = () => reject(reader.error ?? new Error('无法读取剪贴板图片'))
+    reader.readAsDataURL(file)
+  })
+}
+
+async function clipboardImageFile(file: File): Promise<PendingClipboardImage | undefined> {
   const mime = file.type.toLowerCase()
   const extension = imageExtensionByMime[mime]
   if (!extension) return undefined
@@ -65,11 +74,12 @@ function clipboardImageFile(file: File): PendingClipboardImage | undefined {
   return {
     id,
     file: normalizedFile,
-    previewUrl: URL.createObjectURL(normalizedFile),
+    // Markdown-it permits data:image URLs, so the image previews before upload.
+    previewUrl: await readFileAsDataUrl(normalizedFile),
   }
 }
 
-function onEditorPaste(event: ClipboardEvent) {
+async function onEditorPaste(event: ClipboardEvent) {
   if (!isEditing.value || !editor || !event.clipboardData) return
 
   const clipboardFiles: File[] = []
@@ -92,28 +102,33 @@ function onEditorPaste(event: ClipboardEvent) {
   event.preventDefault()
   event.stopPropagation()
 
-  const images = clipboardFiles
-    .map(clipboardImageFile)
-    .filter((image): image is PendingClipboardImage => image !== undefined)
+  try {
+    const images = (await Promise.all(clipboardFiles.map(clipboardImageFile)))
+      .filter((image): image is PendingClipboardImage => image !== undefined)
 
-  if (images.length === 0) {
-    ElMessage.warning('剪贴板中的图像格式不受支持，请使用 PNG、JPEG、JPG 或 SVG。')
-    return
+    if (images.length === 0) {
+      ElMessage.warning('剪贴板中的图像格式不受支持，请使用 PNG、JPEG、JPG 或 SVG。')
+      return
+    }
+
+    if (!isEditing.value || !editor) return
+
+    const selection = editor.getSelection()
+    if (!selection) return
+
+    for (const image of images) pendingClipboardImages.set(image.id, image)
+
+    const snippets = images.map(image => `![未命名图像](${image.previewUrl})`)
+    editor.executeEdits('clipboard-image-paste', [{
+      range: selection,
+      text: snippets.join('\\n'),
+      forceMoveMarkers: true,
+    }])
+    editor.focus()
+    markdown.value = editor.getValue()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '读取剪贴板图片失败')
   }
-
-  for (const image of images) pendingClipboardImages.set(image.id, image)
-
-  const selection = editor.getSelection()
-  if (!selection) return
-
-  const snippets = images.map(image => `![未命名图像](${image.previewUrl})`)
-  editor.executeEdits('clipboard-image-paste', [{
-    range: selection,
-    text: snippets.join('\n'),
-    forceMoveMarkers: true,
-  }])
-  editor.focus()
-  markdown.value = editor.getValue()
 }
 
 const container = ref<HTMLElement>()
