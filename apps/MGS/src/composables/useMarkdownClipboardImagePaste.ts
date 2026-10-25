@@ -100,6 +100,8 @@ export function useMarkdownClipboardImagePaste(options: ClipboardImagePasteOptio
       editor.focus()
     } catch (error) {
       const message = error instanceof Error ? error.message : '图片上传失败，请重试。'
+      uploading.value = false
+      editor.updateOptions({ readOnly: !options.isEnabled() })
       await ElMessageBox.alert(message, '图片上传失败', {
         type: 'warning',
         confirmButtonText: '知道了',
