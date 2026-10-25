@@ -12,6 +12,7 @@ import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import { FileStatus } from "@/api"
 import TagSelect from '@/components/TagSelect.vue'
+import { useMarkdownClipboardImagePaste } from '@/composables/useMarkdownClipboardImagePaste'
 import { publishStatusOptions } from '@/types/TableFilterOption'
 
 
@@ -27,110 +28,6 @@ const markdownFileResolver = {
   },
 }
 
-type PendingClipboardImage = {
-  id: string
-  file: File
-  previewUrl: string
-  uploadedUid?: string
-}
-
-const pendingClipboardImages = new Map<string, PendingClipboardImage>()
-
-const imageExtensionByMime: Record<string, string> = {
-  'image/png': '.png',
-  'image/jpeg': '.jpg',
-  'image/jpg': '.jpg',
-  'image/svg+xml': '.svg',
-}
-
-function clearPendingClipboardImages() {
-  pendingClipboardImages.clear()
-}
-
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (typeof reader.result === 'string') resolve(reader.result)
-      else reject(new Error('无法读取剪贴板图片'))
-    }
-    reader.onerror = () => reject(reader.error ?? new Error('无法读取剪贴板图片'))
-    reader.readAsDataURL(file)
-  })
-}
-
-async function clipboardImageFile(file: File): Promise<PendingClipboardImage | undefined> {
-  const mime = file.type.toLowerCase()
-  const extension = imageExtensionByMime[mime]
-  if (!extension) return undefined
-
-  const id = crypto.randomUUID()
-  const normalizedFile = new File(
-    [file],
-    `clipboard-image-${id}${extension}`,
-    { type: mime },
-  )
-
-  return {
-    id,
-    file: normalizedFile,
-    // Markdown-it permits data:image URLs, so the image previews before upload.
-    previewUrl: await readFileAsDataUrl(normalizedFile),
-  }
-}
-
-async function onEditorPaste(event: ClipboardEvent) {
-  if (!isEditing.value || !editor || !event.clipboardData) return
-
-  const clipboardFiles: File[] = []
-  for (const item of Array.from(event.clipboardData.items)) {
-    if (item.kind !== 'file' || !imageExtensionByMime[item.type.toLowerCase()]) continue
-    const file = item.getAsFile()
-    if (file) clipboardFiles.push(file)
-  }
-
-  // Some applications expose copied SVG as an image/svg+xml clipboard payload.
-  if (clipboardFiles.length === 0) {
-    const svg = event.clipboardData.getData('image/svg+xml')
-    if (svg.trim().startsWith('<svg') || svg.includes('<svg')) {
-      clipboardFiles.push(new File([svg], 'clipboard-image.svg', { type: 'image/svg+xml' }))
-    }
-  }
-
-  if (clipboardFiles.length === 0) return
-
-  event.preventDefault()
-  event.stopPropagation()
-
-  try {
-    const images = (await Promise.all(clipboardFiles.map(clipboardImageFile)))
-      .filter((image): image is PendingClipboardImage => image !== undefined)
-
-    if (images.length === 0) {
-      ElMessage.warning('剪贴板中的图像格式不受支持，请使用 PNG、JPEG、JPG 或 SVG。')
-      return
-    }
-
-    if (!isEditing.value || !editor) return
-
-    const selection = editor.getSelection()
-    if (!selection) return
-
-    for (const image of images) pendingClipboardImages.set(image.id, image)
-
-    const snippets = images.map(image => `![未命名图像](${image.previewUrl})`)
-    editor.executeEdits('clipboard-image-paste', [{
-      range: selection,
-      text: snippets.join('\n'),
-      forceMoveMarkers: true,
-    }])
-    editor.focus()
-    markdown.value = editor.getValue()
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '读取剪贴板图片失败')
-  }
-}
-
 const container = ref<HTMLElement>()
 const markdown = ref('')
 const markdownRenderRef = ref<{ loading: boolean } | null>(null)
@@ -141,6 +38,11 @@ const loading = ref(false)
 let editor: monaco.editor.IStandaloneCodeEditor | undefined
 
 const isEditing = computed(() => route.path.endsWith('/edit'))
+const { uploading: imageUploading, onPaste: onEditorPaste } = useMarkdownClipboardImagePaste({
+  getEditor: () => editor,
+  isEnabled: () => isEditing.value,
+  uploadFiles: files => fileApi.apiFileUploadPost({ file: files }),
+})
 const isDirty = computed(() => markdown.value !== originalMarkdown.value)
 const pageTitle = computed(() => file.value?.fileName || '博文')
 const publishStatusModel = ref<FileStatus>()
@@ -339,42 +241,7 @@ async function saveVersion() {
   loading.value = true
 
   try {
-    // Upload only images whose temporary preview URL is still referenced by the Markdown.
-    const referencedImages = Array.from(pendingClipboardImages.values())
-      .filter(image => markdown.value.includes(image.previewUrl))
-    const imagesToUpload = referencedImages.filter(image => !image.uploadedUid)
-
-    if (imagesToUpload.length > 0) {
-      const uploadedUids = await fileApi.apiFileUploadPost({
-        file: imagesToUpload.map(image => image.file),
-      })
-
-      if (uploadedUids.length !== imagesToUpload.length) {
-        throw new Error('图片上传结果数量与待上传图片数量不一致，请检查上传结果后重试。')
-      }
-
-      imagesToUpload.forEach((image, index) => {
-        image.uploadedUid = uploadedUids[index]
-      })
-    }
-
-    let resolvedMarkdown = markdown.value
-    for (const image of referencedImages) {
-      if (!image.uploadedUid) {
-        throw new Error('存在尚未完成上传的剪贴板图片，请重试保存。')
-      }
-      const permanentPreviewUrl = new URL(baseurl)
-      permanentPreviewUrl.pathname =
-        `${permanentPreviewUrl.pathname.endsWith('/') ? permanentPreviewUrl.pathname.slice(0, -1) : permanentPreviewUrl.pathname}/api/File/preview`
-      permanentPreviewUrl.search = ''
-      permanentPreviewUrl.searchParams.set('UID', image.uploadedUid)
-      resolvedMarkdown = resolvedMarkdown.replaceAll(image.previewUrl, permanentPreviewUrl.toString())
-    }
-
-    if (resolvedMarkdown !== markdown.value) {
-      markdown.value = resolvedMarkdown
-      editor?.setValue(resolvedMarkdown)
-    }
+    const resolvedMarkdown = markdown.value
 
     const fileName = `${file.value.fileName || '未命名'}${file.value.fileType || '.md'}`
     const contentFile = new File(
@@ -502,7 +369,7 @@ onBeforeUnmount(() => {
     </MgsPageHeader>
 
     <div class="editor-grid">
-      <div ref="container" class="editor" />
+      <div ref="container" class="editor" v-loading="imageUploading" />
       <div class="render" v-loading="markdownRenderRef?.loading">
         <MarkdownRender ref="markdownRenderRef" :markdown="markdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
       </div>
