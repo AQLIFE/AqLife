@@ -175,6 +175,26 @@ export async function buildMarkdownRenderNodes(
       for (let j = 0; j < children.length; j++) {
         const child = children[j]
 
+        // Resolve Markdown image syntax (such as ![alt](UID)) through the same
+        // file resolver used for ordinary internal links. Keep the image token
+        // in the inline stream so surrounding text is rendered as usual.
+        if (child.type === 'image') {
+          const imageHref = child.attrGet('src')
+          if (!imageHref) continue
+
+          const imageResult = await resolveLink({
+            href: imageHref,
+            text: child.content,
+            token: child,
+          })
+
+          if (imageResult?.type === 'image') {
+            child.attrSet('src', imageResult.src)
+            child.attrSet('alt', imageResult.alt)
+          }
+          continue
+        }
+
         if (child.type !== 'link_open') {
           continue
         }
