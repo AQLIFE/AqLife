@@ -118,25 +118,12 @@
 
         <div class="sheet">
           <div class="sheet-toolbar">
-            <div class="sheet-cell row-number">#</div>
             <div class="sheet-cell">正文 / Markdown</div>
             <div class="sheet-cell preview-heading">实时预览</div>
           </div>
 
           <div class="sheet-body">
-            <div class="line-numbers">
-              <div v-for="(_, index) in bodyLines" :key="index">{{ index + 1 }}</div>
-            </div>
-            <div class="markdown-input">
-              <ElInput
-                v-model="draft.content"
-                @paste="onMarkdownPaste"
-                type="textarea"
-                resize="none"
-                :readonly="!creatingTemplate && !editing && !creatingArticle"
-                :placeholder="creatingTemplate || editing || creatingArticle ? '编辑 Markdown 内容...' : '模板内容加载中...'"
-              />
-            </div>
+            <div ref="markdownEditorContainer" class="markdown-editor" v-loading="imageUploading" />
             <div class="preview" v-loading="markdownRenderRef?.loading">
               <MarkdownRender ref="markdownRenderRef" :markdown="draft.content" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
             </div>
@@ -156,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ElButton,
@@ -169,6 +156,7 @@ import {
   ElTag,
 } from 'element-plus'
 import { Edit, InfoFilled, Plus } from '@element-plus/icons-vue'
+import * as monaco from 'monaco-editor'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
@@ -176,6 +164,7 @@ import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow } from '@/workflow'
 import TagSelect from '@/components/TagSelect.vue'
+import { useMarkdownClipboardImagePaste } from '@/composables/useMarkdownClipboardImagePaste'
 
 type BlogTemplate = FileDto
 
@@ -189,120 +178,6 @@ const markdownFileResolver = {
     return result.items?.[0]
   },
 }
-
-type PendingClipboardImage = {
-  id: string
-  file: File
-  previewUrl: string
-  uploadedUid?: string
-}
-
-const pendingClipboardImages = new Map<string, PendingClipboardImage>()
-const imageExtensionByMime: Record<string, string> = {
-  'image/png': '.png',
-  'image/jpeg': '.jpg',
-  'image/jpg': '.jpg',
-  'image/svg+xml': '.svg',
-}
-
-function clearPendingClipboardImages() {
-  pendingClipboardImages.clear()
-}
-
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => typeof reader.result === 'string'
-      ? resolve(reader.result)
-      : reject(new Error('无法读取剪贴板图片'))
-    reader.onerror = () => reject(reader.error ?? new Error('无法读取剪贴板图片'))
-    reader.readAsDataURL(file)
-  })
-}
-
-async function onMarkdownPaste(event: ClipboardEvent) {
-  if (!(creatingTemplate.value || editing.value || creatingArticle.value) || !event.clipboardData) return
-
-  const files: File[] = []
-  for (const item of Array.from(event.clipboardData.items)) {
-    if (item.kind !== 'file' || !imageExtensionByMime[item.type.toLowerCase()]) continue
-    const file = item.getAsFile()
-    if (file) files.push(file)
-  }
-  if (files.length === 0) {
-    const svg = event.clipboardData.getData('image/svg+xml')
-    if (svg.includes('<svg')) files.push(new File([svg], 'clipboard-image.svg', { type: 'image/svg+xml' }))
-  }
-  if (files.length === 0) return
-
-  event.preventDefault()
-  event.stopPropagation()
-
-  const target = event.target
-  if (!(target instanceof HTMLTextAreaElement)) return
-  const start = target.selectionStart
-  const end = target.selectionEnd
-  const previousContent = draft.content
-
-  try {
-    const images = (await Promise.all(files.map(async file => {
-      const mime = file.type.toLowerCase()
-      const extension = imageExtensionByMime[mime]
-      if (!extension) return undefined
-      const id = crypto.randomUUID()
-      const normalizedFile = new File([file], `clipboard-image-${id}${extension}`, { type: mime })
-      return {
-        id,
-        file: normalizedFile,
-        previewUrl: await readFileAsDataUrl(normalizedFile),
-      } satisfies PendingClipboardImage
-    }))).filter((image): image is PendingClipboardImage => image !== undefined)
-
-    if (images.length === 0) {
-      ElMessage.warning('剪贴板中的图像格式不受支持，请使用 PNG、JPEG/JPG 或 SVG。')
-      return
-    }
-
-    if (!(creatingTemplate.value || editing.value || creatingArticle.value)) return
-    const snippets = images.map(image => `![未命名图像](${image.previewUrl})`).join('\n')
-    draft.content = previousContent.slice(0, start) + snippets + previousContent.slice(end)
-    for (const image of images) pendingClipboardImages.set(image.id, image)
-    requestAnimationFrame(() => {
-      target.focus()
-      const caret = start + snippets.length
-      target.setSelectionRange(caret, caret)
-    })
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '读取剪贴板图片失败')
-  }
-}
-
-async function resolvePendingImages(content: string): Promise<string> {
-  const referenced = Array.from(pendingClipboardImages.values())
-    .filter(image => content.includes(image.previewUrl))
-  const toUpload = referenced.filter(image => !image.uploadedUid)
-
-  if (toUpload.length > 0) {
-    const uids = await fileApi.apiFileUploadPost({ file: toUpload.map(image => image.file) })
-    if (uids.length !== toUpload.length) {
-      throw new Error('图片上传结果数量与待上传图片数量不一致，请检查上传结果后重试。')
-    }
-    toUpload.forEach((image, index) => { image.uploadedUid = uids[index] })
-  }
-
-  let resolved = content
-  for (const image of referenced) {
-    if (!image.uploadedUid) throw new Error('存在尚未完成上传的剪贴板图片，请重试保存。')
-    const url = new URL(baseurl)
-    url.pathname = `${url.pathname.endsWith('/') ? url.pathname.slice(0, -1) : url.pathname}/api/File/preview`
-    url.search = ''
-    url.searchParams.set('UID', image.uploadedUid)
-    resolved = resolved.replaceAll(image.previewUrl, url.toString())
-  }
-  return resolved
-}
-
-onBeforeUnmount(clearPendingClipboardImages)
 
 const templates = ref<BlogTemplate[]>([])
 const selectedTemplate = ref<BlogTemplate>()
@@ -329,6 +204,53 @@ const articleDraft = reactive<{
 
 const draft = reactive({
   content: '',
+})
+
+const markdownEditorContainer = ref<HTMLElement>()
+let markdownEditor: monaco.editor.IStandaloneCodeEditor | undefined
+const markdownEditable = computed(() => creatingTemplate.value || editing.value || creatingArticle.value)
+const { uploading: imageUploading, onPaste: onMarkdownPaste } = useMarkdownClipboardImagePaste({
+  getEditor: () => markdownEditor,
+  isEnabled: () => markdownEditable.value,
+  uploadFiles: files => fileApi.apiFileUploadPost({ file: files }),
+})
+
+watch(() => draft.content, content => {
+  if (markdownEditor && markdownEditor.getValue() !== content) {
+    markdownEditor.setValue(content)
+  }
+})
+
+watch(markdownEditable, editable => {
+  markdownEditor?.updateOptions({ readOnly: !editable })
+})
+
+onMounted(() => {
+  if (!markdownEditorContainer.value) return
+
+  markdownEditor = monaco.editor.create(markdownEditorContainer.value, {
+    value: draft.content,
+    language: 'markdown',
+    theme: 'vs',
+    fontFamily: 'Cascadia Code PL',
+    automaticLayout: true,
+    minimap: { enabled: false },
+    wordWrap: 'on',
+    fontSize: 14,
+    readOnly: !markdownEditable.value,
+  })
+
+  markdownEditor.onDidChangeModelContent(() => {
+    const content = markdownEditor?.getValue()
+    if (content !== undefined && draft.content !== content) draft.content = content
+  })
+
+  markdownEditorContainer.value.addEventListener('paste', onMarkdownPaste, true)
+})
+
+onBeforeUnmount(() => {
+  markdownEditorContainer.value?.removeEventListener('paste', onMarkdownPaste, true)
+  markdownEditor?.dispose()
 })
 const markdownRenderRef = ref<{ loading: boolean } | null>(null)
 
@@ -430,7 +352,7 @@ async function saveNewTemplate() {
 
   saving.value = true
   try {
-    const resolvedContent = await resolvePendingImages(draft.content)
+    const resolvedContent = draft.content
     const contentFile = new File([resolvedContent], name, { type: 'text/markdown' })
     const uids = await fileApi.apiFileUploadPost({
       isTemplate: true,
@@ -452,7 +374,6 @@ async function saveNewTemplate() {
     creatingTemplate.value = false
     templateDraft.name = ''
     draft.content = resolvedContent
-    clearPendingClipboardImages()
     await loadTemplates(uid)
     ElMessage.success('模板已创建')
   } catch (error) {
@@ -472,7 +393,7 @@ async function saveTemplate() {
     let resolvedContent = draft.content
 
     if (draft.content !== selectedTemplateContent.value) {
-      resolvedContent = await resolvePendingImages(draft.content)
+      resolvedContent = draft.content
       const fileName = (current.fileName || 'template') + (current.fileType || '.md')
       const contentFile = new File([resolvedContent], fileName, { type: 'text/markdown' })
 
@@ -498,8 +419,7 @@ async function saveTemplate() {
     selectedTemplate.value = updated
     draft.content = resolvedContent
     selectedTemplateContent.value = resolvedContent
-    clearPendingClipboardImages()
-    templateTags.value = [...(updated.tags ?? templateTags.value)]
+      templateTags.value = [...(updated.tags ?? templateTags.value)]
     templates.value = templates.value.map(item => item.uid === updated.uid ? updated : item)
     editing.value = false
     ElMessage.success('模板已保存')
@@ -605,7 +525,7 @@ async function createArticle() {
   loading.value = true
 
   try {
-    const resolvedContent = await resolvePendingImages(content)
+    const resolvedContent = content
     const uids = await fileApi.apiFileUploadPost({
       isTemplate: false,
       file: [new File([resolvedContent], fileName, { type: 'text/markdown' })],
@@ -683,16 +603,9 @@ onBeforeMount(async () => {
 .article-form .form-row { grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr); }
 .meta-form :deep(.el-form-item) { margin-bottom: 12px; }
 .sheet { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); box-shadow: var(--mgs-shadow); }
-.sheet-toolbar { display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); }
+.sheet-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); }
 .sheet-cell { display: flex; align-items: center; padding: 0 10px; border-right: 1px solid var(--mgs-border); color: var(--mgs-muted); font-size: 12px; }
-.row-number { justify-content: center; padding: 0; }
-.preview-heading { border-right: 0; }
-.sheet-body { min-height: 0; flex: 1; display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr); }
-.line-numbers { overflow: hidden; padding-top: 8px; text-align: center; background: var(--mgs-surface-soft); color: var(--mgs-muted); font: 13px/22px monospace; user-select: none; }
-.markdown-input { min-width: 0; border-right: 1px solid var(--mgs-border); }
-.markdown-input :deep(.el-textarea), .markdown-input :deep(.el-textarea__inner) { height: 100%; }
-.markdown-input :deep(.el-textarea__inner) { border: 0; border-radius: 0; padding: 8px 12px; resize: none; box-shadow: none; font: 14px/22px 'Cascadia Code PL', monospace; }
-.markdown-input :deep(.el-textarea__inner[readonly]) { background: var(--mgs-surface); cursor: default; }
+.markdown-editor { min-width: 0; min-height: 0; overflow: hidden; border-right: 1px solid var(--mgs-border); }
 .preview { min-width: 0; overflow: auto; padding: 10px 18px; }
 .status-bar { height: 30px; flex: 0 0 30px; display: flex; align-items: center; gap: 18px; color: var(--mgs-muted); font-size: 12px; }
 .status-bar span:last-child { margin-left: auto; }
@@ -700,7 +613,7 @@ onBeforeMount(async () => {
 .status-editing { color: var(--mgs-accent); }
 @media (max-width: 900px) {
   .workspace { grid-template-columns: 220px minmax(0, 1fr); padding: 0 16px 16px; }
-  .sheet-toolbar, .sheet-body { grid-template-columns: 36px minmax(0, 1fr); }
+  .sheet-toolbar, .sheet-body { grid-template-columns: minmax(0, 1fr); }
   .preview, .preview-heading { display: none; }
 }
 </style>
