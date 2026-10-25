@@ -603,6 +603,7 @@ onBeforeMount(async () => {
 .meta-form :deep(.el-form-item) { margin-bottom: 12px; }
 .sheet { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); box-shadow: var(--mgs-shadow); }
 .sheet-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); }
+.sheet-body { min-height: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .sheet-cell { display: flex; align-items: center; padding: 0 10px; border-right: 1px solid var(--mgs-border); color: var(--mgs-muted); font-size: 12px; }
 .markdown-editor { min-width: 0; min-height: 0; overflow: hidden; border-right: 1px solid var(--mgs-border); }
 .preview { min-width: 0; overflow: auto; padding: 10px 18px; }
