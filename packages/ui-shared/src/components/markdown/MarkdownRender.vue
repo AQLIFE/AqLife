@@ -122,19 +122,27 @@ async function resolveInternalLink(
 ): Promise<MarkdownLinkResult | null> {
   const { href, text } = context
 
-  let url: URL
+  let uid: string | undefined
 
-  try {
-    url = new URL(href)
-  } catch {
-    return null
+  // Markdown image links may reference a file directly by UID.
+  // Keep absolute backend preview URLs compatible with existing content.
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(href.trim())) {
+    uid = href.trim()
+  } else {
+    let url: URL
+
+    try {
+      url = new URL(href)
+    } catch {
+      return null
+    }
+
+    if (!isBackendPreviewUrl(url)) {
+      return null
+    }
+
+    uid = extractFileUid(url)
   }
-
-  if (!isBackendPreviewUrl(url)) {
-    return null
-  }
-
-  const uid = extractFileUid(url)
 
   if (!uid || !props.fileResolver) {
     return null
