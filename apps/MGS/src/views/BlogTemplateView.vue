@@ -551,7 +551,6 @@ async function createArticle() {
     article = (await fileApi.apiFileGet({ uID: uid })).items?.[0] ?? article
     creatingArticle.value = false
     draft.content = resolvedContent
-    clearPendingClipboardImages()
     ElMessage.success('博文已创建')
     await router.push('/file/' + uid)
   } catch (error) {
