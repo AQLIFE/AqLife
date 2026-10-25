@@ -73,6 +73,7 @@ export function useMarkdownClipboardImagePaste(options: ClipboardImagePasteOptio
     if (!editor || !selection || !model) return
 
     uploading.value = true
+    editor.updateOptions({ readOnly: true })
     try {
       const normalizedFiles = files.map((file, index) => {
         const extension = imageExtensionByMime[file.type.toLowerCase()]
@@ -104,6 +105,7 @@ export function useMarkdownClipboardImagePaste(options: ClipboardImagePasteOptio
         confirmButtonText: '知道了',
       })
     } finally {
+      editor.updateOptions({ readOnly: !options.isEnabled() })
       uploading.value = false
     }
   }
