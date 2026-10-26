@@ -34,12 +34,26 @@
         :filter-method="column.filter ? (value, row) => `${row[column.prop]}` === value : undefined"
         :filter-multiple="column.filter?.multiple ?? false">
         <template #default="{ row }">
-          <component v-if="column.renderer" :is="column.renderer" :row="row" :value="row[column.prop]" />
+          <component
+            v-if="column.renderer"
+            :is="column.renderer"
+            :row="row"
+            :value="row[column.prop]"
+            @preview-image="openImagePreview"
+          />
           <template v-else>{{ row[column.prop] }}</template>
         </template>
       </ElTableColumn>
     </ElTable>
 
+    <div
+      v-if="previewImageUrl"
+      class="image-preview-mask"
+      role="presentation"
+      @click="closeImagePreview"
+    >
+      <img class="image-preview-content" :src="previewImageUrl" alt="图片预览">
+    </div>
   </div>
 </template>
 
@@ -87,6 +101,7 @@ const segmentedMode = [
   { label: 'Images', value: 'image' },
 ]
 const selectMode = ref<string>('md')
+const previewImageUrl = ref('')
 const isLoading = ref(false)
 let modeLoadVersion = 0
 const tableColumns: FileTableColumn[] = [
@@ -147,8 +162,18 @@ const fileStore = useFileStore()
 const router = useRouter()
 
 const activeRow = (row: FileDto) => {
-  if (!row.uid) return
+  // In image mode, clicking a row should not navigate to the Markdown editor.
+  if (selectMode.value === 'image' || !row.uid) return
   router.push(`/file/${row.uid}`)
+}
+
+function openImagePreview(uid: string) {
+  const url = fileStore.previewUrl.get(uid)
+  if (url) previewImageUrl.value = url
+}
+
+function closeImagePreview() {
+  previewImageUrl.value = ''
 }
 
 
@@ -282,5 +307,25 @@ function handleAddFile() {
 
 .toolbar-control {
   max-width: 260px;
+}
+
+.image-preview-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: rgb(0 0 0 / 78%);
+  cursor: zoom-out;
+}
+
+.image-preview-content {
+  display: block;
+  max-width: 92vw;
+  max-height: 92vh;
+  object-fit: contain;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 35%);
 }
 </style>
