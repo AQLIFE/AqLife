@@ -46,7 +46,6 @@
 import { ref, watch } from 'vue'
 import {
   buildMarkdownRenderNodes,
-  extractFileUid,
   isImageType,
   mdRenderOption,
   type MarkdownLinkContext,
@@ -105,17 +104,6 @@ function renderTokenGroup(tokens: any[]): string {
   )
 }
 
-function isBackendPreviewUrl(target: URL): boolean {
-  if (!props.baseurl) return false
-
-  try {
-    const base = new URL(props.baseurl)
-    const isPreviewEndpoint = /(?:^|\/)api\/file\/preview(?:\/[0-9a-f-]{36})?\/?$/i.test(target.pathname)
-    return target.origin === base.origin && isPreviewEndpoint
-  } catch {
-    return false
-  }
-}
 
 async function resolveInternalLink(
   context: MarkdownLinkContext,
@@ -126,23 +114,11 @@ async function resolveInternalLink(
 
   // Markdown image links may reference a file directly by UID.
   // Keep absolute backend preview URLs compatible with existing content.
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(href.trim())) {
-    uid = href.trim()
-  } else {
-    let url: URL
-
-    try {
-      url = new URL(href)
-    } catch {
-      return null
-    }
-
-    if (!isBackendPreviewUrl(url)) {
-      return null
-    }
-
-    uid = extractFileUid(url)
+  // Only resolve direct UID references. Legacy preview URLs remain ordinary links.
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(href.trim())) {
+    return null
   }
+  uid = href.trim()
 
   if (!uid || !props.fileResolver) {
     return null
