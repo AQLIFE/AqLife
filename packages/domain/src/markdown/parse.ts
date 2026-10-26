@@ -38,6 +38,25 @@ const extractToc = (markdown: string): TocItem[] => {
   return result
 }
 
+export function resolveImageUid(href: string): string | null {
+  const value = href.trim()
+
+  // 新格式：Markdown 图片地址直接是 UUID
+  const uuidPattern =
+    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+
+  if (uuidPattern.test(value)) {
+    return value
+  }
+
+  // 旧格式：绝对 URL
+  try {
+    return extractFileUid(new URL(value))
+  } catch {
+    return null
+  }
+}
+
 export function extractFileUid(url: URL): string | null {
   // Query parameter names may differ in casing across existing preview links.
   const queryUid = url.searchParams.get('UID')
@@ -49,7 +68,7 @@ export function extractFileUid(url: URL): string | null {
   }
 
   const match = url.pathname.match(
-    /\/api\/file\/preview\/([0-9a-f-]{36})\/?$/i
+    /([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\/?$/i
   )
 
   return match?.[1] ?? null

@@ -1,5 +1,10 @@
 <template>
-  <ElImage v-if="isImageType(props.row.fileType!)" class="image" :src="fileStore.previewUrl.get(props.row.uid!)">
+  <ElImage
+    v-if="isImageType(props.row.fileType!)"
+    class="image"
+    :src="fileStore.previewUrl.get(props.row.uid!)"
+    @click.stop="emit('preview-image', props.row.uid!)"
+  >
     <template #error>加载中...</template>
   </ElImage>
   <ElImage v-else class="image" style="font-size: 5vw;">
@@ -17,7 +22,8 @@ import { type FileDto } from '@/api'
 import { MgsIconName, mgsIconRegistry } from '@aqlife/icons';
 import { isImageType } from '@aqlife/domain'
 import { useFileStore } from '@/stores/useFileStore';
-const props = defineProps<{row:FileDto,}>()
+const props = defineProps<{ row: FileDto }>()
+const emit = defineEmits<{ 'preview-image': [uid: string] }>()
 
 const fileStore = useFileStore()
 </script>

@@ -46,7 +46,6 @@
 import { ref, watch } from 'vue'
 import {
   buildMarkdownRenderNodes,
-  extractFileUid,
   isImageType,
   mdRenderOption,
   type MarkdownLinkContext,
@@ -105,36 +104,19 @@ function renderTokenGroup(tokens: any[]): string {
   )
 }
 
-function isBackendPreviewUrl(target: URL): boolean {
-  if (!props.baseurl) return false
-
-  try {
-    const base = new URL(props.baseurl)
-    const isPreviewEndpoint = /(?:^|\/)api\/file\/preview(?:\/[0-9a-f-]{36})?\/?$/i.test(target.pathname)
-    return target.origin === base.origin && isPreviewEndpoint
-  } catch {
-    return false
-  }
-}
 
 async function resolveInternalLink(
   context: MarkdownLinkContext,
 ): Promise<MarkdownLinkResult | null> {
   const { href, text } = context
 
-  let url: URL
+  let uid: string | undefined
 
-  try {
-    url = new URL(href)
-  } catch {
+  // Resolve direct UID references for Markdown images; legacy preview URLs stay ordinary links.
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(href.trim())) {
     return null
   }
-
-  if (!isBackendPreviewUrl(url)) {
-    return null
-  }
-
-  const uid = extractFileUid(url)
+  uid = href.trim()
 
   if (!uid || !props.fileResolver) {
     return null

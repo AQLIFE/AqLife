@@ -1,5 +1,5 @@
 <template>
-  <ElSelect class="tag-select" v-model="tagListModel" multiple :disabled="props.selectDisabled" placeholder="选择 Tag" :fit-input-width="true"
+  <ElSelect class="tag-select" v-model="tagListModel" multiple :disabled="props.selectDisabled" placeholder="选择 Tag" :fit-input-width="true" :popper-class="props.popperClass || undefined"
     value-key="uid">
     <ElOption v-for="item in tagSelectList" :key="item.uid as PropertyKey" :label="item.name!" :value="item" />
     <template #footer>
@@ -33,7 +33,8 @@ const tagApi = new TagApi(apiConfiguration)
  * @argument tagList 提供已选择的标签列表
  */
 const props = defineProps({
-  selectDisabled: { type: Boolean, default: false, required: false }
+  selectDisabled: { type: Boolean, default: false, required: false },
+  popperClass: { type: String, default: '', required: false },
 })
 const tagListModel = defineModel<TagDto[]>('tagList')
 
@@ -51,8 +52,8 @@ async function commit() {
     const tempTagDto = await tagApi.apiTagGet({ uID: tempUid })
     tagSelectList.value.push(tempTagDto.items![0])
     cancel()
-  } catch {
-    ElMessage.error('创建永久Tag 失败')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '创建永久Tag 失败')
   }
 }
 
@@ -69,8 +70,12 @@ function cancel() {
 }
 // 提供选择列表
 onBeforeMount(async () => {
-  const result = await tagApi.apiTagGet()
-  if(result.items)tagSelectList.value = result.items
+  try {
+    const result = await tagApi.apiTagGet()
+    if (result.items) tagSelectList.value = result.items
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '标签列表加载失败')
+  }
 })
 
 </script>

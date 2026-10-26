@@ -33,7 +33,7 @@ async function submitLogin() {
     await router.push('/')
   } catch (error) {
     console.error(error)
-    ElMessage.error('登录失败，请检查账户名或密码')
+    ElMessage.error(error instanceof Error ? error.message : '登录失败，请检查账户名或密码')
   } finally {
     submitting.value = false
   }

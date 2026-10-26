@@ -35,7 +35,7 @@ public class FileNameConsistencyValidtor(FileSearch search/*,ILogger<FileNameCon
     private protected override string ErrorMessage { init; get; } = "更新文件名必须与原文件一致";
     private protected override async Task<bool> IsValidAsync(UpdateFileCommand command, CancellationToken ct)
     {
-        var fileCache = await search.SearchAsync(new FileQuery(command.UID), ct);
+        var fileCache = await search.SearchAsync(new FileQuery(UID:command.UID,Scope:FileScope.All), ct);
         //logger.LogInformation($"更新文件名必须与原文件一致{command.File.Name},{command.File.FileName},{fileCache.First().FileName}");
         return command.File.FileName == (fileCache.First().FileName+fileCache.First().Extension);
     }

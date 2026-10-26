@@ -12,17 +12,19 @@ import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import { FileStatus } from "@/api"
 import TagSelect from '@/components/TagSelect.vue'
+import { useMarkdownClipboardImagePaste } from '@/composables/useMarkdownClipboardImagePaste'
 import { publishStatusOptions } from '@/types/TableFilterOption'
 
 
 const route = useRoute()
 const router = useRouter()
+const props = defineProps<{ id?: string }>()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const baseurl = import.meta.env.VITE_API
 const markdownFileResolver = {
   async getFile(uid: string): Promise<FileDto | undefined> {
-    const result = await fileApi.apiFileGet({ uID: uid,scope:FileScope.Image})// 必须指定查询类型,否则默认只查博文,那就永远查不到
+    const result = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Image })
     return result.items?.[0]
   },
 }
@@ -35,8 +37,20 @@ const file = ref<FileDto>()
 const loading = ref(false)
 
 let editor: monaco.editor.IStandaloneCodeEditor | undefined
+let articleLoadVersion = 0
 
 const isEditing = computed(() => route.path.endsWith('/edit'))
+const { uploading: imageUploading, onPaste: onEditorPaste } = useMarkdownClipboardImagePaste({
+  getEditor: () => editor,
+  isEnabled: () => isEditing.value,
+  uploadFiles: async files => {
+    const uids = await fileApi.apiFileUploadPost({ file: files })
+    await Promise.all(uids.map(uid =>
+      fileApi.apiFileSchedulePatch({ scheduledFileCommand: { uid } }),
+    ))
+    return uids
+  },
+})
 const isDirty = computed(() => markdown.value !== originalMarkdown.value)
 const pageTitle = computed(() => file.value?.fileName || '博文')
 const publishStatusModel = ref<FileStatus>()
@@ -68,6 +82,7 @@ function parsePublishAt(value: FileDto['publishAt']): Date | null {
 }
 
 async function loadArticle(guid: string) {
+  const version = ++articleLoadVersion
   loading.value = true
 
   try {
@@ -81,6 +96,8 @@ async function loadArticle(guid: string) {
     }
 
     const content = await previewResponse.raw.text()
+    if (version !== articleLoadVersion) return
+
     const dto = metadata.items?.[0]
 
     if (!dto) {
@@ -98,17 +115,17 @@ async function loadArticle(guid: string) {
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
-    loading.value = false
+    if (version === articleLoadVersion) loading.value = false
   }
 }
 
 function enterEditMode() {
-  const guid = typeof route.params.id === 'string' ? route.params.id : ''
+  const guid = typeof props.id === 'string' ? props.id : ''
   if (guid) router.push(`/file/${guid}/edit`)
 }
 
 function leaveEditMode() {
-  const guid = typeof route.params.id === 'string' ? route.params.id : ''
+  const guid = typeof props.id === 'string' ? props.id : ''
   if (guid) router.push(`/file/${guid}`)
 }
 
@@ -229,14 +246,16 @@ async function deleteArticle() {
 }
 
 async function saveVersion() {
-  if (!file.value?.uid || !isDirty.value) return
+  if (!file.value?.uid || !isDirty.value || loading.value) return
 
   loading.value = true
 
   try {
+    const resolvedMarkdown = markdown.value
+
     const fileName = `${file.value.fileName || '未命名'}${file.value.fileType || '.md'}`
     const contentFile = new File(
-      [markdown.value],
+      [resolvedMarkdown],
       fileName,
       { type: 'text/markdown' },
     )
@@ -250,8 +269,8 @@ async function saveVersion() {
 
     const updated = await workflow.run()
     file.value = updated
-    originalMarkdown.value = markdown.value
-    ElMessage.success('已保存为新版本')
+    originalMarkdown.value = resolvedMarkdown
+      ElMessage.success('已保存为新版本')
     leaveEditMode()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '保存失败')
@@ -277,16 +296,18 @@ onMounted(async () => {
     markdown.value = editor!.getValue()
   })
 
-  const guid = typeof route.params.id === 'string' ? route.params.id : ''
+  // Capture image pastes before Monaco handles the clipboard event.
+  container.value?.addEventListener('paste', onEditorPaste, true)
+
+  const guid = typeof props.id === 'string' ? props.id : ''
   if (guid) {
     await loadArticle(guid)
   }
 })
 
 watch(
-  () => route.params.id,
-  async value => {
-    const guid = typeof value === 'string' ? value : ''
+  () => props.id,
+  async guid => {
     if (guid) await loadArticle(guid)
   },
 )
@@ -296,6 +317,7 @@ watch(isEditing, value => {
 })
 
 onBeforeUnmount(() => {
+  container.value?.removeEventListener('paste', onEditorPaste, true)
   editor?.dispose()
 })
 </script>
@@ -354,7 +376,7 @@ onBeforeUnmount(() => {
     </MgsPageHeader>
 
     <div class="editor-grid">
-      <div ref="container" class="editor" />
+      <div ref="container" class="editor" v-loading="imageUploading" />
       <div class="render" v-loading="markdownRenderRef?.loading">
         <MarkdownRender ref="markdownRenderRef" :markdown="markdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
       </div>
