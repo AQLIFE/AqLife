@@ -114,6 +114,7 @@ async function resolveInternalLink(
 
   // Resolve direct UID references for Markdown images; legacy preview URLs stay ordinary links.
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(href.trim())) {
+    console.log("href=>",href)
     return null
   }
   uid = href.trim()

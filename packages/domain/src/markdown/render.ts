@@ -1,6 +1,7 @@
 import MarkdownIt from 'markdown-it'
 import anchor from 'markdown-it-anchor'
 import { type Token } from 'markdown-it/index.js'
+import { extractFileUid, resolveImageUid } from './parse'
 
 export interface MarkdownLinkContext {
   href: string
@@ -43,18 +44,6 @@ const renderTokens = (token: Token) =>
     {},
   )
 
-function getLinkText(tokens: Token[]): string {
-  return tokens
-    .filter(token => token.type === 'text')
-    .map(token => token.content)
-    .join('')
-}
-
-function getLinkChildren(
-  token: Token,
-): Token[] {
-  return token.children ?? []
-}
 
 export async function buildMarkdownRenderNodes(
   tokens: Token[],
@@ -155,98 +144,97 @@ export async function buildMarkdownRenderNodes(
 
 
     /*
-     * inline token
+     * Link
      *
      * 例如：
      *
-     * [demo](http://test.net/api/file/preview?UID=xxx)
+     * ![demo](http://test.net/api/file/preview?UID=xxx)
      *
-     * markdown-it 会把真正的 link_open / link_close
-     * 放到 token.children 中。
      */
+    /*
+ * Link / image
+ */
     if (
       token.type === 'inline' &&
       token.children &&
       resolveLink
     ) {
-      const children = getLinkChildren(token)//其中link_open 存有路由地址,之后的inline存在名称
+      const children = token.children
+      const segment: Token[] = []
+      let hasResolvedImage = false
 
-      let hasInternalLink = false
-      for (let j = 0; j < children.length; j++) {
-        const child = children[j]
+      // 渲染当前连续的普通 Markdown 子 token
+      const flushSegment = async () => {
+        if (segment.length === 0) return
 
-        // Resolve Markdown image syntax (such as ![alt](UID)) through the same
-        // file resolver used for ordinary internal links. Keep the image token
-        // in the inline stream so surrounding text is rendered as usual.
-        if (child.type === 'image') {
-          const imageHref = child.attrGet('src')
-          if (!imageHref) continue
+        const inlineToken = {
+          ...token,
+          children: [...segment],
+        }
 
-          const imageResult = await resolveLink({
-            href: imageHref,
-            text: child.content,
-            token: child,
-          })
+        htmlBuffer += renderTokens(inlineToken)
+        segment.length = 0
+      }
 
-          if (imageResult?.type === 'image') {
-            child.attrSet('src', imageResult.src)
-            child.attrSet('alt', imageResult.alt)
-          }
+      for (const child of children) {
+        if (child.type !== 'image') {
+          segment.push(child)
           continue
         }
 
-        if (child.type !== 'link_open') {
+        const imageHref = child.attrGet('src')
+        if (!imageHref) {
+          segment.push(child)
           continue
         }
 
-        const href = child.attrGet('href')
-        
-        if (!href) {
+        let uuid: string | null
+
+        try {
+          uuid = resolveImageUid(imageHref)
+        } catch {
+          // 非法或无法解析的 URL，保留默认 Markdown 渲染
+          segment.push(child)
           continue
         }
 
-        let linkCloseIndex = j + 1
-
-        while (
-          linkCloseIndex < children.length &&
-          children[linkCloseIndex].type !== 'link_close'
-        ) {
-          linkCloseIndex++
+        if (!uuid) {
+          segment.push(child)
+          continue
         }
 
-        const linkChildren = children.slice(
-          j + 1,
-          linkCloseIndex,
-        )
-
-        const text = getLinkText(linkChildren)
-
-        const result = await resolveLink({
-          href,
-          text,
+        const imageResult = await resolveLink({
+          href: uuid,
+          text: child.content,
           token: child,
         })
 
-        if (!result) {
+        if (imageResult?.type !== 'image') {
+          // 未被自定义解析器接管，保留默认 Markdown 渲染
+          segment.push(child)
           continue
         }
 
-        hasInternalLink = true
-
+        // 先输出图片前面的普通内容，确保顺序正确
+        await flushSegment()
         await flushHtml()
 
         nodes.push({
           type: 'resolved-link',
-          result,
-          text,
+          result: imageResult,
+          text: child.content,
         })
-        break
+
+        hasResolvedImage = true
       }
 
-      if (hasInternalLink) {
+      if (hasResolvedImage) {
+        // 输出最后一张图片之后的普通内容
+        await flushSegment()
         continue
       }
     }
+
 
     /*
      * 普通 token
