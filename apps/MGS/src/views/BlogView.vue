@@ -18,6 +18,7 @@ import { publishStatusOptions } from '@/types/TableFilterOption'
 
 const route = useRoute()
 const router = useRouter()
+const props = defineProps<{ id?: string }>()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const baseurl = import.meta.env.VITE_API
@@ -116,12 +117,12 @@ async function loadArticle(guid: string) {
 }
 
 function enterEditMode() {
-  const guid = typeof route.params.id === 'string' ? route.params.id : ''
+  const guid = typeof props.id === 'string' ? props.id : ''
   if (guid) router.push(`/file/${guid}/edit`)
 }
 
 function leaveEditMode() {
-  const guid = typeof route.params.id === 'string' ? route.params.id : ''
+  const guid = typeof props.id === 'string' ? props.id : ''
   if (guid) router.push(`/file/${guid}`)
 }
 
@@ -296,16 +297,15 @@ onMounted(async () => {
   // Capture image pastes before Monaco handles the clipboard event.
   container.value?.addEventListener('paste', onEditorPaste, true)
 
-  const guid = typeof route.params.id === 'string' ? route.params.id : ''
+  const guid = typeof props.id === 'string' ? props.id : ''
   if (guid) {
     await loadArticle(guid)
   }
 })
 
 watch(
-  () => route.params.id,
-  async value => {
-    const guid = typeof value === 'string' ? value : ''
+  () => props.id,
+  async guid => {
     if (guid) await loadArticle(guid)
   },
 )
