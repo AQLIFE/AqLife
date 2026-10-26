@@ -83,7 +83,6 @@ function parsePublishAt(value: FileDto['publishAt']): Date | null {
 
 async function loadArticle(guid: string) {
   const version = ++articleLoadVersion
-  clearPendingClipboardImages()
   loading.value = true
 
   try {
@@ -271,8 +270,7 @@ async function saveVersion() {
     const updated = await workflow.run()
     file.value = updated
     originalMarkdown.value = resolvedMarkdown
-    clearPendingClipboardImages()
-    ElMessage.success('已保存为新版本')
+      ElMessage.success('已保存为新版本')
     leaveEditMode()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '保存失败')
@@ -320,7 +318,6 @@ watch(isEditing, value => {
 
 onBeforeUnmount(() => {
   container.value?.removeEventListener('paste', onEditorPaste, true)
-  clearPendingClipboardImages()
   editor?.dispose()
 })
 </script>
