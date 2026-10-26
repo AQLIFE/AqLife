@@ -340,6 +340,9 @@ async function deleteImage() {
   const current = activeImageFile.value
   if (!current?.uid || imageDeleting.value) return
 
+  // 先关闭预览遮罩，再显示确认框，避免确认框被预览层遮挡。
+  closeImagePreview()
+
   try {
     await ElMessageBox.confirm(
       `确定删除图片「${current.fileName || '未命名图片'}」吗？删除后将无法恢复。`,
@@ -348,16 +351,12 @@ async function deleteImage() {
         confirmButtonText: '删除',
         cancelButtonText: '取消',
         type: 'warning',
-        customClass: 'image-delete-confirm',
-        appendTo: 'body',
-        zIndex: 4000,
       },
     )
 
     imageDeleting.value = true
     await new FileDeleteWorkflow(current, fileApi, fileStore).run()
     ElMessage.success('图片已删除')
-    closeImagePreview()
   } catch (error) {
     if (error === 'cancel' || error === 'close') return
     ElMessage.error(error instanceof Error ? error.message : '删除图片失败')
