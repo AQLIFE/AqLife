@@ -112,9 +112,7 @@ async function resolveInternalLink(
 
   let uid: string | undefined
 
-  // Markdown image links may reference a file directly by UID.
-  // Keep absolute backend preview URLs compatible with existing content.
-  // Only resolve direct UID references. Legacy preview URLs remain ordinary links.
+  // Resolve direct UID references for Markdown images; legacy preview URLs stay ordinary links.
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(href.trim())) {
     return null
   }
