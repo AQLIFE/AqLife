@@ -51,8 +51,8 @@ async function commit() {
     const tempTagDto = await tagApi.apiTagGet({ uID: tempUid })
     tagSelectList.value.push(tempTagDto.items![0])
     cancel()
-  } catch {
-    ElMessage.error('创建永久Tag 失败')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '创建永久Tag 失败')
   }
 }
 
@@ -69,8 +69,12 @@ function cancel() {
 }
 // 提供选择列表
 onBeforeMount(async () => {
-  const result = await tagApi.apiTagGet()
-  if(result.items)tagSelectList.value = result.items
+  try {
+    const result = await tagApi.apiTagGet()
+    if (result.items) tagSelectList.value = result.items
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '标签列表加载失败')
+  }
 })
 
 </script>
