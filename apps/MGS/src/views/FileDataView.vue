@@ -348,6 +348,8 @@ async function deleteImage() {
         confirmButtonText: '删除',
         cancelButtonText: '取消',
         type: 'warning',
+        customClass: 'image-delete-confirm',
+        appendTo: 'body',
       },
     )
 
