@@ -1,7 +1,18 @@
 <template>
   <div class="imageContainer">
     <div id="ImageBlock">
-      <ElImage class="image" :src="src" :alt="alt" :preview-src-list="[src]" preview-teleported fit="contain" />
+      <ElImage
+        class="image"
+        :src="src"
+        :alt="alt"
+        :preview-src-list="[src]"
+        :initial-index="0"
+        :zoom-rate="1.2"
+        :max-scale="5"
+        :min-scale="0.2"
+        preview-teleported
+        fit="contain"
+      />
       <ElCol v-if="title || alt" class="title">{{ title || alt }}</ElCol>
     </div>
   </div>
@@ -31,8 +42,9 @@ defineProps<{
 }
 
 .image {
-  width:inherit;
+  width: inherit;
   max-height: 100%;
+  cursor: zoom-in;
 }
 
 .title {
