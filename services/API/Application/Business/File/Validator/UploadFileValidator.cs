@@ -28,7 +28,7 @@ namespace AqLife.Application.Business.File.Validator
     /// <param name="options"></param>
     public class FileSizeValidator<T>(IOptions<FilePolicyOption> options, ILogger<FileSizeValidator<T>> logger) : AbstractValidator<T> where T : IHasFormFiles
     {
-        private protected override string ErrorMessage { init; get; } = $"文件大小超出限制 [1 -: {options.Value.MaxFileSize} KB]";
+        private protected override string ErrorMessage { init; get; } = $"文件大小超出限制 [1 ~ {options.Value.MaxFileSize} KB]";
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
         {
             long limit = (long)options.Value.MaxFileSize << options.Value.StorageUnit;
