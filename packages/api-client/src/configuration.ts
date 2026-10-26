@@ -1,5 +1,6 @@
 import { Configuration, type ConfigurationParameters, type Middleware } from '@aqlife/api-contract'
 import { tokenStore } from './token'
+import { ApiClientError } from './errors'
 
 export interface ApiClientOptions {
   basePath?: string
@@ -43,6 +44,31 @@ export function createAuthMiddleware(options: ApiClientOptions): Middleware {
       if (response.status === 403) {
         options.onForbidden?.(response)
       }
+
+      // The API returns application errors as { error: string }.
+      // Parse a clone so the generated API client can still consume the original response.
+      if (!response.ok) {
+        try {
+          const body: unknown = await response.clone().json()
+          if (
+            typeof body === 'object' &&
+            body !== null &&
+            'error' in body &&
+            typeof (body as { error?: unknown }).error === 'string' &&
+            (body as { error: string }).error.trim()
+          ) {
+            throw new ApiClientError(
+              (body as { error: string }).error,
+              response.status,
+              body,
+            )
+          }
+        } catch (error) {
+          if (error instanceof ApiClientError) throw error
+          // Non-JSON or unrelated error responses keep the generated client's fallback.
+        }
+      }
+
       return response
     },
   }
