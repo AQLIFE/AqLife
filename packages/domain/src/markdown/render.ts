@@ -167,12 +167,11 @@ export async function buildMarkdownRenderNodes(
       const flushSegment = async () => {
         if (segment.length === 0) return
 
-        const inlineToken = {
-          ...token,
-          children: [...segment],
-        }
-
-        htmlBuffer += renderTokens(inlineToken)
+        htmlBuffer += mdRenderOption.renderer.renderInline(
+          [...segment],
+          mdRenderOption.options,
+          {},
+        )
         segment.length = 0
       }
 
