@@ -350,6 +350,7 @@ async function deleteImage() {
         type: 'warning',
         customClass: 'image-delete-confirm',
         appendTo: 'body',
+        zIndex: 4000,
       },
     )
 
