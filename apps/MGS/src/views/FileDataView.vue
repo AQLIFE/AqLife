@@ -34,12 +34,17 @@
         :filter-method="column.filter ? (value, row) => `${row[column.prop]}` === value : undefined"
         :filter-multiple="column.filter?.multiple ?? false">
         <template #default="{ row }">
-          <component
-            v-if="column.renderer"
-            :is="column.renderer"
+          <FilePreviewCell
+            v-if="column.renderer === FilePreviewCell"
             :row="row"
             :value="row[column.prop]"
             @preview-image="openImagePreview"
+          />
+          <component
+            v-else-if="column.renderer"
+            :is="column.renderer"
+            :row="row"
+            :value="row[column.prop]"
           />
           <template v-else>{{ row[column.prop] }}</template>
         </template>
