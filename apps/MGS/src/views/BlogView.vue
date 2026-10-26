@@ -41,7 +41,13 @@ const isEditing = computed(() => route.path.endsWith('/edit'))
 const { uploading: imageUploading, onPaste: onEditorPaste } = useMarkdownClipboardImagePaste({
   getEditor: () => editor,
   isEnabled: () => isEditing.value,
-  uploadFiles: files => fileApi.apiFileUploadPost({ file: files }),
+  uploadFiles: async files => {
+    const uids = await fileApi.apiFileUploadPost({ file: files })
+    await Promise.all(uids.map(uid =>
+      fileApi.apiFileSchedulePatch({ scheduledFileCommand: { uid } }),
+    ))
+    return uids
+  },
 })
 const isDirty = computed(() => markdown.value !== originalMarkdown.value)
 const pageTitle = computed(() => file.value?.fileName || '博文')
