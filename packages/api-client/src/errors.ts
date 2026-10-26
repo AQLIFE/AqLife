@@ -53,6 +53,7 @@ export async function toApiClientError(error: unknown): Promise<ApiClientError> 
 function extractMessage(body: unknown): string | undefined {
   if (!body || typeof body !== 'object') return undefined
   const record = body as Record<string, unknown>
+  if (typeof record.error === 'string' && record.error.trim()) return record.error
   if (typeof record.message === 'string' && record.message) return record.message
   if (typeof record.title === 'string' && record.title) return record.title
   if (typeof record.detail === 'string' && record.detail) return record.detail
