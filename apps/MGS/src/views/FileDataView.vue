@@ -67,6 +67,7 @@
         <TagSelect
           v-model:tag-list="imageSelectedTags"
           :select-disabled="imageSaving || imageDeleting"
+          popper-class="image-tag-select-popper"
           @update:tag-list="onImageTagsChanged"
         />
         <label class="management-label">发布状态</label>
@@ -516,6 +517,10 @@ function handleAddFile() {
   max-height: 88vh;
   object-fit: contain;
   box-shadow: 0 8px 32px rgb(0 0 0 / 35%);
+}
+
+:global(.image-tag-select-popper) {
+  z-index: 4001 !important;
 }
 
 .image-management-panel {
