@@ -37,6 +37,7 @@ const file = ref<FileDto>()
 const loading = ref(false)
 
 let editor: monaco.editor.IStandaloneCodeEditor | undefined
+let articleLoadVersion = 0
 
 const isEditing = computed(() => route.path.endsWith('/edit'))
 const { uploading: imageUploading, onPaste: onEditorPaste } = useMarkdownClipboardImagePaste({
@@ -81,6 +82,7 @@ function parsePublishAt(value: FileDto['publishAt']): Date | null {
 }
 
 async function loadArticle(guid: string) {
+  const version = ++articleLoadVersion
   clearPendingClipboardImages()
   loading.value = true
 
@@ -95,6 +97,8 @@ async function loadArticle(guid: string) {
     }
 
     const content = await previewResponse.raw.text()
+    if (version !== articleLoadVersion) return
+
     const dto = metadata.items?.[0]
 
     if (!dto) {
@@ -112,7 +116,7 @@ async function loadArticle(guid: string) {
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
-    loading.value = false
+    if (version === articleLoadVersion) loading.value = false
   }
 }
 
