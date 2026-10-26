@@ -34,7 +34,7 @@ namespace AqLife.Application.Business.File.Validator
             long limit = (long)options.Value.MaxFileSize << options.Value.StorageUnit;
             // 等于 2^ StorageUnit * MaxFileSize
             // dev 配置设置到100 KB=> 100 * 2^10 字节
-            logger.LogInformation("Checking file size against limit: {Limit} bytes,now :{CurrentSize}", limit, command.GetFiles().Sum(f => f.Length));
+            logger.LogDebug("Checking file size against limit: {Limit} bytes,now :{CurrentSize}", limit, command.GetFiles().Sum(f => f.Length));
 
             return command.GetFiles().All(e => 0 < e.Length && e.Length <= limit);
         }
@@ -62,7 +62,7 @@ namespace AqLife.Application.Business.File.Validator
         private protected override string ErrorMessage { init; get; } = "非 md 文件,禁止标记为模板文件";
         private protected override async Task<bool> IsValidAsync(CreateFileCommand command, CancellationToken ct)
         {
-            logger.LogInformation("Checking file template validation for command: {Command}", command);
+            logger.LogDebug("Checking file template validation for command: {Command}", command);
             return command.GetFiles().All(e =>
                 options.Value.AllowedBlogExtensions.Contains(Path.GetExtension(e.FileName).ToLowerInvariant()) || !command.IsTemplate
             );
