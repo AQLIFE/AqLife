@@ -212,7 +212,13 @@ const markdownEditable = computed(() => creatingTemplate.value || editing.value 
 const { uploading: imageUploading, onPaste: onMarkdownPaste } = useMarkdownClipboardImagePaste({
   getEditor: () => markdownEditor,
   isEnabled: () => markdownEditable.value,
-  uploadFiles: files => fileApi.apiFileUploadPost({ file: files }),
+  uploadFiles: async files => {
+    const uids = await fileApi.apiFileUploadPost({ file: files })
+    await Promise.all(uids.map(uid =>
+      fileApi.apiFileSchedulePatch({ scheduledFileCommand: { uid } }),
+    ))
+    return uids
+  },
 })
 
 watch(() => draft.content, content => {
