@@ -91,7 +91,7 @@ export function useMarkdownClipboardImagePaste(options: ClipboardImagePasteOptio
         throw new Error('编辑器内容已切换，图片已上传但未插入正文。请重新粘贴或手动插入图片 UID。')
       }
 
-      const snippets = uids.map(uid => `![未命名图像](${uid})`).join('\\n')
+      const snippets = uids.map(uid => `![未命名图像](${uid})`).join('\n')
 
       // Monaco can reject model edits while the editor is read-only.
       // Keep the loading mask active, briefly enable edits for this controlled
