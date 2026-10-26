@@ -58,6 +58,40 @@
       @click="closeImagePreview"
     >
       <img class="image-preview-content" :src="previewImageUrl" alt="图片预览">
+      <section v-if="activeImageFile" class="image-management-panel" @click.stop>
+        <div class="image-management-heading">
+          <strong>{{ activeImageFile.fileName || '图片管理' }}</strong>
+          <ElButton text @click="closeImagePreview">关闭预览</ElButton>
+        </div>
+        <label class="management-label">标签</label>
+        <TagSelect
+          v-model:tag-list="imageSelectedTags"
+          :select-disabled="imageSaving || imageDeleting"
+          @update:tag-list="onImageTagsChanged"
+        />
+        <label class="management-label">发布状态</label>
+        <ElSegmented
+          :model-value="imagePublishStatus"
+          :options="imagePublishOptions"
+          :disabled="imageSaving || imageDeleting"
+          @change="onImagePublishStatusChanged"
+        />
+        <ElDatePicker
+          v-model="imageScheduledAt"
+          type="datetime"
+          class="image-schedule-picker"
+          placeholder="预定发布时间"
+          :disabled="imageSaving || imageDeleting || activeImageFile.publishStatus === FileStatus.Published"
+          @change="onImageScheduledAtChanged"
+        />
+        <ElButton
+          type="danger"
+          :icon="Delete"
+          :loading="imageDeleting"
+          :disabled="imageSaving"
+          @click="deleteImage"
+        >删除图片</ElButton>
+      </section>
     </div>
   </div>
 </template>
@@ -67,6 +101,7 @@ import {
   ElTable,
   ElDatePicker,
   ElMessage,
+  ElMessageBox,
   ElTableColumn,
   ElInput,
   ElSelect,
@@ -74,11 +109,11 @@ import {
   ElButton,
   ElSegmented
 } from 'element-plus'
-import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
+import { FileApi, FileScope, FileStatus, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { onBeforeMount, ref, computed, watch, type Component } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
-import { Plus, Upload } from '@element-plus/icons-vue'
+import { Delete, Plus, Upload } from '@element-plus/icons-vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 import { useRouter } from 'vue-router'
@@ -86,6 +121,8 @@ import FilePreviewCell from '@/components/FilePreviewCell.vue'
 import TagsCell from '@/components/TagsCell.vue'
 import FileSizeCell from './FileSizeCell.vue'
 import PublishStatusCell from './PublishStatusCell.vue'
+import TagSelect from '@/components/TagSelect.vue'
+import { FileDeleteWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
 import { publishStatusOptions, type TableFilterOption } from '@/types/TableFilterOption.ts'
 
 // 组件核心
@@ -107,6 +144,12 @@ const segmentedMode = [
 ]
 const selectMode = ref<string>('md')
 const previewImageUrl = ref('')
+const activeImageFile = ref<FileDto | null>(null)
+const imageSelectedTags = ref<TagDto[]>([])
+const imagePublishStatus = ref<FileStatus>(FileStatus.Draft)
+const imageScheduledAt = ref<Date | null>(null)
+const imageSaving = ref(false)
+const imageDeleting = ref(false)
 const isLoading = ref(false)
 let modeLoadVersion = 0
 const tableColumns: FileTableColumn[] = [
@@ -166,19 +209,158 @@ const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const router = useRouter()
 
+const imagePublishOptions = computed(() =>
+  publishStatusOptions.map(item => ({
+    ...item,
+    disabled:
+      item.value === FileStatus.Scheduled &&
+      activeImageFile.value?.publishStatus === FileStatus.Published,
+  })),
+)
+
 const activeRow = (row: FileDto) => {
   // In image mode, clicking a row should not navigate to the Markdown editor.
   if (selectMode.value === 'image' || !row.uid) return
   router.push(`/file/${row.uid}`)
 }
 
+function parseImagePublishAt(value: FileDto['publishAt']): Date | null {
+  if (!value) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 function openImagePreview(uid: string) {
   const url = fileStore.previewUrl.get(uid)
-  if (url) previewImageUrl.value = url
+  const file = fileStore.fileList.find(item => item.uid === uid)
+  if (!url || !file) return
+
+  activeImageFile.value = file
+  previewImageUrl.value = url
+  imageSelectedTags.value = file.tags ?? []
+  imagePublishStatus.value = file.publishStatus ?? FileStatus.Draft
+  imageScheduledAt.value = parseImagePublishAt(file.publishAt)
 }
 
 function closeImagePreview() {
   previewImageUrl.value = ''
+  activeImageFile.value = null
+}
+
+async function onImageTagsChanged(value: FileDto['tags']) {
+  const current = activeImageFile.value
+  if (!current?.uid || !value) return
+
+  try {
+    imageSaving.value = true
+    const updated = await new FileTagUpdateWorkflow(current, value, fileApi, fileStore).run()
+    activeImageFile.value = updated
+    imageSelectedTags.value = updated.tags ?? []
+    ElMessage.success('图片标签已更新')
+  } catch (error) {
+    imageSelectedTags.value = current.tags ?? []
+    ElMessage.error(error instanceof Error ? error.message : '图片标签更新失败')
+  } finally {
+    imageSaving.value = false
+  }
+}
+
+async function onImagePublishStatusChanged(value: FileStatus) {
+  const current = activeImageFile.value
+  if (!current?.uid || current.publishStatus === value) return
+
+  try {
+    imageSaving.value = true
+    let updated: FileDto
+
+    switch (value) {
+      case FileStatus.Draft:
+        updated = await new FileDraftWorkflow(current, fileApi, fileStore).run()
+        break
+      case FileStatus.Published:
+        updated = await new FilePublishWorkflow(current, fileApi, fileStore).run()
+        break
+      case FileStatus.Scheduled:
+        if (current.publishStatus === FileStatus.Published) {
+          throw new Error('禁止从已发布状态修改为预定发布状态')
+        }
+        if (!current.publishAt) {
+          ElMessage.warning('请先设置预定发布时间')
+          return
+        }
+        updated = await new FileScheduledWorkflow(current, fileApi, fileStore).run()
+        break
+      default:
+        return
+    }
+
+    activeImageFile.value = updated
+    imagePublishStatus.value = updated.publishStatus ?? FileStatus.Draft
+    imageScheduledAt.value = parseImagePublishAt(updated.publishAt)
+    ElMessage.success('图片发布状态已更新')
+  } catch (error) {
+    imagePublishStatus.value = current.publishStatus ?? FileStatus.Draft
+    ElMessage.error(error instanceof Error ? error.message : '图片发布状态更新失败')
+  } finally {
+    imageSaving.value = false
+  }
+}
+
+async function onImageScheduledAtChanged(value: Date | null) {
+  const current = activeImageFile.value
+  if (!current?.uid || !value) return
+
+  const previousPublishAt = current.publishAt
+  current.publishAt = value.toISOString()
+  imageScheduledAt.value = value
+
+  if (current.publishStatus === FileStatus.Draft) {
+    fileStore.upsertFile(current)
+    ElMessage.success('预定发布时间已设置')
+    return
+  }
+
+  try {
+    imageSaving.value = true
+    const updated = await new FileScheduledWorkflow(current, fileApi, fileStore).run()
+    activeImageFile.value = updated
+    imagePublishStatus.value = updated.publishStatus ?? FileStatus.Draft
+    imageScheduledAt.value = parseImagePublishAt(updated.publishAt)
+    ElMessage.success('预定发布时间已更新')
+  } catch (error) {
+    current.publishAt = previousPublishAt
+    imageScheduledAt.value = parseImagePublishAt(previousPublishAt)
+    ElMessage.error(error instanceof Error ? error.message : '设置预定发布时间失败')
+  } finally {
+    imageSaving.value = false
+  }
+}
+
+async function deleteImage() {
+  const current = activeImageFile.value
+  if (!current?.uid || imageDeleting.value) return
+
+  try {
+    await ElMessageBox.confirm(
+      `确定删除图片「${current.fileName || '未命名图片'}」吗？删除后将无法恢复。`,
+      '删除图片',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      },
+    )
+
+    imageDeleting.value = true
+    await new FileDeleteWorkflow(current, fileApi, fileStore).run()
+    ElMessage.success('图片已删除')
+    closeImagePreview()
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+    ElMessage.error(error instanceof Error ? error.message : '删除图片失败')
+  } finally {
+    imageDeleting.value = false
+  }
 }
 
 
@@ -328,9 +510,73 @@ function handleAddFile() {
 
 .image-preview-content {
   display: block;
-  max-width: 92vw;
-  max-height: 92vh;
+  max-width: min(70vw, 1100px);
+  max-height: 88vh;
   object-fit: contain;
   box-shadow: 0 8px 32px rgb(0 0 0 / 35%);
+}
+
+.image-management-panel {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(340px, calc(100vw - 48px));
+  padding: 20px;
+  overflow-y: auto;
+  color: var(--el-text-color-primary);
+  background: var(--el-bg-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 30%);
+  cursor: default;
+}
+
+.image-management-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.image-management-heading strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.management-label {
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+}
+
+.image-schedule-picker {
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .image-preview-mask {
+    align-items: flex-start;
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  .image-preview-content {
+    max-width: 100%;
+    max-height: 45vh;
+    margin-top: 8px;
+  }
+
+  .image-management-panel {
+    position: fixed;
+    top: auto;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    width: auto;
+    max-height: 48vh;
+  }
 }
 </style>
