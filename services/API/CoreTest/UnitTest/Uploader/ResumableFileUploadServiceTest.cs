@@ -3,7 +3,7 @@ using AqLife.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace AqLife.CoreTest.UnitTest.File;
+namespace AqLife.CoreTest.UnitTest.Uploader;
 
 public sealed class ResumableFileUploadServiceTest : IDisposable
 {
@@ -76,7 +76,7 @@ public sealed class ResumableFileUploadServiceTest : IDisposable
         {
             Assert.Equal(bytes.Length, assembled.FileSize);
             Assert.Equal("movie.mp4", assembled.FileName);
-            Assert.Equal(bytes, await File.ReadAllBytesAsync(assembled.TempFilePath));
+            Assert.Equal(bytes, await File.ReadAllBytesAsync(assembled.TempFilePath, TestContext.Current.CancellationToken));
         }
         finally
         {

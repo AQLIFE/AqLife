@@ -1,7 +1,7 @@
 ﻿using AqLife.Domain.Entities;
 using AqLife.Shared.Utils;
 
-namespace AqLife.CoreTest.Domain
+namespace AqLife.CoreTest.UnitTest.Domain
 {
     public class AccountEntityTests
     {

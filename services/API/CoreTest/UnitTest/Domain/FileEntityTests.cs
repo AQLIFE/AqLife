@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using System.Text;
 
-namespace AqLife.CoreTest.Domain
+namespace AqLife.CoreTest.UnitTest.Domain
 {
     public class FileEntityTests
     {
