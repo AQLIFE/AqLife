@@ -114,6 +114,7 @@ import {
 } from 'element-plus'
 import { FileApi, FileScope, FileStatus, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
+import { tokenStore } from '@aqlife/api-client'
 import { onBeforeMount, ref, computed, watch, type Component } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
 import { Delete, Plus, Upload } from '@element-plus/icons-vue'
@@ -149,6 +150,9 @@ const segmentedMode = [
 const selectMode = ref<string>('md')
 const previewImageUrl = ref('')
 const previewVideoUrl = ref('')
+const videoPreviewLoading = ref(false)
+let videoPreviewObjectUrl: string | null = null
+let videoPreviewRequestVersion = 0
 const activeImageFile = ref<FileDto | null>(null)
 const imageSelectedTags = ref<TagDto[]>([])
 const imagePublishStatus = ref<FileStatus>(FileStatus.Draft)
@@ -247,22 +251,67 @@ function openImagePreview(uid: string) {
   imageScheduledAt.value = parseImagePublishAt(file.publishAt)
 }
 
-function openVideoPreview(uid: string) {
+async function openVideoPreview(uid: string) {
   const file = fileStore.fileList.find(item => item.uid === uid)
   if (!file?.uid) return
 
+  const requestVersion = ++videoPreviewRequestVersion
   const basePath = apiConfiguration.basePath.replace(/\/+$/, '')
+  const token = tokenStore.get()
   previewImageUrl.value = ''
-  previewVideoUrl.value = `${basePath}/api/File/preview?uID=${encodeURIComponent(uid)}`
+  previewVideoUrl.value = ''
+  if (videoPreviewObjectUrl) {
+    URL.revokeObjectURL(videoPreviewObjectUrl)
+    videoPreviewObjectUrl = null
+  }
   activeImageFile.value = file
   imageSelectedTags.value = file.tags ?? []
   imagePublishStatus.value = file.publishStatus ?? FileStatus.Draft
   imageScheduledAt.value = parseImagePublishAt(file.publishAt)
+  videoPreviewLoading.value = true
+
+  try {
+    const headers = new Headers()
+    if (token) headers.set('Authorization', token.startsWith('Bearer ') ? token : \`Bearer \${token}\`)
+    const response = await fetch(
+      \`\${basePath}/api/File/preview?UID=\${encodeURIComponent(uid)}\`,
+      { method: 'GET', headers, credentials: 'include' },
+    )
+
+    if (requestVersion !== videoPreviewRequestVersion) return
+    if (!response.ok) {
+      if ([401, 403, 404].includes(response.status)) {
+        ElMessage.warning('该视频未发布或当前账号无权观看')
+      } else {
+        ElMessage.error(\`视频预览失败（HTTP \${response.status}）\`)
+      }
+      activeImageFile.value = null
+      return
+    }
+
+    const blob = await response.blob()
+    if (requestVersion !== videoPreviewRequestVersion) return
+    videoPreviewObjectUrl = URL.createObjectURL(blob)
+    previewVideoUrl.value = videoPreviewObjectUrl
+  } catch (error) {
+    if (requestVersion === videoPreviewRequestVersion) {
+      ElMessage.error(error instanceof Error ? \`视频预览失败：\${error.message}\` : '视频预览请求失败')
+      activeImageFile.value = null
+    }
+  } finally {
+    if (requestVersion === videoPreviewRequestVersion) videoPreviewLoading.value = false
+  }
 }
 
 function closeImagePreview() {
+  videoPreviewRequestVersion++
   previewImageUrl.value = ''
   previewVideoUrl.value = ''
+  videoPreviewLoading.value = false
+  if (videoPreviewObjectUrl) {
+    URL.revokeObjectURL(videoPreviewObjectUrl)
+    videoPreviewObjectUrl = null
+  }
   activeImageFile.value = null
 }
 
