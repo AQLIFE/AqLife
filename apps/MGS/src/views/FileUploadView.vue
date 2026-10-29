@@ -501,7 +501,7 @@ watch(isVideoMode, () => {
             </div>
             <ElAlert v-if="uploadError" :title="uploadError" type="error" :closable="false" show-icon />
             <div class="progress-actions">
-              <ElButton v-if="uploading" :icon="VideoPause" @click="pauseVideoUpload">暂停（当前分片完成后生效）</ElButton>
+              <ElButton v-if="uploading" :icon="VideoPause" :disabled="hashing" @click="pauseVideoUpload">暂停（当前分片完成后生效）</ElButton>
               <ElButton v-else-if="!completed" type="primary" :icon="uploadError ? Refresh : VideoPlay" @click="resumeVideoUpload">
                 {{ uploadError ? '重试 / 恢复上传' : '继续上传' }}
               </ElButton>
