@@ -9,5 +9,7 @@
         //Task<bool> ExistsAsync(string key, CancellationToken ct = default);
 
         Task<Stream> OpenReadAsync(string key, CancellationToken ct = default);
+
+        Task<FileStorageRangeReadResult> OpenReadRangeAsync(string key, long start, long end, CancellationToken ct = default);
     }
 }
