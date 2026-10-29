@@ -22,6 +22,7 @@ public static class InfrastructureExtensions
         this IServiceCollection services, IHostEnvironment environment)
     {
         services.AddScoped<IApplicationDbContext, AppStorage>();
+        services.AddScoped<IResumableFileUploadService, ResumableFileUploadService>();
 
         if(!environment.IsTest()) // 非 Test 模式
         {
