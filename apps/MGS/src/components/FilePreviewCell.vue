@@ -33,6 +33,7 @@ const VIDEO_EXTENSIONS = new Set(['.mp4', '.webm'])
 
 function isVideoType(fileType: string): boolean {
   const normalized = fileType.trim().toLowerCase()
+  if (normalized.startsWith('video/')) return true
   const extension = normalized.includes('.') ? normalized.slice(normalized.lastIndexOf('.')) : ''
   return VIDEO_EXTENSIONS.has(extension)
 }
