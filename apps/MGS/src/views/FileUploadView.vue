@@ -499,7 +499,7 @@ watch(isVideoMode, () => {
             <div class="upload-tip">{{ videoFileSize }}</div>
           </div>
 
-          <div v-if="videoFile && (uploading || paused || uploadError || completed)" class="progress-panel">
+          <div v-if="videoFile && (uploading || paused || uploadError || completed || duplicateFound)" class="progress-panel">
             <div class="progress-heading">
               <strong>{{ hashing ? '正在计算文件哈希' : completed ? '上传完成' : paused ? '已暂停' : duplicateFound ? '检测到重复文件' : uploadError ? '上传遇到问题' : '正在上传' }}</strong>
               <strong>{{ hashing ? hashProgress : Math.floor(progress) }}%</strong>
