@@ -71,6 +71,10 @@ All URIs are relative to *http://localhost*
 *FileApi* | [**apiFileSchedulePatch**](docs/FileApi.md#apifileschedulepatch) | **PATCH** /api/File/schedule | 
 *FileApi* | [**apiFileTagPatch**](docs/FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag | 
 *FileApi* | [**apiFileUploadPost**](docs/FileApi.md#apifileuploadpost) | **POST** /api/File/Upload | 
+*FileApi* | [**apiFileUploadsPost**](docs/FileApi.md#apifileuploadspost) | **POST** /api/File/uploads | 
+*FileApi* | [**apiFileUploadsUploadIdChunksIndexPut**](docs/FileApi.md#apifileuploadsuploadidchunksindexput) | **PUT** /api/File/uploads/{uploadId}/chunks/{index} | 
+*FileApi* | [**apiFileUploadsUploadIdCompletePost**](docs/FileApi.md#apifileuploadsuploadidcompletepost) | **POST** /api/File/uploads/{uploadId}/complete | 
+*FileApi* | [**apiFileUploadsUploadIdGet**](docs/FileApi.md#apifileuploadsuploadidget) | **GET** /api/File/uploads/{uploadId} | 
 *OverviewApi* | [**apiOverviewGet**](docs/OverviewApi.md#apioverviewget) | **GET** /api/Overview | 
 *TagApi* | [**apiTagDelete**](docs/TagApi.md#apitagdelete) | **DELETE** /api/Tag | 
 *TagApi* | [**apiTagGet**](docs/TagApi.md#apitagget) | **GET** /api/Tag | 
@@ -107,6 +111,7 @@ All URIs are relative to *http://localhost*
 - [LoginCommand](docs/LoginCommand.md)
 - [OverviewDto](docs/OverviewDto.md)
 - [ScheduledFileCommand](docs/ScheduledFileCommand.md)
+- [StartRequest](docs/StartRequest.md)
 - [SubscriptionDto](docs/SubscriptionDto.md)
 - [TagDto](docs/TagDto.md)
 - [TagDtoPageResult](docs/TagDtoPageResult.md)
@@ -116,6 +121,8 @@ All URIs are relative to *http://localhost*
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
 - [UpdateTagCommand](docs/UpdateTagCommand.md)
 - [UpdateTodoCommand](docs/UpdateTodoCommand.md)
+- [UploadSession](docs/UploadSession.md)
+- [UploadStatus](docs/UploadStatus.md)
 
 ### Authorization
 

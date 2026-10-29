@@ -1,7 +1,7 @@
 
 # FileOrder
 
-0 = Latest 1 = Earliest 2 = MostViewed
+- 0 = Latest - 1 = Earliest - 2 = MostViewed
 
 ## Properties
 

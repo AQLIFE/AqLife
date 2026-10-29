@@ -1,7 +1,7 @@
 
 # FileScope
 
-0 = Default：默认搜索策略,包含 Image & Blog  1 = Image：Image 搜索策略 2 = Blog：Blog 搜索策略 3 = Template：Template 搜索策略 4 = All：全集搜索策略
+- 0 = Default：默认搜索策略，包含所有公开文件类型 - 1 = Image：Image 搜索策略 - 2 = Blog：Blog 搜索策略 - 3 = Template：模板搜索策略 - 4 = All：全集搜索策略 - 5 = Video：Video 搜索策略
 
 ## Properties
 

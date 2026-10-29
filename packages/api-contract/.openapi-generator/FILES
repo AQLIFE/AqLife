@@ -27,6 +27,7 @@ docs/LoginCommand.md
 docs/OverviewApi.md
 docs/OverviewDto.md
 docs/ScheduledFileCommand.md
+docs/StartRequest.md
 docs/SubscriptionDto.md
 docs/TagApi.md
 docs/TagDto.md
@@ -38,6 +39,8 @@ docs/TodoStatus.md
 docs/UpdateFileTagCommand.md
 docs/UpdateTagCommand.md
 docs/UpdateTodoCommand.md
+docs/UploadSession.md
+docs/UploadStatus.md
 package.json
 src/apis/AccountApi.ts
 src/apis/CorpusApi.ts
@@ -69,6 +72,7 @@ src/models/FileStatus.ts
 src/models/LoginCommand.ts
 src/models/OverviewDto.ts
 src/models/ScheduledFileCommand.ts
+src/models/StartRequest.ts
 src/models/SubscriptionDto.ts
 src/models/TagDto.ts
 src/models/TagDtoPageResult.ts
@@ -78,6 +82,8 @@ src/models/TodoStatus.ts
 src/models/UpdateFileTagCommand.ts
 src/models/UpdateTagCommand.ts
 src/models/UpdateTodoCommand.ts
+src/models/UploadSession.ts
+src/models/UploadStatus.ts
 src/models/index.ts
 src/runtime.ts
 tsconfig.esm.json

@@ -14,9 +14,9 @@
 
 
 /**
- * 0 = Draft
- * 1 = Scheduled
- * 2 = Published
+ * - 0 = Draft
+ * - 1 = Scheduled
+ * - 2 = Published
  * @export
  */
 export const FileStatus = {

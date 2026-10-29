@@ -14,10 +14,10 @@
 
 
 /**
- * 0 = Initial：初始状态
- * 1 = Wait：等待分配
- * 2 = Execute：正在执行
- * 3 = Completed：执行完成
+ * - 0 = Initial：初始状态
+ * - 1 = Wait：等待分配
+ * - 2 = Execute：正在执行
+ * - 3 = Completed：执行完成
  * @export
  */
 export const TodoStatus = {

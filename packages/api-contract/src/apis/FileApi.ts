@@ -44,10 +44,25 @@ import {
     ScheduledFileCommandToJSON,
 } from '../models/ScheduledFileCommand';
 import {
+    type StartRequest,
+    StartRequestFromJSON,
+    StartRequestToJSON,
+} from '../models/StartRequest';
+import {
     type UpdateFileTagCommand,
     UpdateFileTagCommandFromJSON,
     UpdateFileTagCommandToJSON,
 } from '../models/UpdateFileTagCommand';
+import {
+    type UploadSession,
+    UploadSessionFromJSON,
+    UploadSessionToJSON,
+} from '../models/UploadSession';
+import {
+    type UploadStatus,
+    UploadStatusFromJSON,
+    UploadStatusToJSON,
+} from '../models/UploadStatus';
 
 export interface ApiFileCancelSchedulePatchRequest {
     cancelScheduledFileCommand?: CancelScheduledFileCommand;
@@ -96,6 +111,24 @@ export interface ApiFileTagPatchRequest {
 export interface ApiFileUploadPostRequest {
     isTemplate?: boolean;
     file?: Array<Blob>;
+}
+
+export interface ApiFileUploadsPostRequest {
+    startRequest?: StartRequest;
+}
+
+export interface ApiFileUploadsUploadIdChunksIndexPutRequest {
+    uploadId: string;
+    index: number;
+    chunk?: Blob;
+}
+
+export interface ApiFileUploadsUploadIdCompletePostRequest {
+    uploadId: string;
+}
+
+export interface ApiFileUploadsUploadIdGetRequest {
+    uploadId: string;
 }
 
 /**
@@ -175,8 +208,8 @@ export interface FileApiInterface {
      * @param {string} [categoryUID] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
-     * @param {FileOrder} [order] 0 &#x3D; Latest 1 &#x3D; Earliest 2 &#x3D; MostViewed
-     * @param {FileScope} [scope] 0 &#x3D; Default：默认搜索策略,包含 Image &amp; Blog  1 &#x3D; Image：Image 搜索策略 2 &#x3D; Blog：Blog 搜索策略 3 &#x3D; Template：Template 搜索策略 4 &#x3D; All：全集搜索策略
+     * @param {FileOrder} [order] - 0 &#x3D; Latest - 1 &#x3D; Earliest - 2 &#x3D; MostViewed
+     * @param {FileScope} [scope] - 0 &#x3D; Default：默认搜索策略，包含所有公开文件类型 - 1 &#x3D; Image：Image 搜索策略 - 2 &#x3D; Blog：Blog 搜索策略 - 3 &#x3D; Template：模板搜索策略 - 4 &#x3D; All：全集搜索策略 - 5 &#x3D; Video：Video 搜索策略
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -189,8 +222,8 @@ export interface FileApiInterface {
      * @param {string} [categoryUID] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
-     * @param {FileOrder} [order] 0 &#x3D; Latest 1 &#x3D; Earliest 2 &#x3D; MostViewed
-     * @param {FileScope} [scope] 0 &#x3D; Default：默认搜索策略,包含 Image &amp; Blog  1 &#x3D; Image：Image 搜索策略 2 &#x3D; Blog：Blog 搜索策略 3 &#x3D; Template：Template 搜索策略 4 &#x3D; All：全集搜索策略
+     * @param {FileOrder} [order] - 0 &#x3D; Latest - 1 &#x3D; Earliest - 2 &#x3D; MostViewed
+     * @param {FileScope} [scope] - 0 &#x3D; Default：默认搜索策略，包含所有公开文件类型 - 1 &#x3D; Image：Image 搜索策略 - 2 &#x3D; Blog：Blog 搜索策略 - 3 &#x3D; Template：模板搜索策略 - 4 &#x3D; All：全集搜索策略 - 5 &#x3D; Video：Video 搜索策略
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -332,6 +365,94 @@ export interface FileApiInterface {
     /**
      */
     apiFileUploadPost(requestParameters: ApiFileUploadPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>>;
+
+    /**
+     * Creates request options for apiFileUploadsPost without sending the request
+     * @param {StartRequest} [startRequest] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileUploadsPostRequestOpts(requestParameters: ApiFileUploadsPostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {StartRequest} [startRequest] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileUploadsPostRaw(requestParameters: ApiFileUploadsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UploadSession>>;
+
+    /**
+     */
+    apiFileUploadsPost(requestParameters: ApiFileUploadsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadSession>;
+
+    /**
+     * Creates request options for apiFileUploadsUploadIdChunksIndexPut without sending the request
+     * @param {string} uploadId 
+     * @param {number} index 
+     * @param {Blob} [chunk] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileUploadsUploadIdChunksIndexPutRequestOpts(requestParameters: ApiFileUploadsUploadIdChunksIndexPutRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} uploadId 
+     * @param {number} index 
+     * @param {Blob} [chunk] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileUploadsUploadIdChunksIndexPutRaw(requestParameters: ApiFileUploadsUploadIdChunksIndexPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     */
+    apiFileUploadsUploadIdChunksIndexPut(requestParameters: ApiFileUploadsUploadIdChunksIndexPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for apiFileUploadsUploadIdCompletePost without sending the request
+     * @param {string} uploadId 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileUploadsUploadIdCompletePostRequestOpts(requestParameters: ApiFileUploadsUploadIdCompletePostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} uploadId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileUploadsUploadIdCompletePostRaw(requestParameters: ApiFileUploadsUploadIdCompletePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>>;
+
+    /**
+     */
+    apiFileUploadsUploadIdCompletePost(requestParameters: ApiFileUploadsUploadIdCompletePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>>;
+
+    /**
+     * Creates request options for apiFileUploadsUploadIdGet without sending the request
+     * @param {string} uploadId 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileUploadsUploadIdGetRequestOpts(requestParameters: ApiFileUploadsUploadIdGetRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} uploadId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileUploadsUploadIdGetRaw(requestParameters: ApiFileUploadsUploadIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UploadStatus>>;
+
+    /**
+     */
+    apiFileUploadsUploadIdGet(requestParameters: ApiFileUploadsUploadIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadStatus>;
 
 }
 
@@ -814,6 +935,201 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
      */
     async apiFileUploadPost(requestParameters: ApiFileUploadPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>> {
         const response = await this.apiFileUploadPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFileUploadsPost without sending the request
+     */
+    async apiFileUploadsPostRequestOpts(requestParameters: ApiFileUploadsPostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/File/uploads`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: StartRequestToJSON(requestParameters['startRequest']),
+        };
+    }
+
+    /**
+     */
+    async apiFileUploadsPostRaw(requestParameters: ApiFileUploadsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UploadSession>> {
+        const requestOptions = await this.apiFileUploadsPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UploadSessionFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async apiFileUploadsPost(requestParameters: ApiFileUploadsPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadSession> {
+        const response = await this.apiFileUploadsPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFileUploadsUploadIdChunksIndexPut without sending the request
+     */
+    async apiFileUploadsUploadIdChunksIndexPutRequestOpts(requestParameters: ApiFileUploadsUploadIdChunksIndexPutRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uploadId'] == null) {
+            throw new runtime.RequiredError(
+                'uploadId',
+                'Required parameter "uploadId" was null or undefined when calling apiFileUploadsUploadIdChunksIndexPut().'
+            );
+        }
+
+        if (requestParameters['index'] == null) {
+            throw new runtime.RequiredError(
+                'index',
+                'Required parameter "index" was null or undefined when calling apiFileUploadsUploadIdChunksIndexPut().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['chunk'] != null) {
+            formParams.append('chunk', requestParameters['chunk'] as any);
+        }
+
+
+        let urlPath = `/api/File/uploads/{uploadId}/chunks/{index}`;
+        urlPath = urlPath.replace('{uploadId}', encodeURIComponent(String(requestParameters['uploadId'])));
+        urlPath = urlPath.replace('{index}', encodeURIComponent(String(requestParameters['index'])));
+
+        return {
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: formParams,
+        };
+    }
+
+    /**
+     */
+    async apiFileUploadsUploadIdChunksIndexPutRaw(requestParameters: ApiFileUploadsUploadIdChunksIndexPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.apiFileUploadsUploadIdChunksIndexPutRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async apiFileUploadsUploadIdChunksIndexPut(requestParameters: ApiFileUploadsUploadIdChunksIndexPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiFileUploadsUploadIdChunksIndexPutRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Creates request options for apiFileUploadsUploadIdCompletePost without sending the request
+     */
+    async apiFileUploadsUploadIdCompletePostRequestOpts(requestParameters: ApiFileUploadsUploadIdCompletePostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uploadId'] == null) {
+            throw new runtime.RequiredError(
+                'uploadId',
+                'Required parameter "uploadId" was null or undefined when calling apiFileUploadsUploadIdCompletePost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/File/uploads/{uploadId}/complete`;
+        urlPath = urlPath.replace('{uploadId}', encodeURIComponent(String(requestParameters['uploadId'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiFileUploadsUploadIdCompletePostRaw(requestParameters: ApiFileUploadsUploadIdCompletePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>> {
+        const requestOptions = await this.apiFileUploadsUploadIdCompletePostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse<any>(response);
+    }
+
+    /**
+     */
+    async apiFileUploadsUploadIdCompletePost(requestParameters: ApiFileUploadsUploadIdCompletePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>> {
+        const response = await this.apiFileUploadsUploadIdCompletePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFileUploadsUploadIdGet without sending the request
+     */
+    async apiFileUploadsUploadIdGetRequestOpts(requestParameters: ApiFileUploadsUploadIdGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uploadId'] == null) {
+            throw new runtime.RequiredError(
+                'uploadId',
+                'Required parameter "uploadId" was null or undefined when calling apiFileUploadsUploadIdGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/File/uploads/{uploadId}`;
+        urlPath = urlPath.replace('{uploadId}', encodeURIComponent(String(requestParameters['uploadId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiFileUploadsUploadIdGetRaw(requestParameters: ApiFileUploadsUploadIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UploadStatus>> {
+        const requestOptions = await this.apiFileUploadsUploadIdGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UploadStatusFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async apiFileUploadsUploadIdGet(requestParameters: ApiFileUploadsUploadIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadStatus> {
+        const response = await this.apiFileUploadsUploadIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

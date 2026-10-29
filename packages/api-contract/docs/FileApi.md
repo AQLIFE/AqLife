@@ -14,6 +14,10 @@ All URIs are relative to *http://localhost*
 | [**apiFileSchedulePatch**](FileApi.md#apifileschedulepatch) | **PATCH** /api/File/schedule |  |
 | [**apiFileTagPatch**](FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag |  |
 | [**apiFileUploadPost**](FileApi.md#apifileuploadpost) | **POST** /api/File/Upload |  |
+| [**apiFileUploadsPost**](FileApi.md#apifileuploadspost) | **POST** /api/File/uploads |  |
+| [**apiFileUploadsUploadIdChunksIndexPut**](FileApi.md#apifileuploadsuploadidchunksindexput) | **PUT** /api/File/uploads/{uploadId}/chunks/{index} |  |
+| [**apiFileUploadsUploadIdCompletePost**](FileApi.md#apifileuploadsuploadidcompletepost) | **POST** /api/File/uploads/{uploadId}/complete |  |
+| [**apiFileUploadsUploadIdGet**](FileApi.md#apifileuploadsuploadidget) | **GET** /api/File/uploads/{uploadId} |  |
 
 
 
@@ -242,9 +246,9 @@ async function example() {
     page: 56,
     // number (optional)
     pageSize: 56,
-    // FileOrder | 0 = Latest 1 = Earliest 2 = MostViewed (optional)
+    // FileOrder | - 0 = Latest - 1 = Earliest - 2 = MostViewed (optional)
     order: ...,
-    // FileScope | 0 = Default：默认搜索策略,包含 Image & Blog  1 = Image：Image 搜索策略 2 = Blog：Blog 搜索策略 3 = Template：Template 搜索策略 4 = All：全集搜索策略 (optional)
+    // FileScope | - 0 = Default：默认搜索策略，包含所有公开文件类型 - 1 = Image：Image 搜索策略 - 2 = Blog：Blog 搜索策略 - 3 = Template：模板搜索策略 - 4 = All：全集搜索策略 - 5 = Video：Video 搜索策略 (optional)
     scope: ...,
   } satisfies ApiFileGetRequest;
 
@@ -270,8 +274,8 @@ example().catch(console.error);
 | **categoryUID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **page** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
-| **order** | `FileOrder` | 0 &#x3D; Latest 1 &#x3D; Earliest 2 &#x3D; MostViewed | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2] |
-| **scope** | `FileScope` | 0 &#x3D; Default：默认搜索策略,包含 Image &amp; Blog  1 &#x3D; Image：Image 搜索策略 2 &#x3D; Blog：Blog 搜索策略 3 &#x3D; Template：Template 搜索策略 4 &#x3D; All：全集搜索策略 | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2, 3, 4] |
+| **order** | `FileOrder` | - 0 &#x3D; Latest - 1 &#x3D; Earliest - 2 &#x3D; MostViewed | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2] |
+| **scope** | `FileScope` | - 0 &#x3D; Default：默认搜索策略，包含所有公开文件类型 - 1 &#x3D; Image：Image 搜索策略 - 2 &#x3D; Blog：Blog 搜索策略 - 3 &#x3D; Template：模板搜索策略 - 4 &#x3D; All：全集搜索策略 - 5 &#x3D; Video：Video 搜索策略 | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2, 3, 4, 5] |
 
 ### Return type
 
@@ -683,6 +687,272 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: `multipart/form-data`
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## apiFileUploadsPost
+
+> UploadSession apiFileUploadsPost(startRequest)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FileApi,
+} from '@aqlife/api-contract';
+import type { ApiFileUploadsPostRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new FileApi();
+
+  const body = {
+    // StartRequest (optional)
+    startRequest: ...,
+  } satisfies ApiFileUploadsPostRequest;
+
+  try {
+    const data = await api.apiFileUploadsPost(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **startRequest** | [StartRequest](StartRequest.md) |  | [Optional] |
+
+### Return type
+
+[**UploadSession**](UploadSession.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## apiFileUploadsUploadIdChunksIndexPut
+
+> apiFileUploadsUploadIdChunksIndexPut(uploadId, index, chunk)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FileApi,
+} from '@aqlife/api-contract';
+import type { ApiFileUploadsUploadIdChunksIndexPutRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new FileApi();
+
+  const body = {
+    // string
+    uploadId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // number
+    index: 56,
+    // Blob (optional)
+    chunk: BINARY_DATA_HERE,
+  } satisfies ApiFileUploadsUploadIdChunksIndexPutRequest;
+
+  try {
+    const data = await api.apiFileUploadsUploadIdChunksIndexPut(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **uploadId** | `string` |  | [Defaults to `undefined`] |
+| **index** | `number` |  | [Defaults to `undefined`] |
+| **chunk** | `Blob` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+`void` (Empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `multipart/form-data`
+- **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## apiFileUploadsUploadIdCompletePost
+
+> Array&lt;string&gt; apiFileUploadsUploadIdCompletePost(uploadId)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FileApi,
+} from '@aqlife/api-contract';
+import type { ApiFileUploadsUploadIdCompletePostRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new FileApi();
+
+  const body = {
+    // string
+    uploadId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+  } satisfies ApiFileUploadsUploadIdCompletePostRequest;
+
+  try {
+    const data = await api.apiFileUploadsUploadIdCompletePost(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **uploadId** | `string` |  | [Defaults to `undefined`] |
+
+### Return type
+
+**Array<string>**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## apiFileUploadsUploadIdGet
+
+> UploadStatus apiFileUploadsUploadIdGet(uploadId)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FileApi,
+} from '@aqlife/api-contract';
+import type { ApiFileUploadsUploadIdGetRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new FileApi();
+
+  const body = {
+    // string
+    uploadId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+  } satisfies ApiFileUploadsUploadIdGetRequest;
+
+  try {
+    const data = await api.apiFileUploadsUploadIdGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **uploadId** | `string` |  | [Defaults to `undefined`] |
+
+### Return type
+
+[**UploadStatus**](UploadStatus.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 
