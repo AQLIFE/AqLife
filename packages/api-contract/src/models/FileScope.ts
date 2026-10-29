@@ -19,6 +19,7 @@
  * 2 = Blog：Blog 搜索策略
  * 3 = Template：Template 搜索策略
  * 4 = All：全集搜索策略
+ * 5 = Video：视频搜索策略
  * @export
  */
 export const FileScope = {
@@ -41,7 +42,11 @@ export const FileScope = {
     /**
     * 全集搜索策略
     */
-    All: 4
+    All: 4,
+    /**
+    * 视频搜索策略
+    */
+    Video: 5
 } as const;
 export type FileScope = typeof FileScope[keyof typeof FileScope];
 

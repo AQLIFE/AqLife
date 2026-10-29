@@ -142,6 +142,7 @@ type FileTableColumn = {
 const segmentedMode = [
   { label: 'Markdown', value: 'md' },
   { label: 'Images', value: 'image' },
+  { label: 'Videos', value: 'video' },
 ]
 const selectMode = ref<string>('md')
 const previewImageUrl = ref('')
@@ -221,7 +222,7 @@ const imagePublishOptions = computed(() =>
 
 const activeRow = (row: FileDto) => {
   // In image mode, clicking a row should not navigate to the Markdown editor.
-  if (selectMode.value === 'image' || !row.uid) return
+  if (selectMode.value === 'image' || selectMode.value === 'video' || !row.uid) return
   router.push(`/file/${row.uid}`)
 }
 
@@ -447,7 +448,11 @@ const tableData = computed(() => (filterDisabled.value ? [] : filteredFileList.v
 
 async function loadFilesForMode() {
   const version = ++modeLoadVersion
-  const scope = selectMode.value === 'image' ? FileScope.Image : FileScope.Blog
+  const scope = selectMode.value === 'image'
+    ? FileScope.Image
+    : selectMode.value === 'video'
+      ? FileScope.Video
+      : FileScope.Blog
 
   isLoading.value = true
   fileStore.clearCache()
