@@ -2,6 +2,8 @@ using AqLife.Domain.Command;
 using AqLife.Shared.IView;
 using AqLife.Web.Middlewares;
 using AqLife.Application.Business.File.Upload;
+using AqLife.Application.Business.File.Service;
+using AqLife.Shared.Options;
 using AqLife.Application.Abstractions.FileStorage;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AqLife.Web.Controllers
 {
     [ApiController, Route("[Controller]"), Authorize]
-    public class FileController(IMediator mediator, IDataProtectionProvider dataProtectionProvider) : ControllerBase
+    public class FileController(IMediator mediator, IDataProtectionProvider dataProtectionProvider, FileReader fileReader) : ControllerBase
     {
         [HttpGet, AllowAnonymous]
         public async Task<PageResult<FileDto>> SearchFile([FromQuery] FileQuery query, CancellationToken ct)
@@ -29,9 +31,12 @@ namespace AqLife.Web.Controllers
 
         /// <summary>为视频预览签发短时效播放凭证，供原生 video 发起 Range 请求。</summary>
         [HttpPost("video-preview-ticket")]
-        public IActionResult CreateVideoPreviewTicket([FromQuery] Guid uid)
+        public async Task<IActionResult> CreateVideoPreviewTicket([FromQuery] Guid uid, CancellationToken ct)
         {
             if (uid == Guid.Empty) return BadRequest("无效的视频 UID");
+
+            // Only issue tickets for an existing video; authenticated FileSearch permits drafts here.
+            await using var stream = (await fileReader.ReadAsync(uid, FileScope.Video, ct)).FileStream;
 
             var protector = dataProtectionProvider
                 .CreateProtector("AqLife.VideoPreview.v1")
