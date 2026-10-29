@@ -83,7 +83,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
 
             CreateFileCommand create = new(false, [file]);
             var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(create, CancellationToken.None));
-            Assert.Contains("文件大小超出限制", exception.Message);
+            Assert.Contains("文件大小超出对应类型的上传限制", exception.Message);
         }
         /// <summary>
         /// 上传非博文文件,但设置模板标记,触发上传拦截报错

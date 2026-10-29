@@ -32,8 +32,8 @@ namespace AqLife.Application.Business.File.Validator
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
         {
             var policy = options.Value;
-            long regularLimit = (long)policy.MaxFileSize << policy.StorageUnit;
-            long videoLimit = (long)policy.VideoMaxFileSize << policy.StorageUnit;
+            long regularLimit = options.Value.DefaultFileSize;
+            long videoLimit = options.Value.VideoFileSize;
 
             var files = command.GetFiles().ToList();
             logger.LogDebug("Checking file size limits: regular={RegularLimit} bytes, video={VideoLimit} bytes",
