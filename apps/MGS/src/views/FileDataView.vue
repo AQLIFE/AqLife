@@ -251,7 +251,7 @@ function openVideoPreview(uid: string) {
   const file = fileStore.fileList.find(item => item.uid === uid)
   if (!file?.uid) return
 
-  const basePath = apiConfiguration.basePath.replace(/\\/+$/, '')
+  const basePath = apiConfiguration.basePath.replace(/\/+$/, '')
   previewImageUrl.value = ''
   previewVideoUrl.value = `${basePath}/api/File/preview?uID=${encodeURIComponent(uid)}`
   activeImageFile.value = file
