@@ -48,7 +48,7 @@ namespace AqLife.Web.Controllers
         /// <summary>上传单个视频分片。分片大小上限为 8 MiB，允许通过任务状态查询已成功的分片。</summary>
         [HttpPut("uploads/{uploadId:guid}/chunks/{index:int}"), RequestSizeLimit(9 * 1024 * 1024)]
         [RequestFormLimits(MultipartBodyLengthLimit = 9 * 1024 * 1024)]
-        public async Task<IActionResult> UploadVideoChunk(Guid uploadId, int index, [FromForm] IFormFile chunk, CancellationToken ct)
+        public async Task<IActionResult> UploadVideoChunk(Guid uploadId, int index, IFormFile chunk, CancellationToken ct)
         {
             await resumableUploads.WriteChunkAsync(uploadId, index, chunk, ct);
             return NoContent();
