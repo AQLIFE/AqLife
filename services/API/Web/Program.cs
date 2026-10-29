@@ -7,9 +7,9 @@ using AqLife.Extensions.Infrastructure;
 using AqLife.Extensions.Logging;
 using AqLife.Extensions.Routing;
 using AqLife.Extensions.SwaggerDoc;
+using AqLife.Infrastructure.FileStorage;
 using AqLife.Shared.Exceptions;
 using AqLife.Web.Middlewares;
-using AqLife.Web.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.OpenApi;
 
