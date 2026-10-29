@@ -1,4 +1,4 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
 using AqLife.Application.Search;
@@ -29,7 +29,8 @@ public class FileSearch(
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
     : BaseSearch<FileQuery, FileMetaEntity, FileDto, FileSearchCriteria>(storage, searchStrategies)
 {
-    private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
+    // Read authentication state when each query executes; video ticket endpoints establish their scoped identity after controller activation.
+    private bool IsValid => httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
     protected override FileSearchCriteria MapToCriteria(FileQuery query)
         => queryMapper.ToCriteria(query);
     protected override IQueryable<FileMetaEntity> ApplyDefaultOrder(IQueryable<FileMetaEntity> queryble, FileQuery query)
