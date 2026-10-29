@@ -50,7 +50,7 @@ let speedWindowBytes = 0
 const acceptType = computed(() => defaultFilePolicy.allowedUpload.join(','))
 const canCommit = computed(() => fileList.value.length > 0 && !uploading.value)
 const videoAccept = '.mp4,.webm'
-const fileApiBase = `${apiConfiguration.basePath.replace(/\\/+$/, '')}/api/File`
+const fileApiBase = `${apiConfiguration.basePath.replace(/\/+$/, '')}/api/File`
 const videoApiBase = `${fileApiBase}/uploads`
 const sessionStorageKey = 'mgs-video-upload-session'
 const fingerprintStorageKey = 'mgs-video-file-fingerprint'
