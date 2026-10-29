@@ -9,28 +9,20 @@ using AqLife.Extensions.Routing;
 using AqLife.Extensions.SwaggerDoc;
 using AqLife.Shared.Exceptions;
 using AqLife.Web.Middlewares;
+using AqLife.Web.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.OpenApi;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddAqLifeConfiguration(builder.Environment);
-
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddCommandLine(args);
 
-builder.Services.AddAqLifeSerilog(builder.Environment,builder.Configuration);
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SchemaFilter<EnumDescriptionSchemaFilter>();
-});
-
-builder.Services.AddFilePolicy(
-    builder.Configuration,
-    builder.Environment.ContentRootPath);
-
+builder.Services.AddAqLifeSerilog(builder.Environment, builder.Configuration);
+builder.Services.AddSwaggerGen(options => options.SchemaFilter<EnumDescriptionSchemaFilter>());
+builder.Services.AddFilePolicy(builder.Configuration, builder.Environment.ContentRootPath);
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddDatabase(builder.Configuration);
@@ -41,34 +33,21 @@ builder.Services.AddRouteAdapter();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<FileUploadFilter>();
+builder.Services.AddScoped<ResumableFileUploadService>();
 
-if(builder.Environment.IsDevelopment())
+if (builder.Environment.IsDevelopment())
 {
-    var configuredCorsOrigins =
-        builder.Configuration
-            .GetSection("Cors:AllowedOrigins")
-            .Get<string[]>()
-        ?? throw new ConfigurationNotFoundException(
-            "未找到 Cors 配置");
-    Console.WriteLine(configuredCorsOrigins.Length);
-
-    // Keep HTTPS development origins available even when an existing local
-    // appsettings.Development.json has not yet been refreshed from the example.
-    
+    var configuredCorsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+        ?? throw new ConfigurationNotFoundException("未找到 Cors 配置");
 
     builder.Services.AddCors(options =>
     {
-        options.AddPolicy(
-            "AqLifeAllowSpecificOrigins",
-            policy =>
-            {
-                policy
-                    .WithOrigins(configuredCorsOrigins)
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials()
-                    .WithExposedHeaders("Authorization");
-            });
+        options.AddPolicy("AqLifeAllowSpecificOrigins", policy =>
+            policy.WithOrigins(configuredCorsOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .WithExposedHeaders("Authorization", "Content-Range", "Accept-Ranges"));
     });
 }
 
@@ -76,22 +55,16 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 app.CheckDatabaseConnection();
-
 await app.OutputKeyAsync();
-
 app.UseCors("AqLifeAllowSpecificOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(options =>
-    {
-        options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
-    });
+    app.UseSwagger(options => options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1);
     app.UseSwaggerUI();
 }
 
 app.MapControllers();
-
 app.Run();

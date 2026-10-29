@@ -1,6 +1,7 @@
 {
   "FilePolicy": {
     "MaxFileSize": 100,
+    "VideoMaxFileSize": 1048576,
     "StoragePath": "Cache",
     "StorageUnit": 10,
 
@@ -9,10 +10,14 @@
       ".jpg",
       ".png",
       ".svg",
-      ".md"
+      ".md",
+      ".mp4",
+      ".webm"
     ],
     "AllowedDownload": [
-      ".md"
+      ".md",
+      ".mp4",
+      ".webm"
     ],
     "AllowedImageExtensions": [
       ".jpeg",
@@ -22,6 +27,10 @@
     ],
     "AllowedBlogExtensions": [
       ".md"
+    ],
+    "AllowedVideoExtensions": [
+      ".mp4",
+      ".webm"
     ]
   }
 }

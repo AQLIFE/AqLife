@@ -23,20 +23,29 @@ namespace AqLife.Application.Business.File.Validator
             => command.GetFiles().All(e => options.Value.AllowedUpload.Contains(Path.GetExtension(e.FileName).ToLowerInvariant()));
     }
     /// <summary>
-    /// 文件上传策略：文件大小检查（使用你的指数幂逻辑）
+    /// 文件上传策略：普通文件和视频使用独立大小上限
     /// </summary>
     /// <param name="options"></param>
     public class FileSizeValidator<T>(IOptions<FilePolicyOption> options, ILogger<FileSizeValidator<T>> logger) : AbstractValidator<T> where T : IHasFormFiles
     {
-        private protected override string ErrorMessage { init; get; } = $"文件大小超出限制 [1 ~ {options.Value.MaxFileSize} KB]";
+        private protected override string ErrorMessage { init; get; } = "文件大小超出对应类型的上传限制";
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
         {
-            long limit = (long)options.Value.MaxFileSize << options.Value.StorageUnit;
-            // 等于 2^ StorageUnit * MaxFileSize
-            // dev 配置设置到100 KB=> 100 * 2^10 字节
-            logger.LogDebug("Checking file size against limit: {Limit} bytes,now :{CurrentSize}", limit, command.GetFiles().Sum(f => f.Length));
+            var policy = options.Value;
+            long regularLimit = (long)policy.MaxFileSize << policy.StorageUnit;
+            long videoLimit = (long)policy.VideoMaxFileSize << policy.StorageUnit;
 
-            return command.GetFiles().All(e => 0 < e.Length && e.Length <= limit);
+            var files = command.GetFiles().ToList();
+            logger.LogDebug("Checking file size limits: regular={RegularLimit} bytes, video={VideoLimit} bytes",
+                regularLimit, videoLimit);
+
+            return files.All(file =>
+            {
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                var isVideo = policy.AllowedVideoExtensions.Contains(extension);
+                var limit = isVideo ? videoLimit : regularLimit;
+                return file.Length > 0 && limit > 0 && file.Length <= limit;
+            });
         }
     }
 

@@ -49,6 +49,7 @@ public class FileSearch(
         {
             FileScope.Template => queryable.Where(e => e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension)),
             FileScope.Image => queryable.Where(e => !e.IsTemplate && options.Value.AllowedImageExtensions.Contains(e.Extension)),
+            FileScope.Video => queryable.Where(e => !e.IsTemplate && options.Value.AllowedVideoExtensions.Contains(e.Extension)),
             FileScope.Blog => queryable.Where(e => !e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension)),
             FileScope.Default=> queryable.Where(e => !e.IsTemplate && options.Value.AllowedExtensions.Contains(e.Extension)),
             FileScope.All => queryable.Where(e =>  options.Value.AllowedExtensions.Contains(e.Extension)),// 不区分模板查询全部匹配类型文件
