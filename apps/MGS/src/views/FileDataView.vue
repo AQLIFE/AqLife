@@ -477,7 +477,7 @@ watch(selectMode, async () => {
 })
 
 function handleUploadFile() {
-  router.push('/file/upload')
+  router.push(selectMode.value === 'video' ? '/file/upload?type=video' : '/file/upload')
 }
 function handleAddFile() {
   router.push('/file/new')
