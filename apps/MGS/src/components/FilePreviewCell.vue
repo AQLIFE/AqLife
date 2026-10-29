@@ -7,7 +7,7 @@
   >
     <template #error>加载中...</template>
   </ElImage>
-  <div v-else-if="isVideoType(props.row.fileType ?? '')" class="file-type-placeholder video-placeholder">
+  <div v-else-if="isVideoType(props.row.fileType ?? '')" class="file-type-placeholder video-placeholder" role="button" tabindex="0" @click.stop="emit('preview-video', props.row.uid!)" @keydown.enter.stop="emit('preview-video', props.row.uid!)">
     <ElIcon><VideoCamera /></ElIcon>
   </div>
   <div v-else class="file-type-placeholder">
@@ -25,7 +25,7 @@ import { MgsIconName, mgsIconRegistry } from '@aqlife/icons';
 import { isImageType } from '@aqlife/domain'
 import { useFileStore } from '@/stores/useFileStore';
 const props = defineProps<{ row: FileDto }>()
-const emit = defineEmits<{ 'preview-image': [uid: string] }>()
+const emit = defineEmits<{ 'preview-image': [uid: string]; 'preview-video': [uid: string] }>()
 
 const fileStore = useFileStore()
 
