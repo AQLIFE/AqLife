@@ -272,9 +272,9 @@ async function openVideoPreview(uid: string) {
 
   try {
     const headers = new Headers()
-    if (token) headers.set('Authorization', token.startsWith('Bearer ') ? token : \`Bearer \${token}\`)
+    if (token) headers.set('Authorization', token.startsWith('Bearer ') ? token : `Bearer ${token}`)
     const response = await fetch(
-      \`\${basePath}/api/File/preview?UID=\${encodeURIComponent(uid)}\`,
+      `${basePath}/api/File/preview?UID=${encodeURIComponent(uid)}`,
       { method: 'GET', headers, credentials: 'include' },
     )
 
@@ -283,7 +283,7 @@ async function openVideoPreview(uid: string) {
       if ([401, 403, 404].includes(response.status)) {
         ElMessage.warning('该视频未发布或当前账号无权观看')
       } else {
-        ElMessage.error(\`视频预览失败（HTTP \${response.status}）\`)
+        ElMessage.error(`视频预览失败（HTTP ${response.status}）`)
       }
       activeImageFile.value = null
       return
@@ -295,7 +295,7 @@ async function openVideoPreview(uid: string) {
     previewVideoUrl.value = videoPreviewObjectUrl
   } catch (error) {
     if (requestVersion === videoPreviewRequestVersion) {
-      ElMessage.error(error instanceof Error ? \`视频预览失败：\${error.message}\` : '视频预览请求失败')
+      ElMessage.error(error instanceof Error ? `视频预览失败：${error.message}` : '视频预览请求失败')
       activeImageFile.value = null
     }
   } finally {
