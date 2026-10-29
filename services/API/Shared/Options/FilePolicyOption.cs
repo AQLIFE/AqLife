@@ -13,8 +13,8 @@ namespace AqLife.Shared.Options
         public int StorageUnit { set; get; } = 0;
         public string StoragePath { set; get; } = string.Empty;
 
-        public long DefaultFileSize => MaxFileSize << StorageUnit;
-        public long VideoFileSize => VideoMaxFileSize << StorageUnit;
+        public long DefaultFileSize => (long)MaxFileSize << StorageUnit;
+        public long VideoFileSize => (long)VideoMaxFileSize << StorageUnit;
 
         public string[] AllowedImageExtensions { set; get; } = [];
         public string[] AllowedBlogExtensions { set; get; } = [];
