@@ -1,16 +1,19 @@
-﻿using AqLife.Domain.Command;
+using AqLife.Domain.Command;
 using AqLife.Shared.IView;
 using AqLife.Web.Middlewares;
 using AqLife.Application.Business.File.Upload;
 using AqLife.Application.Abstractions.FileStorage;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AqLife.Web.Controllers
 {
     [ApiController, Route("[Controller]"), Authorize]
-    public class FileController(IMediator mediator) : ControllerBase
+    public class FileController(IMediator mediator, IDataProtectionProvider dataProtectionProvider) : ControllerBase
     {
         [HttpGet, AllowAnonymous]
         public async Task<PageResult<FileDto>> SearchFile([FromQuery] FileQuery query, CancellationToken ct)
@@ -22,6 +25,60 @@ namespace AqLife.Web.Controllers
         {
             var result = await mediator.Send(query, ct);
             return File(result.FileStream, result.ContentType, enableRangeProcessing: true);
+        }
+
+        /// <summary>为视频预览签发短时效播放凭证，供原生 video 发起 Range 请求。</summary>
+        [HttpPost("video-preview-ticket")]
+        public IActionResult CreateVideoPreviewTicket([FromQuery] Guid uid)
+        {
+            if (uid == Guid.Empty) return BadRequest("无效的视频 UID");
+
+            var protector = dataProtectionProvider
+                .CreateProtector("AqLife.VideoPreview.v1")
+                .ToTimeLimitedDataProtector();
+            var ticket = protector.Protect(uid.ToString("D"), TimeSpan.FromMinutes(2));
+            return Ok(new { ticket });
+        }
+
+        /// <summary>使用短时效凭证播放视频；允许匿名 HTTP 请求，但凭证必须由已鉴权接口签发。</summary>
+        [HttpGet("video-stream"), AllowAnonymous]
+        public async Task<IActionResult> StreamVideoPreview(
+            [FromQuery] Guid uid,
+            [FromQuery] string ticket,
+            CancellationToken ct)
+        {
+            if (uid == Guid.Empty || string.IsNullOrWhiteSpace(ticket))
+                return Unauthorized();
+
+            try
+            {
+                var protector = dataProtectionProvider
+                    .CreateProtector("AqLife.VideoPreview.v1")
+                    .ToTimeLimitedDataProtector();
+                var protectedUid = protector.Unprotect(ticket);
+                if (!Guid.TryParse(protectedUid, out var ticketUid) || ticketUid != uid)
+                    return Unauthorized();
+            }
+            catch (CryptographicException)
+            {
+                return Unauthorized();
+            }
+
+            // FileSearch exposes unpublished files only to authenticated requests.
+            // A validated, file-bound, short-lived ticket is the authorization proof for this media request.
+            var originalUser = HttpContext.User;
+            HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.NameIdentifier, "video-preview-ticket")],
+                "VideoPreviewTicket"));
+            try
+            {
+                var result = await mediator.Send(new PreviewFileQuery(uid), ct);
+                return File(result.FileStream, result.ContentType, enableRangeProcessing: true);
+            }
+            finally
+            {
+                HttpContext.User = originalUser;
+            }
         }
 
         [HttpGet("download")]
