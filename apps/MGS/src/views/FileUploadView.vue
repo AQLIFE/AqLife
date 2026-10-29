@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
-  ElAlert, ElButton, ElCard, ElIcon, ElMessage, ElProgress, ElUpload,
+  ElAlert, ElButton, ElCard, ElIcon, ElMessage, ElMessageBox, ElProgress, ElUpload,
   type UploadFile, type UploadRawFile, type UploadUserFile,
 } from 'element-plus'
 import {
@@ -297,6 +297,18 @@ async function startVideoUpload() {
 
     uploadError.value = ''
     remainingSeconds.value = 0
+    progress.value = 100
+    uploadedBytes.value = file.size
+    void ElMessageBox({
+      title: '正在验证视频',
+      message: '视频数据已全部上传，服务器正在验证并保存文件。文件越大，处理时间可能越长，请稍候；上传成功后将自动返回文件管理界面。',
+      type: 'info',
+      showConfirmButton: false,
+      showCancelButton: false,
+      showClose: false,
+      closeOnClickModal: false,
+      closeOnPressEscape: false,
+    }).catch(() => {})
     const ids = await apiJson<string[]>(`${videoApiBase}/${session.uploadId}/complete`, { method: 'POST' })
     const innerTags = tags.value.map(tag => tag.uid).filter((uid): uid is string => !!uid)
     const updatedIds = await Promise.all(ids.map(async uid => {
@@ -310,11 +322,11 @@ async function startVideoUpload() {
     uploadedFiles.forEach(dto => fileStore.upsertFile(dto))
     localStorage.removeItem(sessionStorageKey)
     completed.value = true
-    progress.value = 100
-    uploadedBytes.value = file.size
+    ElMessageBox.close()
     ElMessage.success('视频上传完成')
     router.push('/file/list')
   } catch (error) {
+    ElMessageBox.close()
     uploadError.value = error instanceof Error ? error.message : '视频上传失败'
     paused.value = false
     try {
