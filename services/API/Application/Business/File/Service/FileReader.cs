@@ -33,6 +33,22 @@ namespace AqLife.Application.Business.File.Service
             return new FileDownloadModel(stream, contentType, fileInfo.FileName);
         }
 
+
+        public async Task<(string ContentType, FileStorageRangeReadResult Range)> ReadRangeAsync(
+            Guid id,
+            FileScope scope,
+            long start,
+            long end,
+            CancellationToken ct = default)
+        {
+            FileMetaEntity fileInfo = (await fileSearch.SearchAsync(
+                query: new FileQuery(UID: id, Scope: scope), ct)).FirstOrDefault()
+                ?? throw new ResourceNotFoundException("不存在文件记录");
+
+            var range = await fileStorage.OpenReadRangeAsync(fileInfo.StorageKey, start, end, ct);
+            return (GetFileMimeType(fileInfo.StorageKey), range);
+        }
+
         public async Task<string> GetContentAsync(string fileName,CancellationToken ct)
         {
             await using var stream = await fileStorage.OpenReadAsync(fileName, ct);
