@@ -150,7 +150,6 @@ const segmentedMode = [
 const selectMode = ref<string>('md')
 const previewImageUrl = ref('')
 const previewVideoUrl = ref('')
-let videoPreviewObjectUrl: string | null = null
 let videoPreviewRequestVersion = 0
 const activeImageFile = ref<FileDto | null>(null)
 const imageSelectedTags = ref<TagDto[]>([])
@@ -259,10 +258,6 @@ async function openVideoPreview(uid: string) {
   const token = tokenStore.get()
   previewImageUrl.value = ''
   previewVideoUrl.value = ''
-  if (videoPreviewObjectUrl) {
-    URL.revokeObjectURL(videoPreviewObjectUrl)
-    videoPreviewObjectUrl = null
-  }
   activeImageFile.value = file
   imageSelectedTags.value = file.tags ?? []
   imagePublishStatus.value = file.publishStatus ?? FileStatus.Draft
@@ -271,32 +266,33 @@ async function openVideoPreview(uid: string) {
   try {
     const headers = new Headers()
     if (token) headers.set('Authorization', token.startsWith('Bearer ') ? token : `Bearer ${token}`)
-    const response = await fetch(
-      `${basePath}/api/File/preview?UID=${encodeURIComponent(uid)}`,
-      { method: 'GET', headers, credentials: 'include' },
+    const ticketResponse = await fetch(
+      `${basePath}/api/File/video-preview-ticket?uid=${encodeURIComponent(uid)}`,
+      { method: 'POST', headers, credentials: 'include' },
     )
 
     if (requestVersion !== videoPreviewRequestVersion) return
-    if (!response.ok) {
-      if ([401, 403, 404].includes(response.status)) {
+    if (!ticketResponse.ok) {
+      if ([401, 403, 404].includes(ticketResponse.status)) {
         ElMessage.warning('该视频未发布或当前账号无权观看')
       } else {
-        ElMessage.error(`视频预览失败（HTTP ${response.status}）`)
+        ElMessage.error(`视频预览凭证获取失败（HTTP ${ticketResponse.status}）`)
       }
       activeImageFile.value = null
       return
     }
 
-    const blob = await response.blob()
+    const result = await ticketResponse.json() as { ticket?: string }
+    if (!result.ticket) throw new Error('服务端未返回视频播放凭证')
     if (requestVersion !== videoPreviewRequestVersion) return
-    videoPreviewObjectUrl = URL.createObjectURL(blob)
-    previewVideoUrl.value = videoPreviewObjectUrl
+
+    const playbackUrl = new URL(`${basePath}/api/File/video-stream?UID=${encodeURIComponent(uid)}&ticket=${encodeURIComponent(result.ticket)}`, window.location.href)
+    previewVideoUrl.value = playbackUrl.toString()
   } catch (error) {
     if (requestVersion === videoPreviewRequestVersion) {
-      ElMessage.error(error instanceof Error ? `视频预览失败：${error.message}` : '视频预览请求失败')
+      ElMessage.error(error instanceof Error ? `视频预览请求失败：${error.message}` : '视频预览请求失败')
       activeImageFile.value = null
     }
-  } finally {
   }
 }
 
@@ -304,10 +300,6 @@ function closeImagePreview() {
   videoPreviewRequestVersion++
   previewImageUrl.value = ''
   previewVideoUrl.value = ''
-  if (videoPreviewObjectUrl) {
-    URL.revokeObjectURL(videoPreviewObjectUrl)
-    videoPreviewObjectUrl = null
-  }
   activeImageFile.value = null
 }
 
