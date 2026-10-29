@@ -39,6 +39,7 @@
             :row="row"
             :value="row[column.prop]"
             @preview-image="openImagePreview"
+            @preview-video="openVideoPreview"
           />
           <component
             v-else-if="column.renderer"
@@ -52,15 +53,16 @@
     </ElTable>
 
     <div
-      v-if="previewImageUrl"
+      v-if="previewImageUrl || previewVideoUrl"
       class="image-preview-mask"
       role="presentation"
       @click="closeImagePreview"
     >
-      <img class="image-preview-content" :src="previewImageUrl" alt="图片预览">
+      <img v-if="previewImageUrl" class="image-preview-content" :src="previewImageUrl" alt="图片预览">
+      <video v-else class="video-preview-content" :src="previewVideoUrl" controls autoplay playsinline preload="metadata" @click.stop />
       <section v-if="activeImageFile" class="image-management-panel" @click.stop>
         <div class="image-management-heading">
-          <strong>{{ activeImageFile.fileName || '图片管理' }}</strong>
+          <strong>{{ activeImageFile.fileName || '文件管理' }}</strong>
           <ElButton text @click="closeImagePreview">关闭预览</ElButton>
         </div>
         <label class="management-label">标签</label>
@@ -91,7 +93,7 @@
           :loading="imageDeleting"
           :disabled="imageSaving"
           @click="deleteImage"
-        >删除图片</ElButton>
+        >删除文件</ElButton>
       </section>
     </div>
   </div>
@@ -146,6 +148,7 @@ const segmentedMode = [
 ]
 const selectMode = ref<string>('md')
 const previewImageUrl = ref('')
+const previewVideoUrl = ref('')
 const activeImageFile = ref<FileDto | null>(null)
 const imageSelectedTags = ref<TagDto[]>([])
 const imagePublishStatus = ref<FileStatus>(FileStatus.Draft)
@@ -244,8 +247,22 @@ function openImagePreview(uid: string) {
   imageScheduledAt.value = parseImagePublishAt(file.publishAt)
 }
 
+function openVideoPreview(uid: string) {
+  const file = fileStore.fileList.find(item => item.uid === uid)
+  if (!file?.uid) return
+
+  const basePath = apiConfiguration.basePath.replace(/\\/+$/, '')
+  previewImageUrl.value = ''
+  previewVideoUrl.value = `${basePath}/api/File/preview?uID=${encodeURIComponent(uid)}`
+  activeImageFile.value = file
+  imageSelectedTags.value = file.tags ?? []
+  imagePublishStatus.value = file.publishStatus ?? FileStatus.Draft
+  imageScheduledAt.value = parseImagePublishAt(file.publishAt)
+}
+
 function closeImagePreview() {
   previewImageUrl.value = ''
+  previewVideoUrl.value = ''
   activeImageFile.value = null
 }
 
@@ -258,10 +275,10 @@ async function onImageTagsChanged(value: FileDto['tags']) {
     const updated = await new FileTagUpdateWorkflow(current, value, fileApi, fileStore).run()
     activeImageFile.value = updated
     imageSelectedTags.value = updated.tags ?? []
-    ElMessage.success('图片标签已更新')
+    ElMessage.success('文件标签已更新')
   } catch (error) {
     imageSelectedTags.value = current.tags ?? []
-    ElMessage.error(error instanceof Error ? error.message : '图片标签更新失败')
+    ElMessage.error(error instanceof Error ? error.message : '文件标签更新失败')
   } finally {
     imageSaving.value = false
   }
@@ -299,7 +316,7 @@ async function onImagePublishStatusChanged(value: FileStatus) {
     activeImageFile.value = updated
     imagePublishStatus.value = updated.publishStatus ?? FileStatus.Draft
     imageScheduledAt.value = parseImagePublishAt(updated.publishAt)
-    ElMessage.success('图片发布状态已更新')
+    ElMessage.success('文件发布状态已更新')
   } catch (error) {
     imagePublishStatus.value = current.publishStatus ?? FileStatus.Draft
     ElMessage.error(error instanceof Error ? error.message : '图片发布状态更新失败')
@@ -347,8 +364,8 @@ async function deleteImage() {
 
   try {
     await ElMessageBox.confirm(
-      `确定删除图片「${current.fileName || '未命名图片'}」吗？删除后将无法恢复。`,
-      '删除图片',
+      `确定删除文件「${current.fileName || '未命名文件'}」吗？删除后将无法恢复。`,
+      '删除文件',
       {
         confirmButtonText: '删除',
         cancelButtonText: '取消',
@@ -358,10 +375,10 @@ async function deleteImage() {
 
     imageDeleting.value = true
     await new FileDeleteWorkflow(current, fileApi, fileStore).run()
-    ElMessage.success('图片已删除')
+    ElMessage.success('文件已删除')
   } catch (error) {
     if (error === 'cancel' || error === 'close') return
-    ElMessage.error(error instanceof Error ? error.message : '删除图片失败')
+    ElMessage.error(error instanceof Error ? error.message : '删除文件失败')
   } finally {
     imageDeleting.value = false
   }
@@ -516,12 +533,19 @@ function handleAddFile() {
   cursor: zoom-out;
 }
 
-.image-preview-content {
+.image-preview-content,
+.video-preview-content {
   display: block;
   max-width: min(70vw, 1100px);
   max-height: 88vh;
   object-fit: contain;
   box-shadow: 0 8px 32px rgb(0 0 0 / 35%);
+}
+
+.video-preview-content {
+  width: min(70vw, 1100px);
+  background: #000;
+  cursor: default;
 }
 
 :global(.image-tag-select-popper) {
@@ -575,7 +599,9 @@ function handleAddFile() {
     overflow-y: auto;
   }
 
-  .image-preview-content {
+  .image-preview-content,
+  .video-preview-content {
+    width: 100%;
     max-width: 100%;
     max-height: 45vh;
     margin-top: 8px;
