@@ -150,7 +150,6 @@ const segmentedMode = [
 const selectMode = ref<string>('md')
 const previewImageUrl = ref('')
 const previewVideoUrl = ref('')
-const videoPreviewLoading = ref(false)
 let videoPreviewObjectUrl: string | null = null
 let videoPreviewRequestVersion = 0
 const activeImageFile = ref<FileDto | null>(null)
@@ -268,7 +267,6 @@ async function openVideoPreview(uid: string) {
   imageSelectedTags.value = file.tags ?? []
   imagePublishStatus.value = file.publishStatus ?? FileStatus.Draft
   imageScheduledAt.value = parseImagePublishAt(file.publishAt)
-  videoPreviewLoading.value = true
 
   try {
     const headers = new Headers()
@@ -299,7 +297,6 @@ async function openVideoPreview(uid: string) {
       activeImageFile.value = null
     }
   } finally {
-    if (requestVersion === videoPreviewRequestVersion) videoPreviewLoading.value = false
   }
 }
 
@@ -307,7 +304,6 @@ function closeImagePreview() {
   videoPreviewRequestVersion++
   previewImageUrl.value = ''
   previewVideoUrl.value = ''
-  videoPreviewLoading.value = false
   if (videoPreviewObjectUrl) {
     URL.revokeObjectURL(videoPreviewObjectUrl)
     videoPreviewObjectUrl = null
