@@ -15,6 +15,7 @@ import { tokenStore } from '@aqlife/api-client'
 import { useFileStore } from '@/stores/useFileStore'
 import TagSelect from '@/components/TagSelect.vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import { getFileFingerprint, type FileFingerprint } from '@/utils/fileFingerprint'
 
 const router = useRouter()
 const route = useRoute()
@@ -38,6 +39,10 @@ const uploadError = ref('')
 const sessionId = ref('')
 const videoFile = ref<UploadRawFile | null>(null)
 const completed = ref(false)
+const hashing = ref(false)
+const hashProgress = ref(0)
+const duplicateFound = ref(false)
+const duplicateMessage = ref('')
 let pauseRequested = false
 let speedWindowStartedAt = 0
 let speedWindowBytes = 0
@@ -47,6 +52,7 @@ const canCommit = computed(() => fileList.value.length > 0 && !uploading.value)
 const videoAccept = '.mp4,.webm'
 const videoApiBase = `${apiConfiguration.basePath.replace(/\/+$/, '')}/api/File/uploads`
 const sessionStorageKey = 'mgs-video-upload-session'
+const fingerprintStorageKey = 'mgs-video-file-fingerprint'
 
 interface UploadSession {
   uploadId: string
@@ -107,6 +113,10 @@ function onVideoFileChange(uploadFile: UploadFile) {
   videoFile.value = raw
   uploadError.value = ''
   completed.value = false
+  hashing.value = false
+  hashProgress.value = 0
+  duplicateFound.value = false
+  duplicateMessage.value = ''
   progress.value = 0
   uploadedBytes.value = 0
   uploadSpeed.value = 0
@@ -140,6 +150,25 @@ const remainingText = computed(() => {
   if (remainingSeconds.value < 60) return `约 ${Math.max(1, Math.ceil(remainingSeconds.value))} 秒`
   return `约 ${Math.floor(remainingSeconds.value / 60)} 分 ${Math.ceil(remainingSeconds.value % 60)} 秒`
 })
+
+async function getCachedFingerprint(file: File): Promise<FileFingerprint> {
+  try {
+    const raw = localStorage.getItem(fingerprintStorageKey)
+    if (raw) {
+      const cached = JSON.parse(raw) as FileFingerprint
+      if (
+        cached.fileName === file.name &&
+        cached.size === file.size &&
+        cached.lastModified === file.lastModified &&
+        /^[0-9a-f]{64}$/.test(cached.sha256)
+      ) return cached
+    }
+  } catch { /* recalculate if the cache is invalid */ }
+
+  const fingerprint = await getFileFingerprint(file, percent => { hashProgress.value = percent })
+  localStorage.setItem(fingerprintStorageKey, JSON.stringify(fingerprint))
+  return fingerprint
+}
 
 function getSavedSession(file: File): UploadSession | null {
   try {
@@ -248,6 +277,30 @@ async function startVideoUpload() {
   speedWindowBytes = 0
 
   try {
+    hashing.value = true
+    hashProgress.value = 0
+    const fingerprint = await getCachedFingerprint(file)
+    hashing.value = false
+
+    const hashCheck = await apiJson<{
+      isDuplicate: boolean
+      existingFile: { uid: string; fileName: string; fileSize: number; uploadTime: string } | null
+    }>(`${fileApiBase}/hash/check`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hash: fingerprint.sha256 }),
+    })
+    if (hashCheck.isDuplicate && hashCheck.existingFile) {
+      duplicateFound.value = true
+      duplicateMessage.value = `内容相同的文件已存在：${hashCheck.existingFile.fileName}（${formatBytes(hashCheck.existingFile.fileSize)}）`
+      await ElMessageBox.alert(
+        `检测到重复文件，已取消本次上传。\n\n${duplicateMessage.value}`,
+        '无需重复上传',
+        { type: 'warning', confirmButtonText: '知道了' },
+      )
+      return
+    }
+
     const { session, status: initialStatus } = await createOrResumeSession(file)
     saveSession(session)
     chunkCount.value = session.chunkCount
@@ -326,6 +379,7 @@ async function startVideoUpload() {
     ElMessage.success('视频上传完成')
     router.push('/file/list')
   } catch (error) {
+    hashing.value = false
     ElMessageBox.close()
     uploadError.value = error instanceof Error ? error.message : '视频上传失败'
     paused.value = false
@@ -446,10 +500,12 @@ watch(isVideoMode, () => {
 
           <div v-if="videoFile && (uploading || paused || uploadError || completed)" class="progress-panel">
             <div class="progress-heading">
-              <strong>{{ completed ? '上传完成' : paused ? '已暂停' : uploadError ? '上传遇到问题' : '正在上传' }}</strong>
-              <strong>{{ Math.floor(progress) }}%</strong>
+              <strong>{{ hashing ? '正在计算文件哈希' : completed ? '上传完成' : paused ? '已暂停' : duplicateFound ? '检测到重复文件' : uploadError ? '上传遇到问题' : '正在上传' }}</strong>
+              <strong>{{ hashing ? hashProgress : Math.floor(progress) }}%</strong>
             </div>
-            <ElProgress :percentage="Math.floor(progress)" :stroke-width="10" :status="completed ? 'success' : uploadError ? 'exception' : undefined" />
+            <ElProgress :percentage="hashing ? hashProgress : Math.floor(progress)" :stroke-width="10" :status="completed ? 'success' : uploadError || duplicateFound ? 'exception' : undefined" />
+            <div v-if="hashing" class="upload-tip">正在分块计算 SHA-256，并检查服务器是否已有相同文件；不会一次性把整个大文件读入内存。</div>
+            <ElAlert v-if="duplicateFound" :title="duplicateMessage" type="warning" :closable="false" show-icon />
             <div class="progress-stats">
               <span>{{ formatBytes(uploadedBytes) }} / {{ formatBytes(videoFile.size) }}</span>
               <span>分片 {{ currentChunk }} / {{ chunkCount }}</span>
@@ -471,7 +527,7 @@ watch(isVideoMode, () => {
             </div>
           </div>
           <ElButton
-            v-if="videoFile && !uploading && !paused && !uploadError && !completed"
+            v-if="videoFile && !uploading && !paused && !uploadError && !completed && !duplicateFound"
             class="start-video-button"
             type="primary"
             :icon="UploadFilled"
