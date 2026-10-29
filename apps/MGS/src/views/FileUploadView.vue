@@ -15,7 +15,7 @@ import { tokenStore } from '@aqlife/api-client'
 import { useFileStore } from '@/stores/useFileStore'
 import TagSelect from '@/components/TagSelect.vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
-import { getFileFingerprint, type FileFingerprint } from '@/utils/fileFingerprint'
+import { getFileFingerprint } from '@/utils/fileFingerprint'
 
 const router = useRouter()
 const route = useRoute()
@@ -53,7 +53,6 @@ const videoAccept = '.mp4,.webm'
 const fileApiBase = `${apiConfiguration.basePath.replace(/\/+$/, '')}/api/File`
 const videoApiBase = `${fileApiBase}/uploads`
 const sessionStorageKey = 'mgs-video-upload-session'
-const fingerprintStorageKey = 'mgs-video-file-fingerprint'
 
 interface UploadSession {
   uploadId: string
@@ -151,25 +150,6 @@ const remainingText = computed(() => {
   if (remainingSeconds.value < 60) return `约 ${Math.max(1, Math.ceil(remainingSeconds.value))} 秒`
   return `约 ${Math.floor(remainingSeconds.value / 60)} 分 ${Math.ceil(remainingSeconds.value % 60)} 秒`
 })
-
-async function getCachedFingerprint(file: File): Promise<FileFingerprint> {
-  try {
-    const raw = localStorage.getItem(fingerprintStorageKey)
-    if (raw) {
-      const cached = JSON.parse(raw) as FileFingerprint
-      if (
-        cached.fileName === file.name &&
-        cached.size === file.size &&
-        cached.lastModified === file.lastModified &&
-        /^[0-9a-f]{64}$/.test(cached.sha256)
-      ) return cached
-    }
-  } catch { /* recalculate if the cache is invalid */ }
-
-  const fingerprint = await getFileFingerprint(file, percent => { hashProgress.value = percent })
-  localStorage.setItem(fingerprintStorageKey, JSON.stringify(fingerprint))
-  return fingerprint
-}
 
 function getSavedSession(file: File): UploadSession | null {
   try {
@@ -280,7 +260,7 @@ async function startVideoUpload() {
   try {
     hashing.value = true
     hashProgress.value = 0
-    const fingerprint = await getCachedFingerprint(file)
+    const fingerprint = await getFileFingerprint(file, percent => { hashProgress.value = percent })
     hashing.value = false
 
     const hashCheck = await apiJson<{
