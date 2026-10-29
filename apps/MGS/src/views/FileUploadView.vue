@@ -30,6 +30,7 @@ const paused = ref(false)
 const progress = ref(0)
 const currentChunk = ref(0)
 const chunkCount = ref(0)
+const missingChunks = ref<number[]>([])
 const uploadedBytes = ref(0)
 const uploadSpeed = ref(0)
 const remainingSeconds = ref<number | null>(null)
@@ -128,6 +129,12 @@ function formatBytes(bytes: number): string {
 }
 
 const videoFileSize = computed(() => videoFile.value ? formatBytes(videoFile.value.size) : '')
+const missingChunksText = computed(() => {
+  if (missingChunks.value.length === 0) return '无'
+  const shown = missingChunks.value.slice(0, 12).map(index => index + 1).join(', ')
+  return missingChunks.value.length > 12 ? shown + ' 等（共 ' + missingChunks.value.length + ' 个）' : shown
+})
+
 const remainingText = computed(() => {
   if (remainingSeconds.value == null || !Number.isFinite(remainingSeconds.value)) return '计算中'
   if (remainingSeconds.value < 60) return `约 ${Math.max(1, Math.ceil(remainingSeconds.value))} 秒`
@@ -245,6 +252,8 @@ async function startVideoUpload() {
     saveSession(session)
     chunkCount.value = session.chunkCount
     const uploaded = new Set(initialStatus.uploadedChunks)
+    missingChunks.value = Array.from({ length: session.chunkCount }, (_, index) => index)
+      .filter(index => !uploaded.has(index))
     const totalUploadedBytes = () => {
       let bytes = 0
       for (const index of uploaded) {
@@ -271,6 +280,7 @@ async function startVideoUpload() {
         updateSpeed(loaded, baseBytes)
       })
       uploaded.add(index)
+      missingChunks.value = missingChunks.value.filter(missingIndex => missingIndex !== index)
       uploadedBytes.value = totalUploadedBytes()
       progress.value = Math.min(100, uploadedBytes.value / file.size * 100)
     }
@@ -312,6 +322,9 @@ async function startVideoUpload() {
       if (saved) {
         const status = await apiJson<UploadStatus>(`${videoApiBase}/${saved.uploadId}`)
         chunkCount.value = status.chunkCount
+        const uploaded = new Set(status.uploadedChunks)
+        missingChunks.value = Array.from({ length: status.chunkCount }, (_, index) => index)
+          .filter(index => !uploaded.has(index))
         uploadedBytes.value = status.uploadedChunks.reduce((sum, index) =>
           sum + Math.min(status.chunkSize, file.size - index * status.chunkSize), 0)
         progress.value = Math.min(100, uploadedBytes.value / file.size * 100)
@@ -433,6 +446,10 @@ watch(isVideoMode, () => {
               <span>速度 {{ uploadSpeed > 0 ? `${formatBytes(uploadSpeed)}/s` : '计算中' }}</span>
               <span>剩余 {{ remainingText }}</span>
             </div>
+            <div v-if="chunkCount > 0" class="missing-chunks">
+              <strong>待补传分片（{{ missingChunks.length }}）</strong>
+              <span>{{ missingChunksText }}</span>
+            </div>
             <ElAlert v-if="uploadError" :title="uploadError" type="error" :closable="false" show-icon />
             <div class="progress-actions">
               <ElButton v-if="uploading" :icon="VideoPause" @click="pauseVideoUpload">暂停（当前分片完成后生效）</ElButton>
@@ -491,6 +508,8 @@ watch(isVideoMode, () => {
 .progress-panel { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
 .progress-heading, .progress-stats { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .progress-stats { color: var(--mgs-muted); font-size: 13px; }
+.missing-chunks { display: flex; flex-direction: column; gap: 4px; color: var(--mgs-muted); font-size: 13px; overflow-wrap: anywhere; }
+.missing-chunks strong { color: var(--el-text-color-primary); font-weight: 600; }
 .progress-actions { display: flex; justify-content: flex-end; }
 .start-video-button { margin-top: 20px; }
 @media (max-width: 900px) { .upload-content, .video-upload-content { grid-template-columns: 1fr; } }
