@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ElAlert, ElButton, ElCard, ElIcon, ElMessage, ElProgress, ElUpload,
-  type UploadRawFile, type UploadUserFile,
+  type UploadFile, type UploadRawFile, type UploadUserFile,
 } from 'element-plus'
 import {
   ArrowLeft, UploadFilled, VideoCamera, Refresh, VideoPlay, VideoPause,
