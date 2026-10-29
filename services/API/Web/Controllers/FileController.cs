@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.DataProtection;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace AqLife.Web.Controllers
 {
@@ -77,8 +78,51 @@ namespace AqLife.Web.Controllers
                 "VideoPreviewTicket"));
             try
             {
-                var result = await mediator.Send(new PreviewFileQuery(uid), ct);
-                return File(result.FileStream, result.ContentType, enableRangeProcessing: true);
+                // R2's SDK response stream is not seekable, so MVC's FileResult cannot
+                // implement Range requests for it. Ask storage for only the requested bytes.
+                var rangeHeader = Request.Headers.Range.ToString();
+                if (string.IsNullOrWhiteSpace(rangeHeader))
+                {
+                    var result = await mediator.Send(new PreviewFileQuery(uid), ct);
+                    return File(result.FileStream, result.ContentType);
+                }
+
+                if (!rangeHeader.StartsWith("bytes=", StringComparison.OrdinalIgnoreCase)
+                    || rangeHeader.Contains(','))
+                    return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
+
+                var rangeParts = rangeHeader[6..].Split('-', 2);
+                if (rangeParts.Length != 2
+                    || !long.TryParse(rangeParts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var start)
+                    || start < 0)
+                    return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
+
+                long end = long.MaxValue;
+                if (!string.IsNullOrWhiteSpace(rangeParts[1])
+                    && (!long.TryParse(rangeParts[1], NumberStyles.None, CultureInfo.InvariantCulture, out end) || end < start))
+                    return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
+
+                var ranged = await fileReader.ReadRangeAsync(uid, FileScope.Video, start, end, ct);
+                await using var stream = ranged.Range.Stream;
+                var length = ranged.Range.ContentLength;
+
+                Response.StatusCode = StatusCodes.Status206PartialContent;
+                Response.ContentType = ranged.ContentType;
+                Response.Headers.AcceptRanges = "bytes";
+                Response.Headers.ContentRange = $"bytes {ranged.Range.Start}-{ranged.Range.End}/{ranged.Range.TotalLength}";
+                Response.ContentLength = length;
+
+                var buffer = new byte[64 * 1024];
+                var remaining = length;
+                while (remaining > 0)
+                {
+                    var read = await stream.ReadAsync(buffer.AsMemory(0, (int)Math.Min(buffer.Length, remaining)), ct);
+                    if (read == 0) break;
+                    await Response.Body.WriteAsync(buffer.AsMemory(0, read), ct);
+                    remaining -= read;
+                }
+
+                return new EmptyResult();
             }
             finally
             {
