@@ -80,7 +80,7 @@ namespace AqLife.Web.Controllers
             {
                 // R2's SDK response stream is not seekable, so MVC's FileResult cannot
                 // implement Range requests for it. Ask storage for only the requested bytes.
-                var rangeHeader = Request.Headers.Range.ToString();
+                var rangeHeader = Request.Headers["Range"].ToString();
                 if (string.IsNullOrWhiteSpace(rangeHeader))
                 {
                     var result = await mediator.Send(new PreviewFileQuery(uid), ct);
@@ -102,14 +102,23 @@ namespace AqLife.Web.Controllers
                     && (!long.TryParse(rangeParts[1], NumberStyles.None, CultureInfo.InvariantCulture, out end) || end < start))
                     return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
 
-                var ranged = await fileReader.ReadRangeAsync(uid, FileScope.Video, start, end, ct);
+                (string ContentType, AqLife.Application.Abstractions.FileStorage.FileStorageRangeReadResult Range) ranged;
+                try
+                {
+                    ranged = await fileReader.ReadRangeAsync(uid, FileScope.Video, start, end, ct);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
+                }
+
                 await using var stream = ranged.Range.Stream;
                 var length = ranged.Range.ContentLength;
 
                 Response.StatusCode = StatusCodes.Status206PartialContent;
                 Response.ContentType = ranged.ContentType;
-                Response.Headers.AcceptRanges = "bytes";
-                Response.Headers.ContentRange = $"bytes {ranged.Range.Start}-{ranged.Range.End}/{ranged.Range.TotalLength}";
+                Response.Headers["Accept-Ranges"] = "bytes";
+                Response.Headers["Content-Range"] = $"bytes {ranged.Range.Start}-{ranged.Range.End}/{ranged.Range.TotalLength}";
                 Response.ContentLength = length;
 
                 var buffer = new byte[64 * 1024];
