@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElButton, ElEmpty, ElImage, ElMessage, ElTag } from 'element-plus'
-import { ArrowLeft, ExternalLink } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import { FavoriteApi, FileApi, TagApi, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 
@@ -124,7 +124,7 @@ onBeforeUnmount(releaseImageUrls)
         rel="noopener noreferrer"
       >
         查看原始来源
-        <ExternalLink />
+        <ArrowRight />
       </a>
     </div>
 
