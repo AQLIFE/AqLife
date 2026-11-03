@@ -114,12 +114,15 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
       item.progress = 98
 
       const inserted = replaceToken(token, `![视频](${uid})`)
-      if (!inserted) throw new Error('视频已上传，但正文占位符已不存在；请重新插入该视频 UID。')
       item.state = 'completed'
       item.progress = 100
       pendingFiles.delete(id)
       pendingTokens.delete(id)
       pendingUids.delete(id)
+      if (!inserted) {
+        ElMessage.warning(`视频「${item.name}」已上传，但正文占位符已被删除；文件已保存到视频库。`)
+        return
+      }
       ElMessage.success(`视频「${item.name}」上传完成`)
     } catch (error) {
       item.state = 'failed'
