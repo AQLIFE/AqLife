@@ -76,7 +76,7 @@ namespace AqLife.Web.Controllers
             {
                 // Public Markdown pages may embed published videos without an authenticated preview ticket.
                 // FileSearch applies the published-only visibility rule to this anonymous lookup.
-                await using var publicStream = (await fileReader.ReadAsync(uid, FileScope.Video, ct)).FileStream;
+                await fileReader.EnsureReadableAsync(uid, FileScope.Video, ct);
             }
 
             // FileSearch exposes unpublished files only to authenticated requests.
