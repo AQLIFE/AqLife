@@ -61,6 +61,7 @@ import { ElButton } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { onBeforeMount, computed, ref } from 'vue'
 import { FileStatus, OverviewApi } from '@/api'
+import { isImageType } from '@aqlife/domain'
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 
@@ -74,9 +75,28 @@ const metrics = computed(() => [
   { label: 'Published', value: overview.value?.publishedCount ?? 0, note: 'Published articles' },
 ])
 
+function getArticleTarget(file: NonNullable<typeof overview.value>['recentFiles'][number]): { path: string; query?: Record<string, string> } {
+  const fileType = (file.fileType ?? '').trim().toLowerCase()
+  const fileName = (file.fileName ?? '').trim().toLowerCase()
+  const type = fileType || fileName.slice(fileName.lastIndexOf('.'))
+  if (isImageType(file.fileType ?? fileName)) {
+    return { path: '/file/list', query: { type: 'image', preview: file.uid! } }
+  }
+  if (type.startsWith('video/') || ['.mp4', '.webm'].includes(type) || /\\.(mp4|webm)$/.test(fileName)) {
+    return { path: '/file/list', query: { type: 'video', preview: file.uid! } }
+  }
+  return { path: `/file/${file.uid}` }
+}
+
+function openArticle(article: (typeof articles.value)[number]) {
+  if (!article.uid) return
+  router.push(article.target)
+}
+
 const articles = computed(() =>
   (overview.value?.recentFiles ?? []).map(file => ({
     uid: file.uid,
+    target: getArticleTarget(file),
     title: file.fileName || 'Untitled article',
     uploadedAgo: formatUploadAge(file.uploadTime),
     meta: file.fileType ? file.fileType.replace('.', '').toUpperCase() : 'File',
