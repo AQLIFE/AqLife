@@ -68,15 +68,6 @@ async function loadData() {
     items.value = favoriteResult.items ?? []
     tags.value = tagResult.items ?? []
     files.value = fileResult.items ?? []
-    await Promise.all(files.value.map(async file => {
-      if (!file.uid || previewUrls.value[file.uid]) return
-      try {
-        const blob = await fileApi.apiFilePreviewGet({ uID: file.uid })
-        previewUrls.value[file.uid] = URL.createObjectURL(blob)
-      } catch {
-        // Keep files selectable even if a preview cannot be loaded.
-      }
-    }))
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : 'Favorite 数据加载失败')
   } finally {
@@ -178,6 +169,19 @@ function toggleFile(fileId: string, checked: string | number | boolean) {
   if (!fileId) return
   if (checked && !selectedFileIds.value.includes(fileId)) selectedFileIds.value.push(fileId)
   else if (!checked) selectedFileIds.value = selectedFileIds.value.filter(value => value !== fileId)
+}
+
+async function openFilePicker() {
+  fileDialogVisible.value = true
+  await Promise.all(files.value.map(async file => {
+    if (!file.uid || previewUrls.value[file.uid]) return
+    try {
+      const blob = await fileApi.apiFilePreviewGet({ uID: file.uid })
+      previewUrls.value[file.uid] = URL.createObjectURL(blob)
+    } catch {
+      // Keep files selectable even if a preview cannot be loaded.
+    }
+  }))
 }
 
 async function handleQuickUpload(uploadFile: UploadFile) {
@@ -301,7 +305,7 @@ onBeforeMount(loadData)
             </div>
             <div v-else class="media-summary">尚未选择图片</div>
             <div class="media-actions">
-              <ElButton @click="fileDialogVisible = true">选择素材</ElButton>
+              <ElButton @click="openFilePicker">选择素材</ElButton>
               <ElButton v-if="selectedFileIds.length" text type="danger" @click="selectedFileIds = []">清空</ElButton>
             </div>
           </div>
