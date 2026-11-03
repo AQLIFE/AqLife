@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 import {
   ElButton, ElCheckbox, ElDialog, ElEmpty, ElForm, ElFormItem, ElInput, ElMessage,
-  ElMessageBox, ElOption, ElSelect, ElSwitch, ElTable, ElTableColumn, ElTag,
+  ElMessageBox, ElOption, ElSelect, ElSwitch, ElTable, ElTableColumn, ElTag, ElUpload,
 } from 'element-plus'
-import { Delete, Edit, Plus, Refresh } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Refresh, Upload } from '@element-plus/icons-vue'
 import {
   FavoriteApi, FileApi, FileScope, TagApi,
   type FavoriteDto, type FavoriteMediaInput, type FileDto, type TagDto,
@@ -12,6 +12,7 @@ import {
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
+import type { UploadFile } from 'element-plus'
 
 const favoriteApi = new FavoriteApi(apiConfiguration)
 const fileApi = new FileApi(apiConfiguration)
@@ -29,6 +30,8 @@ const keyword = ref('')
 const typeFilter = ref('')
 const selectedFileIds = ref<string[]>([])
 const selectedTagIds = ref<string[]>([])
+const previewUrls = ref<Record<string, string>>({})
+const quickUploading = ref(false)
 
 const contentTypes = [
   { label: '食物', value: 'Food' },
@@ -65,6 +68,15 @@ async function loadData() {
     items.value = favoriteResult.items ?? []
     tags.value = tagResult.items ?? []
     files.value = fileResult.items ?? []
+    await Promise.all(files.value.map(async file => {
+      if (!file.uid || previewUrls.value[file.uid]) return
+      try {
+        const blob = await fileApi.apiFilePreviewGet({ uID: file.uid })
+        previewUrls.value[file.uid] = URL.createObjectURL(blob)
+      } catch {
+        // Keep files selectable even if a preview cannot be loaded.
+      }
+    }))
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : 'Favorite 数据加载失败')
   } finally {
@@ -168,9 +180,45 @@ function toggleFile(fileId: string, checked: string | number | boolean) {
   else if (!checked) selectedFileIds.value = selectedFileIds.value.filter(value => value !== fileId)
 }
 
+async function handleQuickUpload(uploadFile: UploadFile) {
+  const raw = uploadFile.raw
+  if (!raw || quickUploading.value) return
+  if (!raw.type.startsWith('image/')) {
+    ElMessage.warning('这里只支持上传图片文件')
+    return
+  }
+
+  quickUploading.value = true
+  try {
+    const uploadedIds = await fileApi.apiFileUploadPost({ file: [raw] })
+    const uid = uploadedIds[0]
+    if (!uid) throw new Error('上传成功，但服务端未返回文件标识')
+    const result = await fileApi.apiFileGet({ uID: uid })
+    const uploaded = result.items?.[0]
+    if (!uploaded?.uid) throw new Error('图片已上传，但无法读取文件信息')
+    if (!files.value.some(file => file.uid === uploaded.uid)) files.value.unshift(uploaded)
+    selectedFileIds.value = [...selectedFileIds.value, uploaded.uid]
+    try {
+      const blob = await fileApi.apiFilePreviewGet({ uID: uploaded.uid })
+      previewUrls.value[uploaded.uid] = URL.createObjectURL(blob)
+    } catch {
+      // Keep the uploaded file selectable even if a preview cannot be loaded.
+    }
+    ElMessage.success('图片上传成功并已选中')
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '图片上传失败')
+  } finally {
+    quickUploading.value = false
+  }
+}
+
 function fileName(fileId?: string) {
   return files.value.find(file => file.uid === fileId)?.fileName ?? fileId ?? '未知文件'
 }
+
+onBeforeUnmount(() => {
+  Object.values(previewUrls.value).forEach(url => URL.revokeObjectURL(url))
+})
 
 onBeforeMount(loadData)
 </script>
@@ -243,9 +291,19 @@ onBeforeMount(loadData)
         </ElFormItem>
         <ElFormItem label="关联图片">
           <div class="media-picker">
-            <div class="media-summary">{{ selectedFileIds.length ? selectedFileIds.map(fileName).join('、') : '尚未选择图片' }}</div>
-            <ElButton @click="fileDialogVisible = true">选择文件</ElButton>
-            <ElButton v-if="selectedFileIds.length" text type="danger" @click="selectedFileIds = []">清空</ElButton>
+            <div v-if="selectedFileIds.length" class="selected-media-grid">
+              <div v-for="(fileId, index) in selectedFileIds" :key="fileId" class="selected-media-item">
+                <img v-if="previewUrls[fileId]" :src="previewUrls[fileId]" :alt="fileName(fileId)">
+                <div v-else class="media-placeholder">无预览</div>
+                <span>{{ index === 0 ? '封面' : '图片 ' + (index + 1) }}</span>
+                <ElButton circle text type="danger" :icon="Delete" @click="selectedFileIds = selectedFileIds.filter(id => id !== fileId)" />
+              </div>
+            </div>
+            <div v-else class="media-summary">尚未选择图片</div>
+            <div class="media-actions">
+              <ElButton @click="fileDialogVisible = true">选择素材</ElButton>
+              <ElButton v-if="selectedFileIds.length" text type="danger" @click="selectedFileIds = []">清空</ElButton>
+            </div>
           </div>
         </ElFormItem>
         <ElFormItem label="标签">
@@ -260,16 +318,29 @@ onBeforeMount(loadData)
       </template>
     </ElDialog>
 
-    <ElDialog v-model="fileDialogVisible" title="选择图片文件" width="min(680px, 94vw)">
+    <ElDialog v-model="fileDialogVisible" title="选择图片素材" width="min(860px, 94vw)">
+      <div class="picker-toolbar">
+        <div><strong>图片素材库</strong><span>点击卡片即可多选，第一张图片将作为封面</span></div>
+        <ElUpload accept="image/*" :auto-upload="false" :show-file-list="false" :on-change="handleQuickUpload">
+          <ElButton type="primary" :icon="Upload" :loading="quickUploading">上传图片</ElButton>
+        </ElUpload>
+      </div>
       <div class="file-options">
-        <ElCheckbox v-for="file in files" :key="file.uid" :model-value="selectedFileIds.includes(file.uid ?? '')"
-          :label="file.uid" @change="checked => toggleFile(file.uid ?? '', checked)">
-          {{ file.fileName || file.uid }}
-        </ElCheckbox>
-        <ElEmpty v-if="!files.length" description="没有可关联的图片文件" />
+        <button v-for="file in files" :key="file.uid" type="button" class="file-option"
+          :class="{ selected: selectedFileIds.includes(file.uid ?? '') }"
+          @click="toggleFile(file.uid ?? '', !selectedFileIds.includes(file.uid ?? ''))">
+          <div class="file-option-preview">
+            <img v-if="file.uid && previewUrls[file.uid]" :src="previewUrls[file.uid]" :alt="file.fileName ?? '图片预览'">
+            <span v-else>暂无预览</span>
+            <span v-if="selectedFileIds.includes(file.uid ?? '')" class="selected-mark">✓</span>
+          </div>
+          <span class="file-option-name">{{ file.fileName || file.uid }}</span>
+        </button>
+        <ElEmpty v-if="!files.length" description="暂无图片素材，可直接上传" />
       </div>
       <template #footer>
-        <ElButton @click="fileDialogVisible = false">完成（{{ selectedFileIds.length }}）</ElButton>
+        <span class="picker-selection">已选择 {{ selectedFileIds.length }} 张图片</span>
+        <ElButton @click="fileDialogVisible = false">完成</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -281,8 +352,25 @@ onBeforeMount(loadData)
 .type-filter { width: 160px; }
 .full-width { width: 100%; }
 .tag-chip { margin: 2px 4px 2px 0; }
-.media-picker { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; width: 100%; }
+.media-picker { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.media-actions { display: flex; gap: 8px; }
+.selected-media-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.selected-media-item { position: relative; width: 112px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--el-text-color-secondary); }
+.selected-media-item img, .media-placeholder { width: 112px; height: 82px; object-fit: cover; border-radius: 6px; background: var(--el-fill-color-light); }
+.selected-media-item :deep(.el-button) { position: absolute; top: 3px; right: 3px; background: var(--el-bg-color); }
+.media-placeholder { display: grid; place-items: center; }
+.picker-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+.picker-toolbar > div { display: flex; flex-direction: column; gap: 4px; }
+.picker-toolbar span { font-size: 12px; color: var(--el-text-color-secondary); }
+.picker-selection { float: left; color: var(--el-text-color-secondary); font-size: 13px; }
 .media-summary { flex: 1; min-width: 180px; color: var(--el-text-color-secondary); overflow-wrap: anywhere; }
-.file-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-height: 52vh; overflow: auto; }
-@media (max-width: 600px) { .file-options { grid-template-columns: 1fr; } }
+.file-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; max-height: 56vh; overflow: auto; }
+.file-option { min-width: 0; padding: 7px; border: 1px solid var(--el-border-color); border-radius: 8px; background: var(--el-bg-color); cursor: pointer; text-align: left; transition: border-color .15s, background .15s; }
+.file-option:hover { border-color: var(--el-color-primary); }
+.file-option.selected { border: 2px solid var(--el-color-primary); padding: 6px; background: var(--el-color-primary-light-9); }
+.file-option-preview { position: relative; height: 104px; display: grid; place-items: center; overflow: hidden; border-radius: 5px; background: var(--el-fill-color-light); color: var(--el-text-color-placeholder); font-size: 12px; }
+.file-option-preview img { width: 100%; height: 100%; object-fit: cover; }
+.selected-mark { position: absolute; top: 5px; right: 5px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--el-color-primary); font-weight: 700; }
+.file-option-name { display: block; margin-top: 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+@media (max-width: 600px) { .file-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } .picker-toolbar { align-items: flex-start; flex-direction: column; } }
 </style>
