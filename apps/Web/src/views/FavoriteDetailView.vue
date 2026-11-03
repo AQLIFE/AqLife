@@ -5,6 +5,7 @@ import { ElButton, ElEmpty, ElImage, ElMessage, ElTag } from 'element-plus'
 import { ArrowLeft, ArrowRight, Share } from '@element-plus/icons-vue'
 import { FavoriteApi, FileApi, TagApi, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
+import { FavoriteDetailContent } from '@aqlife/ui-shared'
 
 const route = useRoute()
 const router = useRouter()
@@ -200,85 +201,8 @@ onBeforeUnmount(releaseImageUrls)
       <ElButton type="primary" @click="router.push('/favorite')">返回收藏列表</ElButton>
     </ElEmpty>
 
-    <article v-else class="detail-content">
-      <header class="detail-header">
-        <div class="detail-eyebrow">
-          <span>{{ contentTypeLabel }}</span>
-          <span v-if="favorite.createdAt">{{ formatDate(favorite.createdAt) }}</span>
-        </div>
-        <h1>{{ favorite.title || '未命名收藏' }}</h1>
-        <p v-if="favorite.description" class="detail-description">{{ favorite.description }}</p>
-        <div v-if="favoriteTags.length" class="detail-tags">
-          <ElTag v-for="tag in favoriteTags" :key="tag" effect="plain">{{ tag }}</ElTag>
-        </div>
-      </header>
+    <FavoriteDetailContent v-else-if="favorite" :favorite="favorite" :tags="tags" :image-urls="imageUrls" />
 
-      <section v-if="mediaItems.length" class="detail-gallery-section">
-        <div class="section-heading">
-          <h2>图片集</h2>
-          <span>{{ mediaItems.length }} 张图片</span>
-        </div>
-        <div class="detail-gallery">
-          <div v-for="(media, index) in mediaItems" :key="media.fileId" class="gallery-item">
-            <ElImage
-              v-if="media.fileId && imageUrls[media.fileId]"
-              :src="imageUrls[media.fileId]"
-              :preview-src-list="galleryUrls"
-              :initial-index="Math.max(0, galleryUrls.indexOf(imageUrls[media.fileId]))"
-              fit="cover"
-              hide-on-click-modal
-              class="gallery-image"
-            />
-            <div v-else class="gallery-placeholder">图片加载中</div>
-            <span v-if="media.role === 'Cover'" class="gallery-label">封面</span>
-            <span v-else class="gallery-label">图片 {{ index + 1 }}</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="detail-info">
-        <div class="section-heading">
-          <h2>收藏信息</h2>
-        </div>
-        <dl>
-          <div>
-            <dt>内容类型</dt>
-            <dd>{{ contentTypeLabel }}</dd>
-          </div>
-          <div v-if="favorite.createdAt">
-            <dt>添加时间</dt>
-            <dd>{{ formatDate(favorite.createdAt) }}</dd>
-          </div>
-          <div v-if="favorite.updatedAt">
-            <dt>更新时间</dt>
-            <dd>{{ formatDate(favorite.updatedAt) }}</dd>
-          </div>
-          <div v-if="favorite.sourceUrl">
-            <dt>来源地址</dt>
-            <dd><a :href="favorite.sourceUrl" target="_blank" rel="noopener noreferrer">{{ favorite.sourceUrl }}</a></dd>
-          </div>
-        </dl>
-      </section>
-
-      <footer class="detail-footer">
-        <ElButton
-          plain
-          :icon="ArrowLeft"
-          :disabled="!previousFavorite"
-          @click="openNeighbor(previousFavorite)"
-        >
-          {{ previousFavorite ? '上一篇：' + (previousFavorite.title || '未命名收藏') : '已经是第一篇' }}
-        </ElButton>
-        <ElButton
-          plain
-          :icon="ArrowRight"
-          :disabled="!nextFavorite"
-          @click="openNeighbor(nextFavorite)"
-        >
-          {{ nextFavorite ? '下一篇：' + (nextFavorite.title || '未命名收藏') : '已经是最后一篇' }}
-        </ElButton>
-      </footer>
-    </article>
   </section>
 </template>
 
