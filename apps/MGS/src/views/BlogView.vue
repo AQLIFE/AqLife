@@ -24,7 +24,7 @@ const props = defineProps<{ id?: string }>()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const videoInput = ref<HTMLInputElement>()
-const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => editor, fileApi)
+const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => editor, fileApi, apiConfiguration.basePath)
 const draftStorageKey = (uid: string) => `aqlife:blog-draft:${uid}`
 const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000
 const baseurl = import.meta.env.VITE_API
