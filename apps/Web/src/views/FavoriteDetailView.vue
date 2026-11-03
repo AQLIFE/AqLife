@@ -29,7 +29,9 @@ function releaseImageUrls() {
 }
 
 async function loadImages() {
-  const media = mediaItems.value
+  const media = [...(favorite.value?.media ?? [])]
+    .filter(item => !!item.fileId)
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
   await Promise.all(media.map(async item => {
     const fileId = item.fileId
     if (!fileId || imageUrls.value[fileId]) return
