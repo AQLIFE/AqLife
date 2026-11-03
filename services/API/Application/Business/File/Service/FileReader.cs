@@ -25,6 +25,14 @@ namespace AqLife.Application.Business.File.Service
         /// <param name="ct"></param>
         /// <returns></returns>
         /// <exception cref="ResourceNotFoundException"></exception>
+        public async Task EnsureReadableAsync(Guid id, FileScope scope, CancellationToken ct = default)
+        {
+            var fileInfo = (await fileSearch.SearchAsync(
+                query: new FileQuery(UID: id, Scope: scope), ct)).FirstOrDefault();
+            if (fileInfo is null)
+                throw new ResourceNotFoundException("不存在文件记录");
+        }
+
         public async Task<FileDownloadModel> ReadAsync(Guid id,FileScope scope=FileScope.Default, CancellationToken ct=default)
         {
             FileMetaEntity fileInfo = (await fileSearch.SearchAsync(query: new FileQuery(UID: id,Scope:scope), ct)).FirstOrDefault() ?? throw new ResourceNotFoundException("不存在文件记录");
