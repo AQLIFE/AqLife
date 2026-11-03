@@ -271,7 +271,7 @@ async function openVideoPreview(uid: string) {
 
   if (requestVersion !== videoPreviewRequestVersion) return
 
-  const basePath = apiConfiguration.basePath.replace(/\\/+$/, '')
+  const basePath = apiConfiguration.basePath.replace(/\/+$/, '')
   const token = tokenStore.get()
   previewImageUrl.value = ''
   previewVideoUrl.value = ''
