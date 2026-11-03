@@ -588,7 +588,6 @@ async function createArticle() {
 
   if ((articleUsesTemplate.value && !template?.uid) || !draft.content || !title || creatingArticleBusy.value) return
 
-  const content = draft.content.replaceAll('{{title}}', title)
   const fileName = sanitizeFileName(title) + '.md'
 
   creatingArticleBusy.value = true
@@ -596,6 +595,7 @@ async function createArticle() {
 
   try {
     await waitForVideoUploads()
+    if (draft.content.includes('pending-video:')) throw new Error('草稿中仍有未完成的视频占位符，请重新插入视频后再保存。')
     const resolvedContent = draft.content.replaceAll('{{title}}', title)
     const uids = await fileApi.apiFileUploadPost({
       isTemplate: false,
