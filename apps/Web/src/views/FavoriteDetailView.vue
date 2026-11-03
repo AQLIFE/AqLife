@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElButton, ElEmpty, ElImage, ElMessage, ElTag } from 'element-plus'
-import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight, Share } from '@element-plus/icons-vue'
 import { FavoriteApi, FileApi, TagApi, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 
@@ -144,6 +144,32 @@ async function loadFavorite(uid: string) {
   }
 }
 
+async function shareFavorite() {
+  const url = window.location.href
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url)
+    } else {
+      const textarea = document.createElement('textarea')
+      textarea.value = url
+      textarea.setAttribute('readonly', '')
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.select()
+      const copied = document.execCommand('copy')
+      document.body.removeChild(textarea)
+      if (!copied) throw new Error('浏览器不支持复制')
+    }
+
+    ElMessage.success('收藏链接已复制')
+  } catch (error) {
+    console.error('复制收藏链接失败:', error)
+    ElMessage.error('复制失败，请手动复制当前页面地址')
+  }
+}
+
 function formatDate(value?: string) {
   if (!value) return ''
   return value.slice(0, 10)
@@ -164,16 +190,7 @@ onBeforeUnmount(releaseImageUrls)
   <section class="favorite-detail-page">
     <div class="detail-topbar">
       <ElButton text :icon="ArrowLeft" @click="router.push('/favorite')">返回收藏</ElButton>
-      <a
-        v-if="favorite?.sourceUrl"
-        class="source-link"
-        :href="favorite.sourceUrl"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        查看原始来源
-        <ArrowRight />
-      </a>
+      <ElButton text :icon="Share" title="分享收藏" aria-label="分享收藏" @click="shareFavorite" />
     </div>
 
     <div v-if="loading" class="detail-state">
@@ -269,7 +286,6 @@ onBeforeUnmount(releaseImageUrls)
 .favorite-detail-page { height: 100%; min-height: 0; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; padding: 26px clamp(16px, 4vw, 48px) 56px; background: var(--el-bg-color); color: var(--el-text-color-primary); }
 .detail-topbar, .detail-content { width: min(100%, 920px); margin: 0 auto; }
 .detail-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
-.source-link { display: inline-flex; align-items: center; gap: 6px; color: var(--el-color-primary); font-size: 13px; text-decoration: none; }
 .detail-state { display: grid; place-items: center; min-height: 240px; color: var(--el-text-color-secondary); }
 .detail-header { padding: 10px 0 28px; border-bottom: 1px solid var(--el-border-color-lighter); }
 .detail-eyebrow { display: flex; flex-wrap: wrap; gap: 14px; color: var(--el-text-color-placeholder); font-size: 12px; }
