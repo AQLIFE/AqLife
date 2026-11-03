@@ -143,7 +143,17 @@ async function resolveInternalLink(
     }
   }
 
-  if (['.mp4', '.webm'].includes(file.fileType?.toLowerCase() ?? '')) {
+  const fileType = (file.fileType ?? '').trim().toLowerCase()
+  const fileName = (file.fileName ?? '').trim().toLowerCase()
+  const isVideo = fileType.startsWith('video/')
+    || fileType.endsWith('.mp4')
+    || fileType.endsWith('.webm')
+    || fileType === 'mp4'
+    || fileType === 'webm'
+    || fileName.endsWith('.mp4')
+    || fileName.endsWith('.webm')
+
+  if (isVideo) {
     return {
       type: 'video',
       src: (await props.fileResolver.getVideoUrl?.(uid)) || buildVideoUrl(uid),
