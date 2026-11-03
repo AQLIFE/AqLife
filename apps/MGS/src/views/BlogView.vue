@@ -382,8 +382,8 @@ watch(
 
 watch(markdown, value => {
   const uid = file.value?.uid
-  if (!uid || !isEditing.value || value === originalMarkdown.value) return
-  try {
+  if (!uid || !isEditing.value) return
+  if (value === originalMarkdown.value) {\n    localStorage.removeItem(draftStorageKey(uid))\n    return\n  }\n  try {
     localStorage.setItem(draftStorageKey(uid), JSON.stringify({ content: value, savedAt: Date.now() }))
   } catch { /* Storage may be unavailable or full; the editor remains usable. */ }
 }, { flush: 'sync' })
