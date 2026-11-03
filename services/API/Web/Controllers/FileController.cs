@@ -82,9 +82,12 @@ namespace AqLife.Web.Controllers
             // FileSearch exposes unpublished files only to authenticated requests.
             // A validated, file-bound, short-lived ticket is the authorization proof for this media request.
             var originalUser = HttpContext.User;
-            HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
-                [new Claim(ClaimTypes.NameIdentifier, "video-preview-ticket")],
-                "VideoPreviewTicket"));
+            if (!string.IsNullOrWhiteSpace(ticket))
+            {
+                HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+                    [new Claim(ClaimTypes.NameIdentifier, "video-preview-ticket")],
+                    "VideoPreviewTicket"));
+            }
             try
             {
                 // R2's SDK response stream is not seekable, so MVC's FileResult cannot
