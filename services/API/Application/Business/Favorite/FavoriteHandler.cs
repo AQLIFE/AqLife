@@ -35,7 +35,7 @@ public class FavoriteHandler(IApplicationDbContext storage) :
         var rows = await items.OrderBy(x => x.SortOrder).ThenByDescending(x => x.CreatedAt)
             .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
         var data = rows.Select(ToDto).ToList();
-        return new PageResult<FavoriteDto>(data, total, page, pageSize);
+        return new PageResult<FavoriteDto>(data, page, pageSize, page * pageSize < total);
     }
 
     public async Task<Guid> Handle(CreateFavoriteCommand command, CancellationToken ct)
