@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { ElButton, ElImage, ElTag } from 'element-plus'
 import { Edit } from '@element-plus/icons-vue'
-import type { FavoriteDto, TagDto } from '@aqlife/api-client'
+import type { FavoriteDto, TagDto } from '@aqlife/api-contract'
 
 const props = withDefaults(defineProps<{
   favorite: FavoriteDto
