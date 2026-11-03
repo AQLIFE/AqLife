@@ -146,7 +146,7 @@ async function resolveInternalLink(
   if (['.mp4', '.webm'].includes(file.fileType?.toLowerCase() ?? '')) {
     return {
       type: 'video',
-      src: buildVideoUrl(uid),
+      src: (await props.fileResolver.getVideoUrl?.(uid)) || buildVideoUrl(uid),
       title: text,
     }
   }
