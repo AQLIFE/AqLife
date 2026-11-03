@@ -88,6 +88,7 @@
           v-model="imageScheduledAt"
           type="datetime"
           class="image-schedule-picker"
+          popper-class="image-schedule-picker-popper"
           placeholder="预定发布时间"
           :disabled="imageSaving || imageDeleting || activeImageFile.publishStatus === FileStatus.Published"
           @change="onImageScheduledAtChanged"
@@ -621,6 +622,10 @@ function handleAddFile() {
 
 :global(.image-tag-select-popper) {
   z-index: 4001 !important;
+}
+
+:global(.image-schedule-picker-popper) {
+  z-index: 4100 !important;
 }
 
 .image-management-panel {
