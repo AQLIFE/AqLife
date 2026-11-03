@@ -20,6 +20,7 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
   const active = new Map<string, Promise<void>>()
   const pendingFiles = new Map<string, File>()
   const pendingTokens = new Map<string, string>()
+  let queueTail: Promise<void> = Promise.resolve()
   const busy = computed(() => items.value.some(item => item.state === 'queued' || item.state === 'uploading'))
 
   function replaceToken(token: string, replacement: string) {
@@ -65,9 +66,10 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
     editor.focus()
 
     for (const item of items.value.filter(x => jobs.some(token => token.includes(x.id)))) {
-      const task = upload(item.id)
+      const task = queueTail.then(() => upload(item.id))
+      queueTail = task.catch(() => undefined)
       active.set(item.id, task)
-      void task.finally(() => active.delete(item.id))
+      void task.catch(() => undefined).finally(() => active.delete(item.id))
     }
   }
 
@@ -116,7 +118,8 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
 
   async function retry(id: string) {
     if (active.has(id) || !pendingFiles.has(id)) return
-    const task = upload(id)
+    const task = queueTail.then(() => upload(id))
+    queueTail = task.catch(() => undefined)
     active.set(id, task)
     try {
       await task
