@@ -58,7 +58,7 @@ public class FavoriteHandler(IApplicationDbContext storage) :
         storage.Set<FavoriteTagEntity>().RemoveRange(entity.Tags);
         entity.Media.Clear();
         entity.Tags.Clear();
-        await ReplaceRelations(entity, command.FileIds, command.TagIds, ct);
+        await ReplaceRelations(entity, command.Media, command.TagIds, ct);
         return entity.UID;
     }
 
