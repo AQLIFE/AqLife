@@ -50,7 +50,7 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
 
     const jobs = valid.map(file => {
       const id = crypto.randomUUID()
-      const token = `![视频上传中：${file.name}](pending-video:${id})`
+      const token = `![视频上传中](pending-video:${id})`
       const item: VideoUploadItem = { id, name: file.name, size: file.size, state: 'queued', progress: 0 }
       items.value.push(item)
       pendingFiles.set(id, file)
