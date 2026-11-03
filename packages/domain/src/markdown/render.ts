@@ -20,6 +20,11 @@ export type MarkdownLinkResult =
     alt: string
   }
   | {
+    type: 'video'
+    src: string
+    title: string
+  }
+  | {
     type: 'markdown'
     href: string
   }
