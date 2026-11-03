@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import * as monaco from 'monaco-editor'
 import { FileApi } from '@/api'
 import { ElMessage } from 'element-plus'
+import { tokenStore } from '@aqlife/api-client'
 
 export type VideoUploadState = 'queued' | 'uploading' | 'completed' | 'failed'
 
@@ -16,7 +17,7 @@ export interface VideoUploadItem {
 
 const CHUNK_SIZE = 4 * 1024 * 1024
 
-export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStandaloneCodeEditor | undefined, fileApi: FileApi) {
+export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStandaloneCodeEditor | undefined, fileApi: FileApi, apiBasePath: string) {
   const items = ref<VideoUploadItem[]>([])
   const active = new Map<string, Promise<void>>()
   const pendingFiles = new Map<string, File>()
@@ -87,9 +88,21 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
     try {
       let uid = pendingUids.get(id)
       if (!uid) {
-        const session = await fileApi.apiFileUploadsPost({
-          startRequest: { fileName: file.name, fileSize: file.size, chunkSize: CHUNK_SIZE },
+        const basePath = apiBasePath.replace(/\/+$/, '')
+        const headers = new Headers({ 'Content-Type': 'application/json' })
+        const accessToken = tokenStore.get()
+        if (accessToken) headers.set('Authorization', accessToken.startsWith('Bearer ') ? accessToken : `Bearer ${accessToken}`)
+        const response = await fetch(`${basePath}/api/File/uploads`, {
+          method: 'POST',
+          headers,
+          credentials: 'include',
+          body: JSON.stringify({ fileName: file.name, fileSize: file.size, chunkSize: CHUNK_SIZE }),
         })
+        if (!response.ok) {
+          const detail = await response.text()
+          throw new Error(`创建视频上传任务失败（HTTP ${response.status}）：${detail || response.statusText}`)
+        }
+        const session = await response.json() as { uploadId?: string; chunkSize?: number; chunkCount?: number }
         if (!session.uploadId || !session.chunkSize || !session.chunkCount) throw new Error('服务端未返回有效的视频上传任务。')
 
         for (let index = 0; index < session.chunkCount; index++) {
