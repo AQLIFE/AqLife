@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { ElIcon } from 'element-plus'
-import { Document, House, List, PriceTag } from '@element-plus/icons-vue'
+import { Collection, Document, House, List, PriceTag } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>
