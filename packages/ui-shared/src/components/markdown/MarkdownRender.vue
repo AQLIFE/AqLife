@@ -164,7 +164,7 @@ async function resolveInternalLink(
   }
 }
 
-function buildVideoUrl(uid: string): string {\n  if (!props.baseurl) return ''\n  const base = new URL(props.baseurl)\n  base.pathname = `${base.pathname.replace(/\\/$/, '')}/api/File/video-stream`\n  base.search = ''\n  base.searchParams.set('UID', uid)\n  return base.toString()\n}\n\nfunction buildVideoUrl(uid: string): string {
+function buildVideoUrl(uid: string): string {
   if (!props.baseurl) return ''
   const base = new URL(props.baseurl)
   base.pathname = `${base.pathname.replace(/\/$/, '')}/api/File/video-stream`
