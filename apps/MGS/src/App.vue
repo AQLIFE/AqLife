@@ -17,7 +17,7 @@ const loading = ref(true)
 const currentTitle = computed(() => {
   if (route.path.startsWith('/blog')) return 'Blog'
   if (route.path.startsWith('/todo')) return 'Todo'
-  if (route.path.startsWith('/tag')) return 'Tags'
+  if (route.path.startsWith('/tag')) return 'Tags'\n  if (route.path.startsWith('/favorite')) return '收藏管理'
   if (route.path.startsWith('/account')) return 'Account'
   return 'Overview'
 })
