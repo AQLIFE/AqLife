@@ -1,21 +1,23 @@
 <template>
-  <ElImage
-    v-if="isImageType(props.row.fileType!)"
-    class="image"
-    :src="fileStore.previewUrl.get(props.row.uid!)"
-    @click.stop="emit('preview-image', props.row.uid!)"
-  >
-    <template #error>加载中...</template>
-  </ElImage>
-  <div v-else-if="isVideoType(props.row.fileType ?? '')" class="file-type-placeholder video-placeholder" role="button" tabindex="0" @click.stop="emit('preview-video', props.row.uid!)" @keydown.enter.stop="emit('preview-video', props.row.uid!)">
-    <ElIcon><VideoCamera /></ElIcon>
+  <div class="file-preview-cell">
+    <ElImage
+      v-if="isImageType(props.row.fileType!)"
+      class="image"
+      :src="fileStore.previewUrl.get(props.row.uid!)"
+      @click.stop="emit('preview-image', props.row.uid!)"
+    >
+      <template #error>加载中...</template>
+    </ElImage>
+    <div v-else-if="isVideoType(props.row.fileType ?? '')" class="file-type-placeholder video-placeholder" role="button" tabindex="0" @click.stop="emit('preview-video', props.row.uid!)" @keydown.enter.stop="emit('preview-video', props.row.uid!)">
+      <ElIcon><VideoCamera /></ElIcon>
+    </div>
+    <div v-else class="file-type-placeholder">
+      <ElIcon>
+        <component :is="mgsIconRegistry[MgsIconName.Markdown]" />
+      </ElIcon>
+    </div>
+    <span class="file-uid" :title="props.row.uid">{{ props.row.uid }}</span>
   </div>
-  <div v-else class="file-type-placeholder">
-    <ElIcon>
-      <component :is="mgsIconRegistry[MgsIconName.Markdown]" />
-    </ElIcon>
-  </div>
-  <!-- <ElCol>{{ props.row.uid }}</ElCol> -->
 </template>
 
 <script setup lang="ts">
@@ -40,6 +42,28 @@ function isVideoType(fileType: string): boolean {
 </script>
 
 <style scoped>
+.file-preview-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+
+.file-uid {
+  width: 100%;
+  overflow: hidden;
+  color: var(--el-text-color-secondary);
+  font-family: var(--el-font-family);
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: text;
+}
+
 .file-type-placeholder {
   width: 100%;
   height: 72px;
