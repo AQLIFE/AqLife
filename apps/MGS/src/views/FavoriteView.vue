@@ -28,7 +28,7 @@ const editing = ref<FavoriteDto | null>(null)
 const keyword = ref('')
 const typeFilter = ref('')
 const selectedFileIds = ref<string[]>([])
-const selectedTagIds = ref<string[]>(())
+const selectedTagIds = ref<string[]>([])
 
 const contentTypes = [
   { label: '食物', value: 'Food' },
