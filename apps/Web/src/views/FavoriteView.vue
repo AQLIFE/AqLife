@@ -125,7 +125,7 @@ onBeforeUnmount(() => {
     </div>
 
     <div v-if="items.length" class="archive-grid">
-      <article v-for="(item, index) in items" :key="item.uid" class="archive-card" role="link" tabindex="0" aria-label="查看收藏详情" @click="openDetail(item.uid)" @keydown.enter.prevent="openDetail(item.uid)" :class="`card-tone-${index % 4}`">
+      <article v-for="(item, index) in items" :key="item.uid" class="archive-card" role="link" tabindex="0" aria-label="查看收藏详情" @click="openDetail(item.uid)" @keydown.enter.self.prevent="openDetail(item.uid)" :class="`card-tone-${index % 4}`">
         <a v-if="item.sourceUrl" class="card-source" :href="item.sourceUrl" target="_blank" rel="noopener noreferrer" :aria-label="打开收藏来源" @click.stop>
           <ArrowRight />
         </a>
@@ -142,6 +142,7 @@ onBeforeUnmount(() => {
           <div v-if="item.tagIds?.length" class="card-tags">
             <ElTag v-for="id in item.tagIds" :key="id" size="small" effect="plain">{{ tagName(id) }}</ElTag>
           </div>
+          <span class="card-open-hint">查看详情 <ArrowRight /></span>
         </div>
       </article>
     </div>
@@ -177,6 +178,7 @@ onBeforeUnmount(() => {
 .card-body h2 { margin: 10px 0 8px; font-size: 17px; font-weight: 600; line-height: 1.45; }
 .card-body p { margin: 0; color: var(--el-text-color-secondary); font-size: 13px; line-height: 1.75; white-space: pre-wrap; }
 .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 13px; }
+.card-open-hint { display: inline-flex; align-items: center; gap: 5px; margin-top: 15px; color: var(--el-color-primary); font-size: 12px; }
 .archive-footer { display: flex; justify-content: center; padding: 28px 0 8px; color: var(--el-text-color-placeholder); font-size: 12px; }
 @media (max-width: 900px) { .archive-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .card-tone-1, .card-tone-2 { margin-top: 0; } }
 @media (max-width: 600px) { .archive-page { padding: 22px 14px 32px; } .archive-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; } .archive-heading { margin-bottom: 20px; } }
