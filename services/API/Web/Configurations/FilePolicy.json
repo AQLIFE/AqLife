@@ -1,6 +1,6 @@
 {
   "FilePolicy": {
-    "MaxFileSize": 100,
+    "MaxFileSize": 500,
     "VideoMaxFileSize": 1048576,
     "StoragePath": "Cache",
     "StorageUnit": 10,

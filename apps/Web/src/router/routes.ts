@@ -67,7 +67,7 @@ export const routes = [
     meta: {
       navTitle: '心愿单',
       navIcon: WebIconName.Wish,
-      showInNav: true,
+      showInNav: false,
       order: 4,
       sidebarType: SidebarType.None,
     },
