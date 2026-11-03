@@ -178,7 +178,7 @@ onBeforeUnmount(() => {
 .card-body h2 { margin: 10px 0 8px; font-size: 17px; font-weight: 600; line-height: 1.45; }
 .card-body p { margin: 0; color: var(--el-text-color-secondary); font-size: 13px; line-height: 1.75; white-space: pre-wrap; }
 .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 13px; }
-.card-open-hint { display: inline-flex; align-items: center; gap: 5px; margin-top: 15px; color: var(--el-color-primary); font-size: 12px; }
+.card-open-hint { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 5px; margin-top: 15px; color: var(--el-color-primary); font-size: 12px; white-space: nowrap; }\n.card-open-hint :deep(svg) { flex: 0 0 auto; }
 .archive-footer { display: flex; justify-content: center; padding: 28px 0 8px; color: var(--el-text-color-placeholder); font-size: 12px; }
 @media (max-width: 900px) { .archive-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .card-tone-1, .card-tone-2 { margin-top: 0; } }
 @media (max-width: 600px) { .archive-page { padding: 22px 14px 32px; } .archive-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; } .archive-heading { margin-bottom: 20px; } }
