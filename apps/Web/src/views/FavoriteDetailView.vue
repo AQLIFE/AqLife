@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElButton, ElEmpty, ElImage, ElMessage, ElTag } from 'element-plus'
-import { ArrowLeft, ArrowRight, ExternalLink } from '@element-plus/icons-vue'
+import { ArrowLeft, ExternalLink } from '@element-plus/icons-vue'
 import { FavoriteApi, FileApi, TagApi, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 
@@ -78,12 +78,14 @@ async function loadFavorite(uid: string) {
   releaseImageUrls()
 
   try {
-    const [result, tagResult] = await Promise.all([
-      favoriteApi.apiFavoriteGet({ uID: uid, page: 1, pageSize: 1 }),
-      tagApi.apiTagGet({ page: 1, pageSize: 100 }),
-    ])
-    tags.value = tagResult.items ?? []
+    const result = await favoriteApi.apiFavoriteGet({ uID: uid, page: 1, pageSize: 1 })
     favorite.value = result.items?.find(item => item.uid === uid) ?? null
+    try {
+      const tagResult = await tagApi.apiTagGet({ page: 1, pageSize: 100 })
+      tags.value = tagResult.items ?? []
+    } catch {
+      tags.value = []
+    }
     notFound.value = !favorite.value
     if (favorite.value) await loadImages()
   } catch (error) {
@@ -195,10 +197,6 @@ onBeforeUnmount(releaseImageUrls)
 
       <footer class="detail-footer">
         <ElButton :icon="ArrowLeft" @click="router.push('/favorite')">返回收藏列表</ElButton>
-        <ElButton v-if="favorite.sourceUrl" type="primary" plain @click="window.open(favorite.sourceUrl, '_blank', 'noopener,noreferrer')">
-          访问来源
-          <ArrowRight />
-        </ElButton>
       </footer>
     </article>
   </section>
