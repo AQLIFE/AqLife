@@ -60,6 +60,8 @@
               <ElButton type="primary" :disabled="!canSaveNewTemplate || saving" @click="saveNewTemplate">保存模板</ElButton>
             </template>
             <template v-else-if="creatingArticle">
+              <input ref="videoInput" type="file" accept=".mp4,.webm,video/mp4,video/webm" multiple hidden @change="onVideoSelected">
+              <ElButton @click="chooseVideo">插入视频</ElButton>
               <ElButton @click="cancelCreatingArticle">取消</ElButton>
               <ElButton
                 type="primary"
@@ -116,6 +118,13 @@
 
 
 
+        <div v-if="creatingArticle && videoUploads.length" class="video-upload-queue">
+          <div v-for="item in videoUploads" :key="item.id" class="video-upload-item">
+            <span class="video-upload-name">{{ item.name }}</span>
+            <span>{{ item.state === 'queued' ? '排队中' : item.state === 'uploading' ? '上传中 ' + item.progress + '%' : item.state === 'completed' ? '已完成' : '上传失败' }}</span>
+            <ElButton v-if="item.state === 'failed'" text type="primary" @click="retryVideoUpload(item.id)">重试</ElButton>
+          </div>
+        </div>
         <div class="sheet">
           <div class="sheet-toolbar">
             <div class="sheet-cell">正文 / Markdown</div>
@@ -664,6 +673,9 @@ onBeforeMount(async () => {
 .form-row { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 14px; }
 .article-form .form-row { grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr); }
 .meta-form :deep(.el-form-item) { margin-bottom: 12px; }
+.video-upload-queue { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 0; font-size: 12px; }
+.video-upload-item { display: flex; align-items: center; gap: 8px; min-width: 240px; }
+.video-upload-name { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sheet { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); box-shadow: var(--mgs-shadow); }
 .sheet-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); }
 .sheet-body { min-height: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
