@@ -254,7 +254,24 @@ async function openVideoPreview(uid: string) {
   if (!file?.uid) return
 
   const requestVersion = ++videoPreviewRequestVersion
-  const basePath = apiConfiguration.basePath.replace(/\/+$/, '')
+
+  try {
+    await ElMessageBox.alert(
+      '部分视频文件较大，首次加载、播放或拖动进度条时可能需要等待。加载速度会受到视频文件大小和当前网络速度影响，请耐心等待。',
+      '视频加载提示',
+      {
+        confirmButtonText: '我知道了',
+        type: 'info',
+        autofocus: false,
+      },
+    )
+  } catch {
+    return
+  }
+
+  if (requestVersion !== videoPreviewRequestVersion) return
+
+  const basePath = apiConfiguration.basePath.replace(/\\/+$/, '')
   const token = tokenStore.get()
   previewImageUrl.value = ''
   previewVideoUrl.value = ''
