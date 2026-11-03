@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import * as monaco from 'monaco-editor'
 import { FileApi } from '@/api'
+import { ElMessage } from 'element-plus'
 
 export type VideoUploadState = 'queued' | 'uploading' | 'completed' | 'failed'
 
@@ -20,6 +21,7 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
   const active = new Map<string, Promise<void>>()
   const pendingFiles = new Map<string, File>()
   const pendingTokens = new Map<string, string>()
+  const pendingUids = new Map<string, string>()
   let queueTail: Promise<void> = Promise.resolve()
   const busy = computed(() => items.value.some(item => item.state === 'queued' || item.state === 'uploading'))
 
@@ -80,37 +82,49 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
     item.state = 'uploading'
     item.error = undefined
     item.progress = 0
+    ElMessage.info(`视频「${item.name}」开始上传`)
 
     try {
-      const session = await fileApi.apiFileUploadsPost({
-        startRequest: { fileName: file.name, fileSize: file.size, chunkSize: CHUNK_SIZE },
-      })
-      if (!session.uploadId || !session.chunkSize || !session.chunkCount) throw new Error('服务端未返回有效的视频上传任务。')
-
-      for (let index = 0; index < session.chunkCount; index++) {
-        const start = index * session.chunkSize
-        const chunk = file.slice(start, Math.min(file.size, start + session.chunkSize))
-        await fileApi.apiFileUploadsUploadIdChunksIndexPut({
-          uploadId: session.uploadId,
-          index,
-          chunk,
+      let uid = pendingUids.get(id)
+      if (!uid) {
+        const session = await fileApi.apiFileUploadsPost({
+          startRequest: { fileName: file.name, fileSize: file.size, chunkSize: CHUNK_SIZE },
         })
-        item.progress = Math.round(((index + 1) / session.chunkCount) * 95)
+        if (!session.uploadId || !session.chunkSize || !session.chunkCount) throw new Error('服务端未返回有效的视频上传任务。')
+
+        for (let index = 0; index < session.chunkCount; index++) {
+          const start = index * session.chunkSize
+          const chunk = file.slice(start, Math.min(file.size, start + session.chunkSize))
+          await fileApi.apiFileUploadsUploadIdChunksIndexPut({
+            uploadId: session.uploadId,
+            index,
+            chunk,
+          })
+          item.progress = Math.round(((index + 1) / session.chunkCount) * 90)
+        }
+
+        const uids = await fileApi.apiFileUploadsUploadIdCompletePost({ uploadId: session.uploadId })
+        uid = uids[0]
+        if (!uid) throw new Error('视频上传完成，但服务端未返回文件 UID。')
+        pendingUids.set(id, uid)
       }
 
-      const uids = await fileApi.apiFileUploadsUploadIdCompletePost({ uploadId: session.uploadId })
-      const uid = uids[0]
-      if (!uid) throw new Error('视频上传完成，但服务端未返回文件 UID。')
+      // Make the uploaded media publicly readable like images pasted into Markdown.
+      await fileApi.apiFileSchedulePatch({ scheduledFileCommand: { uid } })
+      item.progress = 98
 
       const inserted = replaceToken(token, `![视频](${uid})`)
-      if (!inserted) throw new Error('视频已上传，但正文占位符已不存在；请重新插入该视频。')
+      if (!inserted) throw new Error('视频已上传，但正文占位符已不存在；请重新插入该视频 UID。')
       item.state = 'completed'
       item.progress = 100
       pendingFiles.delete(id)
       pendingTokens.delete(id)
+      pendingUids.delete(id)
+      ElMessage.success(`视频「${item.name}」上传完成`)
     } catch (error) {
       item.state = 'failed'
       item.error = error instanceof Error ? error.message : '上传失败'
+      ElMessage.error(`视频「${item.name}」上传失败：${item.error}`)
       throw error
     }
   }
