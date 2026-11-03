@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElButton, ElEmpty, ElImage, ElMessage, ElTag } from 'element-plus'
+import { ElButton, ElEmpty, ElMessage } from 'element-plus'
 import { ArrowLeft, ArrowRight, Share } from '@element-plus/icons-vue'
 import { FavoriteApi, FileApi, TagApi, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
@@ -21,36 +21,6 @@ const notFound = ref(false)
 const previousFavorite = ref<FavoriteDto | null>(null)
 const nextFavorite = ref<FavoriteDto | null>(null)
 const objectUrls = new Set<string>()
-
-const typeOptions = [
-  { value: 'Food', label: '食物' },
-  { value: 'Book', label: '书籍' },
-  { value: 'Game', label: '游戏' },
-  { value: 'Tech', label: '技术' },
-  { value: 'Life', label: '生活' },
-  { value: 'Other', label: '其他' },
-]
-
-const mediaItems = computed(() =>
-  [...(favorite.value?.media ?? [])]
-    .filter(media => !!media.fileId)
-    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
-)
-const galleryUrls = computed(() =>
-  mediaItems.value
-    .map(media => media.fileId ? imageUrls.value[media.fileId] : undefined)
-    .filter((url): url is string => !!url),
-)
-const favoriteTags = computed(() =>
-  (favorite.value?.tagIds ?? [])
-    .map(id => tags.value.find(tag => tag.uid === id)?.name)
-    .filter((name): name is string => !!name),
-)
-const contentTypeLabel = computed(() =>
-  typeOptions.find(type => type.value === favorite.value?.contentType)?.label
-    ?? favorite.value?.contentType
-    ?? '收藏',
-)
 
 function releaseImageUrls() {
   for (const url of objectUrls) URL.revokeObjectURL(url)
@@ -169,11 +139,6 @@ async function shareFavorite() {
     console.error('复制收藏链接失败:', error)
     ElMessage.error('复制失败，请手动复制当前页面地址')
   }
-}
-
-function formatDate(value?: string) {
-  if (!value) return ''
-  return value.slice(0, 10)
 }
 
 watch(
