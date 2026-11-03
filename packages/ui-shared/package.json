@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@aqlife/domain": "*",
-    "@aqlife/api-client": "*",
     "@element-plus/icons-vue": "^2.3.2",
     "element-plus": "^2.14.2",
     "highlight.js": "^11.12.0",
