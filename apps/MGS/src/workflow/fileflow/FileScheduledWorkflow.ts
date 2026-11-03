@@ -1,4 +1,3 @@
-
 import { FileStatus, type FileApi, type FileDto } from "@/api"
 import type { FileStore } from "@/stores/useFileStore"
 
@@ -13,27 +12,27 @@ export class FileScheduledWorkflow {
     const uid = this.file.uid
     if (!uid) throw new Error('无效的文件 ID')
 
+    const scheduledAt = this.file.publishAt
+    if (!scheduledAt) throw new Error('请先设置预定发布时间')
+
     const result = await this.api.apiFileSchedulePatch({
       scheduledFileCommand: {
         uid,
-        scheduledAt: this.file.publishAt,
+        scheduledAt,
       },
     })
-    const latest = await this.api.apiFileGet({ uID: result })
-    const cloudFile = latest.items?.[0]
 
-    if (!cloudFile) throw new Error('File 更新失败')
-
-    const updatedFile: FileDto = {
-      ...cloudFile,
-      publishStatus: FileStatus.Scheduled,
+    if (result.toLowerCase() !== uid.toLowerCase()) {
+      throw new Error('预定发布接口返回的文件 ID 不匹配')
     }
 
-    this.commit(updatedFile)
-    return updatedFile
-  }
+    const updatedFile: FileDto = {
+      ...this.file,
+      publishStatus: FileStatus.Scheduled,
+      publishAt: scheduledAt,
+    }
 
-  private commit(file: FileDto) {
-    this.store.replaceFile(file)
+    this.store.upsertFile(updatedFile)
+    return updatedFile
   }
 }
