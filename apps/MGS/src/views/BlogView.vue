@@ -115,7 +115,7 @@ async function loadArticle(guid: string) {
     fileStore.upsertFile(dto)
     markdown.value = content
     originalMarkdown.value = content
-    await restoreLocalDraft(guid, content)
+    if (isEditing.value) await restoreLocalDraft(guid, content)
     editor?.setValue(content)
     publishStatusModel.value = dto.publishStatus
     selectedTags.value = dto.tags ?? []
@@ -298,6 +298,7 @@ async function saveVersion() {
 
   try {
     await waitForVideoUploads()
+    if (markdown.value.includes('pending-video:')) throw new Error('草稿中仍有未完成的视频占位符，请重新插入视频后再保存。')
     const resolvedMarkdown = markdown.value
 
     const fileName = `${file.value.fileName || '未命名'}${file.value.fileType || '.md'}`
@@ -369,8 +370,9 @@ watch(markdown, value => {
   } catch { /* Storage may be unavailable or full; the editor remains usable. */ }
 })
 
-watch(isEditing, value => {
+watch(isEditing, async value => {
   editor?.updateOptions({ readOnly: !value })
+  if (value && file.value?.uid) await restoreLocalDraft(file.value.uid, originalMarkdown.value)
 })
 
 onBeforeUnmount(() => {
