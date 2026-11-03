@@ -128,7 +128,13 @@ async function loadFavorite(uid: string) {
     }
     notFound.value = !favorite.value
     if (favorite.value) {
-      await Promise.all([loadImages(), loadNeighbors(uid)])
+      await Promise.all([
+        loadImages(),
+        loadNeighbors(uid).catch(() => {
+          previousFavorite.value = null
+          nextFavorite.value = null
+        }),
+      ])
     }
   } catch (error) {
     notFound.value = true
