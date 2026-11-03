@@ -1,5 +1,5 @@
 
-import type { FileApi, FileDto } from "@/api"
+import { FileStatus, type FileApi, type FileDto } from "@/api"
 import type { FileStore } from "@/stores/useFileStore"
 
 export class FilePublishWorkflow {
@@ -21,8 +21,13 @@ export class FilePublishWorkflow {
 
     if (!cloudFile) throw new Error('File 更新失败')
 
-    this.commit(cloudFile)
-    return cloudFile
+    const updatedFile: FileDto = {
+      ...cloudFile,
+      publishStatus: FileStatus.Published,
+    }
+
+    this.commit(updatedFile)
+    return updatedFile
   }
 
   private commit(file: FileDto) {
