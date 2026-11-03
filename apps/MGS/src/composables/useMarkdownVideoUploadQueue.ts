@@ -40,7 +40,7 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
     const editor = getEditor()
     if (!editor?.getModel()) return
 
-    const valid = files.filter(file => /\\.(mp4|webm)$/i.test(file.name))
+    const valid = files.filter(file => /\.(mp4|webm)$/i.test(file.name))
     const rejected = files.filter(file => !valid.includes(file))
     if (rejected.length) throw new Error('仅支持 MP4 和 WebM 视频。')
     const selection = editor.getSelection()
@@ -59,7 +59,7 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
 
     editor.executeEdits('insert-pending-video', [{
       range: selection,
-      text: jobs.join('\\n') + '\\n',
+      text: jobs.join('\n') + '\\n',
       forceMoveMarkers: true,
     }])
     editor.focus()
