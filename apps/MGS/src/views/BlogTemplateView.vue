@@ -122,7 +122,8 @@
           <div v-for="item in videoUploads" :key="item.id" class="video-upload-item">
             <span class="video-upload-name">{{ item.name }}</span>
             <span>{{ item.state === 'queued' ? '排队中' : item.state === 'uploading' ? '上传中 ' + item.progress + '%' : item.state === 'completed' ? '已完成' : '上传失败' }}</span>
-            <ElButton v-if="item.state === 'failed'" text type="primary" @click="retryVideoUpload(item.id)">重试</ElButton>
+            <span v-if="item.error" class="video-upload-error">{{ item.error }}</span>
+        <ElButton v-if="item.state === 'failed'" text type="primary" @click="retryVideoUpload(item.id)">重试</ElButton>
           </div>
         </div>
         <div class="sheet">
@@ -516,6 +517,7 @@ async function restoreNewArticleDraft() {
       draft.content = saved.content
       markdownEditor?.setValue(saved.content)
       ElMessage.success('已恢复本地博文草稿')
+      if (saved.content.includes('pending-video:')) ElMessage.warning('草稿中有尚未上传的视频占位符；浏览器未保存视频文件，请删除该占位行后重新插入视频。')
     } catch { localStorage.removeItem(newArticleDraftKey) }
   } catch { /* Ignore unavailable or malformed local drafts. */ }
 }
@@ -676,6 +678,7 @@ onBeforeMount(async () => {
 .video-upload-queue { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 0; font-size: 12px; }
 .video-upload-item { display: flex; align-items: center; gap: 8px; min-width: 240px; }
 .video-upload-name { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.video-upload-error { color: var(--el-color-danger); }
 .sheet { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); box-shadow: var(--mgs-shadow); }
 .sheet-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); }
 .sheet-body { min-height: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
