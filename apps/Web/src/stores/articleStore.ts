@@ -7,11 +7,13 @@ export const useArticleStore = defineStore('article', () => {
   const blogTitle = ref('')
   const toc = ref<TocNode[]>([])
   const activeAnchor = ref('')
+  const isFullscreen = ref(false)
 
   return {
     markdown,
     blogTitle,
     toc,
     activeAnchor,
+    isFullscreen,
   }
 })
