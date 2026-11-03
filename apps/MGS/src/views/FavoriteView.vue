@@ -107,7 +107,19 @@ function openCreate() {
   dialogVisible.value = true
 }
 
-function openEdit(item: FavoriteDto) {
+async function loadFilePreviews(fileIds: string[]) {
+  await Promise.all(fileIds.map(async fileId => {
+    if (!fileId || previewUrls.value[fileId]) return
+    try {
+      const blob = await fileApi.apiFilePreviewGet({ uID: fileId })
+      previewUrls.value[fileId] = URL.createObjectURL(blob)
+    } catch {
+      // Keep the file selected even if its preview cannot be loaded.
+    }
+  }))
+}
+
+async function openEdit(item: FavoriteDto) {
   editing.value = item
   form.value = {
     title: item.title ?? '',
@@ -119,6 +131,7 @@ function openEdit(item: FavoriteDto) {
   selectedFileIds.value = (item.media ?? []).map(media => media.fileId ?? '').filter(Boolean)
   selectedTagIds.value = [...(item.tagIds ?? [])]
   dialogVisible.value = true
+  await loadFilePreviews(selectedFileIds.value)
 }
 
 async function save() {
@@ -197,15 +210,7 @@ function toggleFile(fileId: string, checked: string | number | boolean) {
 
 async function openFilePicker() {
   fileDialogVisible.value = true
-  await Promise.all(files.value.map(async file => {
-    if (!file.uid || previewUrls.value[file.uid]) return
-    try {
-      const blob = await fileApi.apiFilePreviewGet({ uID: file.uid })
-      previewUrls.value[file.uid] = URL.createObjectURL(blob)
-    } catch {
-      // Keep files selectable even if a preview cannot be loaded.
-    }
-  }))
+  await loadFilePreviews(files.value.map(file => file.uid ?? '').filter(Boolean))
 }
 
 async function handleQuickUpload(uploadFile: UploadFile) {
