@@ -47,7 +47,7 @@ const sideManager = computed(() => {
 </script>
 
 <template>
-  <div id="baseLayout">
+  <div id="baseLayout" :class="{ 'is-preview-fullscreen': isPreviewFullscreen }">
     <aside v-if="!isPreviewFullscreen" id="tools">
      <div class="tools-search">
       <SearchBox/>
@@ -108,6 +108,10 @@ const sideManager = computed(() => {
 </template>
 
 <style scoped>
+#baseLayout.is-preview-fullscreen {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 #baseLayout {
   width: 100%;
   height: 100%;
