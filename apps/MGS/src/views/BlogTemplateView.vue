@@ -165,6 +165,7 @@ import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow } from '@/workflow'
 import TagSelect from '@/components/TagSelect.vue'
 import { useMarkdownClipboardImagePaste } from '@/composables/useMarkdownClipboardImagePaste'
+import { useMarkdownVideoUploadQueue } from '@/composables/useMarkdownVideoUploadQueue'
 
 type BlogTemplate = FileDto
 
@@ -172,10 +173,18 @@ const baseurl = import.meta.env.VITE_API
 const router = useRouter()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
+const videoInput = ref<HTMLInputElement>()
+const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => markdownEditor, fileApi)
+const newArticleDraftKey = 'aqlife:new-blog-draft'
+const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000
+const articleBaselineContent = ref('')
+const articleDirty = computed(() => creatingArticle.value && (articleDraft.title.trim().length > 0 || draft.content !== articleBaselineContent.value || videoUploading.value))
 const markdownFileResolver = {
   async getFile(uid: string): Promise<FileDto | undefined> {
-    const result = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Image })
-    return result.items?.[0]
+    const image = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Image })
+    if (image.items?.[0]) return image.items[0]
+    const video = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Video })
+    return video.items?.[0]
   },
 }
 
@@ -221,6 +230,13 @@ const { uploading: imageUploading, onPaste: onMarkdownPaste } = useMarkdownClipb
   },
 })
 
+watch([() => draft.content, () => articleDraft.title], () => {
+  if (!articleDirty.value) return
+  try {
+    localStorage.setItem(newArticleDraftKey, JSON.stringify({ title: articleDraft.title, content: draft.content, savedAt: Date.now() }))
+  } catch { /* Storage may be unavailable or full. */ }
+})
+
 watch(() => draft.content, content => {
   if (markdownEditor && markdownEditor.getValue() !== content) {
     markdownEditor.setValue(content)
@@ -232,6 +248,7 @@ watch(markdownEditable, editable => {
 })
 
 onMounted(() => {
+  window.addEventListener('beforeunload', warnBeforeUnload)
   if (!markdownEditorContainer.value) return
 
   markdownEditor = monaco.editor.create(markdownEditorContainer.value, {
@@ -256,6 +273,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   markdownEditorContainer.value?.removeEventListener('paste', onMarkdownPaste, true)
+  window.removeEventListener('beforeunload', warnBeforeUnload)
   markdownEditor?.dispose()
 })
 const markdownRenderRef = ref<{ loading: boolean } | null>(null)
@@ -474,6 +492,39 @@ async function deleteTemplate(template: BlogTemplate) {
   }
 }
 
+async function restoreNewArticleDraft() {
+  try {
+    const raw = localStorage.getItem(newArticleDraftKey)
+    if (!raw) return
+    const saved = JSON.parse(raw) as { title?: string; content?: string; savedAt?: number }
+    if (!saved.savedAt || Date.now() - saved.savedAt > DRAFT_TTL_MS || !saved.content) {
+      localStorage.removeItem(newArticleDraftKey)
+      return
+    }
+    try {
+      await ElMessageBox.confirm('发现 7 天内保存的本地未提交博文，是否恢复？', '恢复博文草稿', { confirmButtonText: '恢复草稿', cancelButtonText: '不恢复', type: 'info' })
+      articleDraft.title = saved.title ?? ''
+      draft.content = saved.content
+      markdownEditor?.setValue(saved.content)
+      ElMessage.success('已恢复本地博文草稿')
+    } catch { localStorage.removeItem(newArticleDraftKey) }
+  } catch { /* Ignore unavailable or malformed local drafts. */ }
+}
+
+function warnBeforeUnload(event: BeforeUnloadEvent) {
+  if (!articleDirty.value) return
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+function chooseVideo() { videoInput.value?.click() }
+function onVideoSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  const files = Array.from(input.files ?? [])
+  input.value = ''
+  try { queueVideos(files) } catch (error) { ElMessage.warning(error instanceof Error ? error.message : '无法添加视频') }
+}
+
 function sameTagSelection(left: TagDto[], right: TagDto[]): boolean {
   const leftUids = left.map(tag => tag.uid).filter((uid): uid is string => Boolean(uid)).sort()
   const rightUids = right.map(tag => tag.uid).filter((uid): uid is string => Boolean(uid)).sort()
@@ -497,6 +548,8 @@ function startCreatingArticle() {
   creatingArticle.value = true
   articleDraft.title = ''
   articleDraft.tags = [...(template.tags ?? [])]
+  articleBaselineContent.value = draft.content
+  void restoreNewArticleDraft()
 }
 
 function startCreatingArticleWithoutTemplate() {
@@ -507,6 +560,8 @@ function startCreatingArticleWithoutTemplate() {
   articleDraft.title = ''
   articleDraft.tags = []
   draft.content = '# {{title}}\n\n'
+  articleBaselineContent.value = draft.content
+  void restoreNewArticleDraft()
 }
 
 function cancelCreatingArticle() {
@@ -531,7 +586,8 @@ async function createArticle() {
   loading.value = true
 
   try {
-    const resolvedContent = content
+    await waitForVideoUploads()
+    const resolvedContent = draft.content.replaceAll('{{title}}', title)
     const uids = await fileApi.apiFileUploadPost({
       isTemplate: false,
       file: [new File([resolvedContent], fileName, { type: 'text/markdown' })],
@@ -556,6 +612,7 @@ async function createArticle() {
 
     article = (await fileApi.apiFileGet({ uID: uid })).items?.[0] ?? article
     creatingArticle.value = false
+    localStorage.removeItem(newArticleDraftKey)
     draft.content = resolvedContent
     ElMessage.success('博文已创建')
     await router.push('/file/' + uid)
