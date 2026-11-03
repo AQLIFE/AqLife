@@ -37,7 +37,7 @@ namespace AqLife.Web.Controllers
             if (uid == Guid.Empty) return BadRequest("无效的视频 UID");
 
             // Only issue tickets for an existing video; authenticated FileSearch permits drafts here.
-            await using var stream = (await fileReader.ReadAsync(uid, FileScope.Video, ct)).FileStream;
+            await fileReader.EnsureReadableAsync(uid, FileScope.Video, ct);
 
             var protector = dataProtectionProvider
                 .CreateProtector("AqLife.VideoPreview.v1")
