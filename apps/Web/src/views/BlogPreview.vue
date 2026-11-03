@@ -75,8 +75,11 @@ const baseurl = import.meta.env.VITE_API
 
 const markdownFileResolver = {
   async getFile(uid: string): Promise<FileDto | undefined> {
-    const result = await fileApi.apiFileGet({ uID: uid,scope:FileScope.Image })
-    return result.items?.[0]
+    const image = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Image })
+    if (image.items?.[0]) return image.items[0]
+
+    const video = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Video })
+    return video.items?.[0]
   },
 }
 const sourceMarkdown = ref('')
