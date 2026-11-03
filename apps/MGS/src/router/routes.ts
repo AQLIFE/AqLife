@@ -1,7 +1,7 @@
 import ErrorView from '@/views/ErrorView.vue'
 import LoginView from '@/views/LoginView.vue'
 import { MgsIconName } from '@aqlife/icons'
-import { User, Document, PriceTag, List } from '@element-plus/icons-vue'
+import { User, Document, PriceTag, List, Collection } from '@element-plus/icons-vue'
 import HomeView from '@/views/HomeView.vue'
 import AccountView from '@/views/AccountView.vue'
 import ProfileView from '@/views/ProfileView.vue'
@@ -15,6 +15,7 @@ import BlogView from '@/views/BlogView.vue'
 import BlogTemplateView from '@/views/BlogTemplateView.vue'
 import FileUploadView from '@/views/FileUploadView.vue'
 import FileDataView from '@/views/FileDataView.vue'
+import FavoriteView from '@/views/FavoriteView.vue'
 
 export const routes = [
   {
@@ -62,13 +63,18 @@ export const routes = [
     ],
   },
   {
+    path: '/favorite',
+    component: FavoriteView,
+    meta: { navTitle: '收藏', navIcon: Collection, showInNav: true, order: 6, sidebarType: SidebarType.None },
+  },
+  {
     path: '/tag',
     component: TagView,
-    meta: { navTitle: 'Tag', navIcon: PriceTag, showInNav: true, order: 6, sidebarType: SidebarType.None },
+    meta: { navTitle: 'Tag', navIcon: PriceTag, showInNav: true, order: 7, sidebarType: SidebarType.None },
   },
   {
     path: '/todo',
     component: TodoView,
-    meta: { navTitle: 'Todo', navIcon: List, showInNav: true, order: 7, sidebarType: SidebarType.None },
+    meta: { navTitle: 'Todo', navIcon: List, showInNav: true, order: 8, sidebarType: SidebarType.None },
   },
 ]
