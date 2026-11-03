@@ -8,6 +8,7 @@ All URIs are relative to *http://localhost*
 | [**apiFileDelete**](FileApi.md#apifiledelete) | **DELETE** /api/File |  |
 | [**apiFileDownloadGet**](FileApi.md#apifiledownloadget) | **GET** /api/File/download |  |
 | [**apiFileGet**](FileApi.md#apifileget) | **GET** /api/File |  |
+| [**apiFileHashCheckPost**](FileApi.md#apifilehashcheckpost) | **POST** /api/File/hash/check |  |
 | [**apiFilePatch**](FileApi.md#apifilepatch) | **PATCH** /api/File |  |
 | [**apiFilePreviewCompletePatch**](FileApi.md#apifilepreviewcompletepatch) | **PATCH** /api/File/preview/complete |  |
 | [**apiFilePreviewGet**](FileApi.md#apifilepreviewget) | **GET** /api/File/preview |  |
@@ -18,6 +19,8 @@ All URIs are relative to *http://localhost*
 | [**apiFileUploadsUploadIdChunksIndexPut**](FileApi.md#apifileuploadsuploadidchunksindexput) | **PUT** /api/File/uploads/{uploadId}/chunks/{index} |  |
 | [**apiFileUploadsUploadIdCompletePost**](FileApi.md#apifileuploadsuploadidcompletepost) | **POST** /api/File/uploads/{uploadId}/complete |  |
 | [**apiFileUploadsUploadIdGet**](FileApi.md#apifileuploadsuploadidget) | **GET** /api/File/uploads/{uploadId} |  |
+| [**apiFileVideoPreviewTicketPost**](FileApi.md#apifilevideopreviewticketpost) | **POST** /api/File/video-preview-ticket |  |
+| [**apiFileVideoStreamGet**](FileApi.md#apifilevideostreamget) | **GET** /api/File/video-stream |  |
 
 
 
@@ -288,6 +291,71 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## apiFileHashCheckPost
+
+> FileHashCheckResult apiFileHashCheckPost(checkFileHashQuery)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FileApi,
+} from '@aqlife/api-contract';
+import type { ApiFileHashCheckPostRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new FileApi();
+
+  const body = {
+    // CheckFileHashQuery (optional)
+    checkFileHashQuery: ...,
+  } satisfies ApiFileHashCheckPostRequest;
+
+  try {
+    const data = await api.apiFileHashCheckPost(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **checkFileHashQuery** | [CheckFileHashQuery](CheckFileHashQuery.md) |  | [Optional] |
+
+### Return type
+
+[**FileHashCheckResult**](FileHashCheckResult.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 
@@ -700,7 +768,7 @@ No authorization required
 
 ## apiFileUploadsPost
 
-> UploadSession apiFileUploadsPost(startRequest)
+> ResumableUploadSession apiFileUploadsPost(startVideoUploadCommand)
 
 
 
@@ -718,8 +786,8 @@ async function example() {
   const api = new FileApi();
 
   const body = {
-    // StartRequest (optional)
-    startRequest: ...,
+    // StartVideoUploadCommand (optional)
+    startVideoUploadCommand: ...,
   } satisfies ApiFileUploadsPostRequest;
 
   try {
@@ -739,11 +807,11 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **startRequest** | [StartRequest](StartRequest.md) |  | [Optional] |
+| **startVideoUploadCommand** | [StartVideoUploadCommand](StartVideoUploadCommand.md) |  | [Optional] |
 
 ### Return type
 
-[**UploadSession**](UploadSession.md)
+[**ResumableUploadSession**](ResumableUploadSession.md)
 
 ### Authorization
 
@@ -901,7 +969,7 @@ No authorization required
 
 ## apiFileUploadsUploadIdGet
 
-> UploadStatus apiFileUploadsUploadIdGet(uploadId)
+> ResumableUploadStatus apiFileUploadsUploadIdGet(uploadId)
 
 
 
@@ -944,7 +1012,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**UploadStatus**](UploadStatus.md)
+[**ResumableUploadStatus**](ResumableUploadStatus.md)
 
 ### Authorization
 
@@ -954,6 +1022,139 @@ No authorization required
 
 - **Content-Type**: Not defined
 - **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## apiFileVideoPreviewTicketPost
+
+> apiFileVideoPreviewTicketPost(uid)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FileApi,
+} from '@aqlife/api-contract';
+import type { ApiFileVideoPreviewTicketPostRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new FileApi();
+
+  const body = {
+    // string (optional)
+    uid: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+  } satisfies ApiFileVideoPreviewTicketPostRequest;
+
+  try {
+    const data = await api.apiFileVideoPreviewTicketPost(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **uid** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+`void` (Empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## apiFileVideoStreamGet
+
+> apiFileVideoStreamGet(uid, ticket)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FileApi,
+} from '@aqlife/api-contract';
+import type { ApiFileVideoStreamGetRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new FileApi();
+
+  const body = {
+    // string (optional)
+    uid: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    ticket: ticket_example,
+  } satisfies ApiFileVideoStreamGetRequest;
+
+  try {
+    const data = await api.apiFileVideoStreamGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **uid** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **ticket** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+`void` (Empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: Not defined
 
 
 ### HTTP response details
