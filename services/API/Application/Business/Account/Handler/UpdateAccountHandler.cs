@@ -53,7 +53,17 @@ namespace AqLife.Application.Business.Account.Handler
             _ = await filePublishService.PublishAsync(command.Subscriptions.Select(e => e.SubscriptionIcon), ct);// 该业务链路,默认传递的只有guid,没有file,所以不需要在该链路执行文件上传;所有的guid 一定是有效的guid值
             // 这个方法,就只会发布所有存在且未发布(草稿和预约)的guid,因为在该链路之前,默认执行过文件上传,所以大部分预期都是草稿图像文件,流程合规可控
 
-            account.ReplaceSubscriptions(command.Subscriptions.Select(subscriptionMapper.ToEntity));
+            // 明确维护 EF Core 实体状态，避免仅依赖导航集合 Clear/Add 的隐式关系变更检测。
+            // 旧订阅标记为 Deleted，新订阅标记为 Added；事务管道随后统一 SaveChangesAsync。
+            var newSubscriptions = command.Subscriptions
+                .Select(subscriptionMapper.ToEntity)
+                .ToList();
+
+            foreach (var subscription in newSubscriptions)
+                subscription.BindAccount(account);
+
+            storage.Subscription.RemoveRange(account.Subscriptions);
+            storage.Subscription.AddRange(newSubscriptions);
 
             return account.LoginName;
         }
