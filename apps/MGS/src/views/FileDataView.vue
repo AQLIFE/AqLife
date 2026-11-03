@@ -65,6 +65,11 @@
           <strong>{{ activeImageFile.fileName || '文件管理' }}</strong>
           <ElButton text @click="closeImagePreview">关闭预览</ElButton>
         </div>
+        <label class="management-label">UUID</label>
+        <div class="image-uid-row">
+          <ElInput :model-value="activeImageFile.uid" readonly />
+          <ElButton :icon="CopyDocument" :disabled="!activeImageFile.uid" @click="copyActiveFileUid">复制</ElButton>
+        </div>
         <label class="management-label">标签</label>
         <TagSelect
           v-model:tag-list="imageSelectedTags"
@@ -117,7 +122,7 @@ import { apiConfiguration } from '@/services/api'
 import { tokenStore } from '@aqlife/api-client'
 import { onBeforeMount, ref, computed, watch, type Component } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
-import { Delete, Plus, Upload } from '@element-plus/icons-vue'
+import { CopyDocument, Delete, Plus, Upload } from '@element-plus/icons-vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 import { useRouter } from 'vue-router'
@@ -310,6 +315,18 @@ async function openVideoPreview(uid: string) {
       ElMessage.error(error instanceof Error ? `视频预览请求失败：${error.message}` : '视频预览请求失败')
       activeImageFile.value = null
     }
+  }
+}
+
+async function copyActiveFileUid() {
+  const uid = activeImageFile.value?.uid
+  if (!uid) return
+
+  try {
+    await navigator.clipboard.writeText(uid)
+    ElMessage.success('UUID 已复制')
+  } catch {
+    ElMessage.error('复制失败，请检查浏览器剪贴板权限')
   }
 }
 
@@ -635,6 +652,16 @@ function handleAddFile() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.image-uid-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.image-uid-row :deep(.el-input) {
+  min-width: 0;
 }
 
 .management-label {
