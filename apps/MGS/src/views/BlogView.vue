@@ -428,6 +428,7 @@ onBeforeUnmount(() => {
           <ElDatePicker
             v-model="scheduledAt"
             type="datetime"
+            popper-class="publish-schedule-picker-popper"
             :disabled="publishing || scheduling || file.publishStatus === FileStatus.Published"
             placeholder="预定发布时间"
             @change="onScheduledAtChanged"
@@ -515,6 +516,10 @@ onBeforeUnmount(() => {
   overflow: auto;
   padding: 18px 24px 32px;
   background: var(--mgs-surface);
+}
+
+:global(.publish-schedule-picker-popper) {
+  z-index: 4100 !important;
 }
 
 .publish-control {
