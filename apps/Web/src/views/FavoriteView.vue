@@ -19,13 +19,14 @@ const selectedTag = ref('')
 const imageUrls = ref<Record<string, string>>({})
 const objectUrls = new Set<string>()
 
-const typeOptions = computed(() => {
-  const labels: Record<string, string> = {
-    Food: '食物', Book: '书籍', Game: '游戏', Tech: '技术', Life: '生活', Other: '其他',
-  }
-  const values = [...new Set(items.value.map(item => item.contentType).filter((value): value is string => !!value))]
-  return values.map(value => ({ value, label: labels[value] ?? value }))
-})
+const typeOptions = [
+  { value: 'Food', label: '食物' },
+  { value: 'Book', label: '书籍' },
+  { value: 'Game', label: '游戏' },
+  { value: 'Tech', label: '技术' },
+  { value: 'Life', label: '生活' },
+  { value: 'Other', label: '其他' },
+]
 
 const tagName = (id: string) => tags.value.find(tag => tag.uid === id)?.name ?? '标签'
 
@@ -59,7 +60,6 @@ async function loadImages(favorites: FavoriteDto[]) {
   await Promise.all(favorites.map(async item => {
     const uid = item.uid
     const media = (item.media ?? []).find(value => value.fileId && (value.role === 'Cover' || value.role === 'Image'))
-      ?? (item.media ?? []).find(value => value.fileId)
     if (!uid || !media?.fileId || imageUrls.value[uid]) return
     try {
       const blob = await fileApi.apiFilePreviewGet({ uID: media.fileId })
