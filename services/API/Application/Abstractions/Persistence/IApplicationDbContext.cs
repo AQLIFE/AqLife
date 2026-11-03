@@ -1,5 +1,6 @@
 ﻿using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
+using AqLife.Domain.Entities.Favorite;
 using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Abstractions.Persistence
@@ -14,6 +15,9 @@ namespace AqLife.Application.Abstractions.Persistence
         public DbSet<TagEntity> Tags { get; }
         public DbSet<FileTagEntity> BlogTags { get; }
         public DbSet<SystemStateEntity> SystemStates { get; }
+        public DbSet<FavoriteItemEntity> FavoriteItems { get; }
+        public DbSet<FavoriteMediaEntity> FavoriteMedia { get; }
+        public DbSet<FavoriteTagEntity> FavoriteTags { get; }
 
 
 
