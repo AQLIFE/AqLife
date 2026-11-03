@@ -12,6 +12,7 @@ import {
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
+import { FavoriteDetailContent } from '@aqlife/ui-shared'
 import type { UploadFile } from 'element-plus'
 
 const favoriteApi = new FavoriteApi(apiConfiguration)
@@ -24,6 +25,9 @@ const tags = ref<TagDto[]>([])
 const loading = ref(false)
 const saving = ref(false)
 const dialogVisible = ref(false)
+const detailDialogVisible = ref(false)
+const detailItem = ref<FavoriteDto | null>(null)
+const detailImageUrls = ref<Record<string, string>>({})
 const fileDialogVisible = ref(false)
 const editing = ref<FavoriteDto | null>(null)
 const keyword = ref('')
