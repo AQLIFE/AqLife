@@ -79,6 +79,26 @@ async function loadData() {
   }
 }
 
+async function openDetail(item: FavoriteDto) {
+  detailItem.value = item
+  detailDialogVisible.value = true
+  await Promise.all((item.media ?? []).map(async entry => {
+    const fileId = entry.fileId
+    if (!fileId || detailImageUrls.value[fileId]) return
+    try {
+      const blob = await fileApi.apiFilePreviewGet({ uID: fileId })
+      detailImageUrls.value[fileId] = URL.createObjectURL(blob)
+    } catch {
+      // Keep detail text available if an image preview cannot be loaded.
+    }
+  }))
+}
+
+function editFromDetail() {
+  const item = detailItem.value
+  detailDialogVisible.value = false
+  if (item) openEdit(item)
+}
 function openCreate() {
   editing.value = null
   form.value = { title: '', description: '', contentType: 'Other', sourceUrl: '', sortOrder: 0 }
@@ -226,6 +246,7 @@ function fileName(fileId?: string) {
 
 onBeforeUnmount(() => {
   Object.values(previewUrls.value).forEach(url => URL.revokeObjectURL(url))
+  Object.values(detailImageUrls.value).forEach(url => URL.revokeObjectURL(url))
 })
 
 onBeforeMount(loadData)
