@@ -24,7 +24,7 @@
           v-for="article in articles"
           :key="article.uid ?? article.title"
           class="article"
-          @click="article.uid && router.push(`/file/${article.uid}`)"
+          @click="openArticle(article)"
         >
             <div class="article-icon">{{ article.meta }}</div>
             <div class="article-copy">
@@ -75,20 +75,20 @@ const metrics = computed(() => [
   { label: 'Published', value: overview.value?.publishedCount ?? 0, note: 'Published articles' },
 ])
 
-function getArticleTarget(file: NonNullable<typeof overview.value>['recentFiles'][number]): { path: string; query?: Record<string, string> } {
+function getArticleTarget(file: { uid?: string | null; fileType?: string | null; fileName?: string | null }): { path: string; query?: Record<string, string> } {
   const fileType = (file.fileType ?? '').trim().toLowerCase()
   const fileName = (file.fileName ?? '').trim().toLowerCase()
   const type = fileType || fileName.slice(fileName.lastIndexOf('.'))
-  if (isImageType(file.fileType ?? fileName)) {
+  if (file.uid && isImageType(file.fileType ?? fileName)) {
     return { path: '/file/list', query: { type: 'image', preview: file.uid! } }
   }
-  if (type.startsWith('video/') || ['.mp4', '.webm'].includes(type) || /\\.(mp4|webm)$/.test(fileName)) {
+  if (file.uid && (type.startsWith('video/') || ['.mp4', '.webm'].includes(type) || /\.(mp4|webm)$/.test(fileName))) {
     return { path: '/file/list', query: { type: 'video', preview: file.uid! } }
   }
   return { path: `/file/${file.uid}` }
 }
 
-function openArticle(article: (typeof articles.value)[number]) {
+function openArticle(article: { uid?: string | null; target: { path: string; query?: Record<string, string> } }) {
   if (!article.uid) return
   router.push(article.target)
 }
