@@ -23,6 +23,12 @@
         :alt="node.result.alt"
       />
 
+      <MarkdownVideo
+        v-else-if="node.type === 'resolved-link' && node.result.type === 'video'"
+        :src="node.result.src"
+        :title="node.result.title"
+      />
+
       <RouterLink v-else-if="
         node.type === 'resolved-link' &&
         node.result.type === 'markdown'
@@ -56,6 +62,7 @@ import CodeBlock from './MarkdownCode.vue'
 import MarkdownMermaid from './MarkdownMermaid.vue'
 import MarkdownTable from './MarkdownTable.vue'
 import MarkdownImage from './MarkdownImage.vue'
+import MarkdownVideo from './MarkdownVideo.vue'
 
 interface MarkdownRenderProps {
   markdown: string
@@ -133,6 +140,14 @@ async function resolveInternalLink(
       type: 'image',
       src: buildPreviewUrl(uid),
       alt: text,
+    }
+  }
+
+  if (['.mp4', '.webm'].includes(file.fileType?.toLowerCase() ?? '')) {
+    return {
+      type: 'video',
+      src: buildPreviewUrl(uid),
+      title: text,
     }
   }
 
