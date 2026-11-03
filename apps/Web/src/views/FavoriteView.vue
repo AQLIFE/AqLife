@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 import { ElButton, ElEmpty, ElMessage, ElOption, ElSelect, ElTag } from 'element-plus'
-import { ArrowUpRight, Refresh } from '@element-plus/icons-vue'
+import { ArrowRight, Refresh } from '@element-plus/icons-vue'
 import { FavoriteApi, FileApi, TagApi, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 
@@ -113,7 +113,7 @@ onBeforeUnmount(() => {
         <ElOption v-for="type in typeOptions" :key="type.value" :label="type.label" :value="type.value" />
       </ElSelect>
       <ElSelect :model-value="selectedTag" clearable filterable placeholder="所有标签" @change="changeTag">
-        <ElOption v-for="tag in tags" :key="tag.uid" :label="tag.name ?? '未命名标签'" :value="tag.uid!" />
+        <ElOption v-for="tag in tags" :key="tag.uid ?? tag.name ?? 'tag'" :label="tag.name ?? '未命名标签'" :value="tag.uid ?? ''" />
       </ElSelect>
       <ElButton text :icon="Refresh" :loading="loading" @click="loadItems(true)">刷新</ElButton>
     </div>
@@ -121,7 +121,7 @@ onBeforeUnmount(() => {
     <div v-if="items.length" class="archive-grid">
       <article v-for="(item, index) in items" :key="item.uid" class="archive-card" :class="`card-tone-${index % 4}`">
         <a v-if="item.sourceUrl" class="card-source" :href="item.sourceUrl" target="_blank" rel="noopener noreferrer" :aria-label="`打开来源：${item.title}`">
-          <ArrowUpRight />
+          <ArrowRight />
         </a>
         <div v-if="imageUrls[item.uid ?? '']" class="card-image">
           <img :src="imageUrls[item.uid ?? '']" :alt="item.title ?? '收藏图片'" loading="lazy">
