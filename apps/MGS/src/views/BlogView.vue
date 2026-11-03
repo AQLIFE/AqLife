@@ -13,6 +13,7 @@ import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import { FileStatus } from "@/api"
 import TagSelect from '@/components/TagSelect.vue'
 import { useMarkdownClipboardImagePaste } from '@/composables/useMarkdownClipboardImagePaste'
+import { useMarkdownVideoUploadQueue } from '@/composables/useMarkdownVideoUploadQueue'
 import { publishStatusOptions } from '@/types/TableFilterOption'
 
 
@@ -21,11 +22,17 @@ const router = useRouter()
 const props = defineProps<{ id?: string }>()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
+const videoInput = ref<HTMLInputElement>()
+const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => editor, fileApi)
+const draftStorageKey = (uid: string) => `aqlife:blog-draft:${uid}`
+const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000
 const baseurl = import.meta.env.VITE_API
 const markdownFileResolver = {
   async getFile(uid: string): Promise<FileDto | undefined> {
-    const result = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Image })
-    return result.items?.[0]
+    const image = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Image })
+    if (image.items?.[0]) return image.items[0]
+    const video = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Video })
+    return video.items?.[0]
   },
 }
 
@@ -108,6 +115,7 @@ async function loadArticle(guid: string) {
     fileStore.upsertFile(dto)
     markdown.value = content
     originalMarkdown.value = content
+    await restoreLocalDraft(guid, content)
     editor?.setValue(content)
     publishStatusModel.value = dto.publishStatus
     selectedTags.value = dto.tags ?? []
@@ -117,6 +125,44 @@ async function loadArticle(guid: string) {
   } finally {
     if (version === articleLoadVersion) loading.value = false
   }
+}
+
+async function restoreLocalDraft(uid: string, serverContent: string) {
+  try {
+    const raw = localStorage.getItem(draftStorageKey(uid))
+    if (!raw) return
+    const saved = JSON.parse(raw) as { content?: string; savedAt?: number }
+    if (!saved.content || !saved.savedAt || Date.now() - saved.savedAt > DRAFT_TTL_MS) {
+      localStorage.removeItem(draftStorageKey(uid))
+      return
+    }
+    if (saved.content === serverContent) {
+      localStorage.removeItem(draftStorageKey(uid))
+      return
+    }
+    try {
+      await ElMessageBox.confirm('发现 7 天内保存的本地未提交草稿，是否恢复？', '恢复博文草稿', { confirmButtonText: '恢复草稿', cancelButtonText: '使用服务器版本', type: 'info' })
+      markdown.value = saved.content
+      editor?.setValue(saved.content)
+      ElMessage.success('已恢复本地草稿')
+    } catch {
+      localStorage.removeItem(draftStorageKey(uid))
+    }
+  } catch { /* Ignore malformed or inaccessible local drafts. */ }
+}
+
+function warnBeforeUnload(event: BeforeUnloadEvent) {
+  if (!isEditing.value || (!isDirty.value && !videoUploading.value)) return
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+function chooseVideo() { videoInput.value?.click() }
+function onVideoSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  const files = Array.from(input.files ?? [])
+  input.value = ''
+  try { queueVideos(files) } catch (error) { ElMessage.warning(error instanceof Error ? error.message : '无法添加视频') }
 }
 
 function enterEditMode() {
@@ -246,11 +292,12 @@ async function deleteArticle() {
 }
 
 async function saveVersion() {
-  if (!file.value?.uid || !isDirty.value || loading.value) return
+  if (!file.value?.uid || (!isDirty.value && !videoUploading.value) || loading.value) return
 
   loading.value = true
 
   try {
+    await waitForVideoUploads()
     const resolvedMarkdown = markdown.value
 
     const fileName = `${file.value.fileName || '未命名'}${file.value.fileType || '.md'}`
@@ -270,7 +317,8 @@ async function saveVersion() {
     const updated = await workflow.run()
     file.value = updated
     originalMarkdown.value = resolvedMarkdown
-      ElMessage.success('已保存为新版本')
+    if (file.value?.uid) localStorage.removeItem(draftStorageKey(file.value.uid))
+    ElMessage.success('已保存为新版本')
     leaveEditMode()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '保存失败')
@@ -298,6 +346,7 @@ onMounted(async () => {
 
   // Capture image pastes before Monaco handles the clipboard event.
   container.value?.addEventListener('paste', onEditorPaste, true)
+  window.addEventListener('beforeunload', warnBeforeUnload)
 
   const guid = typeof props.id === 'string' ? props.id : ''
   if (guid) {
@@ -312,12 +361,21 @@ watch(
   },
 )
 
+watch(markdown, value => {
+  const uid = file.value?.uid
+  if (!uid || !isEditing.value || value === originalMarkdown.value) return
+  try {
+    localStorage.setItem(draftStorageKey(uid), JSON.stringify({ content: value, savedAt: Date.now() }))
+  } catch { /* Storage may be unavailable or full; the editor remains usable. */ }
+})
+
 watch(isEditing, value => {
   editor?.updateOptions({ readOnly: !value })
 })
 
 onBeforeUnmount(() => {
   container.value?.removeEventListener('paste', onEditorPaste, true)
+  window.removeEventListener('beforeunload', warnBeforeUnload)
   editor?.dispose()
 })
 </script>
@@ -352,13 +410,15 @@ onBeforeUnmount(() => {
           />
         </div>
         <template v-if="isEditing">
+          <input ref="videoInput" type="file" accept=".mp4,.webm,video/mp4,video/webm" multiple hidden @change="onVideoSelected">
+          <ElButton @click="chooseVideo">插入视频</ElButton>
           <ElButton :icon="Lock" @click="leaveEditMode">
             退出编辑
           </ElButton>
           <ElButton
             type="primary"
             :icon="Check"
-            :disabled="!isDirty"
+            :disabled="(!isDirty && !videoUploading) || loading"
             @click="saveVersion"
           >
             保存版本
@@ -375,6 +435,13 @@ onBeforeUnmount(() => {
       </template>
     </MgsPageHeader>
 
+    <div v-if="isEditing && videoUploads.length" class="video-upload-queue">
+      <div v-for="item in videoUploads" :key="item.id" class="video-upload-item">
+        <span class="video-upload-name">{{ item.name }}</span>
+        <span>{{ item.state === 'queued' ? '排队中' : item.state === 'uploading' ? '上传中 ' + item.progress + '%' : item.state === 'completed' ? '已完成' : '上传失败' }}</span>
+        <ElButton v-if="item.state === 'failed'" text type="primary" @click="retryVideoUpload(item.id)">重试</ElButton>
+      </div>
+    </div>
     <div class="editor-grid">
       <div ref="container" class="editor" v-loading="imageUploading" />
       <div class="render" v-loading="markdownRenderRef?.loading">
@@ -392,6 +459,13 @@ onBeforeUnmount(() => {
   flex-direction: column;
   overflow: hidden;
 }
+
+.video-upload-queue {
+  display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 16px;
+  border-top: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); font-size: 12px;
+}
+.video-upload-item { display: flex; align-items: center; gap: 8px; min-width: 240px; }
+.video-upload-name { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .editor-grid {
   min-height: 0;
