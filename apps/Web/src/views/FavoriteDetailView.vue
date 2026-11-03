@@ -203,7 +203,7 @@ onBeforeUnmount(releaseImageUrls)
 </template>
 
 <style scoped>
-.favorite-detail-page { min-height: 100%; box-sizing: border-box; padding: 26px clamp(16px, 4vw, 48px) 56px; background: var(--el-bg-color); color: var(--el-text-color-primary); }
+.favorite-detail-page { height: 100%; min-height: 0; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; padding: 26px clamp(16px, 4vw, 48px) 56px; background: var(--el-bg-color); color: var(--el-text-color-primary); }
 .detail-topbar, .detail-content { width: min(100%, 920px); margin: 0 auto; }
 .detail-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
 .source-link { display: inline-flex; align-items: center; gap: 6px; color: var(--el-color-primary); font-size: 13px; text-decoration: none; }
