@@ -95,7 +95,7 @@ namespace AqLife.Web.Controllers
                 var rangeHeader = Request.Headers["Range"].ToString();
                 if (string.IsNullOrWhiteSpace(rangeHeader))
                 {
-                    var result = await mediator.Send(new PreviewFileQuery(uid), ct);
+                    var result = await fileReader.ReadAsync(uid, FileScope.Video, ct);
                     return File(result.FileStream, result.ContentType);
                 }
 
