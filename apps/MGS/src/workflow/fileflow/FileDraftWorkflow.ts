@@ -1,4 +1,3 @@
-
 import { FileStatus, type FileApi, type FileDto } from "@/api"
 import type { FileStore } from "@/stores/useFileStore"
 
@@ -16,22 +15,18 @@ export class FileDraftWorkflow {
     const result = await this.api.apiFileCancelSchedulePatch({
       cancelScheduledFileCommand: { uid },
     })
-    const latest = await this.api.apiFileGet({ uID: result })
-    const cloudFile = latest.items?.[0]
 
-    if (!cloudFile) throw new Error('File 更新失败')
+    if (result.toLowerCase() !== uid.toLowerCase()) {
+      throw new Error('取消预定接口返回的文件 ID 不匹配')
+    }
 
     const updatedFile: FileDto = {
-      ...cloudFile,
+      ...this.file,
       publishStatus: FileStatus.Draft,
       publishAt: null,
     }
 
-    this.commit(updatedFile)
+    this.store.upsertFile(updatedFile)
     return updatedFile
-  }
-
-  private commit(file: FileDto) {
-    this.store.replaceFile(file)
   }
 }
