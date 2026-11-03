@@ -185,7 +185,7 @@ const router = useRouter()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const videoInput = ref<HTMLInputElement>()
-const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => markdownEditor, fileApi)
+const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => markdownEditor, fileApi, apiConfiguration.basePath)
 const newArticleDraftKey = 'aqlife:new-blog-draft'
 const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000
 const articleBaselineContent = ref('')
