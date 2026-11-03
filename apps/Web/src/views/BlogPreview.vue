@@ -22,7 +22,9 @@
       </template>
 
       <template #extra>
-        <ElButton :icon="Share" link title="分享文章" />
+        <ElButton :icon="Share" link title="分享文章" @click="shareArticle" />
+        <ElButton v-if="!isFullscreen" :icon="FullScreen" link title="全屏阅读" @click="enterFullscreen" />
+        <ElButton v-else :icon="Close" link title="退出全屏" @click="exitFullscreen" />
       </template>
     </ElPageHeader>
 
@@ -39,10 +41,13 @@ import {
   ElButton,
   ElPageHeader,
   ElTag,
+  ElMessage,
 } from 'element-plus'
 import {
   ArrowLeft,
   Share,
+  FullScreen,
+  Close,
 } from '@element-plus/icons-vue'
 import {
   onBeforeUnmount,
@@ -72,6 +77,47 @@ const router = useRouter()
 const articleStore = useArticleStore()
 const fileApi = new FileApi(apiConfiguration)
 const baseurl = import.meta.env.VITE_API
+const isFullscreen = computed(() => articleStore.isFullscreen)
+
+function enterFullscreen() {
+  articleStore.isFullscreen = true
+}
+
+function exitFullscreen() {
+  articleStore.isFullscreen = false
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && isFullscreen.value) {
+    exitFullscreen()
+  }
+}
+
+async function shareArticle() {
+  const url = window.location.href
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url)
+    } else {
+      const textarea = document.createElement('textarea')
+      textarea.value = url
+      textarea.setAttribute('readonly', '')
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.select()
+      const copied = document.execCommand('copy')
+      document.body.removeChild(textarea)
+      if (!copied) throw new Error('浏览器不支持复制')
+    }
+
+    ElMessage.success('文章链接已复制')
+  } catch (error) {
+    console.error('复制文章链接失败:', error)
+    ElMessage.error('复制失败，请手动复制当前页面地址')
+  }
+}
 
 const markdownFileResolver = {
   async getFile(uid: string): Promise<FileDto | undefined> {
@@ -263,6 +309,7 @@ function handleMarkdownScroll() {
 }
 
 onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
   // markdownContainer.value?.addEventListener(
   //   'scroll',
   //   handleMarkdownScroll,
@@ -273,6 +320,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
+  articleStore.isFullscreen = false
   requestVersion++
 
   // markdownContainer.value?.removeEventListener(
