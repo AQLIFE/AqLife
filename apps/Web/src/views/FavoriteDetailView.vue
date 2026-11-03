@@ -166,7 +166,17 @@ onBeforeUnmount(releaseImageUrls)
       <ElButton type="primary" @click="router.push('/favorite')">返回收藏列表</ElButton>
     </ElEmpty>
 
-    <FavoriteDetailContent v-else-if="favorite" :favorite="favorite" :tags="tags" :image-urls="imageUrls" />
+    <div v-else-if="favorite" class="detail-content">
+      <FavoriteDetailContent :favorite="favorite" :tags="tags" :image-urls="imageUrls" />
+      <footer class="detail-footer">
+        <ElButton plain :icon="ArrowLeft" :disabled="!previousFavorite" @click="openNeighbor(previousFavorite)">
+          {{ previousFavorite ? '上一篇：' + (previousFavorite.title || '未命名收藏') : '已经是第一篇' }}
+        </ElButton>
+        <ElButton plain :icon="ArrowRight" :disabled="!nextFavorite" @click="openNeighbor(nextFavorite)">
+          {{ nextFavorite ? '下一篇：' + (nextFavorite.title || '未命名收藏') : '已经是最后一篇' }}
+        </ElButton>
+      </footer>
+    </div>
 
   </section>
 </template>
