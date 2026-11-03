@@ -43,7 +43,7 @@ public class FavoriteHandler(IApplicationDbContext storage) :
         var entity = new FavoriteItemEntity(command.Title, command.Description ?? string.Empty,
             command.ContentType, command.SourceUrl, command.SortOrder);
         await storage.Set<FavoriteItemEntity>().AddAsync(entity, ct);
-        await ReplaceRelations(entity, command.FileIds, command.TagIds, ct);
+        await ReplaceRelations(entity, command.Media, command.TagIds, ct);
         return entity.UID;
     }
 
@@ -78,10 +78,11 @@ public class FavoriteHandler(IApplicationDbContext storage) :
         return Unit.Value;
     }
 
-    private async Task ReplaceRelations(FavoriteItemEntity entity, IEnumerable<Guid>? fileIds,
+    private async Task ReplaceRelations(FavoriteItemEntity entity, IEnumerable<FavoriteMediaInput>? media,
         IEnumerable<Guid>? tagIds, CancellationToken ct)
     {
-        var files = (fileIds ?? []).Where(x => x != Guid.Empty).Distinct().ToArray();
+        var mediaItems = (media ?? []).Where(x => x.FileId != Guid.Empty).GroupBy(x => x.FileId).Select(x => x.First()).ToArray();
+        var files = mediaItems.Select(x => x.FileId).ToArray();
         var tags = (tagIds ?? []).Where(x => x != Guid.Empty).Distinct().ToArray();
 
         if (files.Length > 0)
@@ -89,8 +90,11 @@ public class FavoriteHandler(IApplicationDbContext storage) :
             var existingFiles = await storage.File.Where(x => files.Contains(x.UID)).Select(x => x.UID).ToListAsync(ct);
             if (existingFiles.Count != files.Length)
                 throw new ResourceNotFoundException("一个或多个关联文件不存在");
-            foreach (var fileId in files)
-                entity.Media.Add(new FavoriteMediaEntity(entity.UID, fileId, "Image", entity.Media.Count));
+            foreach (var item in mediaItems)
+            {
+                var role = item.Role is "Cover" or "Image" or "Attachment" ? item.Role : "Image";
+                entity.Media.Add(new FavoriteMediaEntity(entity.UID, item.FileId, role, item.SortOrder));
+            }
         }
 
         if (tags.Length > 0)
