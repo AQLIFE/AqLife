@@ -30,7 +30,7 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
     const model = getEditor()?.getModel()
     const editor = getEditor()
     if (!model || !editor) return false
-    const matches = model.findMatches(token, false, false, false, null, true)
+    const matches = model.findMatches(token.match(/pending-video:[^)]+/)?.[0] ?? token, false, false, true, null, true)
     if (!matches.length) return false
     return editor.executeEdits('video-upload-queue', matches.map(match => ({
       range: match.range,
@@ -51,7 +51,7 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
 
     const jobs = valid.map(file => {
       const id = crypto.randomUUID()
-      const token = `![视频上传中](pending-video:${id})`
+      const token = `![视频](pending-video:${id})`
       const item: VideoUploadItem = { id, name: file.name, size: file.size, state: 'queued', progress: 0 }
       items.value.push(item)
       pendingFiles.set(id, file)
@@ -126,7 +126,7 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
       await fileApi.apiFileSchedulePatch({ scheduledFileCommand: { uid } })
       item.progress = 98
 
-      const inserted = replaceToken(token, `![视频](${uid})`)
+      const inserted = replaceToken(token, uid)
       item.state = 'completed'
       item.progress = 100
       pendingFiles.delete(id)
