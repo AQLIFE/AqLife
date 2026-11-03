@@ -17,6 +17,8 @@ const tags = ref<TagDto[]>([])
 const imageUrls = ref<Record<string, string>>({})
 const loading = ref(false)
 const notFound = ref(false)
+const previousFavorite = ref<FavoriteDto | null>(null)
+const nextFavorite = ref<FavoriteDto | null>(null)
 const objectUrls = new Set<string>()
 
 const typeOptions = [
@@ -71,6 +73,44 @@ async function loadImages() {
   }))
 }
 
+async function loadNeighbors(uid: string) {
+  previousFavorite.value = null
+  nextFavorite.value = null
+
+  const pageSize = 24
+  let page = 1
+  while (true) {
+    const result = await favoriteApi.apiFavoriteGet({ page, pageSize })
+    const items = result.items ?? []
+    const currentIndex = items.findIndex(item => item.uid === uid)
+
+    if (currentIndex >= 0) {
+      previousFavorite.value = currentIndex > 0 ? items[currentIndex - 1] : null
+      nextFavorite.value = currentIndex < items.length - 1
+        ? items[currentIndex + 1]
+        : null
+
+      if (currentIndex === 0 && page > 1) {
+        const previousPage = await favoriteApi.apiFavoriteGet({ page: page - 1, pageSize })
+        const previousItems = previousPage.items ?? []
+        previousFavorite.value = previousItems[previousItems.length - 1] ?? null
+      }
+      if (currentIndex === items.length - 1 && result.hasMore) {
+        const nextPage = await favoriteApi.apiFavoriteGet({ page: page + 1, pageSize })
+        nextFavorite.value = nextPage.items?.[0] ?? null
+      }
+      return
+    }
+
+    if (!result.hasMore || items.length === 0) return
+    page += 1
+  }
+}
+
+function openNeighbor(item: FavoriteDto | null) {
+  if (item?.uid) void router.push('/favorite/' + encodeURIComponent(item.uid))
+}
+
 async function loadFavorite(uid: string) {
   loading.value = true
   notFound.value = false
@@ -87,7 +127,9 @@ async function loadFavorite(uid: string) {
       tags.value = []
     }
     notFound.value = !favorite.value
-    if (favorite.value) await loadImages()
+    if (favorite.value) {
+      await Promise.all([loadImages(), loadNeighbors(uid)])
+    }
   } catch (error) {
     notFound.value = true
     ElMessage.warning(error instanceof Error ? error.message : '收藏详情加载失败')
@@ -196,7 +238,22 @@ onBeforeUnmount(releaseImageUrls)
       </section>
 
       <footer class="detail-footer">
-        <ElButton :icon="ArrowLeft" @click="router.push('/favorite')">返回收藏列表</ElButton>
+        <ElButton
+          plain
+          :icon="ArrowLeft"
+          :disabled="!previousFavorite"
+          @click="openNeighbor(previousFavorite)"
+        >
+          {{ previousFavorite ? '上一篇：' + (previousFavorite.title || '未命名收藏') : '已经是第一篇' }}
+        </ElButton>
+        <ElButton
+          plain
+          :icon="ArrowRight"
+          :disabled="!nextFavorite"
+          @click="openNeighbor(nextFavorite)"
+        >
+          {{ nextFavorite ? '下一篇：' + (nextFavorite.title || '未命名收藏') : '已经是最后一篇' }}
+        </ElButton>
       </footer>
     </article>
   </section>
@@ -228,7 +285,7 @@ onBeforeUnmount(releaseImageUrls)
 .detail-info dt { color: var(--el-text-color-placeholder); }
 .detail-info dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 .detail-info dd a { color: var(--el-color-primary); text-decoration: none; }
-.detail-footer { display: flex; justify-content: space-between; gap: 12px; padding-top: 28px; }
+.detail-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 28px; }
 @media (max-width: 700px) { .detail-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; } }
 @media (max-width: 420px) { .detail-gallery { grid-template-columns: minmax(0, 1fr); } .detail-info dl > div { grid-template-columns: 84px minmax(0, 1fr); } }
 </style>
