@@ -50,24 +50,33 @@ namespace AqLife.Web.Controllers
         [HttpGet("video-stream"), AllowAnonymous]
         public async Task<IActionResult> StreamVideoPreview(
             [FromQuery] Guid uid,
-            [FromQuery] string ticket,
+            [FromQuery] string? ticket,
             CancellationToken ct)
         {
-            if (uid == Guid.Empty || string.IsNullOrWhiteSpace(ticket))
+            if (uid == Guid.Empty)
                 return Unauthorized();
 
-            try
+            if (!string.IsNullOrWhiteSpace(ticket))
             {
-                var protector = dataProtectionProvider
-                    .CreateProtector("AqLife.VideoPreview.v1")
-                    .ToTimeLimitedDataProtector();
-                var protectedUid = protector.Unprotect(ticket);
-                if (!Guid.TryParse(protectedUid, out var ticketUid) || ticketUid != uid)
+                try
+                {
+                    var protector = dataProtectionProvider
+                        .CreateProtector("AqLife.VideoPreview.v1")
+                        .ToTimeLimitedDataProtector();
+                    var protectedUid = protector.Unprotect(ticket);
+                    if (!Guid.TryParse(protectedUid, out var ticketUid) || ticketUid != uid)
+                        return Unauthorized();
+                }
+                catch (CryptographicException)
+                {
                     return Unauthorized();
+                }
             }
-            catch (CryptographicException)
+            else
             {
-                return Unauthorized();
+                // Public Markdown pages may embed published videos without an authenticated preview ticket.
+                // FileSearch applies the published-only visibility rule to this anonymous lookup.
+                await using var publicStream = (await fileReader.ReadAsync(uid, FileScope.Video, ct)).FileStream;
             }
 
             // FileSearch exposes unpublished files only to authenticated requests.
