@@ -199,7 +199,7 @@ onBeforeMount(loadData)
         </template>
       </ElTableColumn>
       <ElTableColumn label="媒体" min-width="180">
-        <template #default="{ row }">{{ (row.media ?? []).map(media => fileName(media.fileId)).join('、') || '无媒体' }}</template>
+        <template #default="{ row }">{{ (row.media ?? []).map((media: NonNullable<FavoriteDto['media']>[number]) => fileName(media.fileId)).join('、') || '无媒体' }}</template>
       </ElTableColumn>
       <ElTableColumn label="标签" min-width="140">
         <template #default="{ row }">
@@ -250,7 +250,7 @@ onBeforeMount(loadData)
         </ElFormItem>
         <ElFormItem label="标签">
           <ElSelect v-model="selectedTagIds" multiple filterable clearable class="full-width" placeholder="选择标签">
-            <ElOption v-for="tag in tags" :key="tag.uid" :label="tag.name ?? '未命名标签'" :value="tag.uid!" />
+            <ElOption v-for="tag in tags" :key="tag.uid ?? tag.name ?? 'tag'" :label="tag.name ?? '未命名标签'" :value="tag.uid!" />
           </ElSelect>
         </ElFormItem>
       </ElForm>
