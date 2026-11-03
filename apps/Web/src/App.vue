@@ -14,6 +14,7 @@ import { useArticleStore } from './stores/articleStore.ts'
 
 const articleStore = useArticleStore()
 const route = useRoute()
+const isPreviewFullscreen = computed(() => route.path.startsWith('/preview/') && articleStore.isFullscreen)
 const mobileDrawerOpen = ref(false)
 const mobilePanel = ref<'search' | 'sidebar' | 'account'>('search')
 
@@ -47,7 +48,7 @@ const sideManager = computed(() => {
 
 <template>
   <div id="baseLayout">
-    <aside id="tools">
+    <aside v-if="!isPreviewFullscreen" id="tools">
      <div class="tools-search">
       <SearchBox/>
      </div>
@@ -55,8 +56,8 @@ const sideManager = computed(() => {
       <component :is="sideManager?.component" v-bind="sideManager?.props"/>
      </div>
     </aside>
-    <main id="content">
-      <div class="mobile-toolbar" aria-label="移动端工具栏">
+    <main id="content" :class="{ 'is-preview-fullscreen': isPreviewFullscreen }">
+      <div v-if="!isPreviewFullscreen" class="mobile-toolbar" aria-label="移动端工具栏">
         <ElButton :icon="Search" text @click="openMobilePanel('search')">
           搜索
         </ElButton>
@@ -67,14 +68,14 @@ const sideManager = computed(() => {
           个人
         </ElButton>
       </div>
-      <div id="navigation">
+      <div v-if="!isPreviewFullscreen" id="navigation">
         <NavigationBar/>
       </div>
       <div id="mainViewport">
         <RouterView/>
       </div>
     </main>
-    <aside id="account">
+    <aside v-if="!isPreviewFullscreen" id="account">
       <div class="account-author">
         <FAuthorCard/>
       </div>
@@ -84,6 +85,7 @@ const sideManager = computed(() => {
     </aside>
 
     <ElDrawer
+      v-if="!isPreviewFullscreen"
       v-model="mobileDrawerOpen"
       class="mobile-drawer"
       :title="mobilePanel === 'search' ? '搜索' : mobilePanel === 'sidebar' ? (route.meta.sidebarType === SidebarType.Preview ? '文章目录' : '工具') : '个人与博文'"
@@ -172,6 +174,10 @@ const sideManager = computed(() => {
 /* =========================================================
    中间
    ========================================================= */
+
+.is-preview-fullscreen {
+  grid-template-rows: minmax(0, 1fr) !important;
+}
 
 #content {
   min-width: 0;
