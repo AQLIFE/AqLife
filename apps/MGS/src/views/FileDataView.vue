@@ -126,7 +126,7 @@ import { useFileStore } from '@/stores/useFileStore'
 import { CopyDocument, Delete, Plus, Upload } from '@element-plus/icons-vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import FilePreviewCell from '@/components/FilePreviewCell.vue'
 import TagsCell from '@/components/TagsCell.vue'
 import FileSizeCell from './FileSizeCell.vue'
@@ -153,7 +153,9 @@ const segmentedMode = [
   { label: 'Images', value: 'image' },
   { label: 'Videos', value: 'video' },
 ]
-const selectMode = ref<string>('md')
+const route = useRoute()
+const initialType = typeof route.query.type === 'string' ? route.query.type : 'md'
+const selectMode = ref<string>(['md', 'image', 'video'].includes(initialType) ? initialType : 'md')
 const previewImageUrl = ref('')
 const previewVideoUrl = ref('')
 let videoPreviewRequestVersion = 0
@@ -548,6 +550,16 @@ async function loadFilesForMode() {
 
   try {
     await fileStore.fetchAllFiles(fileApi, scope)
+    const previewUid = typeof route.query.preview === 'string' ? route.query.preview : ''
+    if (previewUid && version === modeLoadVersion) {
+      const target = fileStore.fileList.find(item => item.uid === previewUid)
+      if (target) {
+        if (selectMode.value === 'image') openImagePreview(previewUid)
+        else if (selectMode.value === 'video') await openVideoPreview(previewUid)
+      } else {
+        ElMessage.warning('未找到要预览的文件，可能已被删除或不属于当前文件分类')
+      }
+    }
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '文件列表加载失败')
   } finally {
