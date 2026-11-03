@@ -245,7 +245,7 @@ watch([() => draft.content, () => articleDraft.title], () => {
   try {
     localStorage.setItem(newArticleDraftKey, JSON.stringify({ title: articleDraft.title, content: draft.content, savedAt: Date.now() }))
   } catch { /* Storage may be unavailable or full. */ }
-})
+}, { flush: 'sync' })
 
 watch(() => draft.content, content => {
   if (markdownEditor && markdownEditor.getValue() !== content) {
