@@ -59,7 +59,7 @@ public class FavoriteItemEntity : IEntity
 }
 
 [Table("FavoriteMedia")]
-public class FavoriteMediaEntity : IEntity
+public class FavoriteMediaEntity
 {
     public Guid FavoriteId { get; private set; }
     public Guid FileId { get; private set; }
@@ -81,7 +81,7 @@ public class FavoriteMediaEntity : IEntity
 }
 
 [Table("FavoriteTags")]
-public class FavoriteTagEntity : IEntity
+public class FavoriteTagEntity
 {
     public Guid FavoriteId { get; private set; }
     public Guid TagId { get; private set; }
