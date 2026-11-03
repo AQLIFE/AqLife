@@ -116,7 +116,7 @@ async function loadArticle(guid: string) {
     markdown.value = content
     originalMarkdown.value = content
     if (isEditing.value) await restoreLocalDraft(guid, content)
-    editor?.setValue(content)
+    editor?.setValue(markdown.value)
     publishStatusModel.value = dto.publishStatus
     selectedTags.value = dto.tags ?? []
     scheduledAt.value = parsePublishAt(dto.publishAt)
@@ -369,7 +369,7 @@ watch(markdown, value => {
   try {
     localStorage.setItem(draftStorageKey(uid), JSON.stringify({ content: value, savedAt: Date.now() }))
   } catch { /* Storage may be unavailable or full; the editor remains usable. */ }
-})
+}, { flush: 'sync' })
 
 watch(isEditing, async value => {
   editor?.updateOptions({ readOnly: !value })
