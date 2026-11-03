@@ -38,8 +38,7 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
 
   function addFiles(files: File[]) {
     const editor = getEditor()
-    const model = editor?.getModel()
-    if (!editor || !model) return
+    if (!editor?.getModel()) return
 
     const valid = files.filter(file => /\\.(mp4|webm)$/i.test(file.name))
     const rejected = files.filter(file => !valid.includes(file))
