@@ -42,7 +42,7 @@ namespace AqLife.Web.Controllers
             var protector = dataProtectionProvider
                 .CreateProtector("AqLife.VideoPreview.v1")
                 .ToTimeLimitedDataProtector();
-            var ticket = protector.Protect(uid.ToString("D"), TimeSpan.FromMinutes(2));
+            var ticket = protector.Protect(uid.ToString("D"), TimeSpan.FromHours(1));
             return Ok(new { ticket });
         }
 
