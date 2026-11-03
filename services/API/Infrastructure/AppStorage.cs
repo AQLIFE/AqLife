@@ -1,6 +1,7 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
+using AqLife.Domain.Entities.Favorite;
 using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure
@@ -17,6 +18,9 @@ namespace AqLife.Infrastructure
         public DbSet<PublishMetaEntity> FilePublishMetas { get; set; }
         public DbSet<InteractionMetaEntity> FileInteractionMetas { get; set; }
         public DbSet<SystemStateEntity> SystemStates { get; set; }
+        public DbSet<FavoriteItemEntity> FavoriteItems { get; set; }
+        public DbSet<FavoriteMediaEntity> FavoriteMedia { get; set; }
+        public DbSet<FavoriteTagEntity> FavoriteTags { get; set; }
 
 
         public async Task<ITransaction> BeginTransactionAsync(CancellationToken ct)
@@ -30,6 +34,22 @@ namespace AqLife.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<FavoriteMediaEntity>().HasKey(x => new { x.FavoriteId, x.FileId });
+            modelBuilder.Entity<FavoriteTagEntity>().HasKey(x => new { x.FavoriteId, x.TagId });
+
+            modelBuilder.Entity<FavoriteItemEntity>()
+                .HasMany(x => x.Media).WithOne(x => x.Favorite)
+                .HasForeignKey(x => x.FavoriteId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<FavoriteItemEntity>()
+                .HasMany(x => x.Tags).WithOne(x => x.Favorite)
+                .HasForeignKey(x => x.FavoriteId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<FavoriteMediaEntity>()
+                .HasOne<FileMetaEntity>().WithMany()
+                .HasForeignKey(x => x.FileId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<FavoriteTagEntity>()
+                .HasOne<TagEntity>().WithMany()
+                .HasForeignKey(x => x.TagId).OnDelete(DeleteBehavior.Restrict);
 
             // FileTag 复合主键
             modelBuilder.Entity<FileTagEntity>()
