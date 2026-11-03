@@ -162,6 +162,12 @@ async function remove(item: FavoriteDto) {
   }
 }
 
+function toggleFile(fileId: string, checked: string | number | boolean) {
+  if (!fileId) return
+  if (checked && !selectedFileIds.value.includes(fileId)) selectedFileIds.value.push(fileId)
+  else if (!checked) selectedFileIds.value = selectedFileIds.value.filter(value => value !== fileId)
+}
+
 function fileName(fileId?: string) {
   return files.value.find(file => file.uid === fileId)?.fileName ?? fileId ?? '未知文件'
 }
@@ -257,11 +263,7 @@ onBeforeMount(loadData)
     <ElDialog v-model="fileDialogVisible" title="选择图片文件" width="min(680px, 94vw)">
       <div class="file-options">
         <ElCheckbox v-for="file in files" :key="file.uid" :model-value="selectedFileIds.includes(file.uid ?? '')"
-          :label="file.uid" @change="checked => {
-            const id = file.uid ?? ''
-            if (checked && id && !selectedFileIds.includes(id)) selectedFileIds.push(id)
-            else selectedFileIds = selectedFileIds.filter(value => value !== id)
-          }">
+          :label="file.uid" @change="checked => toggleFile(file.uid ?? '', checked)">
           {{ file.fileName || file.uid }}
         </ElCheckbox>
         <ElEmpty v-if="!files.length" description="没有可关联的图片文件" />
