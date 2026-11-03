@@ -386,7 +386,8 @@ watch(markdown, value => {
   if (value === originalMarkdown.value) {
     localStorage.removeItem(draftStorageKey(uid))
     return
-  }\n  try {
+  }
+  try {
     localStorage.setItem(draftStorageKey(uid), JSON.stringify({ content: value, savedAt: Date.now() }))
   } catch { /* Storage may be unavailable or full; the editor remains usable. */ }
 }, { flush: 'sync' })
