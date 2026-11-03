@@ -27,6 +27,10 @@
         <ElIcon><PriceTag /></ElIcon>
         <span>Tags</span>
       </RouterLink>
+      <RouterLink class="nav-item" to="/favorite">
+        <ElIcon><Collection /></ElIcon>
+        <span>收藏</span>
+      </RouterLink>
 
     </nav>
 
