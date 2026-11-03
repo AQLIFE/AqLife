@@ -125,7 +125,7 @@ onBeforeUnmount(() => {
     </div>
 
     <div v-if="items.length" class="archive-grid">
-      <article v-for="(item, index) in items" :key="item.uid" class="archive-card" role="link" tabindex="0" aria-label="查看收藏详情" @click="openDetail(item.uid)" @keydown.enter.self.prevent="openDetail(item.uid)" :class="`card-tone-${index % 4}`">
+      <article v-for="(item, index) in items" :key="item.uid" class="archive-card" role="link" tabindex="0" :aria-label="'查看收藏：' + (item.title || '未命名收藏')" @click="openDetail(item.uid)" @keydown.enter.self.prevent="openDetail(item.uid)" :class="`card-tone-${index % 4}`">
         <a v-if="item.sourceUrl" class="card-source" :href="item.sourceUrl" target="_blank" rel="noopener noreferrer" :aria-label="打开收藏来源" @click.stop>
           <ArrowRight />
         </a>
@@ -142,7 +142,7 @@ onBeforeUnmount(() => {
           <div v-if="item.tagIds?.length" class="card-tags">
             <ElTag v-for="id in item.tagIds" :key="id" size="small" effect="plain">{{ tagName(id) }}</ElTag>
           </div>
-          <span class="card-open-hint">查看详情 <ArrowRight /></span>
+          <span class="card-open-hint">查看详情<span v-if="item.media?.length"> · {{ item.media.length }} 张图片</span> <ArrowRight /></span>
         </div>
       </article>
     </div>
