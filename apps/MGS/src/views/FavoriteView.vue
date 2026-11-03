@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 import {
-  ElButton, ElCheckbox, ElDialog, ElEmpty, ElForm, ElFormItem, ElInput, ElMessage,
+  ElButton, ElDialog, ElEmpty, ElForm, ElFormItem, ElInput, ElMessage,
   ElMessageBox, ElOption, ElSelect, ElSwitch, ElTable, ElTableColumn, ElTag, ElUpload,
 } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Upload } from '@element-plus/icons-vue'
