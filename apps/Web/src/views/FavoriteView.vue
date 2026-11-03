@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElButton, ElEmpty, ElMessage, ElOption, ElSelect, ElTag } from 'element-plus'
 import { ArrowRight, Refresh } from '@element-plus/icons-vue'
 import { FavoriteApi, FileApi, TagApi, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 
+const router = useRouter()
 const favoriteApi = new FavoriteApi(apiConfiguration)
 const fileApi = new FileApi(apiConfiguration)
 const tagApi = new TagApi(apiConfiguration)
@@ -72,6 +74,10 @@ async function loadImages(favorites: FavoriteDto[]) {
   }))
 }
 
+function openDetail(uid?: string) {
+  if (uid) void router.push('/favorite/' + encodeURIComponent(uid))
+}
+
 function changeType(value: string) {
   selectedType.value = value
   void loadItems(true)
@@ -119,8 +125,8 @@ onBeforeUnmount(() => {
     </div>
 
     <div v-if="items.length" class="archive-grid">
-      <article v-for="(item, index) in items" :key="item.uid" class="archive-card" :class="`card-tone-${index % 4}`">
-        <a v-if="item.sourceUrl" class="card-source" :href="item.sourceUrl" target="_blank" rel="noopener noreferrer" :aria-label="`打开来源：${item.title}`">
+      <article v-for="(item, index) in items" :key="item.uid" class="archive-card" role="link" tabindex="0" aria-label="查看收藏详情" @click="openDetail(item.uid)" @keydown.enter.prevent="openDetail(item.uid)" :class="`card-tone-${index % 4}`">
+        <a v-if="item.sourceUrl" class="card-source" :href="item.sourceUrl" target="_blank" rel="noopener noreferrer" :aria-label="打开收藏来源" @click.stop>
           <ArrowRight />
         </a>
         <div v-if="imageUrls[item.uid ?? '']" class="card-image">
@@ -159,7 +165,7 @@ onBeforeUnmount(() => {
 .archive-toolbar :deep(.el-select) { width: 160px; }
 .archive-grid { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
 .archive-card { position: relative; min-width: 0; overflow: hidden; border: 1px solid var(--el-border-color-lighter); border-radius: 8px; background: var(--el-fill-color-blank); transition: transform .2s ease, box-shadow .2s ease; }
-.archive-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgb(0 0 0 / 7%); }
+.archive-card:hover, .archive-card:focus-visible { transform: translateY(-3px); box-shadow: 0 10px 28px rgb(0 0 0 / 7%); outline: none; cursor: pointer; }
 .card-tone-1 { margin-top: 22px; }
 .card-tone-2 { margin-top: 8px; }
 .card-source { position: absolute; z-index: 1; top: 10px; right: 10px; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: rgb(255 255 255 / 88%); color: #444; }
