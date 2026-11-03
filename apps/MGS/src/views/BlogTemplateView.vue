@@ -198,7 +198,7 @@ const markdownFileResolver = {
     return video.items?.[0]
   },
   async getVideoUrl(uid: string): Promise<string | undefined> {
-    const basePath = apiConfiguration.basePath.replace(/\\/+$/, '')
+    const basePath = apiConfiguration.basePath.replace(/\/+$/, '')
     const headers = new Headers()
     const token = tokenStore.get()
     if (token) headers.set('Authorization', token.startsWith('Bearer ') ? token : `Bearer ${token}`)
