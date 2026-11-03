@@ -145,6 +145,7 @@ async function restoreLocalDraft(uid: string, serverContent: string) {
       markdown.value = saved.content
       editor?.setValue(saved.content)
       ElMessage.success('已恢复本地草稿')
+      if (saved.content.includes('pending-video:')) ElMessage.warning('草稿中有尚未上传的视频占位符；浏览器未保存视频文件，请删除该占位行后重新插入视频。')
     } catch {
       localStorage.removeItem(draftStorageKey(uid))
     }
@@ -441,6 +442,7 @@ onBeforeUnmount(() => {
       <div v-for="item in videoUploads" :key="item.id" class="video-upload-item">
         <span class="video-upload-name">{{ item.name }}</span>
         <span>{{ item.state === 'queued' ? '排队中' : item.state === 'uploading' ? '上传中 ' + item.progress + '%' : item.state === 'completed' ? '已完成' : '上传失败' }}</span>
+        <span v-if="item.error" class="video-upload-error">{{ item.error }}</span>
         <ElButton v-if="item.state === 'failed'" text type="primary" @click="retryVideoUpload(item.id)">重试</ElButton>
       </div>
     </div>
@@ -468,6 +470,7 @@ onBeforeUnmount(() => {
 }
 .video-upload-item { display: flex; align-items: center; gap: 8px; min-width: 240px; }
 .video-upload-name { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.video-upload-error { color: var(--el-color-danger); }
 
 .editor-grid {
   min-height: 0;
