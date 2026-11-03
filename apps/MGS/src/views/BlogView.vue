@@ -5,6 +5,7 @@ import { Edit, Check, Lock, Delete } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
 import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
+import { tokenStore } from '@aqlife/api-client'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
@@ -33,6 +34,22 @@ const markdownFileResolver = {
     if (image.items?.[0]) return image.items[0]
     const video = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Video })
     return video.items?.[0]
+  },
+  async getVideoUrl(uid: string): Promise<string | undefined> {
+    const basePath = apiConfiguration.basePath.replace(/\\/+$/, '')
+    const headers = new Headers()
+    const token = tokenStore.get()
+    if (token) headers.set('Authorization', token.startsWith('Bearer ') ? token : `Bearer ${token}`)
+    const response = await fetch(`${basePath}/api/File/video-preview-ticket?uid=${encodeURIComponent(uid)}`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+    })
+    if (!response.ok) return undefined
+    const result = await response.json() as { ticket?: string }
+    if (!result.ticket) return undefined
+    const playbackUrl = new URL(`${basePath}/api/File/video-stream?UID=${encodeURIComponent(uid)}&ticket=${encodeURIComponent(result.ticket)}`, window.location.href)
+    return playbackUrl.toString()
   },
 }
 
