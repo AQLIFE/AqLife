@@ -269,7 +269,11 @@ onBeforeMount(loadData)
     </MgsToolbar>
 
     <ElTable :data="filteredItems" v-loading="loading" row-key="uid" height="100%" empty-text="暂无收藏内容">
-      <ElTableColumn prop="title" label="标题" min-width="190" show-overflow-tooltip />
+      <ElTableColumn prop="title" label="标题" min-width="190" show-overflow-tooltip>
+        <template #default="{ row }">
+          <ElButton link type="primary" @click="openDetail(row)">{{ row.title || '未命名收藏' }}</ElButton>
+        </template>
+      </ElTableColumn>
       <ElTableColumn prop="contentType" label="类型" width="110">
         <template #default="{ row }">
           <ElTag>{{ contentTypes.find(type => type.value === row.contentType)?.label ?? row.contentType }}</ElTag>
@@ -299,6 +303,11 @@ onBeforeMount(loadData)
       </ElTableColumn>
     </ElTable>
 
+    <ElDialog v-model="detailDialogVisible" title="收藏详情" width="min(920px, 94vw)" top="5vh" destroy-on-close>
+      <div v-if="detailItem" class="favorite-detail-dialog">
+        <FavoriteDetailContent :favorite="detailItem" :tags="tags" :image-urls="detailImageUrls" editable @edit="editFromDetail" />
+      </div>
+    </ElDialog>
     <ElDialog v-model="dialogVisible" :title="editing ? '编辑收藏' : '新增收藏'" width="min(720px, 94vw)" destroy-on-close>
       <ElForm label-position="top">
         <ElFormItem label="标题" required>
@@ -376,6 +385,7 @@ onBeforeMount(loadData)
 </template>
 
 <style scoped>
+.favorite-detail-dialog { max-height: 72vh; overflow-y: auto; padding: 0 8px; }
 .favorite-admin { height: 100%; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
 .favorite-admin :deep(.el-table) { flex: 1; min-height: 0; }
 .type-filter { width: 160px; }
