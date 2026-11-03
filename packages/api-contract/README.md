@@ -61,10 +61,16 @@ All URIs are relative to *http://localhost*
 *CorpusApi* | [**apiCorpusGet**](docs/CorpusApi.md#apicorpusget) | **GET** /api/Corpus | 
 *CorpusApi* | [**apiCorpusPost**](docs/CorpusApi.md#apicorpuspost) | **POST** /api/Corpus | 
 *CorpusApi* | [**apiCorpusRandomGet**](docs/CorpusApi.md#apicorpusrandomget) | **GET** /api/Corpus/random | 
+*FavoriteApi* | [**apiFavoriteDelete**](docs/FavoriteApi.md#apifavoritedelete) | **DELETE** /api/Favorite | 
+*FavoriteApi* | [**apiFavoriteGet**](docs/FavoriteApi.md#apifavoriteget) | **GET** /api/Favorite | 
+*FavoriteApi* | [**apiFavoritePost**](docs/FavoriteApi.md#apifavoritepost) | **POST** /api/Favorite | 
+*FavoriteApi* | [**apiFavoritePublishPatch**](docs/FavoriteApi.md#apifavoritepublishpatch) | **PATCH** /api/Favorite/publish | 
+*FavoriteApi* | [**apiFavoritePut**](docs/FavoriteApi.md#apifavoriteput) | **PUT** /api/Favorite | 
 *FileApi* | [**apiFileCancelSchedulePatch**](docs/FileApi.md#apifilecancelschedulepatch) | **PATCH** /api/File/CancelSchedule | 
 *FileApi* | [**apiFileDelete**](docs/FileApi.md#apifiledelete) | **DELETE** /api/File | 
 *FileApi* | [**apiFileDownloadGet**](docs/FileApi.md#apifiledownloadget) | **GET** /api/File/download | 
 *FileApi* | [**apiFileGet**](docs/FileApi.md#apifileget) | **GET** /api/File | 
+*FileApi* | [**apiFileHashCheckPost**](docs/FileApi.md#apifilehashcheckpost) | **POST** /api/File/hash/check | 
 *FileApi* | [**apiFilePatch**](docs/FileApi.md#apifilepatch) | **PATCH** /api/File | 
 *FileApi* | [**apiFilePreviewCompletePatch**](docs/FileApi.md#apifilepreviewcompletepatch) | **PATCH** /api/File/preview/complete | 
 *FileApi* | [**apiFilePreviewGet**](docs/FileApi.md#apifilepreviewget) | **GET** /api/File/preview | 
@@ -75,6 +81,8 @@ All URIs are relative to *http://localhost*
 *FileApi* | [**apiFileUploadsUploadIdChunksIndexPut**](docs/FileApi.md#apifileuploadsuploadidchunksindexput) | **PUT** /api/File/uploads/{uploadId}/chunks/{index} | 
 *FileApi* | [**apiFileUploadsUploadIdCompletePost**](docs/FileApi.md#apifileuploadsuploadidcompletepost) | **POST** /api/File/uploads/{uploadId}/complete | 
 *FileApi* | [**apiFileUploadsUploadIdGet**](docs/FileApi.md#apifileuploadsuploadidget) | **GET** /api/File/uploads/{uploadId} | 
+*FileApi* | [**apiFileVideoPreviewTicketPost**](docs/FileApi.md#apifilevideopreviewticketpost) | **POST** /api/File/video-preview-ticket | 
+*FileApi* | [**apiFileVideoStreamGet**](docs/FileApi.md#apifilevideostreamget) | **GET** /api/File/video-stream | 
 *OverviewApi* | [**apiOverviewGet**](docs/OverviewApi.md#apioverviewget) | **GET** /api/Overview | 
 *TagApi* | [**apiTagDelete**](docs/TagApi.md#apitagdelete) | **DELETE** /api/Tag | 
 *TagApi* | [**apiTagGet**](docs/TagApi.md#apitagget) | **GET** /api/Tag | 
@@ -93,36 +101,46 @@ All URIs are relative to *http://localhost*
 - [AccountProfile](docs/AccountProfile.md)
 - [BlogCategoryStatistics](docs/BlogCategoryStatistics.md)
 - [CancelScheduledFileCommand](docs/CancelScheduledFileCommand.md)
+- [CheckFileHashQuery](docs/CheckFileHashQuery.md)
 - [CorpusDto](docs/CorpusDto.md)
 - [CorpusDtoPageResult](docs/CorpusDtoPageResult.md)
 - [CreateAccountCommand](docs/CreateAccountCommand.md)
 - [CreateCorpusCommand](docs/CreateCorpusCommand.md)
+- [CreateFavoriteCommand](docs/CreateFavoriteCommand.md)
 - [CreateTagCommand](docs/CreateTagCommand.md)
 - [CreateTodoCommand](docs/CreateTodoCommand.md)
 - [DeleteCorepusCommand](docs/DeleteCorepusCommand.md)
 - [DeleteFileCommand](docs/DeleteFileCommand.md)
 - [DeleteTagCommand](docs/DeleteTagCommand.md)
 - [DeleteTodoCommand](docs/DeleteTodoCommand.md)
+- [FavoriteDto](docs/FavoriteDto.md)
+- [FavoriteDtoPageResult](docs/FavoriteDtoPageResult.md)
+- [FavoriteMediaDto](docs/FavoriteMediaDto.md)
+- [FavoriteMediaInput](docs/FavoriteMediaInput.md)
 - [FileDto](docs/FileDto.md)
 - [FileDtoPageResult](docs/FileDtoPageResult.md)
+- [FileHashCheckResult](docs/FileHashCheckResult.md)
+- [FileHashMatch](docs/FileHashMatch.md)
 - [FileOrder](docs/FileOrder.md)
 - [FileScope](docs/FileScope.md)
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
 - [OverviewDto](docs/OverviewDto.md)
+- [ResumableUploadSession](docs/ResumableUploadSession.md)
+- [ResumableUploadStatus](docs/ResumableUploadStatus.md)
 - [ScheduledFileCommand](docs/ScheduledFileCommand.md)
-- [StartRequest](docs/StartRequest.md)
+- [SetFavoritePublishedCommand](docs/SetFavoritePublishedCommand.md)
+- [StartVideoUploadCommand](docs/StartVideoUploadCommand.md)
 - [SubscriptionDto](docs/SubscriptionDto.md)
 - [TagDto](docs/TagDto.md)
 - [TagDtoPageResult](docs/TagDtoPageResult.md)
 - [TodoDto](docs/TodoDto.md)
 - [TodoDtoPageResult](docs/TodoDtoPageResult.md)
 - [TodoStatus](docs/TodoStatus.md)
+- [UpdateFavoriteCommand](docs/UpdateFavoriteCommand.md)
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
 - [UpdateTagCommand](docs/UpdateTagCommand.md)
 - [UpdateTodoCommand](docs/UpdateTodoCommand.md)
-- [UploadSession](docs/UploadSession.md)
-- [UploadStatus](docs/UploadStatus.md)
 
 ### Authorization
 

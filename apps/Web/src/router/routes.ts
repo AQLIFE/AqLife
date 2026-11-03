@@ -7,6 +7,8 @@ import WishlistView from '@/views/WishlistView.vue'
 import { WebIconName } from '@aqlife/icons'
 import { SidebarType } from '@/types/sidebarType'
 import UnavailableView from '@/views/UnavailableView.vue'
+import FavoriteView from '@/views/FavoriteView.vue'
+import FavoriteDetailView from '@/views/FavoriteDetailView.vue'
 
 export const routes = [
   {
@@ -65,8 +67,30 @@ export const routes = [
     meta: {
       navTitle: '心愿单',
       navIcon: WebIconName.Wish,
-      showInNav: true,
+      showInNav: false,
       order: 4,
+      sidebarType: SidebarType.None,
+    },
+  },
+  {
+    path: '/favorite',
+    component: FavoriteView,
+    meta: {
+      navTitle: '收藏',
+      navIcon: WebIconName.Wish,
+      showInNav: true,
+      order: 5,
+      sidebarType: SidebarType.None,
+    },
+  },
+  {
+    path: '/favorite/:uid',
+    component: FavoriteDetailView,
+    meta: {
+      navTitle: '收藏详情',
+      navIcon: WebIconName.Wish,
+      showInNav: false,
+      order: 5,
       sidebarType: SidebarType.None,
     },
   },

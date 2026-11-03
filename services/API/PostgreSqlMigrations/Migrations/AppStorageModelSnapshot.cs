@@ -84,6 +84,85 @@ namespace PostgreSqlMigrations.Migrations
                     b.ToTable("Corpus");
                 });
 
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", b =>
+                {
+                    b.Property<Guid>("UID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UID");
+
+                    b.ToTable("FavoriteItems");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteMediaEntity", b =>
+                {
+                    b.Property<Guid>("FavoriteId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FavoriteId", "FileId");
+
+                    b.HasIndex("FileId");
+
+                    b.ToTable("FavoriteMedia");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteTagEntity", b =>
+                {
+                    b.Property<Guid>("FavoriteId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("FavoriteId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("FavoriteTags");
+                });
+
             modelBuilder.Entity("AqLife.Domain.Entities.File.FileMetaEntity", b =>
                 {
                     b.Property<Guid>("UID")
@@ -277,6 +356,40 @@ namespace PostgreSqlMigrations.Migrations
                     b.ToTable("TodoList");
                 });
 
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteMediaEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", "Favorite")
+                        .WithMany("Media")
+                        .HasForeignKey("FavoriteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AqLife.Domain.Entities.File.FileMetaEntity", null)
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Favorite");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteTagEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", "Favorite")
+                        .WithMany("Tags")
+                        .HasForeignKey("FavoriteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AqLife.Domain.Entities.TagEntity", null)
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Favorite");
+                });
+
             modelBuilder.Entity("AqLife.Domain.Entities.File.InteractionMetaEntity", b =>
                 {
                     b.HasOne("AqLife.Domain.Entities.File.FileMetaEntity", null)
@@ -334,6 +447,13 @@ namespace PostgreSqlMigrations.Migrations
             modelBuilder.Entity("AqLife.Domain.Entities.AccountEntity", b =>
                 {
                     b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", b =>
+                {
+                    b.Navigation("Media");
+
+                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.File.FileMetaEntity", b =>

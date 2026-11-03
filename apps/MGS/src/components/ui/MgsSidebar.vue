@@ -27,6 +27,10 @@
         <ElIcon><PriceTag /></ElIcon>
         <span>Tags</span>
       </RouterLink>
+      <RouterLink class="nav-item" to="/favorite">
+        <ElIcon><Collection /></ElIcon>
+        <span>收藏</span>
+      </RouterLink>
 
     </nav>
 
@@ -39,7 +43,7 @@
 
 <script setup lang="ts">
 import { ElIcon } from 'element-plus'
-import { Document, House, List, PriceTag } from '@element-plus/icons-vue'
+import { Collection, Document, House, List, PriceTag } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>
