@@ -59,7 +59,7 @@ export function useMarkdownVideoUploadQueue(getEditor: () => monaco.editor.IStan
 
     editor.executeEdits('insert-pending-video', [{
       range: selection,
-      text: jobs.join('\n') + '\\n',
+      text: jobs.join('\n') + '\n',
       forceMoveMarkers: true,
     }])
     editor.focus()
