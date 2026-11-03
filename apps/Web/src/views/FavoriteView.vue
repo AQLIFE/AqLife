@@ -126,7 +126,7 @@ onBeforeUnmount(() => {
 
     <div v-if="items.length" class="archive-grid">
       <article v-for="(item, index) in items" :key="item.uid" class="archive-card" role="link" tabindex="0" :aria-label="'查看收藏：' + (item.title || '未命名收藏')" @click="openDetail(item.uid)" @keydown.enter.self.prevent="openDetail(item.uid)" :class="`card-tone-${index % 4}`">
-        <a v-if="item.sourceUrl" class="card-source" :href="item.sourceUrl" target="_blank" rel="noopener noreferrer" :aria-label="打开收藏来源" @click.stop>
+        <a v-if="item.sourceUrl" class="card-source" :href="item.sourceUrl" target="_blank" rel="noopener noreferrer" aria-label="打开收藏来源" @click.stop>
           <ArrowRight />
         </a>
         <div v-if="imageUrls[item.uid ?? '']" class="card-image">
