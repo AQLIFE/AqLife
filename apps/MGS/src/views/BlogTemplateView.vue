@@ -524,7 +524,7 @@ async function restoreNewArticleDraft() {
     const raw = localStorage.getItem(newArticleDraftKey)
     if (!raw) return
     const saved = JSON.parse(raw) as { title?: string; content?: string; savedAt?: number }
-    if (!saved.savedAt || Date.now() - saved.savedAt > DRAFT_TTL_MS || !saved.content) {
+    if (!saved.savedAt || Date.now() - saved.savedAt > DRAFT_TTL_MS || !saved.content || (saved.content === articleBaselineContent.value && !saved.title)) {
       localStorage.removeItem(newArticleDraftKey)
       return
     }
