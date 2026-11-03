@@ -208,7 +208,7 @@ export async function buildMarkdownRenderNodes(
           token: child,
         })
 
-        if (imageResult?.type !== 'image') {
+        if (imageResult?.type !== 'image' && imageResult?.type !== 'video') {
           // 未被自定义解析器接管，保留默认 Markdown 渲染
           segment.push(child)
           continue
