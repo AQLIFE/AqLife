@@ -2,3 +2,4 @@ export { default as SubscriptionAddCard } from './components/SubscriptionAddCard
 export {default as MarkdownRender} from './components/markdown/MarkdownRender.vue'
 export {usePaginatedList } from './PageResult/PageResultStore.ts'
 export { default as VideoPlayer } from './components/VideoPlayer.vue'
+export { default as FavoriteDetailContent } from './components/FavoriteDetailContent.vue'
