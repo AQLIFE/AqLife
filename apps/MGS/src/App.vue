@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { notify } from '@aqlife/ui-shared'
+import { notify, useLoadingTask } from '@aqlife/ui-shared'
 import { RouterView, useRoute } from 'vue-router'
 import EntrancePanel from './components/EntrancePanel.vue'
 import { useAccountStore } from '@/stores/useAccountStore'
 import { AccountApi } from '@/api'
 import { apiConfiguration } from './services/api.ts'
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount } from 'vue'
 import MgsSidebar from '@/components/ui/MgsSidebar.vue'
 import MgsTopbar from '@/components/ui/MgsTopbar.vue'
 
 const accountStore = useAccountStore()
 const request = new AccountApi(apiConfiguration)
 const route = useRoute()
-const loading = ref(true)
+const bootstrapLoading = useLoadingTask('mgs:app:bootstrap')
+const finishBootstrap = bootstrapLoading.begin()
+const loading = bootstrapLoading.isLoading
 
 const currentTitle = computed(() => {
   if (route.path.startsWith('/blog')) return 'Blog'
@@ -32,8 +34,10 @@ onBeforeMount(async () => {
     } else if (response.raw.status !== 204) {
       notify.error('未配置账户,请进入注册流程')
     }
+  } catch (error) {
+    notify.fromError(error, '账户初始化失败')
   } finally {
-    loading.value = false
+    finishBootstrap()
   }
 })
 </script>
