@@ -7,6 +7,7 @@ import { apiConfiguration } from '@/services/api'
 import { useTagStore } from '@/stores/uuseTagStore'
 import MgsPageHeader from '../components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 const columnMap: Record<string, string> = { uid: '唯一标识', name: '标签名称', aliasName: '标签别名', isCategory: '分类标识' }
 const activeSelect = ref<string>('选择字段')
 const searchQuery = ref('')
@@ -113,6 +114,7 @@ async function deleteTag(tag: TagDto) {
       </ElInput>
     </MgsToolbar>
 
+    <MgsPageContainer>
     <ElTable :data="proxyTags" v-loading="isLoading" element-loading-text="正在加载标签..." empty-text="暂无标签"
       class="tag-table" row-key="uid" highlight-current-row>
       <ElTableColumn prop="name" label="标签名称" min-width="180"><template #default="{ row }">
@@ -133,6 +135,7 @@ async function deleteTag(tag: TagDto) {
         </template>
       </ElTableColumn>
     </ElTable>
+    </MgsPageContainer>
     <ElDialog v-model="dialogVisible" :title="editingTag ? '编辑标签' : '添加标签'" width="min(520px, 92vw)" destroy-on-close>
       <ElForm label-position="top">
         <ElFormItem label="标签名称" required>
