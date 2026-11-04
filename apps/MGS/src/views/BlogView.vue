@@ -1,6 +1,5 @@
-import { notify } from '@aqlife/ui-shared'
-import { notify } from '@aqlife/ui-shared'
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElButton, ElDatePicker, ElMessageBox, ElSegmented } from 'element-plus'
 import { Edit, Check, Lock, Delete } from '@element-plus/icons-vue'
