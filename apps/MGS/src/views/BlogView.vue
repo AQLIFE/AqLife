@@ -315,7 +315,7 @@ async function deleteArticle() {
 async function saveVersion() {
   if (!file.value?.uid || (!isDirty.value && !videoUploading.value) || loading.value) return
 
-  loading.value = true
+  const finishLoading = editorLoading.begin()
 
   try {
     await waitForVideoUploads()
@@ -345,7 +345,7 @@ async function saveVersion() {
   } catch (error) {
     notify.error(error instanceof Error ? error.message : '保存失败')
   } finally {
-    loading.value = false
+    finishLoading()
   }
 }
 
