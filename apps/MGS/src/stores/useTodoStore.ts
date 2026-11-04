@@ -23,41 +23,49 @@ export const useTodoStorage = defineStore('todo', () => {
   async function fetchPlans(showArchived = false) {
     error.value = null
     await plansLoading.run(async () => {
-    try {
-      plans.value = await planApi.apiDevelopmentPlansGet({ includeArchived: showArchived })
-      if (!plans.value.some(x => x.uid === selectedPlanId.value && !x.isArchived)) {
-        selectedPlanId.value = plans.value.find(x => !x.isArchived)?.uid ?? ''
+      try {
+        plans.value = await planApi.apiDevelopmentPlansGet({ includeArchived: showArchived })
+        if (!plans.value.some(x => x.uid === selectedPlanId.value && !x.isArchived)) {
+          selectedPlanId.value = plans.value.find(x => !x.isArchived)?.uid ?? ''
+        }
+        if (selectedPlanId.value) await fetchTodos()
+        else todoList.value = []
+      } catch (e) {
+        error.value = e
+        throw e
       }
-      if (selectedPlanId.value) await fetchTodos()
-      else todoList.value = []
-    } catch (e) {
-      error.value = e
-      throw e
-    }
     })
   }
 
   async function fetchTodos() {
-    if (!selectedPlanId.value) { todoList.value = []; return }
+    if (!selectedPlanId.value) {
+      todoList.value = []
+      return
+    }
+
     error.value = null
     await todosLoading.run(async () => {
-    try {
-      const result: TodoDto[] = []
-      let page = 1
-      while (true) {
-        const response = await todoApi.apiTodoGet({
-          planId: selectedPlanId.value, page, pageSize: PAGE_SIZE, isTree: true,
-          includeCompleted: true, includeArchived: includeArchived.value,
-        })
-        result.push(...(response.items ?? []))
-        if (!response.hasMore) break
-        page = (response.page ?? page) + 1
+      try {
+        const result: TodoDto[] = []
+        let page = 1
+        while (true) {
+          const response = await todoApi.apiTodoGet({
+            planId: selectedPlanId.value,
+            page,
+            pageSize: PAGE_SIZE,
+            isTree: true,
+            includeCompleted: true,
+            includeArchived: includeArchived.value,
+          })
+          result.push(...(response.items ?? []))
+          if (!response.hasMore) break
+          page = (response.page ?? page) + 1
+        }
+        todoList.value = result
+      } catch (e) {
+        error.value = e
+        throw e
       }
-      todoList.value = result
-    } catch (e) {
-      error.value = e
-      throw e
-    }
     })
   }
 
