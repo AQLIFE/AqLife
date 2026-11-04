@@ -1,4 +1,5 @@
 import { notify } from '@aqlife/ui-shared'
+import { notify } from '@aqlife/ui-shared'
 <template>
   <ElForm label-width="120px">
     <ElFormItem label="账户名" required>
