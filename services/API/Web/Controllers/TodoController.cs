@@ -21,7 +21,7 @@ namespace AqLife.Web.Controllers
             return mediator.Send(effectiveQuery, ct);
         }
 
-        [HttpGet("roadmap")]
+        [HttpGet("roadmap"), AllowAnonymous]
         public Task<TodoRoadmapDto> GetRoadmapAsync([FromQuery] TodoRoadmapQuery query, CancellationToken ct)
             => mediator.Send(query, ct);
 

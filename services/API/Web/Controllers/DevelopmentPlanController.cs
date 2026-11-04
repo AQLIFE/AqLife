@@ -10,7 +10,7 @@ namespace AqLife.Web.Controllers
     [ApiController, Authorize]
     public class DevelopmentPlanController(IMediator mediator) : ControllerBase
     {
-        [HttpGet]
+        [HttpGet, AllowAnonymous]
         public Task<IReadOnlyList<DevelopmentPlanDto>> GetAsync([FromQuery] DevelopmentPlanQuery query, CancellationToken ct)
         {
             // Anonymous Web visitors can only discover active, public plans.
