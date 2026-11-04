@@ -143,7 +143,7 @@ async function loadArticle(guid: string) {
   } catch (error) {
     notify.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
-    if (version === articleLoadVersion) finishLoading()
+    finishLoading()
   }
 }
 
