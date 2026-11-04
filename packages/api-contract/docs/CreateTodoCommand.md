@@ -6,9 +6,14 @@
 
 Name | Type
 ------------ | -------------
+`planId` | string
+`title` | string
 `desc` | string
+`description` | string
 `priority` | number
-`ftid` | string
+`parentId` | string
+`fTID` | string
+`sortOrder` | number
 
 ## Example
 
@@ -17,9 +22,14 @@ import type { CreateTodoCommand } from '@aqlife/api-contract'
 
 // TODO: Update the object below with actual values
 const example = {
+  "planId": null,
+  "title": null,
   "desc": null,
+  "description": null,
   "priority": null,
-  "ftid": null,
+  "parentId": null,
+  "fTID": null,
+  "sortOrder": null,
 } satisfies CreateTodoCommand
 
 console.log(example)

@@ -73,6 +73,60 @@ export interface TodoDto {
      * @memberof TodoDto
      */
     hasChildren?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof TodoDto
+     */
+    planId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TodoDto
+     */
+    title?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TodoDto
+     */
+    description?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TodoDto
+     */
+    updatedAt?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof TodoDto
+     */
+    sortOrder?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TodoDto
+     */
+    isArchived?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TodoDto
+     */
+    isBlocked?: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof TodoDto
+     */
+    incompleteDependencyCount?: number;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof TodoDto
+     */
+    blockingTodoIds?: Array<string> | null;
 }
 
 /**
@@ -101,6 +155,15 @@ export function TodoDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): T
         'priority': json['priority'] == null ? undefined : json['priority'],
         'todoList': json['todoList'] == null ? undefined : ((json['todoList'] as Array<any>).map(TodoDtoFromJSON)),
         'hasChildren': json['hasChildren'] == null ? undefined : json['hasChildren'],
+        'planId': json['planId'] == null ? undefined : json['planId'],
+        'title': json['title'] == null ? undefined : json['title'],
+        'description': json['description'] == null ? undefined : json['description'],
+        'updatedAt': json['updatedAt'] == null ? undefined : json['updatedAt'],
+        'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
+        'isArchived': json['isArchived'] == null ? undefined : json['isArchived'],
+        'isBlocked': json['isBlocked'] == null ? undefined : json['isBlocked'],
+        'incompleteDependencyCount': json['incompleteDependencyCount'] == null ? undefined : json['incompleteDependencyCount'],
+        'blockingTodoIds': json['blockingTodoIds'] == null ? undefined : json['blockingTodoIds'],
     };
 }
 
@@ -124,6 +187,15 @@ export function TodoDtoToJSONTyped(value?: TodoDto | null, ignoreDiscriminator: 
         'priority': value['priority'],
         'todoList': value['todoList'] == null ? undefined : ((value['todoList'] as Array<any>).map(TodoDtoToJSON)),
         'hasChildren': value['hasChildren'],
+        'planId': value['planId'],
+        'title': value['title'],
+        'description': value['description'],
+        'updatedAt': value['updatedAt'],
+        'sortOrder': value['sortOrder'],
+        'isArchived': value['isArchived'],
+        'isBlocked': value['isBlocked'],
+        'incompleteDependencyCount': value['incompleteDependencyCount'],
+        'blockingTodoIds': value['blockingTodoIds'],
     };
 }
 

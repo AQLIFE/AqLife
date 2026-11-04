@@ -38,7 +38,19 @@ export interface UpdateTodoCommand {
      * @type {string}
      * @memberof UpdateTodoCommand
      */
+    title?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateTodoCommand
+     */
     desc?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateTodoCommand
+     */
+    description?: string | null;
     /**
      * - 0 = Initial：初始状态
      * - 1 = Wait：等待分配
@@ -76,7 +88,9 @@ export function UpdateTodoCommandFromJSONTyped(json: any, ignoreDiscriminator: b
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'desc': json['desc'] == null ? undefined : json['desc'],
+        'title': json['title'] == null ? undefined : json['title'],
+        'desc': json['Desc'] == null ? undefined : json['Desc'],
+        'description': json['description'] == null ? undefined : json['description'],
         'status': json['status'] == null ? undefined : TodoStatusFromJSON(json['status']),
         'priority': json['priority'] == null ? undefined : json['priority'],
     };
@@ -94,7 +108,9 @@ export function UpdateTodoCommandToJSONTyped(value?: UpdateTodoCommand | null, i
     return {
         
         'uid': value['uid'],
-        'desc': value['desc'],
+        'title': value['title'],
+        'Desc': value['desc'],
+        'description': value['description'],
         'status': TodoStatusToJSON(value['status']),
         'priority': value['priority'],
     };

@@ -24,7 +24,25 @@ export interface CreateTodoCommand {
      * @type {string}
      * @memberof CreateTodoCommand
      */
+    planId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateTodoCommand
+     */
+    title?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateTodoCommand
+     */
     desc?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateTodoCommand
+     */
+    description?: string | null;
     /**
      * 
      * @type {number}
@@ -36,7 +54,19 @@ export interface CreateTodoCommand {
      * @type {string}
      * @memberof CreateTodoCommand
      */
-    ftid?: string | null;
+    parentId?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateTodoCommand
+     */
+    fTID?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateTodoCommand
+     */
+    sortOrder?: number;
 }
 
 /**
@@ -56,9 +86,14 @@ export function CreateTodoCommandFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'desc': json['desc'] == null ? undefined : json['desc'],
+        'planId': json['planId'] == null ? undefined : json['planId'],
+        'title': json['title'] == null ? undefined : json['title'],
+        'desc': json['Desc'] == null ? undefined : json['Desc'],
+        'description': json['description'] == null ? undefined : json['description'],
         'priority': json['priority'] == null ? undefined : json['priority'],
-        'ftid': json['ftid'] == null ? undefined : json['ftid'],
+        'parentId': json['parentId'] == null ? undefined : json['parentId'],
+        'fTID': json['FTID'] == null ? undefined : json['FTID'],
+        'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
     };
 }
 
@@ -73,9 +108,14 @@ export function CreateTodoCommandToJSONTyped(value?: CreateTodoCommand | null, i
 
     return {
         
-        'desc': value['desc'],
+        'planId': value['planId'],
+        'title': value['title'],
+        'Desc': value['desc'],
+        'description': value['description'],
         'priority': value['priority'],
-        'ftid': value['ftid'],
+        'parentId': value['parentId'],
+        'FTID': value['fTID'],
+        'sortOrder': value['sortOrder'],
     };
 }
 
