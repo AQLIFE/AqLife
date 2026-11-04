@@ -5,15 +5,26 @@ namespace AqLife.Domain.Services
 {
     /// <summary>
     /// Validates an AND-semantics dependency graph. Every edge is predecessor -> successor.
+    /// The caller supplies all tasks and edges from the same plan snapshot.
     /// </summary>
     public static class TodoDependencyGraphValidator
     {
         public static void EnsureCanAdd(
             TodoDependencyEntity candidate,
+            IReadOnlyCollection<TodoEntity> planTasks,
             IEnumerable<TodoDependencyEntity> existingDependencies)
         {
             ArgumentNullException.ThrowIfNull(candidate);
+            ArgumentNullException.ThrowIfNull(planTasks);
             ArgumentNullException.ThrowIfNull(existingDependencies);
+
+            if (planTasks.Any(x => x.PlanId != candidate.PlanId))
+                throw new DomainLegalityException("任务集合包含其他开发计划的任务");
+
+            var predecessorExists = planTasks.Any(x => x.UID == candidate.PredecessorId);
+            var successorExists = planTasks.Any(x => x.UID == candidate.SuccessorId);
+            if (!predecessorExists || !successorExists)
+                throw new DomainLegalityException("依赖任务必须存在于当前开发计划");
 
             var edges = existingDependencies.ToArray();
 
