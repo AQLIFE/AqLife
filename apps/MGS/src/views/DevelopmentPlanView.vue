@@ -22,7 +22,7 @@ const saving = ref(false)
 const selectedId = ref('')
 const dependencyDialog = ref(false)
 const canvas = ref<HTMLElement | null>(null)
-const drag = ref<{ id: string; offsetX: number; offsetY: number } | null>(null)
+const drag = ref<{ id: string; offsetX: number; offsetY: number; moved: boolean } | null>(null)
 const localPositions = ref<Record<string, { x: number; y: number }>>({})
 const dependencyForm = reactive({ predecessorId: '' })
 
@@ -130,12 +130,18 @@ async function removeDependency(predecessorId?: string, successorId?: string) {
 function beginDrag(event: PointerEvent, todo: TodoDto) {
   if (!todo.uid || (event.target as HTMLElement).closest('button')) return
   const point = positions.value[todo.uid]
-  drag.value = { id: todo.uid, offsetX: event.clientX - point.x, offsetY: event.clientY - point.y }
+  const rect = canvas.value?.getBoundingClientRect()
+  if (!rect) return
+  const pointerX = event.clientX - rect.left + canvas.value!.scrollLeft
+  const pointerY = event.clientY - rect.top + canvas.value!.scrollTop
+  drag.value = { id: todo.uid, offsetX: pointerX - point.x, offsetY: pointerY - point.y, moved: false }
+  event.preventDefault()
   ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
 }
 function moveDrag(event: PointerEvent) {
   if (!drag.value || !canvas.value) return
   const rect = canvas.value.getBoundingClientRect()
+  drag.value.moved = true
   localPositions.value = {
     ...localPositions.value,
     [drag.value.id]: {
@@ -147,12 +153,13 @@ function moveDrag(event: PointerEvent) {
 async function endDrag() {
   const current = drag.value
   drag.value = null
-  if (!current || !localPositions.value[current.id]) return
+  if (!current?.moved || !localPositions.value[current.id]) return
   const point = localPositions.value[current.id]
   try {
     await todoApi.apiTodoRoadmapLayoutPut({ saveRoadmapNodeLayoutCommand: {
       planId: selectedPlanId.value, todoId: current.id, x: point.x, y: point.y,
     } })
+    ElMessage.success('节点布局已保存')
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '节点位置保存失败') }
 }
 onMounted(() => {
@@ -168,11 +175,12 @@ onBeforeUnmount(() => {
 <template>
   <div class="roadmap-page">
     <header class="roadmap-header">
-      <div><div class="eyebrow">MONIREPO / DEVELOPMENT ROADMAP</div><h1>开发路线图</h1><p>只读查看任务信息，在此管理前置依赖与节点布局。</p></div>
+      <div><div class="eyebrow">MONIREPO / DEVELOPMENT ROADMAP</div><h1>开发路线图</h1><p>选中节点后可设置前置依赖；拖动节点并松开即可保存手动布局。</p></div>
       <div class="header-actions">
         <ElSelect :model-value="selectedPlanId" placeholder="选择开发计划" class="plan-select" @change="changePlan">
           <ElOption v-for="plan in plans" :key="plan.uid" :label="plan.name ?? '未命名计划'" :value="plan.uid!" />
         </ElSelect>
+        <ElButton type="primary" :icon="Plus" :disabled="!selected || !!selectedPlan?.isArchived || !!selected.isArchived" @click="dependencyDialog = true">为选中节点添加前置依赖</ElButton>
         <ElButton :icon="Refresh" @click="refresh">刷新</ElButton>
       </div>
     </header>
@@ -196,7 +204,7 @@ onBeforeUnmount(() => {
           <div class="node-top"><span>{{ node.isBlocked ? '等待前置' : statusLabel(node) }}</span><span>优先级 {{ node.priority ?? 1 }}</span></div>
           <h3>{{ titleOf(node) }}</h3>
           <p>{{ node.description || '暂无任务说明' }}</p>
-          <div class="node-bottom"><span v-if="node.ftid">子任务</span><span v-if="node.incompleteDependencyCount">{{ node.incompleteDependencyCount }} 项未解锁</span><span v-if="node.hasChildren">含子任务</span></div>
+          <div class="node-bottom"><span v-if="node.ftid">子任务</span><span>{{ dependencies.filter(edge => edge.successorId === node.uid).length }} 项前置</span><span v-if="node.incompleteDependencyCount">{{ node.incompleteDependencyCount }} 项未解锁</span><span v-if="node.hasChildren">含子任务</span></div>
         </article>
         <div v-if="!nodes.length" class="empty-canvas">当前计划还没有任务节点，请先在 Todo 管理页创建任务。</div>
         </div>
@@ -210,7 +218,7 @@ onBeforeUnmount(() => {
         <div class="detail-meta"><span>父任务</span><strong>{{ selected.ftid ? titleOf(nodeById.get(selected.ftid) ?? {}) : '无' }}</strong></div>
         <div class="detail-meta"><span>未完成前置</span><strong>{{ selected.incompleteDependencyCount ?? 0 }}</strong></div>
         <div class="dependency-section">
-          <div class="section-heading"><strong>前置依赖</strong><ElButton link type="primary" :icon="Plus" @click="dependencyDialog = true" :disabled="!!selectedPlan?.isArchived || !!selected.isArchived">添加</ElButton></div>
+          <div class="section-heading"><strong>前置依赖（{{ incoming.length }}）</strong><ElButton link type="primary" :icon="Plus" @click="dependencyDialog = true" :disabled="!!selectedPlan?.isArchived || !!selected.isArchived">添加前置任务</ElButton></div>
           <div v-if="incoming.length === 0" class="muted">没有前置依赖</div>
           <div v-for="edge in incoming" :key="edge.predecessorId" class="dependency-item">
             <span>{{ titleOf(nodeById.get(edge.predecessorId ?? '') ?? {}) }}</span>
@@ -222,11 +230,11 @@ onBeforeUnmount(() => {
       <aside class="detail-panel empty-detail" v-else><Lock /><p>选择一个任务节点查看详情</p></aside>
     </main>
     <ElDialog v-model="dependencyDialog" title="添加前置依赖" width="min(500px, 94vw)">
-      <p>选择一个必须先完成的任务。该关系不改变任务的父子归属。</p>
-      <ElSelect v-model="dependencyForm.predecessorId" filterable class="full-width" placeholder="选择前置任务">
+      <p>当前选中节点「{{ titleOf(selected ?? {}) }}」将等待所选前置任务完成后才解除阻塞。父子层级不会自动产生依赖。</p>
+      <ElSelect v-model="dependencyForm.predecessorId" filterable class="full-width" placeholder="选择必须先完成的任务">
         <ElOption v-for="node in availablePredecessors" :key="node.uid" :label="titleOf(node)" :value="node.uid!" />
       </ElSelect>
-      <template #footer><ElButton @click="dependencyDialog = false">取消</ElButton><ElButton type="primary" :loading="saving" @click="addDependency">添加依赖</ElButton></template>
+      <template #footer><ElButton @click="dependencyDialog = false">取消</ElButton><ElButton type="primary" :loading="saving" :disabled="!dependencyForm.predecessorId" @click="addDependency">确认添加前置依赖</ElButton></template>
     </ElDialog>
   </div>
 </template>
