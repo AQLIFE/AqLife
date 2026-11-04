@@ -8,6 +8,7 @@ import { mgsIconRegistry, MgsIconName } from '@aqlife/icons'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
+import MgsPageState from '@/components/ui/MgsPageState.vue'
 
 import { TodoApi, TodoStatus, type TodoDto, type TodoRoadmapDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
@@ -21,6 +22,7 @@ const plans = computed(() => store.plans)
 const selectedPlanId = computed(() => store.selectedPlanId)
 const roadmap = ref<TodoRoadmapDto | null>(null)
 const loading = ref(false)
+const loadError = ref('')
 const saving = ref(false)
 const selectedId = ref('')
 const dependencyDialog = ref(false)
@@ -90,14 +92,15 @@ async function refreshViews() {
   await Promise.all([loadRoadmap(), store.fetchTodos()])
 }
 async function loadRoadmap() {
-  if (!selectedPlanId.value) { roadmap.value = null; return }
+  if (!selectedPlanId.value) { roadmap.value = null; loadError.value = ''; return }
   loading.value = true
+  loadError.value = ''
   try {
     roadmap.value = await todoApi.apiTodoRoadmapGet({ planId: selectedPlanId.value })
     localPositions.value = {}
     if (!nodes.value.some(x => x.uid === selectedId.value)) selectedId.value = nodes.value[0]?.uid ?? ''
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '科技树加载失败')
+    loadError.value = error instanceof Error ? error.message : '路线图加载失败'
   } finally { loading.value = false }
 }
 async function refresh() {
@@ -192,6 +195,9 @@ onBeforeUnmount(() => {
       </ElSelect>
     </MgsToolbar>
     <MgsPageContainer>
+    <MgsPageState v-if="loading && !roadmap" state="loading" description="正在加载路线图..." />
+    <MgsPageState v-else-if="loadError" state="error" :description="loadError" retryable @retry="refresh" />
+    <template v-else>
     <section class="stats-row">
       <div><span>当前计划</span><strong>{{ selectedPlan?.name ?? '未选择' }}</strong></div>
       <div><span>任务节点</span><strong>{{ nodes.length }}</strong></div>
@@ -237,6 +243,7 @@ onBeforeUnmount(() => {
       </aside>
       <aside class="detail-panel empty-detail" v-else><Lock /><p>选择一个任务节点查看详情</p></aside>
     </main>
+    </template>
     </MgsPageContainer>
     <ElDialog v-model="dependencyDialog" title="添加前置依赖" width="min(500px, 94vw)">
       <p>当前选中节点「{{ titleOf(selected ?? {}) }}」将等待所选前置任务完成后才解除阻塞。父子层级不会自动产生依赖。</p>
