@@ -1,5 +1,5 @@
-import { notify } from '@aqlife/ui-shared'
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
