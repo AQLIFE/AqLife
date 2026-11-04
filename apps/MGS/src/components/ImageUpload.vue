@@ -17,6 +17,7 @@
 </template>
 
 <script lang="ts" setup>
+import { notify } from '@aqlife/ui-shared'
 import { Plus } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { ElImage, ElUpload, ElIcon, type UploadFile, type UploadRawFile, genFileId, type UploadInstance, type UploadUserFile } from 'element-plus'
