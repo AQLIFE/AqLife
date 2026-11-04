@@ -1,3 +1,4 @@
+import { notify } from '@aqlife/ui-shared'
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import { RouterView, useRoute } from 'vue-router'
@@ -30,7 +31,7 @@ onBeforeMount(async () => {
     if (response.raw.status === 200) {
       accountStore.systemAccount = await response.value()
     } else if (response.raw.status !== 204) {
-      ElMessage.error('未配置账户,请进入注册流程')
+      notify.error('未配置账户,请进入注册流程')
     }
   } finally {
     loading.value = false
