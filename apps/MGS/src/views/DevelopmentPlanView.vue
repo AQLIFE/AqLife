@@ -220,7 +220,7 @@ onBeforeUnmount(() => {
           <p>{{ node.description || '暂无任务说明' }}</p>
           <div class="node-bottom"><span v-if="node.ftid">子任务</span><span>{{ dependencies.filter(edge => edge.successorId === node.uid).length }} 项前置</span><span v-if="node.incompleteDependencyCount">{{ node.incompleteDependencyCount }} 项未解锁</span><span v-if="node.hasChildren">含子任务</span></div>
         </article>
-        <div v-if="!nodes.length" class="empty-canvas">当前计划还没有任务节点，请先在 Todo 管理页创建任务。</div>
+        <div v-if="!nodes.length" class="empty-canvas"><MgsPageState state="empty" description="当前计划还没有任务节点，请先在 Todo 管理页创建任务。" compact /></div>
         </div>
       </section>
       <aside class="detail-panel" v-if="selected">
