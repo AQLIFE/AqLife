@@ -16,11 +16,10 @@ namespace AqLife.Domain.Entities
         public Guid UID { get; init; } = Guid.NewGuid();
 
         /// <summary>
-        /// The development plan that owns this task. Guid.Empty is retained only for
-        /// legacy construction paths until application commands are migrated.
-        /// New code should use the constructor that accepts planId.
+        /// Every task belongs to exactly one plan. Existing creation flows temporarily
+        /// use DefaultPlanId until their commands expose explicit plan selection.
         /// </summary>
-        public Guid PlanId { get; private set; } = Guid.Empty;
+        public Guid PlanId { get; private set; } = DevelopmentPlanEntity.DefaultPlanId;
 
         /// <summary>
         /// Legacy persisted column. The domain-facing name is Title.
@@ -68,8 +67,8 @@ namespace AqLife.Domain.Entities
 
         public TodoEntity() { }
 
-        // Legacy constructors are kept temporarily so existing application code remains
-        // source-compatible while plan-aware commands are introduced in the next phase.
+        // Legacy constructors keep existing application code source-compatible and
+        // attach new legacy-created tasks to the seeded default plan.
         public TodoEntity(string desc)
         {
             Title = RequireTitle(desc);
@@ -93,6 +92,7 @@ namespace AqLife.Domain.Entities
             Guid? parentId = null,
             int sortOrder = 0)
         {
+            PlanId = Guid.Empty;
             AssignToPlan(planId);
             Title = RequireTitle(title);
             Description = NormalizeDescription(description);
