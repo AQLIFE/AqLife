@@ -61,7 +61,7 @@ export const useTodoStorage = defineStore('todo', () => {
     })
   }
 
-  async function selectPlan()(planId: string) {
+  async function selectPlan(planId: string) {
     selectedPlanId.value = planId
     await fetchTodos()
   }
