@@ -12,6 +12,7 @@ import {
 import { apiConfiguration } from '@/services/api'
 import { useTodoStore } from '@/stores/todoStore'
 
+
 const DEFAULT_PLAN_ID = '00000000-0000-0000-0000-000000000001'
 const todoStore = useTodoStore()
 const todoApi = new TodoApi(apiConfiguration)
