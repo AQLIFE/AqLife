@@ -26,6 +26,24 @@ namespace AqLife.CoreTest.UnitTest.Domain
         }
 
         [Fact]
+        public void Todo_ArchiveDoesNotOverloadPriority()
+        {
+            var todo = new TodoEntity(PlanId, "Deprecated task", priority: 5);
+
+            todo.Archive();
+
+            Assert.True(todo.IsArchived);
+            Assert.Equal(5, todo.Priority);
+            Assert.Throws<DomainLegalityException>(() => todo.Update("Changed", TodoStatus.Wait, 5));
+
+            todo.Restore();
+
+            Assert.False(todo.IsArchived);
+            todo.Update("Changed", TodoStatus.Wait, 5);
+            Assert.Equal("Changed", todo.Title);
+        }
+
+        [Fact]
         public void LegacyTodoConstructor_AssignsDefaultDevelopmentPlan()
         {
             var todo = new TodoEntity("Legacy task");
