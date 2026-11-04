@@ -25,45 +25,28 @@
 </template>
 
 <script setup lang="ts">
-import { notify } from '@aqlife/ui-shared'
+import { notify, useLoadingTask } from '@aqlife/ui-shared'
 import { FileApi } from '@/api'
 import BlogCard from '@/components/BlogCard.vue'
 import { apiConfiguration } from '@/services/api'
 import { useBlogStore } from '@/stores/fileStore'
 import { ElScrollbar } from 'element-plus'
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount } from 'vue'
 
 const blogStore = useBlogStore()
-const isLoading = ref(false)
+const { isLoading, run: withBlogLoading } = useLoadingTask('web:blog:list')
 
 
 async function loadBlogs() {
-  if (isLoading.value || !blogStore.hasMore) {
-    return
-  }
+  if (isLoading.value || !blogStore.hasMore) return
 
-  isLoading.value = true
-
-  try {
+  await withBlogLoading(async () => {
     const fileApi = new FileApi(apiConfiguration)
-
-    const result = await fileApi.apiFileGet({
-      page: blogStore.page,
-      categoryUID: blogStore.categoryUID,
-    })
-
-    const files = [
-      ...blogStore.cacheBlogList,
-      ...(result.items ?? []),
-    ]
-
-    blogStore.setBlogList(files)
-
+    const result = await fileApi.apiFileGet({ page: blogStore.page, categoryUID: blogStore.categoryUID })
+    blogStore.setBlogList([...blogStore.cacheBlogList, ...(result.items ?? [])])
     blogStore.page = (result.page ?? blogStore.page) + 1
     blogStore.hasMore = result.hasMore ?? false
-  } finally {
-    isLoading.value = false
-  }
+  })
 }
 
 onBeforeMount(async () => {
