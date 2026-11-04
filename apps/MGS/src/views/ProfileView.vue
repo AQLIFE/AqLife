@@ -1,5 +1,3 @@
-import { notify } from '@aqlife/ui-shared'
-import { notify } from '@aqlife/ui-shared'
 <template>
   <div class="profile-page"><div class="profile-card">
     <div class="profile-intro"><div><h2>Profile</h2><p>更新你的博客头像、名称和公开简介。</p></div>
@@ -16,6 +14,7 @@ import { notify } from '@aqlife/ui-shared'
   </div></div>
 </template>
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { ElButton, ElForm, ElFormItem, ElInput, ElTooltip } from 'element-plus'
 import { Lock, Unlock } from '@element-plus/icons-vue'
 import { ref, type Ref } from 'vue'
