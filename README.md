@@ -593,3 +593,45 @@ Web 侧重日常开发推进和科技树交互；MGS 侧重完整管理能力。
 > DevelopmentPlan 是边界，Todo 是核心实体，ParentId 是组织结构，TodoDependency 是执行约束，RoadmapNodeLayout 是可视化布局。
 
 科技树、任务树和任务列表是同一套业务数据的不同视图，不建立重复的任务数据源。先保证领域模型、数据约束和状态规则可靠，再逐步建设可视化能力。
+
+
+## 13. 当前领域层实现进度（2026-11-04）
+
+本轮已在 `plan` 分支落地领域模型与 EF Core 模型注册，尚未完成应用层/API/前端接入。
+
+### 已落地
+
+- 新增 `DevelopmentPlanEntity`：计划名称、描述、归档状态、创建/更新时间和依赖图版本。
+- 新增 `TodoDependencyEntity`：同计划前置/后继依赖实体，并配置唯一边约束及查询索引。
+- 新增 `RoadmapNodeLayoutEntity`：每个 Todo 一份手动布局坐标，坐标拒绝 NaN/Infinity。
+- 扩展 `TodoEntity`：增加 PlanId、Title、Description、UpdatedAt、SortOrder；原数据库列 `Desc` 通过 `[Column("Desc")]` 映射到 Title，旧代码访问的 `Desc` 保留为 `[NotMapped]` 只读兼容别名。
+- Todo 旧构造函数暂时将新任务归属到固定默认计划 ID：`00000000-0000-0000-0000-000000000001`。EF 模型为该默认计划配置稳定种子数据，并为 Todo.PlanId 配置默认值，以便分阶段迁移现有创建流程。
+- Priority 不再被 Complete 改写为 0；CompletedAt 与 Status 通过 Complete/Reopen 管理。
+- 新增 `TodoHierarchyValidator`：校验同计划父节点、后代循环及损坏的祖先链。
+- 新增 `TodoDependencyGraphValidator`：校验依赖端点属于当前计划、重复边和有向环。
+- 新增 `TodoDependencyStateCalculator`：按 AND 规则计算 Blocked、未完成前置数量和阻塞任务 ID；Completed 任务不会被派生为 Blocked。
+- `IApplicationDbContext` 和 `AppStorage` 已注册新实体集及外键关系。父子关系删除行为由 Cascade 调整为 Restrict；依赖关系两端使用 Restrict；布局随 Todo 删除。
+- 新增领域单元测试，覆盖默认计划兼容、优先级/完成/重新打开、层级循环、跨计划父任务、依赖 AND 解锁和 DAG 环检测。
+
+### 尚未完成（不能视为已具备完整功能）
+
+- 现有 `CreateTodoValidtor` 仍有“只能两层”的旧应用层校验；需要在后续应用层阶段移除并改为调用 `TodoHierarchyValidator`。
+- Todo Command、Mapper、Handler 尚未完整接入显式 PlanId 和计划归属校验。旧构造函数目前把新建 Todo 放入默认计划；多计划创建流程尚未完成。
+- 父子移动、同级排序、递归任务查询、依赖 CRUD、依赖事务/并发控制尚未接入 Application。
+- Blocked 目前只有领域计算器，尚未加入查询 DTO/API。
+- Roadmap 查询与布局保存接口、前端画布尚未实现。
+- 尚未生成或执行 EF Core 数据库迁移，也尚未确认 GitHub Actions CI 结果。
+
+### 数据库迁移注意事项
+
+迁移由维护者在本地检查并执行。本轮没有生成迁移文件，也没有连接或修改数据库。
+
+生成迁移后请重点检查：
+
+1. `DevelopmentPlans` 默认计划种子数据应先于 Todo.PlanId 外键生效。
+2. 现有 `TodoList` 行的 PlanId 必须回填为默认计划 ID（上面的固定 GUID）；检查迁移脚本是否通过列默认值完成回填。
+3. Todo 原有 `Desc` 列应继续存在，映射到领域属性 Title；不应意外删除旧列或创建空的新 Title 列。
+4. `FTID` 自关联外键删除行为会从 Cascade 变成 Restrict，需确认当前数据库约束更新符合预期。
+5. 新增依赖和布局表及其外键、唯一索引应与本节模型一致。
+
+在应用层完成 PlanId 显式传递前，旧 Todo 创建入口仍然会写入默认计划；不要在应用层接入完成前删除默认计划或移除兼容构造函数。
