@@ -1,4 +1,3 @@
-import { notify } from '@aqlife/ui-shared'
 <template>
   <ElForm>
     <ElFormItem required label="头像" label-position="top">
@@ -14,6 +13,7 @@ import { notify } from '@aqlife/ui-shared'
 </template>
 
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { ElForm, ElFormItem, ElUpload, ElButton,ElImage,ElIcon,ElTooltip, type UploadFile } from 'element-plus'
 import { Plus,ArrowRight,ArrowLeft } from '@element-plus/icons-vue';
 import ImageUpload from './ImageUpload.vue';
