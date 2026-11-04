@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { notify } from '@aqlife/ui-shared'
+import { notify, useLoadingTask } from '@aqlife/ui-shared'
 import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessageBox, ElOption, ElSegmented, ElSelect, ElSwitch, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { computed, onBeforeMount, ref } from 'vue'
@@ -16,7 +16,7 @@ const selectCategory = ref<number>(-1)
 const segmentedOptions = [{ label: '全部', value: -1 }, { label: '普通标签', value: 0 }, { label: '分类', value: 1 }]
 const tagStore = useTagStore()
 const proxyTags = ref<TagDto[]>([])
-const isLoading = ref(true)
+const tableLoading = useLoadingTask('mgs:table:tags')
 const dialogVisible = ref(false)
 const isSaving = ref(false)
 const editingTag = ref<TagDto | null>(null)
@@ -24,10 +24,11 @@ const addTagDto = ref<CreateTagCommand>({ name: '', aliasName: '', isCategory: f
 const tagApi = new TagApi(apiConfiguration)
 
 onBeforeMount(async () => {
-  isLoading.value = true
-  try { await tagStore.fetchAllTags(tagApi); filterData() }
-  catch (error) { notify.error(error instanceof Error ? error.message : '标签数据加载失败') }
-  finally { isLoading.value = false }
+  try {
+    await tableLoading.run(async () => { await tagStore.fetchAllTags(tagApi); filterData() })
+  } catch (error) {
+    notify.fromError(error, '标签数据加载失败')
+  }
 })
 // const tableColumns = computed(() => Object.keys(columnMap))
 const tempList = computed(() => Object.keys(columnMap).filter(key => key !== 'isCategory'))
@@ -116,7 +117,7 @@ async function deleteTag(tag: TagDto) {
     </MgsToolbar>
 
     <MgsPageContainer>
-    <ElTable :data="proxyTags" v-loading="isLoading" element-loading-text="正在加载标签..." empty-text="暂无标签"
+    <ElTable :data="proxyTags" v-loading="tableLoading.isLoading" element-loading-text="正在加载标签..." empty-text="暂无标签"
       class="tag-table" row-key="uid" highlight-current-row>
       <ElTableColumn prop="name" label="标签名称" min-width="180"><template #default="{ row }">
           <ElTag v-if="row.name">{{ row.name }}</ElTag>
