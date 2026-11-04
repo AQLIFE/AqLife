@@ -1,4 +1,5 @@
 import { notify } from '@aqlife/ui-shared'
+import { notify } from '@aqlife/ui-shared'
 <script setup lang="ts">
 import { AccountApi, type LoginCommand } from '@/api'
 import { apiConfiguration } from '@/services/api'
