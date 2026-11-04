@@ -92,6 +92,18 @@ namespace AqLife.CoreTest.UnitTest.Domain
         }
 
         [Fact]
+        public void DependencyGraphValidator_RejectsArchivedEndpoints()
+        {
+            var predecessor = new TodoEntity(PlanId, "Archived predecessor");
+            var successor = new TodoEntity(PlanId, "Successor");
+            predecessor.Archive();
+            var candidate = new TodoDependencyEntity(PlanId, predecessor.UID, successor.UID);
+
+            Assert.Throws<DomainLegalityException>(
+                () => TodoDependencyGraphValidator.EnsureCanAdd(candidate, new[] { predecessor, successor }, Array.Empty<TodoDependencyEntity>()));
+        }
+
+        [Fact]
         public void DependencyStateCalculator_UsesAndSemantics()
         {
             var first = new TodoEntity(PlanId, "A");
