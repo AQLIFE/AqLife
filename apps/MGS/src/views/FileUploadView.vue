@@ -443,7 +443,7 @@ watch(isVideoMode, () => {
 </script>
 
 <template>
-  <div class="upload-workspace" v-loading="uploading && !isVideoMode">
+  <div class="upload-workspace">
     <MgsPageHeader
       :title="isVideoMode ? 'Video Upload' : 'Upload'"
       :description="isVideoMode ? '断点续传大视频文件，上传中可查看进度、速度和剩余时间' : '上传文章文件，并在上传前统一设置标签'"
@@ -452,7 +452,7 @@ watch(isVideoMode, () => {
       <template #actions>
         <ElButton :icon="ArrowLeft" @click="goBack">返回文件列表</ElButton>
         <template v-if="!isVideoMode">
-          <ElButton type="primary" :icon="UploadFilled" :disabled="!canCommit" @click="commit">开始上传</ElButton>
+          <ElButton type="primary" :icon="UploadFilled" :loading="uploading" :disabled="!canCommit" @click="commit">开始上传</ElButton>
         </template>
       </template>
     </MgsPageHeader>
