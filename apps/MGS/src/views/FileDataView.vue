@@ -564,8 +564,6 @@ async function loadFilesForMode() {
     }
   } catch (error) {
     notify.error(error instanceof Error ? error.message : '文件列表加载失败')
-  } finally {
-    // The shared loading scope tracks all in-flight mode requests.
   }
 }
 
