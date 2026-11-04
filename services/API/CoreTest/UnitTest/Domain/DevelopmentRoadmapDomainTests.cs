@@ -74,6 +74,55 @@ namespace AqLife.CoreTest.UnitTest.Domain
         }
 
         [Fact]
+        public void DependencyStateCalculator_UsesAndSemantics()
+        {
+            var first = new TodoEntity(PlanId, "A");
+            var second = new TodoEntity(PlanId, "B");
+            var target = new TodoEntity(PlanId, "Target");
+            var dependencies = new[]
+            {
+                new TodoDependencyEntity(PlanId, first.UID, target.UID),
+                new TodoDependencyEntity(PlanId, second.UID, target.UID)
+            };
+            first.Complete();
+
+            var state = TodoDependencyStateCalculator.Calculate(
+                target,
+                dependencies,
+                new Dictionary<Guid, TodoEntity>
+                {
+                    [first.UID] = first,
+                    [second.UID] = second,
+                    [target.UID] = target
+                });
+
+            Assert.True(state.IsBlocked);
+            Assert.Equal(1, state.IncompleteDependencyCount);
+            Assert.Equal(new[] { second.UID }, state.BlockingTodoIds);
+        }
+
+        [Fact]
+        public void DependencyStateCalculator_CompletedTaskIsNeverBlocked()
+        {
+            var predecessor = new TodoEntity(PlanId, "Predecessor");
+            var target = new TodoEntity(PlanId, "Target");
+            var dependency = new TodoDependencyEntity(PlanId, predecessor.UID, target.UID);
+            target.Complete();
+
+            var state = TodoDependencyStateCalculator.Calculate(
+                target,
+                new[] { dependency },
+                new Dictionary<Guid, TodoEntity>
+                {
+                    [predecessor.UID] = predecessor,
+                    [target.UID] = target
+                });
+
+            Assert.False(state.IsBlocked);
+            Assert.Equal(0, state.IncompleteDependencyCount);
+        }
+
+        [Fact]
         public void DependencyGraphValidator_RejectsCycle()
         {
             var first = new TodoEntity(PlanId, "A");
