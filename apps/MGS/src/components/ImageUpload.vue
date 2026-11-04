@@ -1,4 +1,3 @@
-import { notify } from '@aqlife/ui-shared'
 <template>
   <ElUpload ref="uploadRef" @exceed="handleExceed" @change="handleChange" v-model:file-list="PrivateFileQueue"
   action="#" :limit="1" :disabled="disabled" :show-file-list="false" :auto-upload="false" :accept="props.accept" title="点击图标上传">
