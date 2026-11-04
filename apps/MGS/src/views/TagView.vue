@@ -1,6 +1,5 @@
-import { notify } from '@aqlife/ui-shared'
-import { notify } from '@aqlife/ui-shared'
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessageBox, ElOption, ElSegmented, ElSelect, ElSwitch, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { computed, onBeforeMount, ref } from 'vue'
