@@ -11,6 +11,7 @@ import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import { FileStatus } from "@/api"
 import TagSelect from '@/components/TagSelect.vue'
 import { useMarkdownClipboardImagePaste } from '@/composables/useMarkdownClipboardImagePaste'
@@ -460,6 +461,7 @@ onBeforeUnmount(() => {
       </template>
     </MgsPageHeader>
 
+    <MgsPageContainer class="editor-container">
     <div v-if="isEditing && videoUploads.length" class="video-upload-queue">
       <div v-for="item in videoUploads" :key="item.id" class="video-upload-item">
         <span class="video-upload-name">{{ item.name }}</span>
@@ -474,17 +476,20 @@ onBeforeUnmount(() => {
         <MarkdownRender ref="markdownRenderRef" :markdown="markdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
       </div>
     </div>
+    </MgsPageContainer>
   </div>
 </template>
 
 <style scoped>
-.markdown-workspace {
+ .markdown-workspace {
   min-height: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
+
+ .editor-container { flex:1; min-height:0; display:flex; flex-direction:column; padding-bottom:0; }
 
 .video-upload-queue {
   display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 16px;
