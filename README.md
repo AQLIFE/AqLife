@@ -267,6 +267,7 @@ icons : 存储所有的svg图像
 | CreatedAt | DateTimeOffset | 创建时间 |
 | UpdatedAt | DateTimeOffset | 更新时间 |
 | CompletedAt | DateTimeOffset? | 完成时间 |
+| IsArchived | bool | 任务归档/废弃标记，不再使用 Priority 特殊值表达 |
 
 迁移兼容：
 
@@ -607,6 +608,7 @@ Web 侧重日常开发推进和科技树交互；MGS 侧重完整管理能力。
 - 扩展 `TodoEntity`：增加 PlanId、Title、Description、UpdatedAt、SortOrder；原数据库列 `Desc` 通过 `[Column("Desc")]` 映射到 Title，旧代码访问的 `Desc` 保留为 `[NotMapped]` 只读兼容别名。
 - Todo 旧构造函数暂时将新任务归属到固定默认计划 ID：`00000000-0000-0000-0000-000000000001`。EF 模型为该默认计划配置稳定种子数据，并为 Todo.PlanId 配置默认值，以便分阶段迁移现有创建流程。
 - Priority 不再被 Complete 改写为 0；CompletedAt 与 Status 通过 Complete/Reopen 管理。
+- Todo 增加 IsArchived，并提供 Archive/Restore；归档状态不再通过 Priority = -1 表达。
 - 新增 `TodoHierarchyValidator`：校验同计划父节点、后代循环及损坏的祖先链。
 - 新增 `TodoDependencyGraphValidator`：校验依赖端点属于当前计划、重复边和有向环。
 - 新增 `TodoDependencyStateCalculator`：按 AND 规则计算 Blocked、未完成前置数量和阻塞任务 ID；Completed 任务不会被派生为 Blocked。
@@ -631,7 +633,8 @@ Web 侧重日常开发推进和科技树交互；MGS 侧重完整管理能力。
 1. `DevelopmentPlans` 默认计划种子数据应先于 Todo.PlanId 外键生效。
 2. 现有 `TodoList` 行的 PlanId 必须回填为默认计划 ID（上面的固定 GUID）；检查迁移脚本是否通过列默认值完成回填。
 3. Todo 原有 `Desc` 列应继续存在，映射到领域属性 Title；不应意外删除旧列或创建空的新 Title 列。
-4. `FTID` 自关联外键删除行为会从 Cascade 变成 Restrict，需确认当前数据库约束更新符合预期。
-5. 新增依赖和布局表及其外键、唯一索引应与本节模型一致。
+4. 旧 Priority 哨兵值需要迁移：原 Priority = -1 的任务应映射为 IsArchived = true 并将 Priority 规范化为有效值；原 Priority = 0 的任务应结合 Status/CompletedAt 核对完成状态，并将 Priority 规范化为有效值。
+5. `FTID` 自关联外键删除行为会从 Cascade 变成 Restrict，需确认当前数据库约束更新符合预期。
+6. 新增依赖和布局表及其外键、唯一索引应与本节模型一致。
 
 在应用层完成 PlanId 显式传递前，旧 Todo 创建入口仍然会写入默认计划；不要在应用层接入完成前删除默认计划或移除兼容构造函数。
