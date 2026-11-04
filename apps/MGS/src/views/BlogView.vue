@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { notify } from '@aqlife/ui-shared'
+import { notify, useLoadingTask } from '@aqlife/ui-shared'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElButton, ElDatePicker, ElMessageBox, ElSegmented } from 'element-plus'
 import { Edit, Check, Lock, Delete } from '@element-plus/icons-vue'
@@ -60,7 +60,8 @@ const markdown = ref('')
 const markdownRenderRef = ref<{ loading: boolean } | null>(null)
 const originalMarkdown = ref('')
 const file = ref<FileDto>()
-const loading = ref(false)
+const editorLoading = useLoadingTask('mgs:blog:editor')
+const loading = editorLoading.isLoading
 
 let editor: monaco.editor.IStandaloneCodeEditor | undefined
 let articleLoadVersion = 0
@@ -109,7 +110,7 @@ function parsePublishAt(value: FileDto['publishAt']): Date | null {
 
 async function loadArticle(guid: string) {
   const version = ++articleLoadVersion
-  loading.value = true
+  const finishLoading = editorLoading.begin()
 
   try {
     const [previewResponse, metadata] = await Promise.all([
@@ -142,7 +143,7 @@ async function loadArticle(guid: string) {
   } catch (error) {
     notify.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
-    if (version === articleLoadVersion) loading.value = false
+    if (version === articleLoadVersion) finishLoading()
   }
 }
 
