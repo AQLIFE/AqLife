@@ -26,11 +26,14 @@ namespace AqLife.Domain.Services
             if (newParentId == task.UID)
                 throw new DomainLegalityException("任务不能成为自己的父任务");
 
+            if (task.PlanId == Guid.Empty)
+                throw new DomainLegalityException("任务必须先归属开发计划");
+
             var parent = planTasks.FirstOrDefault(x => x.UID == newParentId.Value);
             if (parent is null)
                 throw new DomainLegalityException("父任务不存在于当前开发计划");
 
-            if (task.PlanId == Guid.Empty || parent.PlanId != task.PlanId)
+            if (parent.PlanId != task.PlanId)
                 throw new DomainLegalityException("父任务与子任务必须属于同一个开发计划");
 
             // Walk upwards from the proposed parent. If the moving task is encountered,
@@ -49,7 +52,10 @@ namespace AqLife.Domain.Services
                 if (current.FTID is null)
                     break;
 
-                current = planTasks.FirstOrDefault(x => x.UID == current.FTID.Value);
+                var ancestorId = current.FTID.Value;
+                current = planTasks.FirstOrDefault(x => x.UID == ancestorId);
+                if (current is null)
+                    throw new DomainLegalityException("当前任务层级包含不存在的父任务");
             }
         }
     }
