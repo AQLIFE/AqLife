@@ -75,9 +75,11 @@ namespace AqLife.Domain.Entities
         public void UpdateDetails(string title, string? description, int priority)
         {
             EnsureActive();
-            Title = RequireTitle(title);
-            Description = NormalizeDescription(description);
+            var normalizedTitle = RequireTitle(title);
+            var normalizedDescription = NormalizeDescription(description);
             ValidatePriority(priority);
+            Title = normalizedTitle;
+            Description = normalizedDescription;
             Priority = priority;
             Touch();
         }
