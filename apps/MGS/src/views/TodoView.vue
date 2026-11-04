@@ -1,6 +1,7 @@
+import { notify } from '@aqlife/ui-shared'
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox, ElOption, ElRow, ElSelect, ElSegmented, ElSlider, ElSwitch, ElTable, ElTableColumn, ElTag } from 'element-plus'
+import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessageBox, ElOption, ElRow, ElSelect, ElSegmented, ElSlider, ElSwitch, ElTable, ElTableColumn, ElTag } from 'element-plus'
 import { Plus, Edit, Refresh, FolderAdd } from '@element-plus/icons-vue'
 import { TodoApi, TodoStatus, type TodoDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
@@ -62,13 +63,13 @@ const visibleTodos = computed(() => {
 })
 async function refresh() {
   try { await store.fetchPlans() }
-  catch (e) { ElMessage.error(e instanceof Error ? e.message : '开发计划加载失败') }
+  catch (e) { notify.error(e instanceof Error ? e.message : '开发计划加载失败') }
 }
 onMounted(refresh)
 watch(showArchived, async value => {
   store.includeArchived = value
   try { await store.fetchTodos() }
-  catch (e) { ElMessage.error(e instanceof Error ? e.message : '任务加载失败') }
+  catch (e) { notify.error(e instanceof Error ? e.message : '任务加载失败') }
 })
 function createTask(parent?: TodoDto) {
   editing.value = null
@@ -81,9 +82,9 @@ function editTask(todo: TodoDto) {
   taskDialog.value = true
 }
 async function saveTask() {
-  if (!task.title.trim()) { ElMessage.warning('请填写任务标题'); return }
-  if (!store.selectedPlanId) { ElMessage.warning('请先选择开发计划'); return }
-  if (!Number.isInteger(task.priority) || task.priority < 1 || task.priority > 99) { ElMessage.warning('优先级必须为 1 到 99'); return }
+  if (!task.title.trim()) { notify.warning('请填写任务标题'); return }
+  if (!store.selectedPlanId) { notify.warning('请先选择开发计划'); return }
+  if (!Number.isInteger(task.priority) || task.priority < 1 || task.priority > 99) { notify.warning('优先级必须为 1 到 99'); return }
   saving.value = true
   try {
     if (editing.value?.uid) {
@@ -101,9 +102,9 @@ async function saveTask() {
     }
     taskDialog.value = false
     await store.fetchTodos()
-    ElMessage.success('任务已保存')
+    notify.success('任务已保存')
   } catch (e) {
-    ElMessage.error(e instanceof Error ? e.message : '保存任务失败')
+    notify.error(e instanceof Error ? e.message : '保存任务失败')
     await store.fetchTodos().catch(() => undefined)
   } finally { saving.value = false }
 }
@@ -113,15 +114,15 @@ async function archiveTask(todo: TodoDto) {
     await ElMessageBox.confirm('归档后任务仍保留历史记录，确定继续？', '归档任务', { type: 'warning' })
     await api.apiTodoUidArchivePost({ uid: todo.uid })
     await store.fetchTodos()
-    ElMessage.success('任务已归档')
+    notify.success('任务已归档')
   } catch (e) {
-    if (e !== 'cancel' && e !== 'close') ElMessage.error(e instanceof Error ? e.message : '归档失败')
+    if (e !== 'cancel' && e !== 'close') notify.error(e instanceof Error ? e.message : '归档失败')
   }
 }
 async function restoreTask(todo: TodoDto) {
   if (!todo.uid) return
   try { await api.apiTodoUidRestorePost({ uid: todo.uid }); await store.fetchTodos() }
-  catch (e) { ElMessage.error(e instanceof Error ? e.message : '恢复失败') }
+  catch (e) { notify.error(e instanceof Error ? e.message : '恢复失败') }
 }
 function createPlan() {
   editingPlan.value = false
@@ -135,7 +136,7 @@ function editPlan() {
   planDialog.value = true
 }
 async function savePlan() {
-  if (!plan.name.trim()) { ElMessage.warning('请填写计划名称'); return }
+  if (!plan.name.trim()) { notify.warning('请填写计划名称'); return }
   saving.value = true
   try {
     const currentPlan = store.selectedPlan
@@ -143,8 +144,8 @@ async function savePlan() {
       await store.updatePlan({ ...currentPlan, name: plan.name.trim(), description: plan.description })
     else await store.createPlan(plan.name.trim(), plan.description)
     planDialog.value = false
-    ElMessage.success('开发计划已保存')
-  } catch (e) { ElMessage.error(e instanceof Error ? e.message : '保存计划失败') }
+    notify.success('开发计划已保存')
+  } catch (e) { notify.error(e instanceof Error ? e.message : '保存计划失败') }
   finally { saving.value = false }
 }
 async function archivePlan() {
@@ -152,9 +153,9 @@ async function archivePlan() {
   try {
     await ElMessageBox.confirm('请先归档计划中的所有任务，再归档计划。确定继续？', '归档开发计划', { type: 'warning' })
     await store.archivePlan(store.selectedPlan.uid)
-    ElMessage.success('计划已归档')
+    notify.success('计划已归档')
   } catch (e) {
-    if (e !== 'cancel' && e !== 'close') ElMessage.error(e instanceof Error ? e.message : '归档计划失败')
+    if (e !== 'cancel' && e !== 'close') notify.error(e instanceof Error ? e.message : '归档计划失败')
   }
 }
 </script>
