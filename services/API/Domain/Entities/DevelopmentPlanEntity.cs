@@ -8,6 +8,12 @@ namespace AqLife.Domain.Entities
     [Table("DevelopmentPlans")]
     public class DevelopmentPlanEntity : IEntity
     {
+        /// <summary>
+        /// Compatibility plan for existing Todo creation flows during the staged migration.
+        /// New plans must use generated IDs.
+        /// </summary>
+        public static readonly Guid DefaultPlanId = new("00000000-0000-0000-0000-000000000001");
+
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
 
@@ -37,6 +43,19 @@ namespace AqLife.Domain.Entities
             Description = NormalizeDescription(description);
         }
 
+        /// <summary>
+        /// Constructor used for deterministic infrastructure seeding.
+        /// </summary>
+        public DevelopmentPlanEntity(Guid uid, string name, string? description = null)
+        {
+            if (uid == Guid.Empty)
+                throw new DomainLegalityException("开发计划 ID 不能为 Empty");
+
+            UID = uid;
+            Name = RequireName(name);
+            Description = NormalizeDescription(description);
+        }
+
         public void Rename(string name)
         {
             EnsureActive();
@@ -53,6 +72,9 @@ namespace AqLife.Domain.Entities
 
         public void Archive()
         {
+            if (UID == DefaultPlanId)
+                throw new DomainLegalityException("默认开发计划不能归档");
+
             if (IsArchived)
                 return;
 
