@@ -1,5 +1,5 @@
-import { notify } from '@aqlife/ui-shared'
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { RouterView, useRoute } from 'vue-router'
 import EntrancePanel from './components/EntrancePanel.vue'
 import { useAccountStore } from '@/stores/useAccountStore'
