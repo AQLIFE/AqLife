@@ -1,3 +1,4 @@
+import { notify } from '@aqlife/ui-shared'
 <template>
   <div class="blog-page">
     <header class="blog-page-header">
@@ -29,7 +30,7 @@ import { FileApi } from '@/api'
 import BlogCard from '@/components/BlogCard.vue'
 import { apiConfiguration } from '@/services/api'
 import { useBlogStore } from '@/stores/fileStore'
-import { ElMessage, ElScrollbar } from 'element-plus'
+import { ElScrollbar } from 'element-plus'
 import { onBeforeMount, ref } from 'vue'
 
 const blogStore = useBlogStore()
@@ -74,7 +75,7 @@ onBeforeMount(async () => {
     await loadBlogs()
   } catch {
     blogStore.clearBlogList()
-    ElMessage.warning('请求数据失败')
+    notify.warning('请求数据失败')
   }
 })
 </script>
