@@ -1,6 +1,4 @@
 import { notify } from '@aqlife/ui-shared'
-import { notify } from '@aqlife/ui-shared'
-import { notify } from '@aqlife/ui-shared'
 import { createRouter, createWebHistory } from 'vue-router'
 import type { Component } from 'vue'
 import { MgsIconName } from '@aqlife/icons'
