@@ -7,6 +7,7 @@
       </template>
     </MgsPageHeader>
 
+    <MgsPageContainer class="workspace-container">
     <div class="workspace">
       <aside class="template-panel">
         <div class="panel-title">
@@ -149,6 +150,7 @@
         </div>
       </main>
     </div>
+    </MgsPageContainer>
   </div>
 </template>
 
@@ -169,6 +171,7 @@ import { Edit, InfoFilled, Plus } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
 import { tokenStore } from '@aqlife/api-client'
 import { apiConfiguration } from '@/services/api'
@@ -666,7 +669,8 @@ onBeforeMount(async () => {
 
 <style scoped>
 .template-view { min-height: 0; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: var(--mgs-bg); }
-.workspace { min-height: 0; flex: 1; display: grid; grid-template-columns: 280px minmax(0, 1fr); padding: 0 28px 18px; gap: 18px; }
+.workspace-container { flex:1; min-height:0; display:flex; padding-bottom:24px; }
+.workspace { min-height: 0; flex: 1; display: grid; grid-template-columns: 280px minmax(0, 1fr); padding: 0; gap: 18px; }
 .template-panel { min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); overflow: hidden; }
 .panel-title { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--mgs-border); }
 .title { font-size: 15px; font-weight: 650; }
