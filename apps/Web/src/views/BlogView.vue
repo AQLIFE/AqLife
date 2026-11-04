@@ -1,4 +1,3 @@
-import { notify } from '@aqlife/ui-shared'
 <template>
   <div class="blog-page">
     <header class="blog-page-header">
@@ -26,6 +25,7 @@ import { notify } from '@aqlife/ui-shared'
 </template>
 
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { FileApi } from '@/api'
 import BlogCard from '@/components/BlogCard.vue'
 import { apiConfiguration } from '@/services/api'
