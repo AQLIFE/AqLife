@@ -461,7 +461,7 @@ onBeforeUnmount(() => {
       </template>
     </MgsPageHeader>
 
-    <MgsPageContainer class="editor-container">
+    <MgsPageContainer class="editor-container" flush-bottom>
     <div v-if="isEditing && videoUploads.length" class="video-upload-queue">
       <div v-for="item in videoUploads" :key="item.id" class="video-upload-item">
         <span class="video-upload-name">{{ item.name }}</span>
@@ -489,7 +489,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
- .editor-container { flex:1; min-height:0; display:flex; flex-direction:column; padding-bottom:0; }
+ .editor-container { flex:1; min-height:0; display:flex; flex-direction:column; }
 
 .video-upload-queue {
   display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 16px;
