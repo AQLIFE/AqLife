@@ -1,3 +1,4 @@
+import { notify } from '@aqlife/ui-shared'
 <template>
   <div class="dataview">
     <MgsPageHeader title="文件" description="管理文件, 编写草稿和发布文件"><template #actions>
@@ -111,7 +112,6 @@
 import {
   ElTable,
   ElDatePicker,
-  ElMessage,
   ElMessageBox,
   ElTableColumn,
   ElInput,
@@ -302,9 +302,9 @@ async function openVideoPreview(uid: string) {
     if (requestVersion !== videoPreviewRequestVersion) return
     if (!ticketResponse.ok) {
       if ([401, 403, 404].includes(ticketResponse.status)) {
-        ElMessage.warning('该视频未发布或当前账号无权观看')
+        notify.warning('该视频未发布或当前账号无权观看')
       } else {
-        ElMessage.error(`视频预览凭证获取失败（HTTP ${ticketResponse.status}）`)
+        notify.error(`视频预览凭证获取失败（HTTP ${ticketResponse.status}）`)
       }
       activeImageFile.value = null
       return
@@ -318,7 +318,7 @@ async function openVideoPreview(uid: string) {
     previewVideoUrl.value = playbackUrl.toString()
   } catch (error) {
     if (requestVersion === videoPreviewRequestVersion) {
-      ElMessage.error(error instanceof Error ? `视频预览请求失败：${error.message}` : '视频预览请求失败')
+      notify.error(error instanceof Error ? `视频预览请求失败：${error.message}` : '视频预览请求失败')
       activeImageFile.value = null
     }
   }
@@ -330,9 +330,9 @@ async function copyActiveFileUid() {
 
   try {
     await navigator.clipboard.writeText(uid)
-    ElMessage.success('UUID 已复制')
+    notify.success('UUID 已复制')
   } catch {
-    ElMessage.error('复制失败，请检查浏览器剪贴板权限')
+    notify.error('复制失败，请检查浏览器剪贴板权限')
   }
 }
 
@@ -352,10 +352,10 @@ async function onImageTagsChanged(value: FileDto['tags']) {
     const updated = await new FileTagUpdateWorkflow(current, value, fileApi, fileStore).run()
     activeImageFile.value = updated
     imageSelectedTags.value = updated.tags ?? []
-    ElMessage.success('文件标签已更新')
+    notify.success('文件标签已更新')
   } catch (error) {
     imageSelectedTags.value = current.tags ?? []
-    ElMessage.error(error instanceof Error ? error.message : '文件标签更新失败')
+    notify.error(error instanceof Error ? error.message : '文件标签更新失败')
   } finally {
     imageSaving.value = false
   }
@@ -381,7 +381,7 @@ async function onImagePublishStatusChanged(value: FileStatus) {
           throw new Error('禁止从已发布状态修改为预定发布状态')
         }
         if (!current.publishAt) {
-          ElMessage.warning('请先设置预定发布时间')
+          notify.warning('请先设置预定发布时间')
           return
         }
         updated = await new FileScheduledWorkflow(current, fileApi, fileStore).run()
@@ -393,10 +393,10 @@ async function onImagePublishStatusChanged(value: FileStatus) {
     activeImageFile.value = updated
     imagePublishStatus.value = updated.publishStatus ?? FileStatus.Draft
     imageScheduledAt.value = parseImagePublishAt(updated.publishAt)
-    ElMessage.success('文件发布状态已更新')
+    notify.success('文件发布状态已更新')
   } catch (error) {
     imagePublishStatus.value = current.publishStatus ?? FileStatus.Draft
-    ElMessage.error(error instanceof Error ? error.message : '图片发布状态更新失败')
+    notify.error(error instanceof Error ? error.message : '图片发布状态更新失败')
   } finally {
     imageSaving.value = false
   }
@@ -412,7 +412,7 @@ async function onImageScheduledAtChanged(value: Date | null) {
 
   if (current.publishStatus === FileStatus.Draft) {
     fileStore.upsertFile(current)
-    ElMessage.success('预定发布时间已设置')
+    notify.success('预定发布时间已设置')
     return
   }
 
@@ -422,11 +422,11 @@ async function onImageScheduledAtChanged(value: Date | null) {
     activeImageFile.value = updated
     imagePublishStatus.value = updated.publishStatus ?? FileStatus.Draft
     imageScheduledAt.value = parseImagePublishAt(updated.publishAt)
-    ElMessage.success('预定发布时间已更新')
+    notify.success('预定发布时间已更新')
   } catch (error) {
     current.publishAt = previousPublishAt
     imageScheduledAt.value = parseImagePublishAt(previousPublishAt)
-    ElMessage.error(error instanceof Error ? error.message : '设置预定发布时间失败')
+    notify.error(error instanceof Error ? error.message : '设置预定发布时间失败')
   } finally {
     imageSaving.value = false
   }
@@ -452,10 +452,10 @@ async function deleteImage() {
 
     imageDeleting.value = true
     await new FileDeleteWorkflow(current, fileApi, fileStore).run()
-    ElMessage.success('文件已删除')
+    notify.success('文件已删除')
   } catch (error) {
     if (error === 'cancel' || error === 'close') return
-    ElMessage.error(error instanceof Error ? error.message : '删除文件失败')
+    notify.error(error instanceof Error ? error.message : '删除文件失败')
   } finally {
     imageDeleting.value = false
   }
@@ -560,11 +560,11 @@ async function loadFilesForMode() {
         if (selectMode.value === 'image') openImagePreview(previewUid)
         else if (selectMode.value === 'video') await openVideoPreview(previewUid)
       } else {
-        ElMessage.warning('未找到要预览的文件，可能已被删除或不属于当前文件分类')
+        notify.warning('未找到要预览的文件，可能已被删除或不属于当前文件分类')
       }
     }
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '文件列表加载失败')
+    notify.error(error instanceof Error ? error.message : '文件列表加载失败')
   } finally {
     if (version === modeLoadVersion) isLoading.value = false
   }
