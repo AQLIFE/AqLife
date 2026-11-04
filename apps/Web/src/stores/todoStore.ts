@@ -5,6 +5,7 @@ import { computed, ref } from 'vue'
 
 const PAGE_SIZE = 500
 
+// Public Web client: deliberately read-only. All mutations belong to MGS.
 export const useTodoStore = defineStore('dev-plan', () => {
   const plans = ref<DevelopmentPlanDto[]>([])
   const selectedPlanId = ref('')
@@ -66,29 +67,10 @@ export const useTodoStore = defineStore('dev-plan', () => {
     await fetchTodos()
   }
 
-  async function createPlan(name: string, description?: string) {
-    const uid = await planApi.apiDevelopmentPlansPost({ createDevelopmentPlanCommand: { name, description } })
-    await fetchPlans()
-    if (uid && plans.value.some(x => x.uid === uid)) await selectPlan(uid)
-  }
-
-  async function updatePlan(plan: DevelopmentPlanDto) {
-    if (!plan.uid) return
-    await planApi.apiDevelopmentPlansPatch({
-      updateDevelopmentPlanCommand: { uid: plan.uid, name: plan.name ?? '', description: plan.description ?? '' },
-    })
-    await fetchPlans()
-  }
-
-  async function archivePlan(planId: string) {
-    await planApi.apiDevelopmentPlansUidArchivePost({ uid: planId })
-    await fetchPlans()
-  }
-
   const refresh = () => fetchTodos()
 
   return {
     plans, selectedPlanId, selectedPlan, todoList, loading, loadingPlans, error,
-    fetchPlans, fetchTodos, selectPlan, createPlan, updatePlan, archivePlan, refresh,
+    fetchPlans, fetchTodos, selectPlan, refresh,
   }
 })

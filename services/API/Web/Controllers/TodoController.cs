@@ -13,7 +13,13 @@ namespace AqLife.Web.Controllers
         [HttpGet]
         [AllowAnonymous]
         public Task<PageResult<TodoDto>> SearchAsync([FromQuery] TodoQuery query, CancellationToken ct)
-            => mediator.Send(query, ct);
+        {
+            // Archived tasks remain available to authenticated MGS managers only.
+            var effectiveQuery = User.Identity?.IsAuthenticated == true
+                ? query
+                : query with { IncludeArchived = false };
+            return mediator.Send(effectiveQuery, ct);
+        }
 
         [HttpGet("roadmap")]
         public Task<TodoRoadmapDto> GetRoadmapAsync([FromQuery] TodoRoadmapQuery query, CancellationToken ct)

@@ -83,6 +83,9 @@ namespace AqLife.Application.Business.Todo.Handler
                 .FirstOrDefaultAsync(x => x.UID == query.PlanId, ct)
                 ?? throw new ResourceNotFoundException("开发计划不存在");
 
+            if (plan.IsArchived)
+                throw new ResourceNotFoundException("开发计划不存在");
+
             var tasks = await db.Todo.AsNoTracking().Where(x => x.PlanId == query.PlanId && !x.IsArchived)
                 .OrderBy(x => x.SortOrder).ThenBy(x => x.CreatedAt).ToListAsync(ct);
             var dependencies = await db.TodoDependencies.AsNoTracking()

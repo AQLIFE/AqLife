@@ -8,6 +8,7 @@ import ProfileView from '@/views/ProfileView.vue'
 import SubscriptionsView from '@/views/SubscriptionsView.vue'
 import TagView from '@/views/TagView.vue'
 import TodoView from '@/views/TodoView.vue'
+import DevelopmentPlanView from '@/views/DevelopmentPlanView.vue'
 import { SidebarType } from '@/types/sidebarType'
 import RegisterView from '@/views/RegisterView.vue'
 
@@ -71,6 +72,11 @@ export const routes = [
     path: '/tag',
     component: TagView,
     meta: { navTitle: 'Tag', navIcon: PriceTag, showInNav: true, order: 7, sidebarType: SidebarType.None },
+  },
+  {
+    path: '/development-plan',
+    component: DevelopmentPlanView,
+    meta: { navTitle: '科技树', navIcon: List, showInNav: true, order: 9, sidebarType: SidebarType.None },
   },
   {
     path: '/todo',
