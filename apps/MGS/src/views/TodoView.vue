@@ -7,6 +7,7 @@ import { apiConfiguration } from '@/services/api'
 import { useTodoStorage } from '@/stores/useTodoStore'
 import MgsPageHeader from '../components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import { mgsIconRegistry,MgsIconName } from '@aqlife/icons'
 
 const Archive = mgsIconRegistry[MgsIconName.Archive]
@@ -179,6 +180,7 @@ async function archivePlan() {
       <div class="priority-filter"><span>优先级</span><ElSlider v-model="priorityRange" range :min="1" :max="99" /><span>{{ priorityRange[0] }}–{{ priorityRange[1] }}</span></div>
       <ElSwitch v-model="showArchived" active-text="显示归档任务" />
     </MgsToolbar>
+    <MgsPageContainer>
     <ElTable :data="visibleTodos" v-loading="store.loadingPlans || store.loadingTodos" row-key="uid" class="todo-table" empty-text="此开发计划还没有任务" :tree-props="{ children: 'todoList', hasChildren: 'hasChildren' }">
       <ElTableColumn label="任务" min-width="260">
         <template #default="{ row }">
@@ -202,6 +204,7 @@ async function archivePlan() {
         </template>
       </ElTableColumn>
     </ElTable>
+    </MgsPageContainer>
     <ElDialog v-model="taskDialog" :title="editing ? '编辑任务' : '创建任务'" width="min(620px, 94vw)" destroy-on-close>
       <ElForm label-position="top">
         <ElFormItem label="任务标题" required><ElInput v-model="task.title" maxlength="500" show-word-limit /></ElFormItem>
