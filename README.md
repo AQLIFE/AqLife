@@ -605,7 +605,7 @@ Web 侧重日常开发推进和科技树交互；MGS 侧重完整管理能力。
 - 新增 `DevelopmentPlanEntity`：计划名称、描述、归档状态、创建/更新时间和依赖图版本。
 - 新增 `TodoDependencyEntity`：同计划前置/后继依赖实体，并配置唯一边约束及查询索引。
 - 新增 `RoadmapNodeLayoutEntity`：每个 Todo 一份手动布局坐标，坐标拒绝 NaN/Infinity。
-- 扩展 `TodoEntity`：增加 PlanId、Title、Description、UpdatedAt、SortOrder；原数据库列 `Desc` 通过 `[Column("Desc")]` 映射到 Title，旧代码访问的 `Desc` 保留为 `[NotMapped]` 只读兼容别名。
+- 扩展 `TodoEntity`：增加 PlanId、Title、Description、UpdatedAt、SortOrder 和 IsArchived；为兼容现有 EF 查询（例如按 `e.Desc` 筛选）及 Mapper，`Desc` 继续作为实际映射属性，`Title` 是 `[NotMapped]` 的领域只读别名，暂不改动数据库旧列名。
 - Todo 旧构造函数暂时将新任务归属到固定默认计划 ID：`00000000-0000-0000-0000-000000000001`。EF 模型为该默认计划配置稳定种子数据，并为 Todo.PlanId 配置默认值，以便分阶段迁移现有创建流程。
 - Priority 不再被 Complete 改写为 0；CompletedAt 与 Status 通过 Complete/Reopen 管理。
 - Todo 增加 IsArchived，并提供 Archive/Restore；归档状态不再通过 Priority = -1 表达。
@@ -632,7 +632,7 @@ Web 侧重日常开发推进和科技树交互；MGS 侧重完整管理能力。
 
 1. `DevelopmentPlans` 默认计划种子数据应先于 Todo.PlanId 外键生效。
 2. 现有 `TodoList` 行的 PlanId 必须回填为默认计划 ID（上面的固定 GUID）；检查迁移脚本是否通过列默认值完成回填。
-3. Todo 原有 `Desc` 列应继续存在，映射到领域属性 Title；不应意外删除旧列或创建空的新 Title 列。
+3. Todo 原有 `Desc` 列应继续存在并继续映射到实体 `Desc` 属性；`Title` 是非映射别名，不应创建新的 Title 列。
 4. 旧 Priority 哨兵值需要迁移：原 Priority = -1 的任务应映射为 IsArchived = true 并将 Priority 规范化为有效值；原 Priority = 0 的任务应结合 Status/CompletedAt 核对完成状态，并将 Priority 规范化为有效值。
 5. `FTID` 自关联外键删除行为会从 Cascade 变成 Restrict，需确认当前数据库约束更新符合预期。
 6. 新增依赖和布局表及其外键、唯一索引应与本节模型一致。
