@@ -273,7 +273,7 @@ onBeforeUnmount(() => {
         <ElButton :icon="Edit" :disabled="!selectedPlan || selectedPlan.isArchived" @click="openPlanDialog(true)">编辑计划</ElButton>
         <ElButton :icon="Archive" :disabled="!selectedPlan || selectedPlan.isArchived || selectedPlan.uid === DEFAULT_PLAN_ID" @click="archivePlan">归档</ElButton>
         <ElButton type="primary" :icon="Plus" :disabled="!selectedPlan || selectedPlan.isArchived" @click="openCreate">新建节点</ElButton>
-        <ElButton :disabled="false" @click="openPlanDialog(false)">新建计划</ElButton>
+        <ElButton @click="openPlanDialog(false)">新建计划</ElButton>
       </div>
     </header>
     <section class="stats-row">

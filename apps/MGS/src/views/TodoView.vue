@@ -52,7 +52,7 @@ const visibleTodos = computed(() => {
     const priority = todo.priority ?? 1
     const matches = (statusFilter.value === 'all' || statusValue(todo.status) === statusFilter.value)
       && priority >= priorityRange.value[0] && priority <= priorityRange.value[1]
-    if (matches || children.length) result.push({ ...todo, todoList: children })
+    if (matches || children.length) result.push({ ...todo, todoList: children, hasChildren: children.length > 0 })
     return result
   }, [])
   return filter(store.todoList)
