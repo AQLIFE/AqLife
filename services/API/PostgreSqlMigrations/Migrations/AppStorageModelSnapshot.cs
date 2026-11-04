@@ -94,6 +94,7 @@ namespace PostgreSqlMigrations.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<long>("DependencyVersion")
+                        .IsConcurrencyToken()
                         .HasColumnType("bigint");
 
                     b.Property<string>("Description")
@@ -442,9 +443,10 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Desc")
+                    b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("Desc");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
