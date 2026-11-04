@@ -1,6 +1,6 @@
 import ErrorView from '@/views/ErrorView.vue'
 import LoginView from '@/views/LoginView.vue'
-import { MgsIconName } from '@aqlife/icons'
+import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
 import { User, Document, PriceTag, List, Collection } from '@element-plus/icons-vue'
 import HomeView from '@/views/HomeView.vue'
 import AccountView from '@/views/AccountView.vue'
@@ -66,7 +66,7 @@ export const routes = [
   {
     path: '/favorite',
     component: FavoriteView,
-    meta: { navTitle: '收藏', navIcon: Collection, showInNav: true, order: 3, navSection: 'CONTENT', sidebarType: SidebarType.None },
+    meta: { navTitle: 'Favorite', navIcon: Collection, showInNav: true, order: 3, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
   {
     path: '/tag',
@@ -76,11 +76,11 @@ export const routes = [
   {
     path: '/development-plan',
     component: DevelopmentPlanView,
-    meta: { navTitle: '科技树', navIcon: List, showInNav: true, order: 6, navSection: 'CONTENT', sidebarType: SidebarType.None },
+    meta: { navTitle: 'Plan', navIcon: mgsIconRegistry[MgsIconName.Architecture], showInNav: true, order: 6, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
   {
     path: '/todo',
     component: TodoView,
-    meta: { navTitle: 'Todo', navIcon: List, showInNav: true, order: 5, navSection: 'CONTENT', sidebarType: SidebarType.None },
+    meta: { navTitle: 'Todo', navIcon: mgsIconRegistry[MgsIconName.Plan], showInNav: true, order: 5, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
 ]

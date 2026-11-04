@@ -5,5 +5,7 @@ export enum MgsIconName {
   Register = 'RegisterIcon',
   Markdown = 'MarkdownIcon',
   UnLink = 'UnLinkIcon',
-  Archive = 'ArchiveIcon'
+  Archive = 'ArchiveIcon',
+  Architecture = 'ArchitectureIcon',
+  Plan = 'PlanIcon'
 }

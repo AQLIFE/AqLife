@@ -100,7 +100,7 @@ export const routes = [
     component: DevelopmentPlan,
     meta: {
       navTitle: '开发计划',
-      navIcon: WebIconName.Blog,
+      navIcon: WebIconName.Plan,
       showInNav: true,
       order: 6,
       sidebarType: SidebarType.None,
