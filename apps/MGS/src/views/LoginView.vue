@@ -1,10 +1,11 @@
+import { notify } from '@aqlife/ui-shared'
 <script setup lang="ts">
 import { AccountApi, type LoginCommand } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useAccountStore } from '@/stores/useAccountStore'
 import { tokenStore } from '@aqlife/api-client'
 import { validateLoginCommand } from '@aqlife/domain'
-import { ElForm, ElFormItem, ElInput, ElButton, ElMessage, ElIcon } from 'element-plus'
+import { ElForm, ElFormItem, ElInput, ElButton, ElIcon } from 'element-plus'
 import { reactive, ref, type Reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { Lock, User, ArrowRight } from '@element-plus/icons-vue'
@@ -20,7 +21,7 @@ async function submitLogin() {
 
   const validation = validateLoginCommand(login.accountName, login.secretKey)
   if (!validation.ok) {
-    ElMessage.error(validation.message)
+    notify.error(validation.message)
     return
   }
 
@@ -29,11 +30,11 @@ async function submitLogin() {
     const token = await request.apiAccountLoginPost({ loginCommand: login })
     tokenStore.set(token)
     accountStore.setToken(token)
-    ElMessage.success('登录成功')
+    notify.success('登录成功')
     await router.push('/')
   } catch (error) {
     console.error(error)
-    ElMessage.error(error instanceof Error ? error.message : '登录失败，请检查账户名或密码')
+    notify.error(error instanceof Error ? error.message : '登录失败，请检查账户名或密码')
   } finally {
     submitting.value = false
   }
