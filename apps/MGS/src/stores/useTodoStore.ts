@@ -2,6 +2,7 @@ import { DevelopmentPlanApi, TodoApi, type DevelopmentPlanDto, type TodoDto } fr
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { apiConfiguration } from '@/services/api'
+import { useLoadingTask } from '@aqlife/ui-shared'
 
 const PAGE_SIZE = 500
 
@@ -9,8 +10,10 @@ export const useTodoStorage = defineStore('todo', () => {
   const plans = ref<DevelopmentPlanDto[]>([])
   const selectedPlanId = ref('')
   const todoList = ref<TodoDto[]>([])
-  const loadingPlans = ref(false)
-  const loadingTodos = ref(false)
+  const plansLoading = useLoadingTask('mgs:todo:plans')
+  const todosLoading = useLoadingTask('mgs:todo:todos')
+  const loadingPlans = plansLoading.isLoading
+  const loadingTodos = todosLoading.isLoading
   const includeArchived = ref(false)
   const error = ref<unknown>(null)
   const todoApi = new TodoApi(apiConfiguration)
@@ -18,8 +21,8 @@ export const useTodoStorage = defineStore('todo', () => {
   const selectedPlan = computed(() => plans.value.find(x => x.uid === selectedPlanId.value) ?? null)
 
   async function fetchPlans(showArchived = false) {
-    loadingPlans.value = true
     error.value = null
+    await plansLoading.run(async () => {
     try {
       plans.value = await planApi.apiDevelopmentPlansGet({ includeArchived: showArchived })
       if (!plans.value.some(x => x.uid === selectedPlanId.value && !x.isArchived)) {
@@ -30,15 +33,14 @@ export const useTodoStorage = defineStore('todo', () => {
     } catch (e) {
       error.value = e
       throw e
-    } finally {
-      loadingPlans.value = false
     }
+    })
   }
 
   async function fetchTodos() {
     if (!selectedPlanId.value) { todoList.value = []; return }
-    loadingTodos.value = true
     error.value = null
+    await todosLoading.run(async () => {
     try {
       const result: TodoDto[] = []
       let page = 1
@@ -55,12 +57,11 @@ export const useTodoStorage = defineStore('todo', () => {
     } catch (e) {
       error.value = e
       throw e
-    } finally {
-      loadingTodos.value = false
     }
+    })
   }
 
-  async function selectPlan(planId: string) {
+  async function selectPlan()(planId: string) {
     selectedPlanId.value = planId
     await fetchTodos()
   }
