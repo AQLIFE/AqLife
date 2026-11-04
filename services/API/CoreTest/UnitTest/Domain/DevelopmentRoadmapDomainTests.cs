@@ -26,6 +26,14 @@ namespace AqLife.CoreTest.UnitTest.Domain
         }
 
         [Fact]
+        public void LegacyTodoConstructor_AssignsDefaultDevelopmentPlan()
+        {
+            var todo = new TodoEntity("Legacy task");
+
+            Assert.Equal(DevelopmentPlanEntity.DefaultPlanId, todo.PlanId);
+        }
+
+        [Fact]
         public void Todo_CompletionDoesNotChangePriority_AndReopenClearsCompletedAt()
         {
             var todo = new TodoEntity(PlanId, "Task", priority: 7);
