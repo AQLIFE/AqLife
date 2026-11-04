@@ -684,3 +684,34 @@ Web 侧重日常开发推进和科技树交互；MGS 侧重完整管理能力。
 - 当前工作仅覆盖后端；MGS/Web 前端尚未切换到新 API。
 - 本轮没有生成或执行新的 EF Core migration。`Title` 继续映射旧 `Desc` 列，依赖版本并发令牌只改变 EF 模型并发行为，不增加列。
 - 推送后应检查 GitHub Actions；本地 `dotnet build/test` 仍需在具备仓库网络和 .NET SDK 的环境执行。
+
+## 前端 Todo 与开发路线图接入（2026-11-04）
+
+基于后端 API 和 123868a9e2ae31953ce0f779621cecdc38595df3 更新后的 API Contract，本轮完成两个 Vue 前端的 Todo 改造。
+
+### MGS：任务管理工作台
+
+- /todo 支持多开发计划切换、创建、编辑和归档计划。
+- 任务支持标题、正文说明、优先级、状态和父任务编辑。
+- 使用树形表格展示递归任务层级，不再限制为根任务/一级子任务。
+- 支持按状态和优先级过滤，查看归档任务并恢复任务。
+- 展示后端计算的阻塞状态和未完成前置数量。
+- 新请求使用 PlanId、Title、Description、ParentId；不再依赖旧 Desc/FTID 请求格式。
+
+### Web：科技树工作台
+
+- 新增 /development-plan 导航入口，替换原本仅使用本地模拟数据的科技树页面。
+- 从开发计划 API 加载计划，从 Roadmap API 加载任务节点、依赖边和布局。
+- 节点可拖动，拖动结束后通过布局 API 保存坐标。
+- 支持创建/编辑任务节点、设置父任务、更新任务状态、归档任务。
+- 支持添加和移除前置依赖；图中连线只表达依赖关系，不把父子归属误画成依赖。
+- 节点展示完成、进行中、阻塞等状态；被阻塞的任务不能通过画布快捷操作标记完成。
+- 任务层级仍由 MGS 树形视图呈现；Web 画布聚焦于依赖科技树和手动布局。
+
+### 数据一致性与范围
+
+- 两个前端均直接调用 @aqlife/api-contract 生成的 API 客户端，不建立第二份任务数据源。
+- 删除未被引用的 apps/Web/src/data/devPlanTasks.ts 静态模拟任务数据。
+- 默认计划不可从前端归档；归档规则仍由后端作最终校验。
+- 本轮未改动 API Contract 生成文件，也未新增数据库迁移。
+- 当前尚未在本地运行 MGS/Web 的 vue-tsc 或生产构建；需要在具备 Node 24 与依赖安装环境中执行 npm run type-check --workspace=@aqlife/mgs、npm run type-check --workspace=@aqlife/web 及对应 build 检查。

@@ -9,6 +9,7 @@ import { SidebarType } from '@/types/sidebarType'
 import UnavailableView from '@/views/UnavailableView.vue'
 import FavoriteView from '@/views/FavoriteView.vue'
 import FavoriteDetailView from '@/views/FavoriteDetailView.vue'
+import DevelopmentPlan from '@/views/DevelopmentPlan.vue'
 
 export const routes = [
   {
@@ -91,6 +92,17 @@ export const routes = [
       navIcon: WebIconName.Wish,
       showInNav: false,
       order: 5,
+      sidebarType: SidebarType.None,
+    },
+  },
+  {
+    path: '/development-plan',
+    component: DevelopmentPlan,
+    meta: {
+      navTitle: '开发计划',
+      navIcon: WebIconName.Blog,
+      showInNav: true,
+      order: 6,
       sidebarType: SidebarType.None,
     },
   },
