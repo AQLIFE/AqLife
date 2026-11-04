@@ -89,8 +89,16 @@ namespace AqLife.Infrastructure
 
             // Seed a stable default plan so legacy Todo creation continues to have
             // a valid plan owner while plan-aware application commands are introduced.
-            modelBuilder.Entity<DevelopmentPlanEntity>().HasData(
-                new DevelopmentPlanEntity(DevelopmentPlanEntity.DefaultPlanId, "默认开发计划"));
+            modelBuilder.Entity<DevelopmentPlanEntity>().HasData(new
+            {
+                UID = DevelopmentPlanEntity.DefaultPlanId,
+                Name = "默认开发计划",
+                Description = (string?)null,
+                IsArchived = false,
+                CreatedAt = DateTimeOffset.UnixEpoch,
+                UpdatedAt = DateTimeOffset.UnixEpoch,
+                DependencyVersion = 0L
+            });
 
             modelBuilder.Entity<TodoEntity>()
                 .Property(x => x.PlanId)
