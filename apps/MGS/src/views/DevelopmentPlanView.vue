@@ -1,22 +1,17 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import {
-  ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox,
-  ElOption, ElSelect,
+  ElButton, ElDialog, ElMessage, ElOption, ElSelect,
 } from 'element-plus'
-import { Plus, Refresh, Edit, Check, Lock } from '@element-plus/icons-vue'
+import { Plus, Refresh, Lock } from '@element-plus/icons-vue'
 import { mgsIconRegistry, MgsIconName } from '@aqlife/icons'
 
-import {
-  TodoApi, TodoStatus,
-  type TodoDto, type TodoRoadmapDto,
-} from '@/api'
+import { TodoApi, TodoStatus, type TodoDto, type TodoRoadmapDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useTodoStorage } from '@/stores/useTodoStore'
 
-const keyIcon = { archive: MgsIconName.Archive, unlink: MgsIconName.UnLink }
+const keyIcon = { unlink: MgsIconName.UnLink }
 
-const DEFAULT_PLAN_ID = '00000000-0000-0000-0000-000000000001'
 const store = useTodoStorage()
 const todoApi = new TodoApi(apiConfiguration)
 const plans = computed(() => store.plans)
@@ -25,16 +20,10 @@ const roadmap = ref<TodoRoadmapDto | null>(null)
 const loading = ref(false)
 const saving = ref(false)
 const selectedId = ref('')
-const taskDialog = ref(false)
-const planDialog = ref(false)
 const dependencyDialog = ref(false)
-const editing = ref<TodoDto | null>(null)
-const editingPlan = ref(false)
 const canvas = ref<HTMLElement | null>(null)
 const drag = ref<{ id: string; offsetX: number; offsetY: number } | null>(null)
 const localPositions = ref<Record<string, { x: number; y: number }>>({})
-const taskForm = reactive({ title: '', description: '', priority: 1, status: TodoStatus.Initial as number, parentId: null as string | null })
-const planForm = reactive({ name: '', description: '' })
 const dependencyForm = reactive({ predecessorId: '' })
 
 const nodes = computed(() => roadmap.value?.nodes ?? [])
@@ -66,7 +55,6 @@ const edges = computed(() => dependencies.value.flatMap(edge => {
   const x1 = from.x + 230, y1 = from.y + 58, x2 = to.x, y2 = to.y + 58
   return [{ id: edge.predecessorId + ':' + edge.successorId, d: `M ${x1} ${y1} C ${x1 + 70} ${y1}, ${x2 - 70} ${y2}, ${x2} ${y2}`, blocked }]
 }))
-const parentOptions = computed(() => nodes.value.filter(x => x.uid && x.uid !== editing.value?.uid && !x.isArchived))
 const incoming = computed(() => dependencies.value.filter(x => x.successorId === selectedId.value))
 const incomingIds = computed(() => new Set(incoming.value.map(x => x.predecessorId)))
 const availablePredecessors = computed(() => nodes.value.filter(x => x.uid !== selectedId.value && x.uid && !incomingIds.value.has(x.uid)))
@@ -116,62 +104,6 @@ async function refresh() {
   finally { loading.value = false }
 }
 onMounted(refresh)
-function openCreate() {
-  editing.value = null
-  Object.assign(taskForm, { title: '', description: '', priority: 1, status: TodoStatus.Initial, parentId: null })
-  taskDialog.value = true
-}
-function openEdit(todo: TodoDto) {
-  editing.value = todo
-  Object.assign(taskForm, { title: titleOf(todo), description: todo.description ?? '', priority: todo.priority ?? 1, status: statusValue(todo), parentId: todo.ftid ?? null })
-  taskDialog.value = true
-}
-async function saveTask() {
-  if (!taskForm.title.trim()) { ElMessage.warning('任务标题不能为空'); return }
-  if (!Number.isInteger(taskForm.priority) || taskForm.priority < 1 || taskForm.priority > 99) { ElMessage.warning('优先级范围为 1–99'); return }
-  saving.value = true
-  try {
-    if (editing.value?.uid) {
-      await todoApi.apiTodoPatch({ updateTodoCommand: {
-        uid: editing.value.uid, title: taskForm.title.trim(), description: taskForm.description,
-        status: taskForm.status as TodoStatus, priority: taskForm.priority,
-      } })
-      if (taskForm.parentId !== (editing.value.ftid ?? null))
-        await todoApi.apiTodoParentPatch({ setTodoParentCommand: { uid: editing.value.uid, parentId: taskForm.parentId } })
-    } else {
-      await todoApi.apiTodoPost({ createTodoCommand: {
-        planId: selectedPlanId.value, title: taskForm.title.trim(), description: taskForm.description,
-        priority: taskForm.priority, parentId: taskForm.parentId, sortOrder: nodes.value.length,
-      } })
-    }
-    taskDialog.value = false
-    await refreshViews()
-    ElMessage.success('任务已保存')
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存任务失败')
-    await refreshViews()
-  } finally { saving.value = false }
-}
-async function setStatus(todo: TodoDto, status: number) {
-  if (!todo.uid) return
-  try {
-    await todoApi.apiTodoPatch({ updateTodoCommand: {
-      uid: todo.uid, title: titleOf(todo), description: todo.description ?? '',
-      status: status as TodoStatus, priority: todo.priority ?? 1,
-    } })
-    await refreshViews()
-  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '更新状态失败') }
-}
-async function archiveTask(todo: TodoDto) {
-  if (!todo.uid) return
-  try {
-    await ElMessageBox.confirm('归档后任务将从当前科技树隐藏，但历史记录会保留。', '归档任务', { type: 'warning' })
-    await todoApi.apiTodoUidArchivePost({ uid: todo.uid })
-    await refreshViews()
-  } catch (error) {
-    if (error !== 'cancel' && error !== 'close') ElMessage.error(error instanceof Error ? error.message : '归档失败')
-  }
-}
 async function addDependency() {
   if (!selectedId.value || !dependencyForm.predecessorId) return
   saving.value = true
@@ -194,37 +126,6 @@ async function removeDependency(predecessorId?: string, successorId?: string) {
     } })
     await refreshViews()
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '移除依赖失败') }
-}
-function openPlanDialog(edit = false) {
-  editingPlan.value = edit
-  Object.assign(planForm, { name: edit ? selectedPlan.value?.name ?? '' : '', description: edit ? selectedPlan.value?.description ?? '' : '' })
-  planDialog.value = true
-}
-async function savePlan() {
-  if (!planForm.name.trim()) { ElMessage.warning('计划名称不能为空'); return }
-  saving.value = true
-  try {
-    const currentPlan = selectedPlan.value
-    if (editingPlan.value && currentPlan?.uid)
-      await store.updatePlan({ ...currentPlan, name: planForm.name.trim(), description: planForm.description })
-    else
-      await store.createPlan(planForm.name.trim(), planForm.description)
-    planDialog.value = false
-    await loadRoadmap()
-    ElMessage.success('开发计划已保存')
-  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '保存计划失败') }
-  finally { saving.value = false }
-}
-async function archivePlan() {
-  const currentPlan = selectedPlan.value
-  if (!currentPlan?.uid) return
-  try {
-    await ElMessageBox.confirm('归档前必须先归档该计划中的所有任务。', '归档开发计划', { type: 'warning' })
-    await store.archivePlan(currentPlan.uid)
-    await loadRoadmap()
-  } catch (error) {
-    if (error !== 'cancel' && error !== 'close') ElMessage.error(error instanceof Error ? error.message : '归档计划失败')
-  }
 }
 function beginDrag(event: PointerEvent, todo: TodoDto) {
   if (!todo.uid || (event.target as HTMLElement).closest('button')) return
@@ -267,16 +168,12 @@ onBeforeUnmount(() => {
 <template>
   <div class="roadmap-page">
     <header class="roadmap-header">
-      <div><div class="eyebrow">MONIREPO / DEVELOPMENT ROADMAP</div><h1>开发路线图</h1><p>任务是节点，依赖决定解锁；拖动节点即可保存布局。</p></div>
+      <div><div class="eyebrow">MONIREPO / DEVELOPMENT ROADMAP</div><h1>开发路线图</h1><p>只读查看任务信息，在此管理前置依赖与节点布局。</p></div>
       <div class="header-actions">
         <ElSelect :model-value="selectedPlanId" placeholder="选择开发计划" class="plan-select" @change="changePlan">
           <ElOption v-for="plan in plans" :key="plan.uid" :label="plan.name ?? '未命名计划'" :value="plan.uid!" />
         </ElSelect>
         <ElButton :icon="Refresh" @click="refresh">刷新</ElButton>
-        <ElButton :icon="Edit" :disabled="!selectedPlan || selectedPlan.isArchived" @click="openPlanDialog(true)">编辑计划</ElButton>
-        <ElButton :icon="mgsIconRegistry[keyIcon.archive]" :disabled="!selectedPlan || selectedPlan.isArchived || selectedPlan.uid === DEFAULT_PLAN_ID" @click="archivePlan">归档</ElButton>
-        <ElButton type="primary" :icon="Plus" :disabled="!selectedPlan || selectedPlan.isArchived" @click="openCreate">新建节点</ElButton>
-        <ElButton @click="openPlanDialog(false)">新建计划</ElButton>
       </div>
     </header>
     <section class="stats-row">
@@ -301,7 +198,7 @@ onBeforeUnmount(() => {
           <p>{{ node.description || '暂无任务说明' }}</p>
           <div class="node-bottom"><span v-if="node.ftid">子任务</span><span v-if="node.incompleteDependencyCount">{{ node.incompleteDependencyCount }} 项未解锁</span><span v-if="node.hasChildren">含子任务</span></div>
         </article>
-        <div v-if="!nodes.length" class="empty-canvas">这个计划还没有任务节点，点击「新建节点」开始构建路线图。</div>
+        <div v-if="!nodes.length" class="empty-canvas">当前计划还没有任务节点，请先在 Todo 管理页创建任务。</div>
         </div>
       </section>
       <aside class="detail-panel" v-if="selected">
@@ -312,12 +209,6 @@ onBeforeUnmount(() => {
         <div class="detail-meta"><span>优先级</span><strong>{{ selected.priority ?? 1 }}</strong></div>
         <div class="detail-meta"><span>父任务</span><strong>{{ selected.ftid ? titleOf(nodeById.get(selected.ftid) ?? {}) : '无' }}</strong></div>
         <div class="detail-meta"><span>未完成前置</span><strong>{{ selected.incompleteDependencyCount ?? 0 }}</strong></div>
-        <div class="detail-actions">
-          <ElButton :icon="Edit" @click="openEdit(selected)" :disabled="!!selected.isArchived || !!selectedPlan?.isArchived">编辑</ElButton>
-          <ElButton v-if="statusValue(selected) !== 3" :icon="Check" type="success" :disabled="!!selected.isBlocked || !!selectedPlan?.isArchived" @click="setStatus(selected, 3)">标记完成</ElButton>
-          <ElButton v-else @click="setStatus(selected, 1)" :disabled="!!selectedPlan?.isArchived">重新打开</ElButton>
-          <ElButton :icon="mgsIconRegistry[keyIcon.archive]" type="warning" plain @click="archiveTask(selected)" :disabled="!!selected.isArchived || !!selectedPlan?.isArchived">归档</ElButton>
-        </div>
         <div class="dependency-section">
           <div class="section-heading"><strong>前置依赖</strong><ElButton link type="primary" :icon="Plus" @click="dependencyDialog = true" :disabled="!!selectedPlan?.isArchived || !!selected.isArchived">添加</ElButton></div>
           <div v-if="incoming.length === 0" class="muted">没有前置依赖</div>
@@ -330,34 +221,12 @@ onBeforeUnmount(() => {
       </aside>
       <aside class="detail-panel empty-detail" v-else><Lock /><p>选择一个任务节点查看详情</p></aside>
     </main>
-    <ElDialog v-model="taskDialog" :title="editing ? '编辑任务节点' : '新建任务节点'" width="min(620px, 94vw)">
-      <ElForm label-position="top">
-        <ElFormItem label="标题" required><ElInput v-model="taskForm.title" maxlength="500" /></ElFormItem>
-        <ElFormItem label="说明"><ElInput v-model="taskForm.description" type="textarea" :rows="4" maxlength="10000" /></ElFormItem>
-        <ElFormItem label="父任务（归属关系）"><ElSelect v-model="taskForm.parentId" clearable filterable class="full-width">
-          <ElOption v-for="parent in parentOptions" :key="parent.uid" :label="titleOf(parent)" :value="parent.uid!" />
-        </ElSelect></ElFormItem>
-        <ElFormItem label="优先级"><ElInput v-model.number="taskForm.priority" /></ElFormItem>
-        <ElFormItem v-if="editing" label="状态"><ElSelect v-model="taskForm.status" class="full-width">
-          <ElOption label="初始" :value="TodoStatus.Initial" /><ElOption label="等待分配" :value="TodoStatus.Wait" />
-          <ElOption label="进行中" :value="TodoStatus.Execute" /><ElOption label="已完成" :value="TodoStatus.Completed" />
-        </ElSelect></ElFormItem>
-      </ElForm>
-      <template #footer><ElButton @click="taskDialog = false">取消</ElButton><ElButton type="primary" :loading="saving" @click="saveTask">保存</ElButton></template>
-    </ElDialog>
     <ElDialog v-model="dependencyDialog" title="添加前置依赖" width="min(500px, 94vw)">
       <p>选择一个必须先完成的任务。该关系不改变任务的父子归属。</p>
       <ElSelect v-model="dependencyForm.predecessorId" filterable class="full-width" placeholder="选择前置任务">
         <ElOption v-for="node in availablePredecessors" :key="node.uid" :label="titleOf(node)" :value="node.uid!" />
       </ElSelect>
       <template #footer><ElButton @click="dependencyDialog = false">取消</ElButton><ElButton type="primary" :loading="saving" @click="addDependency">添加依赖</ElButton></template>
-    </ElDialog>
-    <ElDialog v-model="planDialog" :title="editingPlan ? '编辑开发计划' : '新建开发计划'" width="min(560px, 94vw)">
-      <ElForm label-position="top">
-        <ElFormItem label="计划名称" required><ElInput v-model="planForm.name" maxlength="120" /></ElFormItem>
-        <ElFormItem label="计划说明"><ElInput v-model="planForm.description" type="textarea" :rows="3" maxlength="2000" /></ElFormItem>
-      </ElForm>
-      <template #footer><ElButton @click="planDialog = false">取消</ElButton><ElButton type="primary" :loading="saving" @click="savePlan">保存</ElButton></template>
     </ElDialog>
   </div>
 </template>
@@ -399,7 +268,6 @@ onBeforeUnmount(() => {
 .detail-state.done { color: var(--el-color-success); }.detail-state.blocked { color: var(--el-color-danger); }.detail-state.active { color: var(--el-color-warning); }
 .detail-meta { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--el-border-color-lighter); font-size: 12px; }
 .detail-meta span { color: var(--el-text-color-secondary); }
-.detail-actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
 .dependency-section { border-top: 1px solid var(--el-border-color); padding-top: 12px; }
 .section-heading { display: flex; align-items: center; justify-content: space-between; }
 .dependency-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 0; font-size: 12px; }
