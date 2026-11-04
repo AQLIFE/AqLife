@@ -19,7 +19,7 @@ function statusLabel(status?: string | null) {
 </script>
 
 <template>
-  <div class="todo-node" :style="{ '--node-level': level }">
+  <div class="todo-node" :style="{ paddingLeft: (12 + level * 18) + 'px' }">
     <div class="content-item">
       <span class="serial">{{ index + 1 }}</span>
       <div class="description">
@@ -44,7 +44,7 @@ function statusLabel(status?: string | null) {
 
 <style scoped>
 .todo-node { width: 100%; }
-.content-item { display:flex; align-items:center; gap:12px; min-height:46px; padding:8px 12px 8px calc(12px + var(--node-level) * 18px); border-bottom:1px dotted var(--back_color_lv3); background:var(--back_color_lv1); }
+.content-item { display:flex; align-items:center; gap:12px; min-height:46px; padding:8px 12px; border-bottom:1px dotted var(--back_color_lv3); background:var(--back_color_lv1); }
 .serial { width:28px; flex:none; color:var(--el-text-color-secondary); font-size:12px; text-align:center; }
 .description { min-width:0; flex:1; display:flex; flex-direction:column; gap:3px; }
 .description strong { font-weight:600; }
