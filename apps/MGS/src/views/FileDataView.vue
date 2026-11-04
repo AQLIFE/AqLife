@@ -27,6 +27,7 @@
         value-format="YYYY-MM-DD" format="YYYY-MM-DD" v-model="dateRange" :disabled="filterDisabled" />
     </MgsToolbar>
 
+    <MgsPageContainer class="table-container">
     <ElTable :data="tableData" v-loading="isLoading" element-loading-text="正在加载文件..." empty-text="暂无文件" highlight-current-row @row-click="activeRow" height="100%" class="data-table">
       <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label"
         :width="column.width" :sortable="column.sortable"
@@ -51,6 +52,7 @@
         </template>
       </ElTableColumn>
     </ElTable>
+    </MgsPageContainer>
 
     <div
       v-if="previewImageUrl || previewVideoUrl"
@@ -125,6 +127,7 @@ import { onBeforeMount, ref, computed, watch, type Component } from 'vue'
 import { useFileStore } from '@/stores/useFileStore'
 import { CopyDocument, Delete, Plus, Upload } from '@element-plus/icons-vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 import { useRouter, useRoute } from 'vue-router'
 import FilePreviewCell from '@/components/FilePreviewCell.vue'
@@ -594,6 +597,8 @@ function handleAddFile() {
   flex-direction: column;
   overflow: hidden;
 }
+
+ .table-container { flex:1; min-height:0; display:flex; flex-direction:column; }
 
 .data-table {
   width: 100%;
