@@ -1,4 +1,3 @@
-import { notify } from '@aqlife/ui-shared'
 <template>
   <ElRow>
     <ElCol :span="8">
@@ -24,6 +23,7 @@ import { notify } from '@aqlife/ui-shared'
 </template>
 
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { ElButton, ElCol, ElImage } from 'element-plus'
 import {useRegisterStore} from '@/stores/useRegisterStore'
 import { ArrowLeft } from '@element-plus/icons-vue';
