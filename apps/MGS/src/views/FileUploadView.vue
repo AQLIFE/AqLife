@@ -15,6 +15,7 @@ import { tokenStore } from '@aqlife/api-client'
 import { useFileStore } from '@/stores/useFileStore'
 import TagSelect from '@/components/TagSelect.vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import { getFileFingerprint } from '@/utils/fileFingerprint'
 
 const router = useRouter()
@@ -455,6 +456,7 @@ watch(isVideoMode, () => {
       </template>
     </MgsPageHeader>
 
+    <MgsPageContainer class="upload-container">
     <template v-if="isVideoMode">
       <div class="video-upload-content">
         <ElCard shadow="never" class="upload-card">
@@ -542,12 +544,14 @@ watch(isVideoMode, () => {
         </ElCard>
       </div>
     </template>
+    </MgsPageContainer>
   </div>
 </template>
 
 <style scoped>
-.upload-workspace { min-height: 100%; display: flex; flex-direction: column; }
-.upload-content, .video-upload-content { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; padding-bottom: 24px; }
+ .upload-workspace { min-height: 100%; display: flex; flex-direction: column; }
+.upload-container { flex:1; }
+.upload-content, .video-upload-content { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; }
 .upload-card, .tag-card { min-width: 0; }
 .section-title { font-weight: 600; }
 .upload-icon { font-size: 52px; margin-bottom: 10px; }
