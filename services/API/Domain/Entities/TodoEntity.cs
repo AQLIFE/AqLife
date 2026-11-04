@@ -148,9 +148,14 @@ namespace AqLife.Domain.Entities
             if (Status == TodoStatus.Completed)
                 throw new DomainLegalityException("已完成任务需要先重新打开才能修改");
 
-            Title = RequireTitle(title);
-            Description = NormalizeDescription(description);
-            SetPriority(priority);
+            var normalizedTitle = RequireTitle(title);
+            var normalizedDescription = NormalizeDescription(description);
+            ValidateStatus(status);
+            ValidatePriority(priority);
+
+            Title = normalizedTitle;
+            Description = normalizedDescription;
+            Priority = priority;
 
             if (status == TodoStatus.Completed)
                 Complete();
@@ -177,6 +182,7 @@ namespace AqLife.Domain.Entities
 
         public void Reopen(TodoStatus targetStatus = TodoStatus.Wait)
         {
+            ValidateStatus(targetStatus);
             if (targetStatus == TodoStatus.Completed)
                 throw new DomainLegalityException("重新打开任务时不能指定 Completed 状态");
 
@@ -187,10 +193,20 @@ namespace AqLife.Domain.Entities
 
         private void SetPriority(int priority)
         {
+            ValidatePriority(priority);
+            Priority = priority;
+        }
+
+        private static void ValidatePriority(int priority)
+        {
             if (priority is < 1 or > 99)
                 throw new DomainLegalityException("任务优先级必须介于 1 到 99");
+        }
 
-            Priority = priority;
+        private static void ValidateStatus(TodoStatus status)
+        {
+            if (!Enum.IsDefined(status))
+                throw new DomainLegalityException("无效的任务状态");
         }
 
         private static string RequireTitle(string title)
