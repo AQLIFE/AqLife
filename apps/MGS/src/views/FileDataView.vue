@@ -28,7 +28,7 @@
     </MgsToolbar>
 
     <MgsPageContainer class="table-container">
-    <ElTable :data="tableData" v-loading="fileListLoading.isLoading" element-loading-text="正在加载文件..." empty-text="暂无文件" highlight-current-row @row-click="activeRow" height="100%" class="data-table">
+    <ElTable :data="tableData" v-loading="isFileListLoading" element-loading-text="正在加载文件..." empty-text="暂无文件" highlight-current-row @row-click="activeRow" height="100%" class="data-table">
       <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label"
         :width="column.width" :sortable="column.sortable"
         :filters="column.filter?.options.map(option => ({ text: option.label, value: option.value.toString() }))"
@@ -168,7 +168,7 @@ const imagePublishStatus = ref<FileStatus>(FileStatus.Draft)
 const imageScheduledAt = ref<Date | null>(null)
 const imageSaving = ref(false)
 const imageDeleting = ref(false)
-const fileListLoading = useLoadingTask('mgs:table:file-list')
+const { isLoading: isFileListLoading, run: withFileListLoading } = useLoadingTask('mgs:table:file-list')
 let modeLoadVersion = 0
 const tableColumns: FileTableColumn[] = [
   {
@@ -551,7 +551,7 @@ async function loadFilesForMode() {
   fileStore.clearCache()
 
   try {
-    await fileListLoading.run(() => fileStore.fetchAllFiles(fileApi, scope))
+    await withFileListLoading(() => fileStore.fetchAllFiles(fileApi, scope))
     const previewUid = typeof route.query.preview === 'string' ? route.query.preview : ''
     if (previewUid && version === modeLoadVersion) {
       const target = fileStore.fileList.find(item => item.uid === previewUid)
