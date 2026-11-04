@@ -7,6 +7,7 @@ import { Plus, Refresh, Lock } from '@element-plus/icons-vue'
 import { mgsIconRegistry, MgsIconName } from '@aqlife/icons'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 
 import { TodoApi, TodoStatus, type TodoDto, type TodoRoadmapDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
@@ -190,6 +191,7 @@ onBeforeUnmount(() => {
         <ElOption v-for="plan in plans" :key="plan.uid" :label="plan.name ?? '未命名计划'" :value="plan.uid!" />
       </ElSelect>
     </MgsToolbar>
+    <MgsPageContainer>
     <section class="stats-row">
       <div><span>当前计划</span><strong>{{ selectedPlan?.name ?? '未选择' }}</strong></div>
       <div><span>任务节点</span><strong>{{ nodes.length }}</strong></div>
@@ -235,6 +237,7 @@ onBeforeUnmount(() => {
       </aside>
       <aside class="detail-panel empty-detail" v-else><Lock /><p>选择一个任务节点查看详情</p></aside>
     </main>
+    </MgsPageContainer>
     <ElDialog v-model="dependencyDialog" title="添加前置依赖" width="min(500px, 94vw)">
       <p>当前选中节点「{{ titleOf(selected ?? {}) }}」将等待所选前置任务完成后才解除阻塞。父子层级不会自动产生依赖。</p>
       <ElSelect v-model="dependencyForm.predecessorId" filterable class="full-width" placeholder="选择必须先完成的任务">
