@@ -5,6 +5,8 @@ import {
 } from 'element-plus'
 import { Plus, Refresh, Lock } from '@element-plus/icons-vue'
 import { mgsIconRegistry, MgsIconName } from '@aqlife/icons'
+import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 
 import { TodoApi, TodoStatus, type TodoDto, type TodoRoadmapDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
@@ -174,16 +176,20 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="roadmap-page">
-    <header class="roadmap-header">
-      <div><div class="eyebrow">MONIREPO / DEVELOPMENT ROADMAP</div><h1>开发路线图</h1><p>选中节点后可设置前置依赖；拖动节点并松开即可保存手动布局。</p></div>
-      <div class="header-actions">
-        <ElSelect :model-value="selectedPlanId" placeholder="选择开发计划" class="plan-select" @change="changePlan">
-          <ElOption v-for="plan in plans" :key="plan.uid" :label="plan.name ?? '未命名计划'" :value="plan.uid!" />
-        </ElSelect>
+    <MgsPageHeader
+      title="开发路线图"
+      description="选中节点后可设置前置依赖；拖动节点并松开即可保存手动布局。"
+    >
+      <template #actions>
         <ElButton type="primary" :icon="Plus" :disabled="!selected || !!selectedPlan?.isArchived || !!selected.isArchived" @click="dependencyDialog = true">为选中节点添加前置依赖</ElButton>
         <ElButton :icon="Refresh" @click="refresh">刷新</ElButton>
-      </div>
-    </header>
+      </template>
+    </MgsPageHeader>
+    <MgsToolbar>
+      <ElSelect :model-value="selectedPlanId" placeholder="选择开发计划" class="plan-select" @change="changePlan">
+        <ElOption v-for="plan in plans" :key="plan.uid" :label="plan.name ?? '未命名计划'" :value="plan.uid!" />
+      </ElSelect>
+    </MgsToolbar>
     <section class="stats-row">
       <div><span>当前计划</span><strong>{{ selectedPlan?.name ?? '未选择' }}</strong></div>
       <div><span>任务节点</span><strong>{{ nodes.length }}</strong></div>
@@ -241,11 +247,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .roadmap-page { min-height: 100%; color: var(--el-text-color-primary); }
-.roadmap-header { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 18px; }
-.eyebrow,.detail-kicker { color: var(--el-text-color-secondary); font-size: 10px; letter-spacing: 2px; }
-.roadmap-header h1 { margin: 6px 0; font-size: 25px; }
-.roadmap-header p { margin: 0; color: var(--el-text-color-secondary); font-size: 13px; }
-.header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.detail-kicker { color: var(--el-text-color-secondary); font-size: 10px; letter-spacing: 2px; }
 .plan-select { width: 220px; }
 .stats-row { display: grid; grid-template-columns: repeat(4,minmax(120px,1fr)); gap: 10px; margin-bottom: 14px; }
 .stats-row > div { padding: 12px 15px; background: var(--el-bg-color); border: 1px solid var(--el-border-color-light); border-radius: 8px; display: flex; flex-direction: column; gap: 5px; }
@@ -284,5 +286,5 @@ onBeforeUnmount(() => {
 .empty-detail { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--el-text-color-secondary); }
 .full-width { width: 100%; }
 @media (max-width: 1050px) { .roadmap-workspace { grid-template-columns: minmax(0,1fr); }.detail-panel { border-left: 0; border-top: 1px solid var(--el-border-color); }.stats-row { grid-template-columns: repeat(2,minmax(120px,1fr)); } }
-@media (max-width: 650px) { .roadmap-header { align-items: stretch; }.header-actions { width: 100%; }.plan-select { width: 100%; }.stats-row { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 650px) { .plan-select { width: 100%; }.stats-row { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 </style>
