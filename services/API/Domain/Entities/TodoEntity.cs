@@ -52,6 +52,11 @@ namespace AqLife.Domain.Entities
         public DateTimeOffset? CompletedAt { get; private set; }
 
         /// <summary>
+        /// Archived/deprecated tasks are kept out of active workflows without overloading Priority.
+        /// </summary>
+        public bool IsArchived { get; private set; }
+
+        /// <summary>
         /// Higher values represent higher priority. Status is never encoded in Priority.
         /// </summary>
         [Range(1, 99)]
@@ -103,6 +108,7 @@ namespace AqLife.Domain.Entities
 
         public void AssignToPlan(Guid planId)
         {
+            EnsureActive();
             if (planId == Guid.Empty)
                 throw new DomainLegalityException("开发计划 ID 不能为 Empty");
 
@@ -115,6 +121,7 @@ namespace AqLife.Domain.Entities
 
         public void SetParent(Guid? parentId)
         {
+            EnsureActive();
             if (parentId == Guid.Empty)
                 throw new DomainLegalityException("父任务 ID 不能为 Empty");
 
@@ -127,12 +134,14 @@ namespace AqLife.Domain.Entities
 
         public void RemoveParent()
         {
+            EnsureActive();
             FTID = null;
             Touch();
         }
 
         public void SetSortOrder(int sortOrder)
         {
+            EnsureActive();
             if (sortOrder < 0)
                 throw new DomainLegalityException("任务排序值不能小于 0");
 
@@ -145,6 +154,7 @@ namespace AqLife.Domain.Entities
 
         public void Update(string title, string? description, TodoStatus status, int priority)
         {
+            EnsureActive();
             if (Status == TodoStatus.Completed)
                 throw new DomainLegalityException("已完成任务需要先重新打开才能修改");
 
@@ -169,6 +179,7 @@ namespace AqLife.Domain.Entities
 
         public void Complete()
         {
+            EnsureActive();
             if (Status == TodoStatus.Completed)
                 return;
 
@@ -182,6 +193,7 @@ namespace AqLife.Domain.Entities
 
         public void Reopen(TodoStatus targetStatus = TodoStatus.Wait)
         {
+            EnsureActive();
             ValidateStatus(targetStatus);
             if (targetStatus == TodoStatus.Completed)
                 throw new DomainLegalityException("重新打开任务时不能指定 Completed 状态");
@@ -189,6 +201,30 @@ namespace AqLife.Domain.Entities
             Status = targetStatus;
             CompletedAt = null;
             Touch();
+        }
+
+        public void Archive()
+        {
+            if (IsArchived)
+                return;
+
+            IsArchived = true;
+            Touch();
+        }
+
+        public void Restore()
+        {
+            if (!IsArchived)
+                return;
+
+            IsArchived = false;
+            Touch();
+        }
+
+        private void EnsureActive()
+        {
+            if (IsArchived)
+                throw new DomainLegalityException("已归档任务不允许修改");
         }
 
         private void SetPriority(int priority)
