@@ -1,4 +1,3 @@
-import { notify } from '@aqlife/ui-shared'
 <template>
   <div class="dataview">
     <MgsPageHeader title="文件" description="管理文件, 编写草稿和发布文件"><template #actions>
@@ -109,6 +108,7 @@ import { notify } from '@aqlife/ui-shared'
 </template>
 
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import {
   ElTable,
   ElDatePicker,
