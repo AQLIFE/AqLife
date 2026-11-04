@@ -50,6 +50,8 @@ namespace AqLife.Domain.Services
             {
                 if (!visited.Add(current.UID))
                     throw new DomainLegalityException("当前任务层级已经存在循环");
+                if (current.PlanId != task.PlanId)
+                    throw new DomainLegalityException("任务祖先必须属于同一个开发计划");
 
                 if (current.UID == task.UID)
                     throw new DomainLegalityException("不能将任务移动到自己的后代节点下");

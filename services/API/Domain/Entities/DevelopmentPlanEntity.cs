@@ -9,8 +9,8 @@ namespace AqLife.Domain.Entities
     public class DevelopmentPlanEntity : IEntity
     {
         /// <summary>
-        /// Compatibility plan for existing Todo creation flows during the staged migration.
-        /// New plans must use generated IDs.
+        /// Stable owner for tasks migrated from the legacy single-plan Todo model.
+        /// New development plans must use generated IDs.
         /// </summary>
         public static readonly Guid DefaultPlanId = new("00000000-0000-0000-0000-000000000001");
 

@@ -87,8 +87,7 @@ namespace AqLife.Infrastructure
                 .HasForeignKey(ft => ft.TagId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Seed a stable default plan so legacy Todo creation continues to have
-            // a valid plan owner while plan-aware application commands are introduced.
+            // Seed the stable plan that owns rows migrated from the legacy single-plan Todo model.
             modelBuilder.Entity<DevelopmentPlanEntity>().HasData(new
             {
                 UID = DevelopmentPlanEntity.DefaultPlanId,
