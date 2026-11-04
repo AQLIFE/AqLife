@@ -1,5 +1,3 @@
-import { notify } from '@aqlife/ui-shared'
-import { notify } from '@aqlife/ui-shared'
 <template>
   <ElForm label-width="120px">
     <ElFormItem label="账户名" required>
@@ -24,6 +22,7 @@ import { notify } from '@aqlife/ui-shared'
 </template>
 
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { ref } from 'vue';
 import { ElForm,ElFormItem,ElInput,ElButton } from 'element-plus';
 import {ArrowRight} from '@element-plus/icons-vue'
