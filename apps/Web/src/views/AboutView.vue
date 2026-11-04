@@ -22,12 +22,12 @@
             </ElDescriptionsItem>
         </ElDescriptions>
 
-        <TreeView/>
+        <!-- <TreeView/> -->
     </ElCol>
 </template>
 
 <script lang="ts" setup>
-import TreeView from './TreeView.vue';
+// import TreeView from './TreeView.vue';
 import { skillManager, skills } from '@/data/skillTagData'
 import { ElCol,ElLink, ElTag, ElDescriptions, ElDescriptionsItem } from 'element-plus';
 

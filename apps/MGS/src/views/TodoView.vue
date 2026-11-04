@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox, ElOption, ElRow, ElSelect, ElSegmented, ElSlider, ElSwitch, ElTable, ElTableColumn, ElTag } from 'element-plus'
-import { Plus, Edit, Archive, Refresh, FolderPlus } from '@element-plus/icons-vue'
+import { Plus, Edit, Refresh, FolderAdd } from '@element-plus/icons-vue'
 import { TodoApi, TodoStatus, type TodoDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useTodoStorage } from '@/stores/useTodoStore'
 import MgsPageHeader from '../components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
+import { mgsIconRegistry,MgsIconName } from '@aqlife/icons'
 
+const Archive = mgsIconRegistry[MgsIconName.Archive]
 const DEFAULT_PLAN_ID = '00000000-0000-0000-0000-000000000001'
 const store = useTodoStorage()
 const api = new TodoApi(apiConfiguration)
@@ -161,7 +163,7 @@ async function archivePlan() {
     <MgsPageHeader title="开发计划" description="管理开发任务、层级归属与执行状态。">
       <template #actions>
         <ElButton :icon="Refresh" @click="refresh">刷新</ElButton>
-        <ElButton :icon="FolderPlus" @click="createPlan">新建计划</ElButton>
+        <ElButton :icon="FolderAdd" @click="createPlan">新建计划</ElButton>
         <ElButton type="primary" :icon="Plus" :disabled="!store.selectedPlan || store.selectedPlan.isArchived" @click="createTask()">添加任务</ElButton>
       </template>
     </MgsPageHeader>
