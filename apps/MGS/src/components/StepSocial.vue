@@ -1,4 +1,5 @@
 import { notify } from '@aqlife/ui-shared'
+import { notify } from '@aqlife/ui-shared'
 <template>
   <ElForm>
     <ElFormItem :label="'社交主页关联配置' + index" v-for="(item, index) in registerStore.subscriptions" :key="index" required>
