@@ -14,6 +14,7 @@ declare module 'vue-router' {
     navIcon: MgsIconName | Component
     showInNav: boolean
     order?: number
+    navSection?: string
     sidebarType?: SidebarType
   }
 }
