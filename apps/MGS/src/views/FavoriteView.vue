@@ -12,6 +12,7 @@ import {
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import { FavoriteDetailContent } from '@aqlife/ui-shared'
 import type { UploadFile } from 'element-plus'
 
@@ -273,6 +274,7 @@ onBeforeMount(loadData)
       </ElSelect>
     </MgsToolbar>
 
+    <MgsPageContainer class="table-container">
     <ElTable :data="filteredItems" v-loading="loading" row-key="uid" height="100%" empty-text="暂无收藏内容">
       <ElTableColumn prop="title" label="标题" min-width="190" show-overflow-tooltip>
         <template #default="{ row }">
@@ -307,6 +309,7 @@ onBeforeMount(loadData)
         </template>
       </ElTableColumn>
     </ElTable>
+    </MgsPageContainer>
 
     <ElDialog v-model="detailDialogVisible" title="收藏详情" width="min(920px, 94vw)" top="5vh" destroy-on-close>
       <div v-if="detailItem" class="favorite-detail-dialog">
@@ -392,6 +395,7 @@ onBeforeMount(loadData)
 <style scoped>
 .favorite-detail-dialog { max-height: 72vh; overflow-y: auto; padding: 0 8px; }
 .favorite-admin { height: 100%; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.table-container { flex:1; min-height:0; display:flex; flex-direction:column; }
 .favorite-admin :deep(.el-table) { flex: 1; min-height: 0; }
 .type-filter { width: 160px; }
 .full-width { width: 100%; }
