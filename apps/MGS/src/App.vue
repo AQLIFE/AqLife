@@ -1,4 +1,5 @@
 import { notify } from '@aqlife/ui-shared'
+import { notify } from '@aqlife/ui-shared'
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import { RouterView, useRoute } from 'vue-router'
