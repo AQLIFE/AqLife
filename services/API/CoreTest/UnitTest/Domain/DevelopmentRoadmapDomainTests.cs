@@ -1,4 +1,5 @@
 using AqLife.Domain.Entities;
+using AqLife.Domain.Command;
 using AqLife.Domain.Services;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
@@ -222,6 +223,33 @@ namespace AqLife.CoreTest.UnitTest.Domain
 
             Assert.Equal("Original", plan.Name);
             Assert.Equal("Original description", plan.Description);
+        }
+
+        [Fact]
+        public void TodoCommands_SupportBothNewAndLegacyPayloadShapes()
+        {
+            var parentId = Guid.NewGuid();
+            var legacy = new CreateTodoCommand
+            {
+                LegacyDesc = "Legacy title",
+                LegacyParentId = parentId
+            };
+
+            Assert.Equal(DevelopmentPlanEntity.DefaultPlanId, legacy.PlanId);
+            Assert.Equal("Legacy title", legacy.EffectiveTitle);
+            Assert.Equal(parentId, legacy.EffectiveParentId);
+
+            var modern = new CreateTodoCommand
+            {
+                PlanId = PlanId,
+                Title = "Modern title",
+                ParentId = parentId,
+                Description = "Task details"
+            };
+
+            Assert.Equal(PlanId, modern.PlanId);
+            Assert.Equal("Modern title", modern.EffectiveTitle);
+            Assert.Equal(parentId, modern.EffectiveParentId);
         }
     }
 }
