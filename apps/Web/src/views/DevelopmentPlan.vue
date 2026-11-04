@@ -1,10 +1,38 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, defineComponent, h, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import {
   ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox,
   ElOption, ElSelect,
 } from 'element-plus'
-import { Plus, Refresh, Edit, Archive, Unlink, Check, Lock } from '@element-plus/icons-vue'
+import { Plus, Refresh, Edit, Check, Lock } from '@element-plus/icons-vue'
+
+// Element Plus Icons Vue does not provide Archive or Unlink in the installed version.
+// Keep these as lightweight Vue SVG components so they remain compatible with ElButton's icon prop.
+const Archive = defineComponent({
+  name: 'ArchiveIcon',
+  render: () => h('svg', {
+    viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
+    'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+    'aria-hidden': 'true',
+  }, [
+    h('path', { d: 'M3 4h18v4H3z' }),
+    h('path', { d: 'M5 8v12h14V8' }),
+    h('path', { d: 'M10 12h4' }),
+  ]),
+})
+
+const Unlink = defineComponent({
+  name: 'UnlinkIcon',
+  render: () => h('svg', {
+    viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
+    'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+    'aria-hidden': 'true',
+  }, [
+    h('path', { d: 'M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71' }),
+    h('path', { d: 'M14 11a5 5 0 0 0-7.07 0l-3 3A5 5 0 0 0 11 21.07l1.71-1.71' }),
+    h('path', { d: 'm3 3 18 18' }),
+  ]),
+})
 import {
   TodoApi, TodoStatus,
   type TodoDto, type TodoRoadmapDto,
