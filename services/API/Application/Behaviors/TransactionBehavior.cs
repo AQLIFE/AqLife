@@ -1,6 +1,8 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.CommandInterface;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using AqLife.Shared.Exceptions;
 
 namespace AqLife.Application.Behaviors
 {
@@ -22,6 +24,11 @@ namespace AqLife.Application.Behaviors
                 await storage.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken); // 提交 : 隐式事务回滚机制,若在Commit之前触发异常,则会自动回滚
                 return response;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw new ResourceConflictException("数据已被其他请求修改，请刷新后重试");
             }
             catch
             {
