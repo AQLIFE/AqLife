@@ -24,8 +24,8 @@ namespace AqLife.Domain.Command
     public record CreateTodoCommand : ICreateCommand
     {
         public Guid PlanId { get; init; } = DevelopmentPlanEntity.DefaultPlanId;
-        [StringLength(256)] public string? Title { get; init; }
-        [JsonPropertyName("Desc"), StringLength(256)] public string? LegacyDesc { get; init; }
+        [StringLength(500)] public string? Title { get; init; }
+        [JsonPropertyName("Desc"), StringLength(500)] public string? LegacyDesc { get; init; }
         [StringLength(10000)] public string? Description { get; init; }
         [Range(1, 99)] public int Priority { get; init; } = 1;
         public Guid? ParentId { get; init; }
@@ -41,8 +41,8 @@ namespace AqLife.Domain.Command
     public record UpdateTodoCommand : IRequireValidEntity<TodoEntity>, IUpdateCommand
     {
         public Guid UID { get; init; }
-        [StringLength(256)] public string? Title { get; init; }
-        [JsonPropertyName("Desc"), StringLength(256)] public string? LegacyDesc { get; init; }
+        [StringLength(500)] public string? Title { get; init; }
+        [JsonPropertyName("Desc"), StringLength(500)] public string? LegacyDesc { get; init; }
         [StringLength(10000)] public string? Description { get; init; }
         [JsonConverter(typeof(JsonStringEnumConverter))] public TodoStatus Status { get; init; }
         [Range(1, 99)] public int Priority { get; init; } = 1;

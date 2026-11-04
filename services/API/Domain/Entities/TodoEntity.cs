@@ -179,8 +179,8 @@ namespace AqLife.Domain.Entities
             if (string.IsNullOrWhiteSpace(title))
                 throw new DomainLegalityException("任务标题不能为空");
             title = title.Trim();
-            if (title.Length > 256)
-                throw new DomainLegalityException("任务标题不能超过 256 个字符");
+            if (title.Length > 500)
+                throw new DomainLegalityException("任务标题不能超过 500 个字符");
             return title;
         }
 

@@ -14,7 +14,7 @@ namespace AqLife.Application.Business.Todo.Validator
             var planExists = await storage.DevelopmentPlans.AnyAsync(
                 x => x.UID == source.PlanId && !x.IsArchived, ct);
             if (!planExists) return false;
-            if (string.IsNullOrWhiteSpace(source.EffectiveTitle) || source.EffectiveTitle.Trim().Length > 256) return false;
+            if (string.IsNullOrWhiteSpace(source.EffectiveTitle) || source.EffectiveTitle.Trim().Length > 500) return false;
             if (source.EffectiveParentId is null) return true;
             return await storage.Todo.AnyAsync(
                 x => x.UID == source.EffectiveParentId.Value && x.PlanId == source.PlanId && !x.IsArchived, ct);
