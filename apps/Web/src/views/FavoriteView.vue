@@ -171,7 +171,7 @@ onBeforeUnmount(() => {
 .card-tone-2 { margin-top: 8px; }
 .card-source { position: absolute; z-index: 1; top: 10px; right: 10px; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: rgb(255 255 255 / 88%); color: #444; }
 .card-image { aspect-ratio: 4 / 3; overflow: hidden; background: var(--el-fill-color-light); }
-.card-image img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+.card-image img { display: block; width: 100%; height: 100%; object-fit: contain; transition: transform .35s ease; }
 .archive-card:hover .card-image img { transform: scale(1.035); }
 .card-body { padding: 16px 17px 18px; }
 .card-meta { display: flex; justify-content: space-between; gap: 10px; color: var(--el-text-color-placeholder); font-size: 11px; }

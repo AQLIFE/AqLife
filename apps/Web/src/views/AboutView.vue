@@ -21,10 +21,13 @@
                 <ElTag @type="skillManager.getSkillColor('Mysql')">Mysql</ElTag>
             </ElDescriptionsItem>
         </ElDescriptions>
+
+        <TreeView/>
     </ElCol>
 </template>
 
 <script lang="ts" setup>
+import TreeView from './TreeView.vue';
 import { skillManager, skills } from '@/data/skillTagData'
 import { ElCol,ElLink, ElTag, ElDescriptions, ElDescriptionsItem } from 'element-plus';
 

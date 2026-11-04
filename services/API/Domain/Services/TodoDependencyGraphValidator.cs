@@ -63,8 +63,8 @@ namespace AqLife.Domain.Services
 
                 if (adjacency.TryGetValue(current, out var successors))
                 {
-                    foreach (var successor in successors)
-                        pending.Push(successor);
+                    foreach (var sr in successors)
+                        pending.Push(sr);
                 }
             }
         }
