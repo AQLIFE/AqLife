@@ -10,7 +10,8 @@
     "src/index.ts"
   ],
   "exports": {
-    ".": "./index.ts"
+    ".": "./index.ts",
+    "./feedback/loading.css": "./src/feedback/loading.css"
   },
   "scripts": {
     "type-check": "tsc --noEmit"
