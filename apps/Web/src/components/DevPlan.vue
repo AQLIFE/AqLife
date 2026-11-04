@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { ElCol, ElRow } from 'element-plus'
-import { onBeforeMount } from 'vue'
+import { computed, onBeforeMount } from 'vue'
 import { useTodoStore } from '@/stores/todoStore'
 import DevPlanTodoItem from './DevPlanTodoItem.vue'
 
 const todoStore = useTodoStore()
-const devPlanTitle = '开发计划'
+const devPlanTitle = computed(() => todoStore.selectedPlan?.name ?? '开发计划')
 
 onBeforeMount(() => {
+  if (todoStore.plans.length === 0) {
+    return todoStore.fetchPlans()
+  }
   if (todoStore.todoList.length === 0) {
     return todoStore.refresh()
   }

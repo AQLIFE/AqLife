@@ -6,16 +6,17 @@ import {
 } from 'element-plus'
 import { Plus, Refresh, Edit, Archive, Unlink, Check, Lock } from '@element-plus/icons-vue'
 import {
-  DevelopmentPlanApi, TodoApi, TodoStatus,
+  TodoApi, TodoStatus,
   type TodoDto, type TodoRoadmapDto,
 } from '@/api'
 import { apiConfiguration } from '@/services/api'
+import { useTodoStore } from '@/stores/todoStore'
 
 const DEFAULT_PLAN_ID = '00000000-0000-0000-0000-000000000001'
-const planApi = new DevelopmentPlanApi(apiConfiguration)
+const todoStore = useTodoStore()
 const todoApi = new TodoApi(apiConfiguration)
-const plans = ref<DevelopmentPlanDto[]>([])
-const selectedPlanId = ref('')
+const plans = computed(() => todoStore.plans)
+const selectedPlanId = computed(() => todoStore.selectedPlanId)
 const roadmap = ref<TodoRoadmapDto | null>(null)
 const loading = ref(false)
 const saving = ref(false)
@@ -35,7 +36,7 @@ const dependencyForm = reactive({ predecessorId: '' })
 const nodes = computed(() => roadmap.value?.nodes ?? [])
 const dependencies = computed(() => roadmap.value?.dependencies ?? [])
 const selected = computed(() => nodes.value.find(x => x.uid === selectedId.value) ?? null)
-const selectedPlan = computed(() => plans.value.find(x => x.uid === selectedPlanId.value) ?? null)
+const selectedPlan = computed(() => todoStore.selectedPlan)
 const completedCount = computed(() => nodes.value.filter(x => Number(x.status) === TodoStatus.Completed || x.status === 'Completed').length)
 const progress = computed(() => nodes.value.length ? Math.round(completedCount.value / nodes.value.length * 100) : 0)
 const nodeById = computed(() => new Map(nodes.value.filter(x => x.uid).map(x => [x.uid!, x])))
@@ -82,11 +83,16 @@ function statusClass(todo: TodoDto) {
   return 'pending'
 }
 async function loadPlans() {
-  plans.value = await planApi.apiDevelopmentPlansGet({})
-  if (!plans.value.some(x => x.uid === selectedPlanId.value && !x.isArchived))
-    selectedPlanId.value = plans.value.find(x => !x.isArchived)?.uid ?? ''
+  await todoStore.fetchPlans()
   if (selectedPlanId.value) await loadRoadmap()
   else roadmap.value = null
+}
+async function changePlan(planId: string) {
+  await todoStore.selectPlan(planId)
+  await loadRoadmap()
+}
+async function refreshViews() {
+  await Promise.all([loadRoadmap(), todoStore.refresh()])
 }
 async function loadRoadmap() {
   if (!selectedPlanId.value) { roadmap.value = null; return }
@@ -135,11 +141,11 @@ async function saveTask() {
       } })
     }
     taskDialog.value = false
-    await loadRoadmap()
+    await refreshViews()
     ElMessage.success('任务已保存')
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '保存任务失败')
-    await loadRoadmap()
+    await refreshViews()
   } finally { saving.value = false }
 }
 async function setStatus(todo: TodoDto, status: number) {
@@ -149,7 +155,7 @@ async function setStatus(todo: TodoDto, status: number) {
       uid: todo.uid, title: titleOf(todo), description: todo.description ?? '',
       status: status as TodoStatus, priority: todo.priority ?? 1,
     } })
-    await loadRoadmap()
+    await refreshViews()
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '更新状态失败') }
 }
 async function archiveTask(todo: TodoDto) {
@@ -157,7 +163,7 @@ async function archiveTask(todo: TodoDto) {
   try {
     await ElMessageBox.confirm('归档后任务将从当前科技树隐藏，但历史记录会保留。', '归档任务', { type: 'warning' })
     await todoApi.apiTodoUidArchivePost({ uid: todo.uid })
-    await loadRoadmap()
+    await refreshViews()
   } catch (error) {
     if (error !== 'cancel' && error !== 'close') ElMessage.error(error instanceof Error ? error.message : '归档失败')
   }
@@ -171,7 +177,7 @@ async function addDependency() {
     } })
     dependencyDialog.value = false
     dependencyForm.predecessorId = ''
-    await loadRoadmap()
+    await refreshViews()
     ElMessage.success('前置依赖已添加')
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '添加依赖失败') }
   finally { saving.value = false }
@@ -182,7 +188,7 @@ async function removeDependency(predecessorId?: string, successorId?: string) {
     await todoApi.apiTodoDependenciesDelete({ removeTodoDependencyCommand: {
       planId: selectedPlanId.value, predecessorId, successorId,
     } })
-    await loadRoadmap()
+    await refreshViews()
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '移除依赖失败') }
 }
 function openPlanDialog(edit = false) {
@@ -196,18 +202,11 @@ async function savePlan() {
   try {
     const currentPlan = selectedPlan.value
     if (editingPlan.value && currentPlan?.uid)
-      await planApi.apiDevelopmentPlansPatch({ updateDevelopmentPlanCommand: { uid: currentPlan.uid, name: planForm.name.trim(), description: planForm.description } })
-    else {
-      const createdId = await planApi.apiDevelopmentPlansPost({ createDevelopmentPlanCommand: { name: planForm.name.trim(), description: planForm.description } })
-      planDialog.value = false
-      await loadPlans()
-      if (createdId && plans.value.some(x => x.uid === createdId)) {
-        selectedPlanId.value = createdId
-        await loadRoadmap()
-      }
-    }
+      await todoStore.updatePlan({ ...currentPlan, name: planForm.name.trim(), description: planForm.description })
+    else
+      await todoStore.createPlan(planForm.name.trim(), planForm.description)
     planDialog.value = false
-    if (editingPlan.value) await loadPlans()
+    await loadRoadmap()
     ElMessage.success('开发计划已保存')
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '保存计划失败') }
   finally { saving.value = false }
@@ -217,8 +216,8 @@ async function archivePlan() {
   if (!currentPlan?.uid) return
   try {
     await ElMessageBox.confirm('归档前必须先归档该计划中的所有任务。', '归档开发计划', { type: 'warning' })
-    await planApi.apiDevelopmentPlansUidArchivePost({ uid: currentPlan.uid })
-    await loadPlans()
+    await todoStore.archivePlan(currentPlan.uid)
+    await loadRoadmap()
   } catch (error) {
     if (error !== 'cancel' && error !== 'close') ElMessage.error(error instanceof Error ? error.message : '归档计划失败')
   }
@@ -266,7 +265,7 @@ onBeforeUnmount(() => {
     <header class="roadmap-header">
       <div><div class="eyebrow">MONIREPO / DEVELOPMENT ROADMAP</div><h1>开发路线图</h1><p>任务是节点，依赖决定解锁；拖动节点即可保存布局。</p></div>
       <div class="header-actions">
-        <ElSelect v-model="selectedPlanId" placeholder="选择开发计划" class="plan-select" @change="loadRoadmap">
+        <ElSelect :model-value="selectedPlanId" placeholder="选择开发计划" class="plan-select" @change="changePlan">
           <ElOption v-for="plan in plans" :key="plan.uid" :label="plan.name ?? '未命名计划'" :value="plan.uid!" />
         </ElSelect>
         <ElButton :icon="Refresh" @click="refresh">刷新</ElButton>
