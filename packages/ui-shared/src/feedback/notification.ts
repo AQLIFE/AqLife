@@ -1,15 +1,14 @@
 import { ElNotification } from 'element-plus'
-import type { NotificationOptions } from 'element-plus'
 
 export type AppNotificationType = 'success' | 'info' | 'warning' | 'error'
 
-const defaults: Partial<NotificationOptions> = {
+const defaults = {
   position: 'top-right',
   duration: 3600,
   showClose: true,
   grouping: true,
   offset: 24,
-}
+} as const
 
 function show(type: AppNotificationType, message: string, title?: string) {
   return ElNotification({
