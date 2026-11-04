@@ -211,5 +211,17 @@ namespace AqLife.CoreTest.UnitTest.Domain
             Assert.Equal("Original description", todo.Description);
             Assert.Equal(3, todo.Priority);
         }
+
+        [Fact]
+        public void DevelopmentPlan_Update_ValidatesBeforeChangingExistingValues()
+        {
+            var plan = new DevelopmentPlanEntity("Original", "Original description");
+
+            Assert.Throws<DomainLegalityException>(
+                () => plan.Update("Changed", new string('x', 2001)));
+
+            Assert.Equal("Original", plan.Name);
+            Assert.Equal("Original description", plan.Description);
+        }
     }
 }

@@ -70,6 +70,16 @@ namespace AqLife.Domain.Entities
             Touch();
         }
 
+        public void Update(string name, string? description)
+        {
+            EnsureActive();
+            var normalizedName = RequireName(name);
+            var normalizedDescription = NormalizeDescription(description);
+            Name = normalizedName;
+            Description = normalizedDescription;
+            Touch();
+        }
+
         public void Archive()
         {
             if (UID == DefaultPlanId)

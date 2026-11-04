@@ -42,8 +42,7 @@ namespace AqLife.Application.Business.DevelopmentPlan.Handler
         {
             var plan = await db.DevelopmentPlans.FirstOrDefaultAsync(x => x.UID == command.UID, ct)
                 ?? throw new ResourceNotFoundException("开发计划不存在");
-            plan.Rename(command.Name);
-            plan.UpdateDescription(command.Description);
+            plan.Update(command.Name, command.Description);
             return plan.UID;
         }
     }
