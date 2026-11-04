@@ -1,3 +1,4 @@
+import { notify } from '@aqlife/ui-shared'
 <template>
   <div class="template-view">
     <MgsPageHeader title="博文模板" description="选择模板、预览结构，再创建博文" :back="true">
@@ -163,7 +164,6 @@ import {
   ElFormItem,
   ElIcon,
   ElInput,
-  ElMessage,
   ElMessageBox,
   ElTag,
 } from 'element-plus'
@@ -358,7 +358,7 @@ async function selectTemplate(uid: string) {
     draft.content = content
     editing.value = false
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '模板加载失败')
+    notify.error(error instanceof Error ? error.message : '模板加载失败')
   } finally {
     loading.value = false
   }
@@ -429,9 +429,9 @@ async function saveNewTemplate() {
     templateDraft.name = ''
     draft.content = resolvedContent
     await loadTemplates(uid)
-    ElMessage.success('模板已创建')
+    notify.success('模板已创建')
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '模板创建失败')
+    notify.error(error instanceof Error ? error.message : '模板创建失败')
   } finally {
     saving.value = false
   }
@@ -476,9 +476,9 @@ async function saveTemplate() {
       templateTags.value = [...(updated.tags ?? templateTags.value)]
     templates.value = templates.value.map(item => item.uid === updated.uid ? updated : item)
     editing.value = false
-    ElMessage.success('模板已保存')
+    notify.success('模板已保存')
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '模板保存失败')
+    notify.error(error instanceof Error ? error.message : '模板保存失败')
   } finally {
     saving.value = false
   }
@@ -513,10 +513,10 @@ async function deleteTemplate(template: BlogTemplate) {
       }
     }
 
-    ElMessage.success('模板已删除')
+    notify.success('模板已删除')
   } catch (error) {
     if (error === 'cancel' || error === 'close') return
-    ElMessage.error(error instanceof Error ? error.message : '模板删除失败')
+    notify.error(error instanceof Error ? error.message : '模板删除失败')
   } finally {
     loading.value = false
   }
@@ -536,8 +536,8 @@ async function restoreNewArticleDraft() {
       articleDraft.title = saved.title ?? ''
       draft.content = saved.content
       markdownEditor?.setValue(saved.content)
-      ElMessage.success('已恢复本地博文草稿')
-      if (saved.content.includes('pending-video:')) ElMessage.warning('草稿中有尚未上传的视频占位符；浏览器未保存视频文件，请删除该占位行后重新插入视频。')
+      notify.success('已恢复本地博文草稿')
+      if (saved.content.includes('pending-video:')) notify.warning('草稿中有尚未上传的视频占位符；浏览器未保存视频文件，请删除该占位行后重新插入视频。')
     } catch { localStorage.removeItem(newArticleDraftKey) }
   } catch { /* Ignore unavailable or malformed local drafts. */ }
 }
@@ -553,7 +553,7 @@ function onVideoSelected(event: Event) {
   const input = event.target as HTMLInputElement
   const files = Array.from(input.files ?? [])
   input.value = ''
-  try { queueVideos(files) } catch (error) { ElMessage.warning(error instanceof Error ? error.message : '无法添加视频') }
+  try { queueVideos(files) } catch (error) { notify.warning(error instanceof Error ? error.message : '无法添加视频') }
 }
 
 function sameTagSelection(left: TagDto[], right: TagDto[]): boolean {
@@ -645,10 +645,10 @@ async function createArticle() {
     creatingArticle.value = false
     localStorage.removeItem(newArticleDraftKey)
     draft.content = resolvedContent
-    ElMessage.success('博文已创建')
+    notify.success('博文已创建')
     await router.push('/file/' + uid)
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '博文创建失败')
+    notify.error(error instanceof Error ? error.message : '博文创建失败')
   } finally {
     creatingArticleBusy.value = false
     loading.value = false
@@ -660,7 +660,7 @@ onBeforeMount(async () => {
     loading.value = true
     await loadTemplates()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '模板列表加载失败')
+    notify.error(error instanceof Error ? error.message : '模板列表加载失败')
   } finally {
     loading.value = false
   }
