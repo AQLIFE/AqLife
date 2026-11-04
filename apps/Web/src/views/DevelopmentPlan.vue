@@ -6,6 +6,13 @@ import {
 } from 'element-plus'
 import { Plus, Refresh, Edit, Check, Lock } from '@element-plus/icons-vue'
 
+import {
+  TodoApi, TodoStatus,
+  type TodoDto, type TodoRoadmapDto,
+} from '@/api'
+import { apiConfiguration } from '@/services/api'
+import { useTodoStore } from '@/stores/todoStore'
+
 // Element Plus Icons Vue does not provide Archive or Unlink in the installed version.
 // Keep these as lightweight Vue SVG components so they remain compatible with ElButton's icon prop.
 const Archive = defineComponent({
@@ -33,12 +40,7 @@ const Unlink = defineComponent({
     h('path', { d: 'm3 3 18 18' }),
   ]),
 })
-import {
-  TodoApi, TodoStatus,
-  type TodoDto, type TodoRoadmapDto,
-} from '@/api'
-import { apiConfiguration } from '@/services/api'
-import { useTodoStore } from '@/stores/todoStore'
+
 
 
 const DEFAULT_PLAN_ID = '00000000-0000-0000-0000-000000000001'
