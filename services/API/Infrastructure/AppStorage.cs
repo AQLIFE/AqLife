@@ -100,6 +100,10 @@ namespace AqLife.Infrastructure
                 DependencyVersion = 0L
             });
 
+            modelBuilder.Entity<DevelopmentPlanEntity>()
+                .Property(x => x.DependencyVersion)
+                .IsConcurrencyToken();
+
             modelBuilder.Entity<TodoEntity>()
                 .Property(x => x.PlanId)
                 .HasDefaultValue(DevelopmentPlanEntity.DefaultPlanId);

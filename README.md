@@ -638,3 +638,49 @@ Web 侧重日常开发推进和科技树交互；MGS 侧重完整管理能力。
 6. 新增依赖和布局表及其外键、唯一索引应与本节模型一致。
 
 在应用层完成 PlanId 显式传递前，旧 Todo 创建入口仍然会写入默认计划；不要在应用层接入完成前删除默认计划或移除兼容构造函数。
+
+## 开发路线图后端接入（2026-11-04）
+
+本轮已将路线图领域模型接入后端应用层与 API。数据库迁移已由项目维护者执行通过；本轮代码继续复用已迁移的列和表，不新增数据库列。
+
+### Todo 模型与层级
+
+- `TodoEntity.Title` 是领域层的正式标题属性，继续映射到既有数据库 `TodoList.Desc` 列；`Desc` 仅保留为非映射兼容别名。
+- `Description` 是独立的任务正文/说明字段。
+- 每个任务显式归属一个 `DevelopmentPlan`；创建命令必须传入 `PlanId`。
+- `FTID` 只表示父子归属，允许无限层级；层级移动由 `TodoHierarchyValidator` 校验，拒绝跨计划父节点、归档父节点和循环。
+- 父任务与子任务之间不自动创建依赖；删除含子任务的任务会被拒绝。
+- 完成状态独立于优先级；归档使用 `IsArchived`，不再使用 Priority sentinel。
+
+### 依赖与科技树
+
+- `TodoDependencies` 表示前置任务到后继任务的有向边，只允许同计划内关系。
+- 添加依赖时校验两端存在、未归档、无重复边且不会形成有向环；语义为 AND，所有前置任务完成后才解锁。
+- `IsBlocked` 不持久化，由查询时计算；完成任务不会被标记为阻塞。
+- 完成任务时会检查所有前置任务是否完成；未满足时拒绝完成。
+- `DevelopmentPlan.DependencyVersion` 配置为 EF Core 并发令牌，依赖边新增/删除时递增，避免并发图更新静默覆盖。
+- `RoadmapNodeLayouts` 保存手动节点坐标；科技树查询返回平面节点、依赖边和布局数据。
+
+### 新增/调整的 API
+
+- `GET /development-plans`、`POST /development-plans`、`PATCH /development-plans`、`POST /development-plans/{uid}/archive`
+- `GET /Todo` 支持 PlanId、父节点、完成/归档筛选及树形/平面查询。
+- `GET /Todo/roadmap?PlanId=...` 返回科技树节点、依赖边和布局。
+- `POST /Todo`、`PATCH /Todo`、`PATCH /Todo/parent`、`PATCH /Todo/sort-order`
+- `POST /Todo/dependencies`、`DELETE /Todo/dependencies`、`PUT /Todo/roadmap/layout`
+- `POST /Todo/{uid}/archive`、`POST /Todo/{uid}/restore`、`DELETE /Todo`
+
+### 删除与归档规则
+
+- 已完成任务不允许直接删除，应归档保留历史。
+- 有子任务或依赖边的任务不能直接删除；需先处理关联。
+- 归档任务前必须先处理活跃子任务和所有依赖边。
+- 归档计划前必须先归档其全部任务；默认计划不能归档。
+- 任务布局随任务物理删除级联删除；归档只隐藏节点，不删除布局。
+
+### 验证状态
+
+- 新增/更新了领域层测试，覆盖标题与说明、优先级、层级、依赖 DAG、AND 阻塞状态等。
+- 当前工作仅覆盖后端；MGS/Web 前端尚未切换到新 API。
+- 本轮没有生成或执行新的 EF Core migration。`Title` 继续映射旧 `Desc` 列，依赖版本并发令牌只改变 EF 模型并发行为，不增加列。
+- 推送后应检查 GitHub Actions；本地 `dotnet build/test` 仍需在具备仓库网络和 .NET SDK 的环境执行。

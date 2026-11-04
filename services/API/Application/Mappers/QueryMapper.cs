@@ -15,6 +15,10 @@ namespace AqLife.Application.Mappers
         [MapperIgnoreSource(nameof(TodoQuery.Page))]
         [MapperIgnoreSource(nameof(TodoQuery.PageSize))]
         [MapperIgnoreSource(nameof(TodoQuery.IsTree))]
+        [MapperIgnoreSource(nameof(TodoQuery.PlanId))]
+        [MapperIgnoreSource(nameof(TodoQuery.IncludeCompleted))]
+        [MapperIgnoreSource(nameof(TodoQuery.IncludeArchived))]
+        [MapperIgnoreSource(nameof(TodoQuery.ParentId))]
         [MapProperty(nameof(TodoQuery.Desc), nameof(EntitySearchCriteria.Keyword))]
         public partial EntitySearchCriteria ToCriteria(TodoQuery query);
 

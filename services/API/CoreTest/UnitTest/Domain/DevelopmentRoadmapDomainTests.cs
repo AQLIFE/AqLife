@@ -182,5 +182,34 @@ namespace AqLife.CoreTest.UnitTest.Domain
             Assert.Throws<DomainLegalityException>(
                 () => TodoDependencyGraphValidator.EnsureCanAdd(duplicate, tasks, new[] { existing }));
         }
+
+        [Fact]
+        public void Todo_TitleAndDescription_AreNormalizedAndStoredSeparately()
+        {
+            var todo = new TodoEntity(PlanId, "  Build roadmap  ", "  Detailed notes  ", priority: 4);
+
+            Assert.Equal("Build roadmap", todo.Title);
+            Assert.Equal("Build roadmap", todo.Desc);
+            Assert.Equal("Detailed notes", todo.Description);
+
+            todo.UpdateDetails("  Implement API  ", "  Backend details  ", 8);
+
+            Assert.Equal("Implement API", todo.Title);
+            Assert.Equal("Backend details", todo.Description);
+            Assert.Equal(8, todo.Priority);
+        }
+
+        [Fact]
+        public void Todo_UpdateDetails_ValidatesBeforeChangingExistingValues()
+        {
+            var todo = new TodoEntity(PlanId, "Original", "Original description", priority: 3);
+
+            Assert.Throws<DomainLegalityException>(
+                () => todo.UpdateDetails("Changed", new string('x', 10001), 9));
+
+            Assert.Equal("Original", todo.Title);
+            Assert.Equal("Original description", todo.Description);
+            Assert.Equal(3, todo.Priority);
+        }
     }
 }

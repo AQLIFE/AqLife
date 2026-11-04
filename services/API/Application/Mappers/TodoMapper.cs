@@ -1,23 +1,27 @@
-﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Mapper;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
-using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;
-using AqLife.Shared.Options;
-using Riok.Mapperly.Abstractions;
 
 namespace AqLife.Application.Business.Todo
 {
-    [Mapper]
-    public partial class TodoMapper : IViewMapper<TodoEntity, TodoDto>, ICreateMapper<TodoEntity, CreateTodoCommand>
+    public sealed class TodoMapper : IViewMapper<TodoEntity, TodoDto>, ICreateMapper<TodoEntity, CreateTodoCommand>
     {
-        [MapProperty(nameof(TodoEntity.Children), nameof(TodoDto.TodoList))]
-        public partial TodoDto ToDto(TodoEntity entity);
+        public TodoDto ToDto(TodoEntity entity)
+            => new(entity.UID, entity.FTID, entity.Title, entity.Status.ToString(),
+                entity.CreatedAt, entity.CompletedAt, entity.Priority,
+                entity.Children.Select(ToDto).ToList(), entity.Children.Count > 0)
+            {
+                PlanId = entity.PlanId,
+                Title = entity.Title,
+                Description = entity.Description,
+                UpdatedAt = entity.UpdatedAt,
+                SortOrder = entity.SortOrder,
+                IsArchived = entity.IsArchived
+            };
 
-        public TodoEntity ToEntity(CreateTodoCommand command) => new (desc: command.Desc, ftid: command.FTID,priority:command.Priority);
-
-        public string Convert(TodoStatus status)
-           => status.ToString();
-        // 不使用前端ID,后端自生成
+        public TodoEntity ToEntity(CreateTodoCommand command)
+            => new(command.PlanId, command.Title, command.Description, command.Priority,
+                command.ParentId, command.SortOrder);
     }
 }

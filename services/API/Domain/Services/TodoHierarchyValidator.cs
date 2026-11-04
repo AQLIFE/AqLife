@@ -17,6 +17,9 @@ namespace AqLife.Domain.Services
             ArgumentNullException.ThrowIfNull(task);
             ArgumentNullException.ThrowIfNull(planTasks);
 
+            if (task.IsArchived)
+                throw new DomainLegalityException("已归档任务不能调整层级");
+
             if (newParentId is null)
                 return;
 
@@ -35,6 +38,8 @@ namespace AqLife.Domain.Services
 
             if (parent.PlanId != task.PlanId)
                 throw new DomainLegalityException("父任务与子任务必须属于同一个开发计划");
+            if (parent.IsArchived)
+                throw new DomainLegalityException("不能将任务移动到已归档的父任务下");
 
             // Walk upwards from the proposed parent. If the moving task is encountered,
             // the move would make one of its descendants become its ancestor.
@@ -48,6 +53,8 @@ namespace AqLife.Domain.Services
 
                 if (current.UID == task.UID)
                     throw new DomainLegalityException("不能将任务移动到自己的后代节点下");
+                if (current.IsArchived)
+                    throw new DomainLegalityException("任务祖先链中存在已归档节点");
 
                 if (current.FTID is null)
                     break;
