@@ -24,17 +24,28 @@ withDefaults(defineProps<{
   title: string
   description?: string
   back?: boolean
-}>(), { back: false })
+  backTo?: string
+}>(), { back: false, backTo: '/file' })
 
 const router = useRouter()
-const handleBack = () => router.push('/file')
+const props = defineProps<{
+  title: string
+  description?: string
+  back?: boolean
+  backTo?: string
+}>()
+const handleBack = () => router.push(props.backTo || '/file')
 </script>
 
 <style scoped>
-.page-header { display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:24px 28px 18px; }
+.page-header { display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:24px 24px 18px; }
 .heading { display:flex;align-items:flex-start;gap:14px; }
 .heading h1 { margin:0;font-size:22px;line-height:1.25;letter-spacing:-.02em;font-weight:650;color:var(--mgs-text); }
 .heading p { margin:6px 0 0;color:var(--mgs-muted);font-size:12px; }
 .back { margin-top:-4px; }
 .actions { display:flex;align-items:center;gap:8px; }
+@media (max-width: 640px) {
+  .page-header { gap:12px; }
+  .heading h1 { font-size:20px; }
+}
 </style>
