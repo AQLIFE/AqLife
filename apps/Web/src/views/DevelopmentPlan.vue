@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, defineComponent, h, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import {
   ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox,
   ElOption, ElSelect,
 } from 'element-plus'
 import { Plus, Refresh, Edit, Check, Lock } from '@element-plus/icons-vue'
+import { webIconRegistry, WebIconName } from '@aqlife/icons'
 
 import {
   TodoApi, TodoStatus,
@@ -13,35 +14,7 @@ import {
 import { apiConfiguration } from '@/services/api'
 import { useTodoStore } from '@/stores/todoStore'
 
-// Element Plus Icons Vue does not provide Archive or Unlink in the installed version.
-// Keep these as lightweight Vue SVG components so they remain compatible with ElButton's icon prop.
-const Archive = defineComponent({
-  name: 'ArchiveIcon',
-  render: () => h('svg', {
-    viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
-    'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-    'aria-hidden': 'true',
-  }, [
-    h('path', { d: 'M3 4h18v4H3z' }),
-    h('path', { d: 'M5 8v12h14V8' }),
-    h('path', { d: 'M10 12h4' }),
-  ]),
-})
-
-const Unlink = defineComponent({
-  name: 'UnlinkIcon',
-  render: () => h('svg', {
-    viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
-    'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-    'aria-hidden': 'true',
-  }, [
-    h('path', { d: 'M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71' }),
-    h('path', { d: 'M14 11a5 5 0 0 0-7.07 0l-3 3A5 5 0 0 0 11 21.07l1.71-1.71' }),
-    h('path', { d: 'm3 3 18 18' }),
-  ]),
-})
-
-
+const keyIcon = { archive: WebIconName.Archive, unlink: WebIconName.UnLink }
 
 const DEFAULT_PLAN_ID = '00000000-0000-0000-0000-000000000001'
 const todoStore = useTodoStore()
@@ -301,7 +274,7 @@ onBeforeUnmount(() => {
         </ElSelect>
         <ElButton :icon="Refresh" @click="refresh">刷新</ElButton>
         <ElButton :icon="Edit" :disabled="!selectedPlan || selectedPlan.isArchived" @click="openPlanDialog(true)">编辑计划</ElButton>
-        <ElButton :icon="Archive" :disabled="!selectedPlan || selectedPlan.isArchived || selectedPlan.uid === DEFAULT_PLAN_ID" @click="archivePlan">归档</ElButton>
+        <ElButton :icon="webIconRegistry[keyIcon.archive]" :disabled="!selectedPlan || selectedPlan.isArchived || selectedPlan.uid === DEFAULT_PLAN_ID" @click="archivePlan">归档</ElButton>
         <ElButton type="primary" :icon="Plus" :disabled="!selectedPlan || selectedPlan.isArchived" @click="openCreate">新建节点</ElButton>
         <ElButton @click="openPlanDialog(false)">新建计划</ElButton>
       </div>
@@ -343,14 +316,14 @@ onBeforeUnmount(() => {
           <ElButton :icon="Edit" @click="openEdit(selected)" :disabled="!!selected.isArchived || !!selectedPlan?.isArchived">编辑</ElButton>
           <ElButton v-if="statusValue(selected) !== 3" :icon="Check" type="success" :disabled="!!selected.isBlocked || !!selectedPlan?.isArchived" @click="setStatus(selected, 3)">标记完成</ElButton>
           <ElButton v-else @click="setStatus(selected, 1)" :disabled="!!selectedPlan?.isArchived">重新打开</ElButton>
-          <ElButton :icon="Archive" type="warning" plain @click="archiveTask(selected)" :disabled="!!selected.isArchived || !!selectedPlan?.isArchived">归档</ElButton>
+          <ElButton :icon="webIconRegistry[keyIcon.archive]" type="warning" plain @click="archiveTask(selected)" :disabled="!!selected.isArchived || !!selectedPlan?.isArchived">归档</ElButton>
         </div>
         <div class="dependency-section">
           <div class="section-heading"><strong>前置依赖</strong><ElButton link type="primary" :icon="Plus" @click="dependencyDialog = true" :disabled="!!selectedPlan?.isArchived || !!selected.isArchived">添加</ElButton></div>
           <div v-if="incoming.length === 0" class="muted">没有前置依赖</div>
           <div v-for="edge in incoming" :key="edge.predecessorId" class="dependency-item">
             <span>{{ titleOf(nodeById.get(edge.predecessorId ?? '') ?? {}) }}</span>
-            <ElButton link type="danger" :icon="Unlink" @click="removeDependency(edge.predecessorId, edge.successorId)" />
+            <ElButton link type="danger" :icon="webIconRegistry[keyIcon.unlink]" @click="removeDependency(edge.predecessorId, edge.successorId)" />
           </div>
           <p class="hint">只有全部前置任务完成后，该节点才会解除阻塞。</p>
         </div>
