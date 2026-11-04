@@ -1,4 +1,5 @@
 import { notify } from '@aqlife/ui-shared'
+import { notify } from '@aqlife/ui-shared'
 <template>
   <ElSelect class="tag-select" v-model="tagListModel" multiple :disabled="props.selectDisabled" placeholder="选择 Tag" :fit-input-width="true" :popper-class="props.popperClass || undefined"
     value-key="uid">
