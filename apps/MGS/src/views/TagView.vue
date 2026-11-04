@@ -16,7 +16,7 @@ const selectCategory = ref<number>(-1)
 const segmentedOptions = [{ label: '全部', value: -1 }, { label: '普通标签', value: 0 }, { label: '分类', value: 1 }]
 const tagStore = useTagStore()
 const proxyTags = ref<TagDto[]>([])
-const tableLoading = useLoadingTask('mgs:table:tags')
+const { isLoading: isTableLoading, run: withTableLoading } = useLoadingTask('mgs:table:tags')
 const dialogVisible = ref(false)
 const isSaving = ref(false)
 const editingTag = ref<TagDto | null>(null)
@@ -25,7 +25,7 @@ const tagApi = new TagApi(apiConfiguration)
 
 onBeforeMount(async () => {
   try {
-    await tableLoading.run(async () => { await tagStore.fetchAllTags(tagApi); filterData() })
+    await withTableLoading(async () => { await tagStore.fetchAllTags(tagApi); filterData() })
   } catch (error) {
     notify.fromError(error, '标签数据加载失败')
   }
@@ -117,7 +117,7 @@ async function deleteTag(tag: TagDto) {
     </MgsToolbar>
 
     <MgsPageContainer>
-    <ElTable :data="proxyTags" v-loading="tableLoading.isLoading" element-loading-text="正在加载标签..." empty-text="暂无标签"
+    <ElTable :data="proxyTags" v-loading="isTableLoading" element-loading-text="正在加载标签..." empty-text="暂无标签"
       class="tag-table" row-key="uid" highlight-current-row>
       <ElTableColumn prop="name" label="标签名称" min-width="180"><template #default="{ row }">
           <ElTag v-if="row.name">{{ row.name }}</ElTag>
