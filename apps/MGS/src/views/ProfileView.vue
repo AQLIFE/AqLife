@@ -1,4 +1,5 @@
 import { notify } from '@aqlife/ui-shared'
+import { notify } from '@aqlife/ui-shared'
 <template>
   <div class="profile-page"><div class="profile-card">
     <div class="profile-intro"><div><h2>Profile</h2><p>更新你的博客头像、名称和公开简介。</p></div>
