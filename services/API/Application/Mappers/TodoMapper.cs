@@ -21,7 +21,7 @@ namespace AqLife.Application.Business.Todo
             };
 
         public TodoEntity ToEntity(CreateTodoCommand command)
-            => new(command.PlanId, command.Title, command.Description, command.Priority,
-                command.ParentId, command.SortOrder);
+            => new(command.PlanId, command.EffectiveTitle, command.Description, command.Priority,
+                command.EffectiveParentId, command.SortOrder);
     }
 }

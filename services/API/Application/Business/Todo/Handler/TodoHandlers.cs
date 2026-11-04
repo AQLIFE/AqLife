@@ -125,13 +125,13 @@ namespace AqLife.Application.Business.Todo.Handler
                 ?? throw new ResourceNotFoundException("开发计划不存在");
             plan.EnsureActive();
 
-            var task = new TodoEntity(command.PlanId, command.Title, command.Description,
-                command.Priority, command.ParentId, command.SortOrder);
+            var task = new TodoEntity(command.PlanId, command.EffectiveTitle, command.Description,
+                command.Priority, command.EffectiveParentId, command.SortOrder);
 
-            if (command.ParentId.HasValue)
+            if (command.EffectiveParentId.HasValue)
             {
                 var tasks = await db.Todo.Where(x => x.PlanId == command.PlanId).ToListAsync(ct);
-                TodoHierarchyValidator.EnsureCanMove(task, command.ParentId, tasks.Append(task).ToArray());
+                TodoHierarchyValidator.EnsureCanMove(task, command.EffectiveParentId, tasks.Append(task).ToArray());
             }
 
             await db.Todo.AddAsync(task, ct);
@@ -161,7 +161,7 @@ namespace AqLife.Application.Business.Todo.Handler
 
             if (!Enum.IsDefined(command.Status))
                 throw new DomainLegalityException("无效的任务状态");
-            task.UpdateDetails(command.Title, command.Description, command.Priority);
+            task.UpdateDetails(command.EffectiveTitle, command.Description ?? task.Description, command.Priority);
             task.SetStatus(command.Status);
             return task.UID;
         }

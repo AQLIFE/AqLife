@@ -647,8 +647,8 @@ Web 侧重日常开发推进和科技树交互；MGS 侧重完整管理能力。
 
 - `TodoEntity.Title` 是领域层的正式标题属性，继续映射到既有数据库 `TodoList.Desc` 列；`Desc` 仅保留为非映射兼容别名。
 - `Description` 是独立的任务正文/说明字段。
-- 每个任务显式归属一个 `DevelopmentPlan`；创建命令必须传入 `PlanId`。
-- `FTID` 只表示父子归属，允许无限层级；层级移动由 `TodoHierarchyValidator` 校验，拒绝跨计划父节点、归档父节点和循环。
+- 每个任务显式归属一个 `DevelopmentPlan`；新客户端创建命令传入 `PlanId`。为兼容尚未升级的 MGS，旧 `Desc`/`FTID` 请求仍会落入稳定默认计划。
+- `ParentId`（兼容旧字段 `FTID`）只表示父子归属，允许无限层级；层级移动由 `TodoHierarchyValidator` 校验，拒绝跨计划父节点、归档父节点和循环。
 - 父任务与子任务之间不自动创建依赖；删除含子任务的任务会被拒绝。
 - 完成状态独立于优先级；归档使用 `IsArchived`，不再使用 Priority sentinel。
 
