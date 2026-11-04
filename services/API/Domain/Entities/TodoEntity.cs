@@ -1,55 +1,116 @@
-﻿using AqLife.Domain.Contracts;
+using AqLife.Domain.Contracts;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AqLife.Domain.Entities
 {
     [Table("TodoList")]
+    [Index(nameof(PlanId), nameof(FTID), nameof(SortOrder))]
+    [Index(nameof(PlanId), nameof(Status))]
     public class TodoEntity : IEntity
     {
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
 
-        public Guid? FTID { get; private set; } = null;// 作为父级任务ID，默认为空
+        /// <summary>
+        /// The development plan that owns this task. Guid.Empty is retained only for
+        /// legacy construction paths until application commands are migrated.
+        /// New code should use the constructor that accepts planId.
+        /// </summary>
+        public Guid PlanId { get; private set; } = Guid.Empty;
 
-        [Required(ErrorMessage = "Description is required")]
-        public string Desc { get; private set; } = string.Empty;
+        /// <summary>
+        /// Legacy persisted column. The domain-facing name is Title.
+        /// </summary>
+        [Column("Desc")]
+        [Required(ErrorMessage = "Title is required")]
+        public string Title { get; private set; } = string.Empty;
 
-        [Required(ErrorMessage = "Status is required")]
+        /// <summary>
+        /// Compatibility alias for the existing application/DTO mapping.
+        /// EF persists Title to the existing Desc column.
+        /// </summary>
+        [NotMapped]
+        public string Desc => Title;
+
+        public string? Description { get; private set; }
+
+        /// <summary>
+        /// Parent task ID. A task has at most one parent; hierarchy depth is unlimited.
+        /// </summary>
+        public Guid? FTID { get; private set; }
+
+        [Required]
         public TodoStatus Status { get; private set; } = TodoStatus.Initial;
 
         public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
-        // 任务完成时间，默认为空，只有当任务状态为Completed时才会有值
+        public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
+
         public DateTimeOffset? CompletedAt { get; private set; }
 
-        // 任务优先级,数值越大优先级越高，
-        // 预定于规则: 0 : 完成 ,1 - 正无穷 : 合法语义区间 , -1 : 该待办已废弃
-        // 已完成的 : 不可被更新 不可被删除
-        // 已废弃 :  不可被更新 可以删除
-        // 合法语义区间 : 可以更新和删除
+        /// <summary>
+        /// Higher values represent higher priority. Status is never encoded in Priority.
+        /// </summary>
+        [Range(1, 99)]
         public int Priority { get; private set; } = 1;
+
+        [Range(0, int.MaxValue)]
+        public int SortOrder { get; private set; }
 
         public ICollection<TodoEntity> Children { get; set; } = [];
 
         [NotMapped]
-        public bool HasChildren => Children != null && Children.Count > 0;
+        public bool HasChildren => Children.Count > 0;
 
-        
         public TodoEntity() { }
+
+        // Legacy constructors are kept temporarily so existing application code remains
+        // source-compatible while plan-aware commands are introduced in the next phase.
         public TodoEntity(string desc)
         {
-            Desc = desc;
+            Title = RequireTitle(desc);
         }
+
         public TodoEntity(string desc, int priority) : this(desc)
         {
-            Priority = priority;
+            SetPriority(priority);
         }
-        public TodoEntity(string desc, int priority,Guid? ftid) : this(desc,priority)
+
+        public TodoEntity(string desc, int priority, Guid? ftid) : this(desc, priority)
         {
             SetParent(ftid);
+        }
+
+        public TodoEntity(
+            Guid planId,
+            string title,
+            string? description = null,
+            int priority = 1,
+            Guid? parentId = null,
+            int sortOrder = 0)
+        {
+            AssignToPlan(planId);
+            Title = RequireTitle(title);
+            Description = NormalizeDescription(description);
+            SetPriority(priority);
+            SetParent(parentId);
+            SetSortOrder(sortOrder);
+        }
+
+        public void AssignToPlan(Guid planId)
+        {
+            if (planId == Guid.Empty)
+                throw new DomainLegalityException("开发计划 ID 不能为 Empty");
+
+            if (PlanId != Guid.Empty && PlanId != planId)
+                throw new DomainLegalityException("任务不能直接变更所属开发计划");
+
+            PlanId = planId;
+            Touch();
         }
 
         public void SetParent(Guid? parentId)
@@ -61,29 +122,88 @@ namespace AqLife.Domain.Entities
                 throw new DomainLegalityException("任务不能成为自己的父任务");
 
             FTID = parentId;
+            Touch();
         }
+
         public void RemoveParent()
         {
             FTID = null;
+            Touch();
         }
 
-        public void Completed()
+        public void SetSortOrder(int sortOrder)
         {
+            if (sortOrder < 0)
+                throw new DomainLegalityException("任务排序值不能小于 0");
 
-            CompletedAt = DateTimeOffset.UtcNow;
-            Priority = 0;
+            SortOrder = sortOrder;
+            Touch();
         }
 
         public void Update(string content, TodoStatus status, int priority)
+            => Update(content, Description, status, priority);
+
+        public void Update(string title, string? description, TodoStatus status, int priority)
         {
-            if (this.Status == TodoStatus.Completed) throw new DomainLegalityException("不允许更新已完成的待办");
-            Desc = content;
-            Status = status;
-            if (status == TodoStatus.Completed) Completed();
+            if (Status == TodoStatus.Completed)
+                throw new DomainLegalityException("已完成任务需要先重新打开才能修改");
+
+            Title = RequireTitle(title);
+            Description = NormalizeDescription(description);
+            SetPriority(priority);
+
+            if (status == TodoStatus.Completed)
+                Complete();
             else
             {
-                Priority = priority;
+                Status = status;
+                CompletedAt = null;
+                Touch();
             }
         }
+
+        public void Complete()
+        {
+            if (Status == TodoStatus.Completed)
+                return;
+
+            Status = TodoStatus.Completed;
+            CompletedAt = DateTimeOffset.UtcNow;
+            Touch();
+        }
+
+        // Kept for compatibility with existing callers.
+        public void Completed() => Complete();
+
+        public void Reopen(TodoStatus targetStatus = TodoStatus.Wait)
+        {
+            if (targetStatus == TodoStatus.Completed)
+                throw new DomainLegalityException("重新打开任务时不能指定 Completed 状态");
+
+            Status = targetStatus;
+            CompletedAt = null;
+            Touch();
+        }
+
+        private void SetPriority(int priority)
+        {
+            if (priority is < 1 or > 99)
+                throw new DomainLegalityException("任务优先级必须介于 1 到 99");
+
+            Priority = priority;
+        }
+
+        private static string RequireTitle(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                throw new DomainLegalityException("任务标题不能为空");
+
+            return title.Trim();
+        }
+
+        private static string? NormalizeDescription(string? description)
+            => string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+
+        private void Touch() => UpdatedAt = DateTimeOffset.UtcNow;
     }
 }
