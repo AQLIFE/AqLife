@@ -1,4 +1,3 @@
-import { notify } from '@aqlife/ui-shared'
 <template>
   <div class="subscriptions-page">
     <div class="subscriptions-toolbar"><div><h2>Subscriptions</h2><p>管理你的公开订阅入口，它们会显示在个人主页中。</p></div><ElButton :icon="Plus" @click="add">Add subscription</ElButton></div>
@@ -11,6 +10,7 @@ import { notify } from '@aqlife/ui-shared'
   </div>
 </template>
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { computed, ref, watch } from 'vue'
 import { ElButton, ElEmpty } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
