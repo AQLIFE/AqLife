@@ -1,6 +1,6 @@
 <template>
     <RouterLink class="navigation-link" :to="props.route.path">
-        <!-- <ElIcon size="16px"><component :is="props.route.icon"/></ElIcon> -->
+        <component :is="props.route.icon" class="navigation-icon" />
         {{ props.route.title }}
     </RouterLink>
 </template>
