@@ -26,6 +26,11 @@ namespace AqLife.Domain.Services
             if (!predecessorExists || !successorExists)
                 throw new DomainLegalityException("依赖任务必须存在于当前开发计划");
 
+            var predecessor = planTasks.First(x => x.UID == candidate.PredecessorId);
+            var successor = planTasks.First(x => x.UID == candidate.SuccessorId);
+            if (predecessor.IsArchived || successor.IsArchived)
+                throw new DomainLegalityException("归档任务不能建立依赖关系");
+
             var edges = existingDependencies.ToArray();
 
             if (edges.Any(x => x.PlanId != candidate.PlanId))
