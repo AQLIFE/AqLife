@@ -22,18 +22,17 @@ namespace AqLife.Domain.Entities
         public Guid PlanId { get; private set; } = DevelopmentPlanEntity.DefaultPlanId;
 
         /// <summary>
-        /// Legacy persisted column. The domain-facing name is Title.
+        /// Existing persisted property/column retained for compatibility with current
+        /// EF queries and application mappers. New domain code should prefer Title.
         /// </summary>
-        [Column("Desc")]
         [Required(ErrorMessage = "Title is required")]
-        public string Title { get; private set; } = string.Empty;
+        public string Desc { get; private set; } = string.Empty;
 
         /// <summary>
-        /// Compatibility alias for the existing application/DTO mapping.
-        /// EF persists Title to the existing Desc column.
+        /// Domain-facing alias for the legacy Desc column.
         /// </summary>
         [NotMapped]
-        public string Desc => Title;
+        public string Title => Desc;
 
         public string? Description { get; private set; }
 
@@ -76,7 +75,7 @@ namespace AqLife.Domain.Entities
         // attach new legacy-created tasks to the seeded default plan.
         public TodoEntity(string desc)
         {
-            Title = RequireTitle(desc);
+            Desc = RequireTitle(desc);
         }
 
         public TodoEntity(string desc, int priority) : this(desc)
@@ -99,7 +98,7 @@ namespace AqLife.Domain.Entities
         {
             PlanId = Guid.Empty;
             AssignToPlan(planId);
-            Title = RequireTitle(title);
+            Desc = RequireTitle(title);
             Description = NormalizeDescription(description);
             SetPriority(priority);
             SetParent(parentId);
@@ -163,7 +162,7 @@ namespace AqLife.Domain.Entities
             ValidateStatus(status);
             ValidatePriority(priority);
 
-            Title = normalizedTitle;
+            Desc = normalizedTitle;
             Description = normalizedDescription;
             Priority = priority;
 
