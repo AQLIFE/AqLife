@@ -38,7 +38,7 @@ export const routes = [
   {
     path: '/home',
     component: HomeView,
-    meta: { navTitle: '首页', navIcon: MgsIconName.Home, showInNav: false, order: 3, sidebarType: SidebarType.Home },
+    meta: { navTitle: 'Overview', navIcon: MgsIconName.Home, showInNav: true, order: 1, navSection: 'WORKSPACE', sidebarType: SidebarType.Home },
   },
   {
     path: '/account',
@@ -53,7 +53,7 @@ export const routes = [
   {
     path: '/file',
     redirect: '/file/list',
-    meta: { navTitle: 'File', navIcon: Document, showInNav: true, order: 5, sidebarType: SidebarType.Data },
+    meta: { navTitle: 'File', navIcon: Document, showInNav: true, order: 2, navSection: 'CONTENT', sidebarType: SidebarType.Data },
     children: [
       { path: 'list', component: FileDataView },
       { path: 'upload', component: FileUploadView },
@@ -66,21 +66,21 @@ export const routes = [
   {
     path: '/favorite',
     component: FavoriteView,
-    meta: { navTitle: '收藏', navIcon: Collection, showInNav: true, order: 6, sidebarType: SidebarType.None },
+    meta: { navTitle: '收藏', navIcon: Collection, showInNav: true, order: 3, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
   {
     path: '/tag',
     component: TagView,
-    meta: { navTitle: 'Tag', navIcon: PriceTag, showInNav: true, order: 7, sidebarType: SidebarType.None },
+    meta: { navTitle: 'Tags', navIcon: PriceTag, showInNav: true, order: 4, navSection: 'SYSTEM', sidebarType: SidebarType.None },
   },
   {
     path: '/development-plan',
     component: DevelopmentPlanView,
-    meta: { navTitle: '科技树', navIcon: List, showInNav: true, order: 9, sidebarType: SidebarType.None },
+    meta: { navTitle: '科技树', navIcon: List, showInNav: true, order: 6, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
   {
     path: '/todo',
     component: TodoView,
-    meta: { navTitle: 'Todo', navIcon: List, showInNav: true, order: 8, sidebarType: SidebarType.None },
+    meta: { navTitle: 'Todo', navIcon: List, showInNav: true, order: 5, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
 ]
