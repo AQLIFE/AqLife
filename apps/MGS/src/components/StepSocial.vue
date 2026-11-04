@@ -1,5 +1,3 @@
-import { notify } from '@aqlife/ui-shared'
-import { notify } from '@aqlife/ui-shared'
 <template>
   <ElForm>
     <ElFormItem :label="'社交主页关联配置' + index" v-for="(item, index) in registerStore.subscriptions" :key="index" required>
@@ -46,6 +44,7 @@ import { notify } from '@aqlife/ui-shared'
   </ElForm>
 </template>
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { ElForm, ElFormItem, ElButton, ElInput, ElImage, ElTooltip, ElIcon, ElUpload, } from 'element-plus'
 import {Delete,Plus,ArrowLeft,ArrowRight} from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
