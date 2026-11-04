@@ -1,4 +1,3 @@
-import { notify } from '../../feedback/notification'
 <template>
   <div class="code-block">
     <header class="code-block__header">
@@ -32,6 +31,7 @@ import { notify } from '../../feedback/notification'
 </template>
 
 <script setup lang="ts">
+import { notify } from '../../feedback/notification'
 // import { Copy } from '@element-plus/icons-vue'
 import { ref, computed } from 'vue'
 import hljs from 'highlight.js'
