@@ -20,7 +20,7 @@ import { ElButton } from 'element-plus'
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   title: string
   description?: string
   back?: boolean
@@ -28,13 +28,7 @@ withDefaults(defineProps<{
 }>(), { back: false, backTo: '/file' })
 
 const router = useRouter()
-const props = defineProps<{
-  title: string
-  description?: string
-  back?: boolean
-  backTo?: string
-}>()
-const handleBack = () => router.push(props.backTo || '/file')
+const handleBack = () => router.push(props.backTo)
 </script>
 
 <style scoped>
