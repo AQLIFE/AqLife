@@ -28,7 +28,7 @@
     </MgsToolbar>
 
     <MgsPageContainer class="table-container">
-    <ElTable :data="tableData" v-loading="isLoading" element-loading-text="正在加载文件..." empty-text="暂无文件" highlight-current-row @row-click="activeRow" height="100%" class="data-table">
+    <ElTable :data="tableData" v-loading="fileListLoading.isLoading" element-loading-text="正在加载文件..." empty-text="暂无文件" highlight-current-row @row-click="activeRow" height="100%" class="data-table">
       <ElTableColumn v-for="column in tableColumns" :key="column.prop" :prop="column.prop" :label="column.label"
         :width="column.width" :sortable="column.sortable"
         :filters="column.filter?.options.map(option => ({ text: option.label, value: option.value.toString() }))"
@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { notify } from '@aqlife/ui-shared'
+import { notify, useLoadingTask } from '@aqlife/ui-shared'
 import {
   ElTable,
   ElDatePicker,
@@ -168,7 +168,7 @@ const imagePublishStatus = ref<FileStatus>(FileStatus.Draft)
 const imageScheduledAt = ref<Date | null>(null)
 const imageSaving = ref(false)
 const imageDeleting = ref(false)
-const isLoading = ref(false)
+const fileListLoading = useLoadingTask('mgs:table:file-list')
 let modeLoadVersion = 0
 const tableColumns: FileTableColumn[] = [
   {
@@ -548,11 +548,10 @@ async function loadFilesForMode() {
       ? FileScope.Video
       : FileScope.Blog
 
-  isLoading.value = true
   fileStore.clearCache()
 
   try {
-    await fileStore.fetchAllFiles(fileApi, scope)
+    await fileListLoading.run(() => fileStore.fetchAllFiles(fileApi, scope))
     const previewUid = typeof route.query.preview === 'string' ? route.query.preview : ''
     if (previewUid && version === modeLoadVersion) {
       const target = fileStore.fileList.find(item => item.uid === previewUid)
@@ -566,7 +565,7 @@ async function loadFilesForMode() {
   } catch (error) {
     notify.error(error instanceof Error ? error.message : '文件列表加载失败')
   } finally {
-    if (version === modeLoadVersion) isLoading.value = false
+    // The shared loading scope tracks all in-flight mode requests.
   }
 }
 
