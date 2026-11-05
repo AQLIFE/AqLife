@@ -1,13 +1,14 @@
 import ErrorView from '@/views/ErrorView.vue'
 import LoginView from '@/views/LoginView.vue'
 import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
-import { User, Document, PriceTag, List, Collection } from '@element-plus/icons-vue'
+import { User, Document, PriceTag, List, Collection, ChatLineRound } from '@element-plus/icons-vue'
 import HomeView from '@/views/HomeView.vue'
 import AccountView from '@/views/AccountView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import SubscriptionsView from '@/views/SubscriptionsView.vue'
 import TagView from '@/views/TagView.vue'
 import TodoView from '@/views/TodoView.vue'
+import CorpusView from '@/views/CorpusView.vue'
 import DevelopmentPlanView from '@/views/DevelopmentPlanView.vue'
 import { SidebarType } from '@/types/sidebarType'
 import RegisterView from '@/views/RegisterView.vue'
@@ -82,5 +83,10 @@ export const routes = [
     path: '/todo',
     component: TodoView,
     meta: { navTitle: 'Todo', navIcon: mgsIconRegistry[MgsIconName.Plan], showInNav: true, order: 5, navSection: 'CONTENT', sidebarType: SidebarType.None },
+  },
+  {
+    path: '/corpus',
+    component: CorpusView,
+    meta: { navTitle: '语录', navIcon: ChatLineRound, showInNav: true, order: 7, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
 ]
