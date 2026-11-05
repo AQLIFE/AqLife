@@ -135,7 +135,7 @@
 
           <div class="sheet-body">
             <div ref="markdownEditorContainer" class="markdown-editor" v-loading="imageUploading" />
-            <div class="preview" v-loading="markdownRenderRef?.loading">
+            <div class="render" v-loading="markdownRenderRef?.loading">
               <MarkdownRender ref="markdownRenderRef" :markdown="draft.content" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
             </div>
           </div>
@@ -705,7 +705,7 @@ onBeforeMount(async () => {
 .sheet-body { min-height: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .sheet-cell { display: flex; align-items: center; padding: 0 10px; border-right: 1px solid var(--mgs-border); color: var(--mgs-muted); font-size: 12px; }
 .markdown-editor { min-width: 0; min-height: 0; overflow: hidden; border-right: 1px solid var(--mgs-border); }
-.preview { min-width: 0; overflow: auto; padding: 10px 18px; }
+.render { min-width: 0; min-height: 0; overflow: auto; padding: 18px 24px 32px; background: var(--mgs-surface); }
 .status-bar { height: 30px; flex: 0 0 30px; display: flex; align-items: center; gap: 18px; color: var(--mgs-muted); font-size: 12px; }
 .status-bar span:last-child { margin-left: auto; }
 .status-ready { color: var(--mgs-success); }
@@ -713,6 +713,6 @@ onBeforeMount(async () => {
 @media (max-width: 900px) {
   .workspace { grid-template-columns: 220px minmax(0, 1fr); padding: 0 16px 16px; }
   .sheet-toolbar, .sheet-body { grid-template-columns: minmax(0, 1fr); }
-  .preview, .preview-heading { display: none; }
+  .render, .preview-heading { display: none; }
 }
 </style>
