@@ -13,7 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import { ElForm, ElFormItem, ElUpload, ElButton,ElImage,ElIcon,ElTooltip, ElMessage, type UploadFile } from 'element-plus'
+import { notify } from '@aqlife/ui-shared'
+import { ElForm, ElFormItem, ElUpload, ElButton,ElImage,ElIcon,ElTooltip, type UploadFile } from 'element-plus'
 import { Plus,ArrowRight,ArrowLeft } from '@element-plus/icons-vue';
 import ImageUpload from './ImageUpload.vue';
 import { useRegisterStore } from '@/stores/useRegisterStore.ts';
@@ -23,10 +24,10 @@ const registerStore = useRegisterStore()
 
 function next(){
   if(registerStore.avatar==null){
-    ElMessage.error('请上传头像')
+    notify.error('请上传头像')
   }else{
     registerStore.steps[1].status = 'finish'
-    ElMessage.success('头像上传成功')
+    notify.success('头像上传成功')
     emit('next')
   }
 }

@@ -10,8 +10,9 @@
   </div>
 </template>
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { computed, ref, watch } from 'vue'
-import { ElButton, ElEmpty, ElMessage } from 'element-plus'
+import { ElButton, ElEmpty } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useAccountStore } from '@/stores/useAccountStore'
 import { AccountApi, FileApi, type SubscriptionDto } from '@/api'
@@ -38,7 +39,7 @@ function remove(index: number) {
   if (!subscriptions || index < 0 || index >= subscriptions.length) return
   subscriptions.splice(index, 1)
   files.value.splice(index, 1)
-  ElMessage.info('已删除第 ' + (index + 1) + ' 个订阅')
+  notify.info('已删除第 ' + (index + 1) + ' 个订阅')
 }
 
 function add() {
@@ -74,9 +75,9 @@ async function update() {
     await accountApi.apiAccountSubscriptionsPut({ subscriptionDto: subscriptDtos.value })
     accountStore.systemAccount = await accountApi.apiAccountGet()
     files.value = new Array(subscriptDtos.value.length).fill(null)
-    ElMessage.success('Subscriptions updated')
+    notify.success('Subscriptions updated')
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : 'Subscription update failed')
+    notify.error(error instanceof Error ? error.message : 'Subscription update failed')
   } finally {
     saving.value = false
   }
@@ -84,14 +85,14 @@ async function update() {
 
 function valid(files: Array<File | null>, subscriptionDtos: SubscriptionDto[]) {
   if (files.length !== subscriptionDtos.length) {
-    ElMessage.warning('订阅数据尚未同步，请稍后重试')
+    notify.warning('订阅数据尚未同步，请稍后重试')
     return false
   }
 
   for (let i = 0; i < subscriptionDtos.length; i++) {
     // 已有图标 ID 或本次选择的新文件，任一存在即可。
     if (!files[i] && !subscriptionDtos[i].subscriptionIcon) {
-      ElMessage.warning('第 ' + (i + 1) + ' 个订阅缺少图像，请选择图标')
+      notify.warning('第 ' + (i + 1) + ' 个订阅缺少图像，请选择图标')
       return false
     }
   }

@@ -9,29 +9,18 @@
     </div>
 
     <nav class="nav">
-      <RouterLink class="nav-item" to="/home">
-        <ElIcon><House /></ElIcon>
-        <span>Overview</span>
-      </RouterLink>
-
-      <div class="nav-section">CONTENT</div>
-      <RouterLink class="nav-item" to="/file/list">
-        <ElIcon><Document /></ElIcon>
-        <span>File</span>
-      </RouterLink>
-      <RouterLink class="nav-item" to="/todo">
-        <ElIcon><List /></ElIcon>
-        <span>Todo</span>
-      </RouterLink>
-      <RouterLink class="nav-item" to="/tag">
-        <ElIcon><PriceTag /></ElIcon>
-        <span>Tags</span>
-      </RouterLink>
-      <RouterLink class="nav-item" to="/favorite">
-        <ElIcon><Collection /></ElIcon>
-        <span>收藏</span>
-      </RouterLink>
-
+      <section v-for="group in navGroups" :key="group.title" class="nav-group">
+        <div class="nav-section">{{ group.title }}</div>
+        <RouterLink
+          v-for="item in group.items"
+          :key="item.path"
+          class="nav-item"
+          :to="item.path"
+        >
+          <ElIcon><component :is="resolveIcon(item.meta.navIcon)" /></ElIcon>
+          <span>{{ item.meta.navTitle }}</span>
+        </RouterLink>
+      </section>
     </nav>
 
     <div class="sidebar-footer">
@@ -42,8 +31,35 @@
 </template>
 
 <script setup lang="ts">
+import { computed, type Component } from 'vue'
 import { ElIcon } from 'element-plus'
-import { Collection, Document, House, List, PriceTag } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
+
+const router = useRouter()
+
+const navGroups = computed(() => {
+  const groups = new Map<string, { title: string; items: ReturnType<typeof router.getRoutes> }>()
+
+  const visibleRoutes = router.getRoutes()
+    .filter(route => route.meta.showInNav && route.meta.navTitle && route.meta.navIcon)
+    .sort((a, b) => (a.meta.order ?? 0) - (b.meta.order ?? 0))
+
+  for (const route of visibleRoutes) {
+    const title = route.meta.navSection || 'OTHER'
+    const group = groups.get(title) ?? { title, items: [] }
+    group.items.push(route)
+    groups.set(title, group)
+  }
+
+  return [...groups.values()]
+})
+
+function resolveIcon(icon: MgsIconName | Component) {
+  return typeof icon === 'string'
+    ? mgsIconRegistry[icon as MgsIconName]
+    : icon
+}
 </script>
 
 <style scoped>
@@ -64,7 +80,8 @@ import { Collection, Document, House, List, PriceTag } from '@element-plus/icons
 .brand-copy strong { font-size:15px;letter-spacing:.02em; }
 .brand-copy span { margin-top:4px;font-size:11px;color:var(--mgs-muted); }
 .nav { display:flex;flex-direction:column;gap:3px; }
-.nav-section { margin:18px 10px 5px;font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--mgs-muted); }
+.nav-group + .nav-group { margin-top:12px; }
+.nav-section { margin:8px 10px 5px;font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--mgs-muted); }
 .nav-item { display:flex;align-items:center;gap:10px;height:38px;padding:0 10px;border-radius:8px;color:var(--mgs-secondary);text-decoration:none;font-size:13px;transition:.15s ease; }
 .nav-item:hover { background:var(--mgs-surface-soft);color:var(--mgs-text); }
 .nav-item.router-link-active { background:var(--mgs-accent-soft);color:var(--mgs-accent);font-weight:600; }

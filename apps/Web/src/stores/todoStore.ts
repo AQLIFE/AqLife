@@ -1,57 +1,76 @@
-import { TodoApi, type TodoDto } from '@/api'
+import { DevelopmentPlanApi, TodoApi, type DevelopmentPlanDto, type TodoDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
+const PAGE_SIZE = 500
+
+// Public Web client: deliberately read-only. All mutations belong to MGS.
 export const useTodoStore = defineStore('dev-plan', () => {
+  const plans = ref<DevelopmentPlanDto[]>([])
+  const selectedPlanId = ref('')
   const todoList = ref<TodoDto[]>([])
-  const hasMore = ref(true)
   const loading = ref(false)
+  const loadingPlans = ref(false)
   const error = ref<unknown>(null)
+  const selectedPlan = computed(() => plans.value.find(x => x.uid === selectedPlanId.value) ?? null)
+  const todoApi = new TodoApi(apiConfiguration)
+  const planApi = new DevelopmentPlanApi(apiConfiguration)
 
-  const api = new TodoApi(apiConfiguration)
-
-  const load = async (reset = false) => {
-    if (loading.value) return
-
-    if (reset) {
-      todoList.value = []
-      hasMore.value = true
-    }
-
-    if (!hasMore.value) return
-
+  async function fetchTodos() {
+    if (!selectedPlanId.value) { todoList.value = []; return }
     loading.value = true
     error.value = null
-
     try {
-      const page = reset ? 1 : Math.floor(todoList.value.length / 50) + 1
-      const response = await api.apiTodoGet({
-        page,
-        pageSize: 50,
-        isTree: true,
-      })
-
-      const items = response.items ?? []
-      todoList.value = reset ? items : [...todoList.value, ...items]
-      hasMore.value = response.hasMore ?? false
+      const items: TodoDto[] = []
+      let page = 1
+      while (true) {
+        const response = await todoApi.apiTodoGet({
+          planId: selectedPlanId.value,
+          page,
+          pageSize: PAGE_SIZE,
+          isTree: true,
+          includeCompleted: true,
+        })
+        items.push(...(response.items ?? []))
+        if (!response.hasMore) break
+        page = (response.page ?? page) + 1
+      }
+      todoList.value = items
     } catch (e) {
       error.value = e
+      throw e
     } finally {
       loading.value = false
     }
   }
 
-  const refresh = () => load(true)
-  const loadMore = () => load(false)
+  async function fetchPlans() {
+    loadingPlans.value = true
+    error.value = null
+    try {
+      plans.value = await planApi.apiDevelopmentPlansGet({})
+      if (!plans.value.some(x => x.uid === selectedPlanId.value && !x.isArchived))
+        selectedPlanId.value = plans.value.find(x => !x.isArchived)?.uid ?? ''
+      await fetchTodos()
+    } catch (e) {
+      error.value = e
+      throw e
+    } finally {
+      loadingPlans.value = false
+    }
+  }
+
+  async function selectPlan(planId: string) {
+    if (planId === selectedPlanId.value) return
+    selectedPlanId.value = planId
+    await fetchTodos()
+  }
+
+  const refresh = () => fetchTodos()
 
   return {
-    todoList,
-    hasMore,
-    loading,
-    error,
-    load,
-    refresh,
-    loadMore,
+    plans, selectedPlanId, selectedPlan, todoList, loading, loadingPlans, error,
+    fetchPlans, fetchTodos, selectPlan, refresh,
   }
 })

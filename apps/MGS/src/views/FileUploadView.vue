@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
-  ElAlert, ElButton, ElCard, ElIcon, ElMessage, ElMessageBox, ElProgress, ElUpload,
+  ElAlert, ElButton, ElCard, ElIcon, ElMessageBox, ElProgress, ElUpload,
   type UploadFile, type UploadRawFile, type UploadUserFile,
 } from 'element-plus'
 import {
@@ -15,6 +16,7 @@ import { tokenStore } from '@aqlife/api-client'
 import { useFileStore } from '@/stores/useFileStore'
 import TagSelect from '@/components/TagSelect.vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import { getFileFingerprint } from '@/utils/fileFingerprint'
 
 const router = useRouter()
@@ -107,7 +109,7 @@ function onVideoFileChange(uploadFile: UploadFile) {
   if (!isVideo(raw)) {
     videoFileList.value = []
     videoFile.value = null
-    ElMessage.warning('仅支持 MP4 和 WebM 视频文件')
+    notify.warning('仅支持 MP4 和 WebM 视频文件')
     return
   }
   videoFile.value = raw
@@ -246,7 +248,7 @@ async function startVideoUpload() {
   const file = videoFile.value
   if (!file || uploading.value || completed.value) return
   if (!isVideo(file)) {
-    ElMessage.warning('仅支持 MP4 和 WebM 视频文件')
+    notify.warning('仅支持 MP4 和 WebM 视频文件')
     return
   }
 
@@ -321,7 +323,7 @@ async function startVideoUpload() {
 
     if (pauseRequested) {
       paused.value = true
-      ElMessage.info('已暂停；再次点击“继续上传”即可从已完成分片处恢复')
+      notify.info('已暂停；再次点击“继续上传”即可从已完成分片处恢复')
       return
     }
 
@@ -357,7 +359,7 @@ async function startVideoUpload() {
     localStorage.removeItem(sessionStorageKey)
     completed.value = true
     ElMessageBox.close()
-    ElMessage.success('视频上传完成')
+    notify.success('视频上传完成')
     router.push('/file/list')
   } catch (error) {
     hashing.value = false
@@ -407,7 +409,7 @@ async function commit() {
     .map(file => file.raw)
     .filter((raw): raw is UploadRawFile => !!raw)
   if (blobs.length === 0) {
-    ElMessage.warning('没有可上传的文件')
+    notify.warning('没有可上传的文件')
     return
   }
   uploading.value = true
@@ -423,13 +425,13 @@ async function commit() {
     })
     const uploadedFiles = (await Promise.all(updateTasks)).flat()
     uploadedFiles.forEach((dto: FileDto) => fileStore.upsertFile(dto))
-    if (uploadedFiles.length > 0) ElMessage.success(`成功上传 ${uploadedFiles.length} 个文件`)
+    if (uploadedFiles.length > 0) notify.success(`成功上传 ${uploadedFiles.length} 个文件`)
     fileList.value = []
     tags.value = []
     router.push('/file/list')
   } catch (error) {
     console.error('Blog upload error:', error)
-    ElMessage.error(error instanceof Error ? error.message : '上传流程发生异常，请检查网络或后端日志')
+    notify.error(error instanceof Error ? error.message : '上传流程发生异常，请检查网络或后端日志')
   } finally {
     uploading.value = false
   }
@@ -441,7 +443,7 @@ watch(isVideoMode, () => {
 </script>
 
 <template>
-  <div class="upload-workspace" v-loading="uploading && !isVideoMode">
+  <div class="upload-workspace">
     <MgsPageHeader
       :title="isVideoMode ? 'Video Upload' : 'Upload'"
       :description="isVideoMode ? '断点续传大视频文件，上传中可查看进度、速度和剩余时间' : '上传文章文件，并在上传前统一设置标签'"
@@ -450,11 +452,12 @@ watch(isVideoMode, () => {
       <template #actions>
         <ElButton :icon="ArrowLeft" @click="goBack">返回文件列表</ElButton>
         <template v-if="!isVideoMode">
-          <ElButton type="primary" :icon="UploadFilled" :disabled="!canCommit" @click="commit">开始上传</ElButton>
+          <ElButton type="primary" :icon="UploadFilled" :loading="uploading" :disabled="!canCommit" @click="commit">开始上传</ElButton>
         </template>
       </template>
     </MgsPageHeader>
 
+    <MgsPageContainer class="upload-container">
     <template v-if="isVideoMode">
       <div class="video-upload-content">
         <ElCard shadow="never" class="upload-card">
@@ -542,12 +545,14 @@ watch(isVideoMode, () => {
         </ElCard>
       </div>
     </template>
+    </MgsPageContainer>
   </div>
 </template>
 
 <style scoped>
-.upload-workspace { min-height: 100%; display: flex; flex-direction: column; }
-.upload-content, .video-upload-content { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; padding-bottom: 24px; }
+ .upload-workspace { min-height: 100%; display: flex; flex-direction: column; }
+.upload-container { flex:1; }
+.upload-content, .video-upload-content { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; }
 .upload-card, .tag-card { min-width: 0; }
 .section-title { font-weight: 600; }
 .upload-icon { font-size: 52px; margin-bottom: 10px; }

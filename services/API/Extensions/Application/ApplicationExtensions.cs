@@ -8,6 +8,7 @@ using AqLife.Application.Business.Account.Search;
 using AqLife.Application.Business.Account.Services;
 using AqLife.Application.Business.Corpus;
 using AqLife.Application.Business.Corpus.Search;
+using AqLife.Application.Business.DevelopmentPlan;
 using AqLife.Application.Business.File;
 using AqLife.Application.Business.File.Search;
 using AqLife.Application.Business.File.Service;
@@ -34,8 +35,7 @@ namespace AqLife.Extensions.Application;
 
 public static class ApplicationExtensions
 {
-    public static IServiceCollection AddApplication(
-        this IServiceCollection services)
+    public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddScoped<UploadContext>();
 
@@ -61,45 +61,38 @@ public static class ApplicationExtensions
         services.AddScoped<FileDeleter>();
 
         services.AddSingleton<TodoMapper>();
-        services.AddSingleton<IViewMapper<TodoEntity, TodoDto>>(sp =>
-            sp.GetRequiredService<TodoMapper>());
-        services.AddSingleton<ICreateMapper<TodoEntity, CreateTodoCommand>>(sp =>
-            sp.GetRequiredService<TodoMapper>());
+        services.AddSingleton<IViewMapper<TodoEntity, TodoDto>>(sp => sp.GetRequiredService<TodoMapper>());
+        services.AddSingleton<ICreateMapper<TodoEntity, CreateTodoCommand>>(sp => sp.GetRequiredService<TodoMapper>());
+        services.AddSingleton<ICreateMapper<TodoDependencyEntity, AddTodoDependencyCommand>>(sp => sp.GetRequiredService<TodoMapper>());
+        services.AddSingleton<ICreateMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>>(sp => sp.GetRequiredService<TodoMapper>());
+
+        services.AddSingleton<DevelopmentPlanMapper>();
+        services.AddSingleton<IViewMapper<DevelopmentPlanEntity, DevelopmentPlanDto>>(sp => sp.GetRequiredService<DevelopmentPlanMapper>());
+        services.AddSingleton<ICreateMapper<DevelopmentPlanEntity, CreateDevelopmentPlanCommand>>(sp => sp.GetRequiredService<DevelopmentPlanMapper>());
 
         services.AddSingleton<TagMapper>();
-        services.AddSingleton<IViewMapper<TagEntity, TagDto>>(sp =>
-            sp.GetRequiredService<TagMapper>());
-        services.AddSingleton<ICreateMapper<TagEntity, CreateTagCommand>>(sp =>
-            sp.GetRequiredService<TagMapper>());
+        services.AddSingleton<IViewMapper<TagEntity, TagDto>>(sp => sp.GetRequiredService<TagMapper>());
+        services.AddSingleton<ICreateMapper<TagEntity, CreateTagCommand>>(sp => sp.GetRequiredService<TagMapper>());
 
         services.AddSingleton<SubscriptionMapper>();
-        services.AddSingleton<IViewMapper<SubscriptionEntity, SubscriptionDto>>(sp =>
-            sp.GetRequiredService<SubscriptionMapper>());
-        services.AddSingleton<ICreateMapper<SubscriptionEntity, ISubscription>>(sp =>
-            sp.GetRequiredService<SubscriptionMapper>());
+        services.AddSingleton<IViewMapper<SubscriptionEntity, SubscriptionDto>>(sp => sp.GetRequiredService<SubscriptionMapper>());
+        services.AddSingleton<ICreateMapper<SubscriptionEntity, ISubscription>>(sp => sp.GetRequiredService<SubscriptionMapper>());
 
         services.AddSingleton<AccountMapper>();
-        services.AddSingleton<IViewMapper<AccountEntity, AccountDto>>(sp =>
-            sp.GetRequiredService<AccountMapper>());
-        services.AddSingleton<ICreateMapper<AccountEntity, CreateAccountCommand>>(sp =>
-            sp.GetRequiredService<AccountMapper>());
+        services.AddSingleton<IViewMapper<AccountEntity, AccountDto>>(sp => sp.GetRequiredService<AccountMapper>());
+        services.AddSingleton<ICreateMapper<AccountEntity, CreateAccountCommand>>(sp => sp.GetRequiredService<AccountMapper>());
 
         services.AddSingleton<CorpusMapper>();
-        services.AddSingleton<IViewMapper<CorpusEntity, CorpusDto>>(sp =>
-            sp.GetRequiredService<CorpusMapper>());
-        services.AddSingleton<ICreateMapper<CorpusEntity, CreateCorpusCommand>>(sp =>
-            sp.GetRequiredService<CorpusMapper>());
+        services.AddSingleton<IViewMapper<CorpusEntity, CorpusDto>>(sp => sp.GetRequiredService<CorpusMapper>());
+        services.AddSingleton<ICreateMapper<CorpusEntity, CreateCorpusCommand>>(sp => sp.GetRequiredService<CorpusMapper>());
 
         services.AddSingleton<FileMapper>();
         services.AddScoped<FileMappingService>();
-        services.AddScoped<IViewMapper<FileMetaEntity, FileDto>>(sp =>
-            sp.GetRequiredService<FileMappingService>());
-        services.AddScoped<ICreateMapper<FileMetaEntity, IFormFile>>(sp =>
-            sp.GetRequiredService<FileMappingService>());
+        services.AddScoped<IViewMapper<FileMetaEntity, FileDto>>(sp => sp.GetRequiredService<FileMappingService>());
+        services.AddScoped<ICreateMapper<FileMetaEntity, IFormFile>>(sp => sp.GetRequiredService<FileMappingService>());
 
         services.AddSingleton<QueryMapper>();
         services.AddScoped(typeof(PageResultMapper<,>));
-
 
         services.AddScoped<SystemInitializationService>();
         services.AddScoped<IFilePublishService, FilePublishService>();
@@ -107,53 +100,36 @@ public static class ApplicationExtensions
         services.AddHostedService<ScheduledPublishWorker>();
 
         var implementationAssembly = typeof(AqLife.Application.Application).Assembly;
-
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblies(implementationAssembly);
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));   // Add ValidationBehavior to the pipeline:在后续上传业务开始前,进行文件类型、大小、重复性等验证
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UploadContextBehavior<,>));// Add UploadContextBehavior to the pipeline:在后续上传业务开始前,计算完成所有上传文件的hash值,并存储在UploadContext中,供后续使用
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));  // Add TransactionBehavior to the pipeline:在后续上传业务开始前,开启事务,在业务结束后提交事务
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UploadContextBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
         });
 
-        var validatorTypes = implementationAssembly
-            .GetTypes()
-            .Where(t =>
-                !t.IsAbstract &&
-                !t.IsInterface &&
-                !t.IsGenericTypeDefinition &&
-                t.GetInterfaces().Any(i =>
-                    i.IsGenericType &&
-                    i.GetGenericTypeDefinition() == typeof(IValidator<>)));
-        //services.AddScoped(typeof(IValidator<>), typeof(ExistenceValidator<>));
+        var validatorTypes = implementationAssembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface && !t.IsGenericTypeDefinition &&
+                t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValidator<>)));
         services.AddScoped(typeof(IValidator<>), typeof(FileTypeValidator<>));
         services.AddScoped(typeof(IValidator<>), typeof(FileSizeValidator<>));
         services.AddScoped(typeof(IValidator<>), typeof(FileDuplicateValidator<>));
         foreach (var type in validatorTypes)
             foreach (var item in type.GetInterfaces())
-            {
                 services.AddScoped(item, type);
-            }
 
         var commandAssembly = typeof(IRequireValidEntity<>).Assembly;
-
-        var commandTypes = commandAssembly
-            .GetTypes()
+        var commandTypes = commandAssembly.GetTypes()
             .Where(t => !t.IsAbstract && !t.IsInterface &&
-             t.GetInterfaces().Any(i => i.IsGenericType &&
-             i.GetGenericTypeDefinition() == typeof(IRequireValidEntity<>)));
-
+                t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequireValidEntity<>)));
         foreach (var commandType in commandTypes)
         {
-            var entityType = commandType
-                .GetInterfaces()
+            var entityType = commandType.GetInterfaces()
                 .First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequireValidEntity<>))
                 .GetGenericArguments()[0];
-
             var validatorType = typeof(ExistenceValidator<,>).MakeGenericType(commandType, entityType);
             services.AddScoped(typeof(IValidator<>).MakeGenericType(commandType), validatorType);
         }
-
 
         return services;
     }

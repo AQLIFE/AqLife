@@ -23,7 +23,8 @@
 </template>
 
 <script setup lang="ts">
-import { ElButton, ElCol, ElImage, ElMessage } from 'element-plus'
+import { notify } from '@aqlife/ui-shared'
+import { ElButton, ElCol, ElImage } from 'element-plus'
 import {useRegisterStore} from '@/stores/useRegisterStore'
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { apiConfiguration } from '@/services/api';
@@ -47,7 +48,7 @@ async function commit(){
   });
   await accountApi.apiAccountSubscriptionsPut({subscriptionDto:registerStore.subscriptions})
 
-  ElMessage.success('提交成功,请从控制台获取你的登录账户名,请注意保存,若丢失请自行处理')
+  notify.success('提交成功,请从控制台获取你的登录账户名,请注意保存,若丢失请自行处理')
   accountStore.systemAccount = await accountApi.apiAccountGet()
   console.log('You LoginName:',randomName)//保留
   router.push('/home')

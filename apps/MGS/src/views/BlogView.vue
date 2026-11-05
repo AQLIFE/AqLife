@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { notify, useLoadingTask } from '@aqlife/ui-shared'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ElButton, ElDatePicker, ElMessage, ElMessageBox, ElSegmented } from 'element-plus'
+import { ElButton, ElDatePicker, ElMessageBox, ElSegmented } from 'element-plus'
 import { Edit, Check, Lock, Delete } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
@@ -11,6 +12,7 @@ import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import { FileStatus } from "@/api"
 import TagSelect from '@/components/TagSelect.vue'
 import { useMarkdownClipboardImagePaste } from '@/composables/useMarkdownClipboardImagePaste'
@@ -58,7 +60,8 @@ const markdown = ref('')
 const markdownRenderRef = ref<{ loading: boolean } | null>(null)
 const originalMarkdown = ref('')
 const file = ref<FileDto>()
-const loading = ref(false)
+const editorLoading = useLoadingTask('mgs:blog:editor')
+const loading = editorLoading.isLoading
 
 let editor: monaco.editor.IStandaloneCodeEditor | undefined
 let articleLoadVersion = 0
@@ -107,7 +110,7 @@ function parsePublishAt(value: FileDto['publishAt']): Date | null {
 
 async function loadArticle(guid: string) {
   const version = ++articleLoadVersion
-  loading.value = true
+  const finishLoading = editorLoading.begin()
 
   try {
     const [previewResponse, metadata] = await Promise.all([
@@ -138,9 +141,9 @@ async function loadArticle(guid: string) {
     selectedTags.value = dto.tags ?? []
     scheduledAt.value = parsePublishAt(dto.publishAt)
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '博文加载失败')
+    notify.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
-    if (version === articleLoadVersion) loading.value = false
+    finishLoading()
   }
 }
 
@@ -161,8 +164,8 @@ async function restoreLocalDraft(uid: string, serverContent: string) {
       await ElMessageBox.confirm('发现 7 天内保存的本地未提交草稿，是否恢复？', '恢复博文草稿', { confirmButtonText: '恢复草稿', cancelButtonText: '使用服务器版本', type: 'info' })
       markdown.value = saved.content
       editor?.setValue(saved.content)
-      ElMessage.success('已恢复本地草稿')
-      if (saved.content.includes('pending-video:')) ElMessage.warning('草稿中有尚未上传的视频占位符；浏览器未保存视频文件，请删除该占位行后重新插入视频。')
+      notify.success('已恢复本地草稿')
+      if (saved.content.includes('pending-video:')) notify.warning('草稿中有尚未上传的视频占位符；浏览器未保存视频文件，请删除该占位行后重新插入视频。')
     } catch {
       localStorage.removeItem(draftStorageKey(uid))
     }
@@ -180,7 +183,7 @@ function onVideoSelected(event: Event) {
   const input = event.target as HTMLInputElement
   const files = Array.from(input.files ?? [])
   input.value = ''
-  try { queueVideos(files) } catch (error) { ElMessage.warning(error instanceof Error ? error.message : '无法添加视频') }
+  try { queueVideos(files) } catch (error) { notify.warning(error instanceof Error ? error.message : '无法添加视频') }
 }
 
 function enterEditMode() {
@@ -200,10 +203,10 @@ async function onTagsChanged(value: FileDto['tags']) {
     const dto = await new FileTagUpdateWorkflow(file.value, value, fileApi, fileStore).run()
     file.value = dto
     selectedTags.value = dto.tags ?? []
-    ElMessage.success('标签已更新')
+    notify.success('标签已更新')
   } catch (error) {
     selectedTags.value = file.value.tags ?? []
-    ElMessage.error(error instanceof Error ? error.message : '标签更新失败')
+    notify.error(error instanceof Error ? error.message : '标签更新失败')
   }
 }
 
@@ -229,7 +232,7 @@ async function onPublishStatusChanged(value: FileStatus) {
         }
         if (!current.publishAt) {
           publishStatusModel.value = current.publishStatus
-          ElMessage.warning('请先设置预定发布时间')
+          notify.warning('请先设置预定发布时间')
           return
         }
         dto = await new FileScheduledWorkflow(current, fileApi, fileStore).run()
@@ -241,10 +244,10 @@ async function onPublishStatusChanged(value: FileStatus) {
     file.value = dto
     publishStatusModel.value = dto.publishStatus
     scheduledAt.value = parsePublishAt(dto.publishAt)
-    ElMessage.success('发布状态已更新')
+    notify.success('发布状态已更新')
   } catch (error) {
     publishStatusModel.value = current.publishStatus
-    ElMessage.error(error instanceof Error ? error.message : '发布状态更新失败')
+    notify.error(error instanceof Error ? error.message : '发布状态更新失败')
   } finally {
     publishing.value = false
   }
@@ -262,7 +265,7 @@ async function onScheduledAtChanged(value: Date | null) {
   scheduledAt.value = value
 
   if (current.publishStatus === FileStatus.Draft) {
-    ElMessage.success('预定发布时间已设置')
+    notify.success('预定发布时间已设置')
     return
   }
 
@@ -272,11 +275,11 @@ async function onScheduledAtChanged(value: Date | null) {
     file.value = dto
     publishStatusModel.value = dto.publishStatus
     scheduledAt.value = parsePublishAt(dto.publishAt)
-    ElMessage.success('预定发布时间已更新')
+    notify.success('预定发布时间已更新')
   } catch (error) {
     current.publishAt = previousPublishAt
     scheduledAt.value = parsePublishAt(previousPublishAt)
-    ElMessage.error(error instanceof Error ? error.message : '设置预定发布时间失败')
+    notify.error(error instanceof Error ? error.message : '设置预定发布时间失败')
   } finally {
     scheduling.value = false
   }
@@ -299,11 +302,11 @@ async function deleteArticle() {
 
     deleting.value = true
     await new FileDeleteWorkflow(current, fileApi, fileStore).run()
-    ElMessage.success('文章已删除')
+    notify.success('文章已删除')
     await router.push('/file/list')
   } catch (error) {
     if (error === 'cancel' || error === 'close') return
-    ElMessage.error(error instanceof Error ? error.message : '删除文章失败')
+    notify.error(error instanceof Error ? error.message : '删除文章失败')
   } finally {
     deleting.value = false
   }
@@ -312,7 +315,7 @@ async function deleteArticle() {
 async function saveVersion() {
   if (!file.value?.uid || (!isDirty.value && !videoUploading.value) || loading.value) return
 
-  loading.value = true
+  const finishLoading = editorLoading.begin()
 
   try {
     await waitForVideoUploads()
@@ -337,12 +340,12 @@ async function saveVersion() {
     file.value = updated
     originalMarkdown.value = resolvedMarkdown
     if (file.value?.uid) localStorage.removeItem(draftStorageKey(file.value.uid))
-    ElMessage.success('已保存为新版本')
+    notify.success('已保存为新版本')
     leaveEditMode()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    notify.error(error instanceof Error ? error.message : '保存失败')
   } finally {
-    loading.value = false
+    finishLoading()
   }
 }
 
@@ -460,6 +463,7 @@ onBeforeUnmount(() => {
       </template>
     </MgsPageHeader>
 
+    <MgsPageContainer class="editor-container" flush-bottom>
     <div v-if="isEditing && videoUploads.length" class="video-upload-queue">
       <div v-for="item in videoUploads" :key="item.id" class="video-upload-item">
         <span class="video-upload-name">{{ item.name }}</span>
@@ -474,17 +478,20 @@ onBeforeUnmount(() => {
         <MarkdownRender ref="markdownRenderRef" :markdown="markdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
       </div>
     </div>
+    </MgsPageContainer>
   </div>
 </template>
 
 <style scoped>
-.markdown-workspace {
+ .markdown-workspace {
   min-height: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
+
+ .editor-container { flex:1; min-height:0; display:flex; flex-direction:column; }
 
 .video-upload-queue {
   display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 16px;

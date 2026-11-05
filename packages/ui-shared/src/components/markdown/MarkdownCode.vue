@@ -31,9 +31,9 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from '../../feedback/notification'
 // import { Copy } from '@element-plus/icons-vue'
 import { ref, computed } from 'vue'
-import { ElMessage } from 'element-plus'
 import hljs from 'highlight.js'
 // 引入你喜欢的代码高亮主题（highlight.js 内置了几十种主题，可以去 node_modules 里挑）
 import 'highlight.js/styles/atom-one-dark.css'
@@ -71,17 +71,13 @@ const onCopy = async () => {
 
   try {
     await navigator.clipboard.writeText(props.info)
-    ElMessage({
-      showClose: true,
-      message: '代码已复制到剪贴板,若有建议请发信私聊,感谢支持!',
-      type: 'success',
-    })
+    notify.success('代码已复制到剪贴板,若有建议请发信私聊,感谢支持!')
     copied.value = true
     setTimeout(() => {
       copied.value = false
     }, 1500)
   } catch {
-    ElMessage.error('复制失败，当前访问暂不支持')
+    notify.error('复制失败，当前访问暂不支持')
   }
 }
 </script>

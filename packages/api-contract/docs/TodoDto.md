@@ -15,6 +15,15 @@ Name | Type
 `priority` | number
 `todoList` | [Array&lt;TodoDto&gt;](TodoDto.md)
 `hasChildren` | boolean
+`planId` | string
+`title` | string
+`description` | string
+`updatedAt` | string
+`sortOrder` | number
+`isArchived` | boolean
+`isBlocked` | boolean
+`incompleteDependencyCount` | number
+`blockingTodoIds` | Array&lt;string&gt;
 
 ## Example
 
@@ -32,6 +41,15 @@ const example = {
   "priority": null,
   "todoList": null,
   "hasChildren": null,
+  "planId": null,
+  "title": null,
+  "description": null,
+  "updatedAt": null,
+  "sortOrder": null,
+  "isArchived": null,
+  "isBlocked": null,
+  "incompleteDependencyCount": null,
+  "blockingTodoIds": null,
 } satisfies TodoDto
 
 console.log(example)

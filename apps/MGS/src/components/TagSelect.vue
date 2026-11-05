@@ -14,9 +14,9 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import type { TagDto } from '@/api'
 import {
-  ElMessage,
   ElButton,
   ElInput,
   ElOption,
@@ -46,19 +46,19 @@ const isAdding = ref<boolean>()
 const tempTag = ref<string>()// 临时tag
 async function commit() {
   try {
-    ElMessage.warning('正在创建永久 Tags,若要删除,请移步至 tag 管理面板')
+    notify.warning('正在创建永久 Tags,若要删除,请移步至 tag 管理面板')
 
     const tempUid = await tagApi.apiTagPost({ createTagCommand: { name: tempTag.value } })
     const tempTagDto = await tagApi.apiTagGet({ uID: tempUid })
     tagSelectList.value.push(tempTagDto.items![0])
     cancel()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '创建永久Tag 失败')
+    notify.error(error instanceof Error ? error.message : '创建永久Tag 失败')
   }
 }
 
 function AddTag() {
-  ElMessage.warning(
+  notify.warning(
     '您正在创建临时标签,若点击 commit 则会创建永久标签',
   )
   isAdding.value = !isAdding.value
@@ -74,7 +74,7 @@ onBeforeMount(async () => {
     const result = await tagApi.apiTagGet()
     if (result.items) tagSelectList.value = result.items
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '标签列表加载失败')
+    notify.error(error instanceof Error ? error.message : '标签列表加载失败')
   }
 })
 

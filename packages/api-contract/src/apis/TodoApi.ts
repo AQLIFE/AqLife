@@ -14,6 +14,11 @@
 
 import * as runtime from '../runtime';
 import {
+    type AddTodoDependencyCommand,
+    AddTodoDependencyCommandFromJSON,
+    AddTodoDependencyCommandToJSON,
+} from '../models/AddTodoDependencyCommand';
+import {
     type CreateTodoCommand,
     CreateTodoCommandFromJSON,
     CreateTodoCommandToJSON,
@@ -24,10 +29,35 @@ import {
     DeleteTodoCommandToJSON,
 } from '../models/DeleteTodoCommand';
 import {
+    type RemoveTodoDependencyCommand,
+    RemoveTodoDependencyCommandFromJSON,
+    RemoveTodoDependencyCommandToJSON,
+} from '../models/RemoveTodoDependencyCommand';
+import {
+    type SaveRoadmapNodeLayoutCommand,
+    SaveRoadmapNodeLayoutCommandFromJSON,
+    SaveRoadmapNodeLayoutCommandToJSON,
+} from '../models/SaveRoadmapNodeLayoutCommand';
+import {
+    type SetTodoParentCommand,
+    SetTodoParentCommandFromJSON,
+    SetTodoParentCommandToJSON,
+} from '../models/SetTodoParentCommand';
+import {
+    type SetTodoSortOrderCommand,
+    SetTodoSortOrderCommandFromJSON,
+    SetTodoSortOrderCommandToJSON,
+} from '../models/SetTodoSortOrderCommand';
+import {
     type TodoDtoPageResult,
     TodoDtoPageResultFromJSON,
     TodoDtoPageResultToJSON,
 } from '../models/TodoDtoPageResult';
+import {
+    type TodoRoadmapDto,
+    TodoRoadmapDtoFromJSON,
+    TodoRoadmapDtoToJSON,
+} from '../models/TodoRoadmapDto';
 import {
     type UpdateTodoCommand,
     UpdateTodoCommandFromJSON,
@@ -38,12 +68,28 @@ export interface ApiTodoDeleteRequest {
     deleteTodoCommand?: DeleteTodoCommand;
 }
 
+export interface ApiTodoDependenciesDeleteRequest {
+    removeTodoDependencyCommand?: RemoveTodoDependencyCommand;
+}
+
+export interface ApiTodoDependenciesPostRequest {
+    addTodoDependencyCommand?: AddTodoDependencyCommand;
+}
+
 export interface ApiTodoGetRequest {
     uID?: string;
     desc?: string;
     isTree?: boolean;
     page?: number;
     pageSize?: number;
+    planId?: string;
+    includeCompleted?: boolean;
+    includeArchived?: boolean;
+    parentId?: string;
+}
+
+export interface ApiTodoParentPatchRequest {
+    setTodoParentCommand?: SetTodoParentCommand;
 }
 
 export interface ApiTodoPatchRequest {
@@ -52,6 +98,26 @@ export interface ApiTodoPatchRequest {
 
 export interface ApiTodoPostRequest {
     createTodoCommand?: CreateTodoCommand;
+}
+
+export interface ApiTodoRoadmapGetRequest {
+    planId?: string;
+}
+
+export interface ApiTodoRoadmapLayoutPutRequest {
+    saveRoadmapNodeLayoutCommand?: SaveRoadmapNodeLayoutCommand;
+}
+
+export interface ApiTodoSortOrderPatchRequest {
+    setTodoSortOrderCommand?: SetTodoSortOrderCommand;
+}
+
+export interface ApiTodoUidArchivePostRequest {
+    uid: string;
+}
+
+export interface ApiTodoUidRestorePostRequest {
+    uid: string;
 }
 
 /**
@@ -83,12 +149,58 @@ export interface TodoApiInterface {
     apiTodoDelete(requestParameters: ApiTodoDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
+     * Creates request options for apiTodoDependenciesDelete without sending the request
+     * @param {RemoveTodoDependencyCommand} [removeTodoDependencyCommand] 
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoDependenciesDeleteRequestOpts(requestParameters: ApiTodoDependenciesDeleteRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {RemoveTodoDependencyCommand} [removeTodoDependencyCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoDependenciesDeleteRaw(requestParameters: ApiTodoDependenciesDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiTodoDependenciesDelete(requestParameters: ApiTodoDependenciesDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiTodoDependenciesPost without sending the request
+     * @param {AddTodoDependencyCommand} [addTodoDependencyCommand] 
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoDependenciesPostRequestOpts(requestParameters: ApiTodoDependenciesPostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {AddTodoDependencyCommand} [addTodoDependencyCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoDependenciesPostRaw(requestParameters: ApiTodoDependenciesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiTodoDependenciesPost(requestParameters: ApiTodoDependenciesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
      * Creates request options for apiTodoGet without sending the request
      * @param {string} [uID] 
      * @param {string} [desc] 
      * @param {boolean} [isTree] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
+     * @param {string} [planId] 
+     * @param {boolean} [includeCompleted] 
+     * @param {boolean} [includeArchived] 
+     * @param {string} [parentId] 
      * @throws {RequiredError}
      * @memberof TodoApiInterface
      */
@@ -101,6 +213,10 @@ export interface TodoApiInterface {
      * @param {boolean} [isTree] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
+     * @param {string} [planId] 
+     * @param {boolean} [includeCompleted] 
+     * @param {boolean} [includeArchived] 
+     * @param {string} [parentId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TodoApiInterface
@@ -110,6 +226,27 @@ export interface TodoApiInterface {
     /**
      */
     apiTodoGet(requestParameters: ApiTodoGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TodoDtoPageResult>;
+
+    /**
+     * Creates request options for apiTodoParentPatch without sending the request
+     * @param {SetTodoParentCommand} [setTodoParentCommand] 
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoParentPatchRequestOpts(requestParameters: ApiTodoParentPatchRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {SetTodoParentCommand} [setTodoParentCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoParentPatchRaw(requestParameters: ApiTodoParentPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiTodoParentPatch(requestParameters: ApiTodoParentPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
     /**
      * Creates request options for apiTodoPatch without sending the request
@@ -152,6 +289,111 @@ export interface TodoApiInterface {
     /**
      */
     apiTodoPost(requestParameters: ApiTodoPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiTodoRoadmapGet without sending the request
+     * @param {string} [planId] 
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoRoadmapGetRequestOpts(requestParameters: ApiTodoRoadmapGetRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} [planId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoRoadmapGetRaw(requestParameters: ApiTodoRoadmapGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TodoRoadmapDto>>;
+
+    /**
+     */
+    apiTodoRoadmapGet(requestParameters: ApiTodoRoadmapGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TodoRoadmapDto>;
+
+    /**
+     * Creates request options for apiTodoRoadmapLayoutPut without sending the request
+     * @param {SaveRoadmapNodeLayoutCommand} [saveRoadmapNodeLayoutCommand] 
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoRoadmapLayoutPutRequestOpts(requestParameters: ApiTodoRoadmapLayoutPutRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {SaveRoadmapNodeLayoutCommand} [saveRoadmapNodeLayoutCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoRoadmapLayoutPutRaw(requestParameters: ApiTodoRoadmapLayoutPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiTodoRoadmapLayoutPut(requestParameters: ApiTodoRoadmapLayoutPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiTodoSortOrderPatch without sending the request
+     * @param {SetTodoSortOrderCommand} [setTodoSortOrderCommand] 
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoSortOrderPatchRequestOpts(requestParameters: ApiTodoSortOrderPatchRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {SetTodoSortOrderCommand} [setTodoSortOrderCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoSortOrderPatchRaw(requestParameters: ApiTodoSortOrderPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiTodoSortOrderPatch(requestParameters: ApiTodoSortOrderPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiTodoUidArchivePost without sending the request
+     * @param {string} uid 
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoUidArchivePostRequestOpts(requestParameters: ApiTodoUidArchivePostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} uid 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoUidArchivePostRaw(requestParameters: ApiTodoUidArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiTodoUidArchivePost(requestParameters: ApiTodoUidArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiTodoUidRestorePost without sending the request
+     * @param {string} uid 
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoUidRestorePostRequestOpts(requestParameters: ApiTodoUidRestorePostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} uid 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TodoApiInterface
+     */
+    apiTodoUidRestorePostRaw(requestParameters: ApiTodoUidRestorePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiTodoUidRestorePost(requestParameters: ApiTodoUidRestorePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
 }
 
@@ -198,6 +440,90 @@ export class TodoApi extends runtime.BaseAPI implements TodoApiInterface {
     }
 
     /**
+     * Creates request options for apiTodoDependenciesDelete without sending the request
+     */
+    async apiTodoDependenciesDeleteRequestOpts(requestParameters: ApiTodoDependenciesDeleteRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/Todo/dependencies`;
+
+        return {
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+            body: RemoveTodoDependencyCommandToJSON(requestParameters['removeTodoDependencyCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiTodoDependenciesDeleteRaw(requestParameters: ApiTodoDependenciesDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiTodoDependenciesDeleteRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiTodoDependenciesDelete(requestParameters: ApiTodoDependenciesDeleteRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiTodoDependenciesDeleteRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiTodoDependenciesPost without sending the request
+     */
+    async apiTodoDependenciesPostRequestOpts(requestParameters: ApiTodoDependenciesPostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/Todo/dependencies`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: AddTodoDependencyCommandToJSON(requestParameters['addTodoDependencyCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiTodoDependenciesPostRaw(requestParameters: ApiTodoDependenciesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiTodoDependenciesPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiTodoDependenciesPost(requestParameters: ApiTodoDependenciesPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiTodoDependenciesPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for apiTodoGet without sending the request
      */
     async apiTodoGetRequestOpts(requestParameters: ApiTodoGetRequest): Promise<runtime.RequestOpts> {
@@ -221,6 +547,22 @@ export class TodoApi extends runtime.BaseAPI implements TodoApiInterface {
 
         if (requestParameters['pageSize'] != null) {
             queryParameters['PageSize'] = requestParameters['pageSize'];
+        }
+
+        if (requestParameters['planId'] != null) {
+            queryParameters['PlanId'] = requestParameters['planId'];
+        }
+
+        if (requestParameters['includeCompleted'] != null) {
+            queryParameters['IncludeCompleted'] = requestParameters['includeCompleted'];
+        }
+
+        if (requestParameters['includeArchived'] != null) {
+            queryParameters['IncludeArchived'] = requestParameters['includeArchived'];
+        }
+
+        if (requestParameters['parentId'] != null) {
+            queryParameters['ParentId'] = requestParameters['parentId'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -249,6 +591,48 @@ export class TodoApi extends runtime.BaseAPI implements TodoApiInterface {
      */
     async apiTodoGet(requestParameters: ApiTodoGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TodoDtoPageResult> {
         const response = await this.apiTodoGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiTodoParentPatch without sending the request
+     */
+    async apiTodoParentPatchRequestOpts(requestParameters: ApiTodoParentPatchRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/Todo/parent`;
+
+        return {
+            path: urlPath,
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SetTodoParentCommandToJSON(requestParameters['setTodoParentCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiTodoParentPatchRaw(requestParameters: ApiTodoParentPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiTodoParentPatchRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiTodoParentPatch(requestParameters: ApiTodoParentPatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiTodoParentPatchRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -333,6 +717,223 @@ export class TodoApi extends runtime.BaseAPI implements TodoApiInterface {
      */
     async apiTodoPost(requestParameters: ApiTodoPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiTodoPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiTodoRoadmapGet without sending the request
+     */
+    async apiTodoRoadmapGetRequestOpts(requestParameters: ApiTodoRoadmapGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['planId'] != null) {
+            queryParameters['PlanId'] = requestParameters['planId'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/Todo/roadmap`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiTodoRoadmapGetRaw(requestParameters: ApiTodoRoadmapGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TodoRoadmapDto>> {
+        const requestOptions = await this.apiTodoRoadmapGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TodoRoadmapDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async apiTodoRoadmapGet(requestParameters: ApiTodoRoadmapGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TodoRoadmapDto> {
+        const response = await this.apiTodoRoadmapGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiTodoRoadmapLayoutPut without sending the request
+     */
+    async apiTodoRoadmapLayoutPutRequestOpts(requestParameters: ApiTodoRoadmapLayoutPutRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/Todo/roadmap/layout`;
+
+        return {
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SaveRoadmapNodeLayoutCommandToJSON(requestParameters['saveRoadmapNodeLayoutCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiTodoRoadmapLayoutPutRaw(requestParameters: ApiTodoRoadmapLayoutPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiTodoRoadmapLayoutPutRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiTodoRoadmapLayoutPut(requestParameters: ApiTodoRoadmapLayoutPutRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiTodoRoadmapLayoutPutRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiTodoSortOrderPatch without sending the request
+     */
+    async apiTodoSortOrderPatchRequestOpts(requestParameters: ApiTodoSortOrderPatchRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/Todo/sort-order`;
+
+        return {
+            path: urlPath,
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SetTodoSortOrderCommandToJSON(requestParameters['setTodoSortOrderCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiTodoSortOrderPatchRaw(requestParameters: ApiTodoSortOrderPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiTodoSortOrderPatchRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiTodoSortOrderPatch(requestParameters: ApiTodoSortOrderPatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiTodoSortOrderPatchRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiTodoUidArchivePost without sending the request
+     */
+    async apiTodoUidArchivePostRequestOpts(requestParameters: ApiTodoUidArchivePostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uid'] == null) {
+            throw new runtime.RequiredError(
+                'uid',
+                'Required parameter "uid" was null or undefined when calling apiTodoUidArchivePost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/Todo/{uid}/archive`;
+        urlPath = urlPath.replace('{uid}', encodeURIComponent(String(requestParameters['uid'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiTodoUidArchivePostRaw(requestParameters: ApiTodoUidArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiTodoUidArchivePostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiTodoUidArchivePost(requestParameters: ApiTodoUidArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiTodoUidArchivePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiTodoUidRestorePost without sending the request
+     */
+    async apiTodoUidRestorePostRequestOpts(requestParameters: ApiTodoUidRestorePostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uid'] == null) {
+            throw new runtime.RequiredError(
+                'uid',
+                'Required parameter "uid" was null or undefined when calling apiTodoUidRestorePost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/Todo/{uid}/restore`;
+        urlPath = urlPath.replace('{uid}', encodeURIComponent(String(requestParameters['uid'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiTodoUidRestorePostRaw(requestParameters: ApiTodoUidRestorePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiTodoUidRestorePostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiTodoUidRestorePost(requestParameters: ApiTodoUidRestorePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiTodoUidRestorePostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

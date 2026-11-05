@@ -61,6 +61,10 @@ All URIs are relative to *http://localhost*
 *CorpusApi* | [**apiCorpusGet**](docs/CorpusApi.md#apicorpusget) | **GET** /api/Corpus | 
 *CorpusApi* | [**apiCorpusPost**](docs/CorpusApi.md#apicorpuspost) | **POST** /api/Corpus | 
 *CorpusApi* | [**apiCorpusRandomGet**](docs/CorpusApi.md#apicorpusrandomget) | **GET** /api/Corpus/random | 
+*DevelopmentPlanApi* | [**apiDevelopmentPlansGet**](docs/DevelopmentPlanApi.md#apidevelopmentplansget) | **GET** /api/development-plans | 
+*DevelopmentPlanApi* | [**apiDevelopmentPlansPatch**](docs/DevelopmentPlanApi.md#apidevelopmentplanspatch) | **PATCH** /api/development-plans | 
+*DevelopmentPlanApi* | [**apiDevelopmentPlansPost**](docs/DevelopmentPlanApi.md#apidevelopmentplanspost) | **POST** /api/development-plans | 
+*DevelopmentPlanApi* | [**apiDevelopmentPlansUidArchivePost**](docs/DevelopmentPlanApi.md#apidevelopmentplansuidarchivepost) | **POST** /api/development-plans/{uid}/archive | 
 *FavoriteApi* | [**apiFavoriteDelete**](docs/FavoriteApi.md#apifavoritedelete) | **DELETE** /api/Favorite | 
 *FavoriteApi* | [**apiFavoriteGet**](docs/FavoriteApi.md#apifavoriteget) | **GET** /api/Favorite | 
 *FavoriteApi* | [**apiFavoritePost**](docs/FavoriteApi.md#apifavoritepost) | **POST** /api/Favorite | 
@@ -90,15 +94,24 @@ All URIs are relative to *http://localhost*
 *TagApi* | [**apiTagPatch**](docs/TagApi.md#apitagpatch) | **PATCH** /api/Tag | 
 *TagApi* | [**apiTagPost**](docs/TagApi.md#apitagpost) | **POST** /api/Tag | 
 *TodoApi* | [**apiTodoDelete**](docs/TodoApi.md#apitododelete) | **DELETE** /api/Todo | 
+*TodoApi* | [**apiTodoDependenciesDelete**](docs/TodoApi.md#apitododependenciesdelete) | **DELETE** /api/Todo/dependencies | 
+*TodoApi* | [**apiTodoDependenciesPost**](docs/TodoApi.md#apitododependenciespost) | **POST** /api/Todo/dependencies | 
 *TodoApi* | [**apiTodoGet**](docs/TodoApi.md#apitodoget) | **GET** /api/Todo | 
+*TodoApi* | [**apiTodoParentPatch**](docs/TodoApi.md#apitodoparentpatch) | **PATCH** /api/Todo/parent | 
 *TodoApi* | [**apiTodoPatch**](docs/TodoApi.md#apitodopatch) | **PATCH** /api/Todo | 
 *TodoApi* | [**apiTodoPost**](docs/TodoApi.md#apitodopost) | **POST** /api/Todo | 
+*TodoApi* | [**apiTodoRoadmapGet**](docs/TodoApi.md#apitodoroadmapget) | **GET** /api/Todo/roadmap | 
+*TodoApi* | [**apiTodoRoadmapLayoutPut**](docs/TodoApi.md#apitodoroadmaplayoutput) | **PUT** /api/Todo/roadmap/layout | 
+*TodoApi* | [**apiTodoSortOrderPatch**](docs/TodoApi.md#apitodosortorderpatch) | **PATCH** /api/Todo/sort-order | 
+*TodoApi* | [**apiTodoUidArchivePost**](docs/TodoApi.md#apitodouidarchivepost) | **POST** /api/Todo/{uid}/archive | 
+*TodoApi* | [**apiTodoUidRestorePost**](docs/TodoApi.md#apitodouidrestorepost) | **POST** /api/Todo/{uid}/restore | 
 
 
 ### Models
 
 - [AccountDto](docs/AccountDto.md)
 - [AccountProfile](docs/AccountProfile.md)
+- [AddTodoDependencyCommand](docs/AddTodoDependencyCommand.md)
 - [BlogCategoryStatistics](docs/BlogCategoryStatistics.md)
 - [CancelScheduledFileCommand](docs/CancelScheduledFileCommand.md)
 - [CheckFileHashQuery](docs/CheckFileHashQuery.md)
@@ -106,6 +119,7 @@ All URIs are relative to *http://localhost*
 - [CorpusDtoPageResult](docs/CorpusDtoPageResult.md)
 - [CreateAccountCommand](docs/CreateAccountCommand.md)
 - [CreateCorpusCommand](docs/CreateCorpusCommand.md)
+- [CreateDevelopmentPlanCommand](docs/CreateDevelopmentPlanCommand.md)
 - [CreateFavoriteCommand](docs/CreateFavoriteCommand.md)
 - [CreateTagCommand](docs/CreateTagCommand.md)
 - [CreateTodoCommand](docs/CreateTodoCommand.md)
@@ -113,6 +127,7 @@ All URIs are relative to *http://localhost*
 - [DeleteFileCommand](docs/DeleteFileCommand.md)
 - [DeleteTagCommand](docs/DeleteTagCommand.md)
 - [DeleteTodoCommand](docs/DeleteTodoCommand.md)
+- [DevelopmentPlanDto](docs/DevelopmentPlanDto.md)
 - [FavoriteDto](docs/FavoriteDto.md)
 - [FavoriteDtoPageResult](docs/FavoriteDtoPageResult.md)
 - [FavoriteMediaDto](docs/FavoriteMediaDto.md)
@@ -126,17 +141,25 @@ All URIs are relative to *http://localhost*
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
 - [OverviewDto](docs/OverviewDto.md)
+- [RemoveTodoDependencyCommand](docs/RemoveTodoDependencyCommand.md)
 - [ResumableUploadSession](docs/ResumableUploadSession.md)
 - [ResumableUploadStatus](docs/ResumableUploadStatus.md)
+- [RoadmapNodeLayoutDto](docs/RoadmapNodeLayoutDto.md)
+- [SaveRoadmapNodeLayoutCommand](docs/SaveRoadmapNodeLayoutCommand.md)
 - [ScheduledFileCommand](docs/ScheduledFileCommand.md)
 - [SetFavoritePublishedCommand](docs/SetFavoritePublishedCommand.md)
+- [SetTodoParentCommand](docs/SetTodoParentCommand.md)
+- [SetTodoSortOrderCommand](docs/SetTodoSortOrderCommand.md)
 - [StartVideoUploadCommand](docs/StartVideoUploadCommand.md)
 - [SubscriptionDto](docs/SubscriptionDto.md)
 - [TagDto](docs/TagDto.md)
 - [TagDtoPageResult](docs/TagDtoPageResult.md)
+- [TodoDependencyDto](docs/TodoDependencyDto.md)
 - [TodoDto](docs/TodoDto.md)
 - [TodoDtoPageResult](docs/TodoDtoPageResult.md)
+- [TodoRoadmapDto](docs/TodoRoadmapDto.md)
 - [TodoStatus](docs/TodoStatus.md)
+- [UpdateDevelopmentPlanCommand](docs/UpdateDevelopmentPlanCommand.md)
 - [UpdateFavoriteCommand](docs/UpdateFavoriteCommand.md)
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
 - [UpdateTagCommand](docs/UpdateTagCommand.md)

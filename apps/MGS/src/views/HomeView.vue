@@ -2,6 +2,10 @@
   <div class="overview">
     <MgsPageHeader title="Overview" description="Your MGS workspace at a glance" />
 
+    <MgsPageContainer>
+      <MgsPageState v-if="loading" state="loading" description="正在获取工作区概览..." />
+      <MgsPageState v-else-if="loadError" state="error" :description="loadError" retryable @retry="loadOverview" />
+      <template v-else>
     <section class="metrics">
       <article v-for="metric in metrics" :key="metric.label" class="metric">
         <span>{{ metric.label }}</span>
@@ -20,6 +24,7 @@
           <ElButton text @click="router.push('/file/list')">View all</ElButton>
         </div>
         <div class="article-list">
+          <MgsPageState v-if="!articles.length" state="empty" description="暂无最近文章" compact />
           <div
           v-for="article in articles"
           :key="article.uid ?? article.title"
@@ -53,6 +58,8 @@
         </button>
       </article>
     </section>
+      </template>
+    </MgsPageContainer>
   </div>
 </template>
 
@@ -64,10 +71,14 @@ import { FileStatus, OverviewApi } from '@/api'
 import { isImageType } from '@aqlife/domain'
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
+import MgsPageState from '@/components/ui/MgsPageState.vue'
 
 const router = useRouter()
 const overviewApi = new OverviewApi(apiConfiguration)
 const overview = ref<Awaited<ReturnType<OverviewApi['apiOverviewGet']>> | null>(null)
+const loading = ref(true)
+const loadError = ref('')
 
 const metrics = computed(() => [
   { label: 'Drafts', value: overview.value?.draftCount ?? 0, note: 'Current workspace' },
@@ -140,19 +151,29 @@ function formatUploadAge(value?: string | null): string {
   return `Uploaded ${years} year${years === 1 ? '' : 's'} ago`
 }
 
-onBeforeMount(async () => {
-  overview.value = await overviewApi.apiOverviewGet({ recentCount: 5 })
-})
+async function loadOverview() {
+  loading.value = true
+  loadError.value = ''
+  try {
+    overview.value = await overviewApi.apiOverviewGet({ recentCount: 5 })
+  } catch (error) {
+    loadError.value = error instanceof Error ? error.message : '工作区概览加载失败'
+  } finally {
+    loading.value = false
+  }
+}
+
+onBeforeMount(loadOverview)
 </script>
 
 <style scoped>
-.overview { min-height:100%;padding-bottom:32px; }
-.metrics { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 28px 14px; }
+ .overview { min-height:100%; }
+.metrics { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 0 14px; }
 .metric,.panel { background:var(--mgs-surface);border:1px solid var(--mgs-border);border-radius:var(--mgs-radius);box-shadow:var(--mgs-shadow); }
 .metric { padding:18px 20px;display:flex;flex-direction:column;gap:5px; }
 .metric span,.metric small { color:var(--mgs-muted);font-size:11px; }
 .metric strong { font-size:25px;line-height:1.1; }
-.content-grid { display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:12px;padding:0 28px; }
+.content-grid { display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:12px;padding:0; }
 .panel { padding:20px; }
 .panel-head { display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px; }
 .panel h2 { margin:0;font-size:14px; }

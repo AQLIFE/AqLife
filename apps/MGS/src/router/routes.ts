@@ -1,6 +1,6 @@
 import ErrorView from '@/views/ErrorView.vue'
 import LoginView from '@/views/LoginView.vue'
-import { MgsIconName } from '@aqlife/icons'
+import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
 import { User, Document, PriceTag, List, Collection } from '@element-plus/icons-vue'
 import HomeView from '@/views/HomeView.vue'
 import AccountView from '@/views/AccountView.vue'
@@ -8,6 +8,7 @@ import ProfileView from '@/views/ProfileView.vue'
 import SubscriptionsView from '@/views/SubscriptionsView.vue'
 import TagView from '@/views/TagView.vue'
 import TodoView from '@/views/TodoView.vue'
+import DevelopmentPlanView from '@/views/DevelopmentPlanView.vue'
 import { SidebarType } from '@/types/sidebarType'
 import RegisterView from '@/views/RegisterView.vue'
 
@@ -37,7 +38,7 @@ export const routes = [
   {
     path: '/home',
     component: HomeView,
-    meta: { navTitle: '首页', navIcon: MgsIconName.Home, showInNav: false, order: 3, sidebarType: SidebarType.Home },
+    meta: { navTitle: 'Overview', navIcon: MgsIconName.Home, showInNav: true, order: 1, navSection: 'WORKSPACE', sidebarType: SidebarType.Home },
   },
   {
     path: '/account',
@@ -52,7 +53,7 @@ export const routes = [
   {
     path: '/file',
     redirect: '/file/list',
-    meta: { navTitle: 'File', navIcon: Document, showInNav: true, order: 5, sidebarType: SidebarType.Data },
+    meta: { navTitle: 'File', navIcon: Document, showInNav: true, order: 2, navSection: 'CONTENT', sidebarType: SidebarType.Data },
     children: [
       { path: 'list', component: FileDataView },
       { path: 'upload', component: FileUploadView },
@@ -65,16 +66,21 @@ export const routes = [
   {
     path: '/favorite',
     component: FavoriteView,
-    meta: { navTitle: '收藏', navIcon: Collection, showInNav: true, order: 6, sidebarType: SidebarType.None },
+    meta: { navTitle: 'Favorite', navIcon: Collection, showInNav: true, order: 3, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
   {
     path: '/tag',
     component: TagView,
-    meta: { navTitle: 'Tag', navIcon: PriceTag, showInNav: true, order: 7, sidebarType: SidebarType.None },
+    meta: { navTitle: 'Tags', navIcon: PriceTag, showInNav: true, order: 4, navSection: 'SYSTEM', sidebarType: SidebarType.None },
+  },
+  {
+    path: '/development-plan',
+    component: DevelopmentPlanView,
+    meta: { navTitle: 'Plan', navIcon: mgsIconRegistry[MgsIconName.Architecture], showInNav: true, order: 6, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
   {
     path: '/todo',
     component: TodoView,
-    meta: { navTitle: 'Todo', navIcon: List, showInNav: true, order: 8, sidebarType: SidebarType.None },
+    meta: { navTitle: 'Todo', navIcon: mgsIconRegistry[MgsIconName.Plan], showInNav: true, order: 5, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
 ]

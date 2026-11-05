@@ -1,17 +1,13 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
-using AqLife.Shared.Exceptions;
 using MediatR;
-namespace AqLife.Application.Business.Todo.Handler
-{
-    public class DeleteTodoCommandHandler(IApplicationDbContext storage) : IRequestHandler<DeleteTodoCommand, Unit>
-    {
-        public async Task<Unit> Handle(DeleteTodoCommand command, CancellationToken ct)
-        {
-            TodoEntity entity = await storage.Todo.FindAsync(command.UID, ct) ?? throw new ResourceNotFoundException("不存在 Todo");
-            storage.Todo.Remove(entity);
-            return Unit.Value;
-        }
+using Microsoft.EntityFrameworkCore;
+namespace AqLife.Application.Business.Todo.Handler;
+public sealed class DeleteTodoCommandHandler(IApplicationDbContext db):IRequestHandler<DeleteTodoCommand,Unit>{
+    public async Task<Unit> Handle(DeleteTodoCommand q,CancellationToken ct){
+        var t=await db.Todo.FirstAsync(x=>x.UID==q.UID,ct);
+        db.Todo.Remove(t);
+        return Unit.Value;
     }
 }

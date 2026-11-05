@@ -3,3 +3,6 @@ export {default as MarkdownRender} from './components/markdown/MarkdownRender.vu
 export {usePaginatedList } from './PageResult/PageResultStore.ts'
 export { default as VideoPlayer } from './components/VideoPlayer.vue'
 export { default as FavoriteDetailContent } from './components/FavoriteDetailContent.vue'
+
+export { notify } from './feedback/notification'
+export { useLoadingTask } from './feedback/loading'

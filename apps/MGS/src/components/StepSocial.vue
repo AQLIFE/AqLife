@@ -44,7 +44,8 @@
   </ElForm>
 </template>
 <script setup lang="ts">
-import { ElForm, ElFormItem, ElButton, ElInput, ElImage, ElTooltip, ElIcon, ElUpload, ElMessage,} from 'element-plus'
+import { notify } from '@aqlife/ui-shared'
+import { ElForm, ElFormItem, ElButton, ElInput, ElImage, ElTooltip, ElIcon, ElUpload, } from 'element-plus'
 import {Delete,Plus,ArrowLeft,ArrowRight} from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
 import ImageUpload from './ImageUpload.vue';
@@ -74,10 +75,10 @@ function handleFileChange(file: UploadFile) {
 function next(){
   const result = validateSubscriptionList(registerStore.subscriptions)
   if(result.ok){
-    ElMessage.success('社交主页关联配置验证成功')
+    notify.success('社交主页关联配置验证成功')
     emit('next')
   }else{
-    ElMessage.error('社交主页关联配置验证失败: ' + result.message)
+    notify.error('社交主页关联配置验证失败: ' + result.message)
   }
 }
 </script>
