@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite --host --mode dev",
+    "dev:https": "vite --config vite.https.config.ts --host --mode dev",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
@@ -16,7 +17,7 @@
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "predev": "node ../../tools/scripts/prepare-https.mjs"
+    "predev:https": "node ../../tools/scripts/prepare-https.mjs"
   },
   "dependencies": {
     "@aqlife/api-client": "*",
