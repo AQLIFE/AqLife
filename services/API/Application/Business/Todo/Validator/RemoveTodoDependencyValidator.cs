@@ -1,12 +1,38 @@
+using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Todo.Validator;
-public sealed class RemoveTodoDependencyValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db):TodoValidatorBase<RemoveTodoDependencyCommand>(db,"任务依赖关系不存在"){
-    private protected override async Task<bool> IsValidAsync(RemoveTodoDependencyCommand q,CancellationToken ct){
-        var p=await Db.DevelopmentPlans.FirstOrDefaultAsync(x=>x.UID==q.PlanId,ct);
-        if(p is null)return Reject(new ResourceNotFoundException("开发计划不存在"));
-        if(p.IsArchived)return Reject(new DomainLegalityException("已归档的开发计划不允许修改"));
-        return await Db.TodoDependencies.AnyAsync(x=>x.PlanId==q.PlanId&&x.PredecessorId==q.PredecessorId&&x.SuccessorId==q.SuccessorId,ct)||Reject(new ResourceNotFoundException("任务依赖关系不存在"));
+
+public sealed class RemoveTodoDependencyPlanExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<RemoveTodoDependencyCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "开发计划不存在";
+    private protected override async Task<bool> IsValidAsync(RemoveTodoDependencyCommand command, CancellationToken ct)
+    {
+        return await db.DevelopmentPlans.AnyAsync(x => x.UID == command.PlanId, ct);
     }
+    private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
+
+}
+
+public sealed class RemoveTodoDependencyPlanActiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<RemoveTodoDependencyCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "已归档的开发计划不允许修改";
+    private protected override async Task<bool> IsValidAsync(RemoveTodoDependencyCommand command, CancellationToken ct)
+    {
+        return !await db.DevelopmentPlans.AnyAsync(x => x.UID == command.PlanId && x.IsArchived, ct);
+    }
+    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
+
+}
+
+public sealed class RemoveTodoDependencyExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<RemoveTodoDependencyCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "任务依赖关系不存在";
+    private protected override async Task<bool> IsValidAsync(RemoveTodoDependencyCommand command, CancellationToken ct)
+    {
+        return await db.TodoDependencies.AnyAsync(x => x.PlanId == command.PlanId && x.PredecessorId == command.PredecessorId && x.SuccessorId == command.SuccessorId, ct);
+    }
+    private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
+
 }

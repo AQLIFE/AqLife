@@ -1,22 +1,50 @@
+using AqLife.Application.Validators;
 using AqLife.Domain.Command;
-using AqLife.Domain.Services;
 using AqLife.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Todo.Validator;
-public sealed class SetTodoParentValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db):TodoValidatorBase<SetTodoParentCommand>(db,"任务层级调整不合法"){
-    private protected override async Task<bool> IsValidAsync(SetTodoParentCommand q,CancellationToken ct){
-        var t=await Db.Todo.FirstOrDefaultAsync(x=>x.UID==q.UID,ct);
-        if(t is null)return Reject(new ResourceNotFoundException("Todo 不存在"));
-        var p=await Db.DevelopmentPlans.FirstOrDefaultAsync(x=>x.UID==t.PlanId,ct);
-        if(p is null)return Reject(new ResourceNotFoundException("开发计划不存在"));
-        if(p.IsArchived)return Reject(new DomainLegalityException("已归档的开发计划不允许修改"));
-        var tasks=await Db.Todo.Where(x=>x.PlanId==t.PlanId).ToListAsync(ct);
-        try{
-            TodoHierarchyValidator.EnsureCanMove(t,q.ParentId,tasks);
-        }
-        catch(DomainLegalityException ex){
-            return Reject(ex);
-        }
-        return true;
+
+public sealed class SetTodoParentExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<SetTodoParentCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "Todo 不存在";
+    private protected override async Task<bool> IsValidAsync(SetTodoParentCommand command, CancellationToken ct)
+    {
+        return await db.Todo.AnyAsync(x => x.UID == command.UID, ct);
     }
+    private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
+
+}
+
+public sealed class SetTodoParentPlanActiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<SetTodoParentCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "已归档的开发计划不允许修改";
+    private protected override async Task<bool> IsValidAsync(SetTodoParentCommand command, CancellationToken ct)
+    {
+        var planId = await db.Todo.Where(x => x.UID == command.UID).Select(x => (Guid?)x.PlanId).FirstOrDefaultAsync(ct);
+        return !planId.HasValue || !await db.DevelopmentPlans.AnyAsync(x => x.UID == planId.Value && x.IsArchived, ct);
+    }
+    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
+
+}
+
+public sealed class SetTodoParentHierarchyValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<SetTodoParentCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "任务层级调整不合法";
+    private protected override async Task<bool> IsValidAsync(SetTodoParentCommand command, CancellationToken ct)
+    {
+        var todo = await db.Todo.FirstOrDefaultAsync(x => x.UID == command.UID, ct);
+        if (todo is null) return true;
+        var tasks = await db.Todo.Where(x => x.PlanId == todo.PlanId).ToListAsync(ct);
+        try
+        {
+            AqLife.Domain.Services.TodoHierarchyValidator.EnsureCanMove(todo, command.ParentId, tasks);
+            return true;
+        }
+        catch (DomainLegalityException)
+        {
+            return false;
+        }
+    }
+    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
+
 }

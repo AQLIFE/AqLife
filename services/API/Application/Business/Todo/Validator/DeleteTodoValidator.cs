@@ -1,19 +1,61 @@
+using AqLife.Application.Validators;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
-using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Todo.Validator;
-public sealed class DeleteTodoValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db):TodoValidatorBase<DeleteTodoCommand>(db,"当前任务不能删除"){
-    private protected override async Task<bool> IsValidAsync(DeleteTodoCommand q,CancellationToken ct){
-        var t=await Db.Todo.FirstOrDefaultAsync(x=>x.UID==q.UID,ct);
-        if(t is null)return Reject(new ResourceNotFoundException("Todo 不存在"));
-        var p=await Db.DevelopmentPlans.FirstOrDefaultAsync(x=>x.UID==t.PlanId,ct);
-        if(p is null)return Reject(new ResourceNotFoundException("开发计划不存在"));
-        if(p.IsArchived)return Reject(new DomainLegalityException("已归档的开发计划不允许修改"));
-        if(t.Status==TodoStatus.Completed)return Reject(new DomainLegalityException("已完成任务不能直接删除，请使用归档"));
-        if(await Db.Todo.AnyAsync(x=>x.FTID==t.UID,ct))return Reject(new DomainLegalityException("存在子任务，不能删除父任务"));
-        if(await Db.TodoDependencies.AnyAsync(x=>x.PredecessorId==t.UID||x.SuccessorId==t.UID,ct))return Reject(new DomainLegalityException("存在依赖关系，请先移除依赖再删除任务"));
-        return true;
+
+public sealed class DeleteTodoExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "Todo 不存在";
+    private protected override async Task<bool> IsValidAsync(DeleteTodoCommand command, CancellationToken ct)
+    {
+        return await db.Todo.AnyAsync(x => x.UID == command.UID, ct);
     }
+    private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
+
+}
+
+public sealed class DeleteTodoPlanActiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "已归档的开发计划不允许修改";
+    private protected override async Task<bool> IsValidAsync(DeleteTodoCommand command, CancellationToken ct)
+    {
+        var planId = await db.Todo.Where(x => x.UID == command.UID).Select(x => (Guid?)x.PlanId).FirstOrDefaultAsync(ct);
+        return !planId.HasValue || !await db.DevelopmentPlans.AnyAsync(x => x.UID == planId.Value && x.IsArchived, ct);
+    }
+    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
+
+}
+
+public sealed class DeleteTodoNotCompletedValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "已完成任务不能直接删除，请使用归档";
+    private protected override async Task<bool> IsValidAsync(DeleteTodoCommand command, CancellationToken ct)
+    {
+        return !await db.Todo.AnyAsync(x => x.UID == command.UID && x.Status == AqLife.Shared.Options.TodoStatus.Completed, ct);
+    }
+    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
+
+}
+
+public sealed class DeleteTodoHasNoChildrenValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "存在子任务，不能删除父任务";
+    private protected override async Task<bool> IsValidAsync(DeleteTodoCommand command, CancellationToken ct)
+    {
+        return !await db.Todo.AnyAsync(x => x.FTID == command.UID, ct);
+    }
+    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
+
+}
+
+public sealed class DeleteTodoHasNoDependenciesValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "存在依赖关系，请先移除依赖再删除任务";
+    private protected override async Task<bool> IsValidAsync(DeleteTodoCommand command, CancellationToken ct)
+    {
+        return !await db.TodoDependencies.AnyAsync(x => x.PredecessorId == command.UID || x.SuccessorId == command.UID, ct);
+    }
+    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
+
 }
