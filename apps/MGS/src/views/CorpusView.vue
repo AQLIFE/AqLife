@@ -45,7 +45,7 @@ async function loadCorpora() {
 }
 
 function search() {
-  appliedKeyword.value = keyword.value
+  appliedKeyword.value = keyword.value.trim()
   page.value = 1
   void loadCorpora()
 }
@@ -198,7 +198,6 @@ onMounted(loadCorpora)
             :rows="6"
             resize="vertical"
             placeholder="输入语录内容"
-            show-word-limit
           />
         </ElFormItem>
       </ElForm>
