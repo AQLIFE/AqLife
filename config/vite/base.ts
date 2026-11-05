@@ -41,6 +41,7 @@ export function createAqlifeViteConfig(appRoot: string, options?: { port?: numbe
       { find: '@aqlife/api-client', replacement: path.join(apiClientSrcDir, 'index.ts') },
       { find: '@aqlife/domain', replacement: path.join(domainSrcDir, 'index.ts') },
       { find: '@aqlife/icons', replacement: path.join(iconsSrcDir, 'index.ts') },
+      { find: '@aqlife/ui-shared/feedback', replacement: path.join(uiSharedSrcDir, 'feedback') },
       { find: '@aqlife/ui-shared', replacement: path.join(uiSharedSrcDir, 'index.ts') },
       { find: '@', replacement: appSrc },
 
