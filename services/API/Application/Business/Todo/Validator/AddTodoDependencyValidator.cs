@@ -1,4 +1,22 @@
-using AqLife.Domain.Command;using AqLife.Domain.Entities;using AqLife.Domain.Services;using AqLife.Shared.Exceptions;using Microsoft.EntityFrameworkCore;
+using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
+using AqLife.Domain.Services;
+using AqLife.Shared.Exceptions;
+using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Todo.Validator;
 public sealed class AddTodoDependencyValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db):TodoValidatorBase<AddTodoDependencyCommand>(db,"任务依赖关系不合法"){
-private protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand q,CancellationToken ct){var p=await Db.DevelopmentPlans.FirstOrDefaultAsync(x=>x.UID==q.PlanId,ct);if(p is null)return Reject(new ResourceNotFoundException("开发计划不存在"));if(p.IsArchived)return Reject(new DomainLegalityException("已归档的开发计划不允许修改"));var tasks=await Db.Todo.Where(x=>x.PlanId==q.PlanId).ToListAsync(ct);var deps=await Db.TodoDependencies.Where(x=>x.PlanId==q.PlanId).ToListAsync(ct);try{TodoDependencyGraphValidator.EnsureCanAdd(new TodoDependencyEntity(q.PlanId,q.PredecessorId,q.SuccessorId),tasks,deps);}catch(DomainLegalityException ex){return Reject(ex);}return true;}}
+    private protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand q,CancellationToken ct){
+        var p=await Db.DevelopmentPlans.FirstOrDefaultAsync(x=>x.UID==q.PlanId,ct);
+        if(p is null)return Reject(new ResourceNotFoundException("开发计划不存在"));
+        if(p.IsArchived)return Reject(new DomainLegalityException("已归档的开发计划不允许修改"));
+        var tasks=await Db.Todo.Where(x=>x.PlanId==q.PlanId).ToListAsync(ct);
+        var deps=await Db.TodoDependencies.Where(x=>x.PlanId==q.PlanId).ToListAsync(ct);
+        try{
+            TodoDependencyGraphValidator.EnsureCanAdd(new TodoDependencyEntity(q.PlanId,q.PredecessorId,q.SuccessorId),tasks,deps);
+        }
+        catch(DomainLegalityException ex){
+            return Reject(ex);
+        }
+        return true;
+    }
+}

@@ -1,4 +1,15 @@
-using AqLife.Domain.Command;using AqLife.Shared.Exceptions;using Microsoft.EntityFrameworkCore;
+using AqLife.Domain.Command;
+using AqLife.Shared.Exceptions;
+using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Todo.Validator;
 public sealed class SaveRoadmapNodeLayoutValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db):TodoValidatorBase<SaveRoadmapNodeLayoutCommand>(db,"科技树节点布局不合法"){
-private protected override async Task<bool> IsValidAsync(SaveRoadmapNodeLayoutCommand q,CancellationToken ct){var p=await Db.DevelopmentPlans.FirstOrDefaultAsync(x=>x.UID==q.PlanId,ct);if(p is null)return Reject(new ResourceNotFoundException("开发计划不存在"));if(p.IsArchived)return Reject(new DomainLegalityException("已归档的开发计划不允许修改"));if(!await Db.Todo.AnyAsync(x=>x.UID==q.TodoId&&x.PlanId==q.PlanId&&!x.IsArchived,ct))return Reject(new ResourceNotFoundException("科技树节点不存在或不属于当前计划"));var l=await Db.RoadmapNodeLayouts.FirstOrDefaultAsync(x=>x.TodoId==q.TodoId,ct);if(l is not null&&l.PlanId!=q.PlanId)return Reject(new DomainLegalityException("布局与任务所属计划不一致"));return true;}}
+    private protected override async Task<bool> IsValidAsync(SaveRoadmapNodeLayoutCommand q,CancellationToken ct){
+        var p=await Db.DevelopmentPlans.FirstOrDefaultAsync(x=>x.UID==q.PlanId,ct);
+        if(p is null)return Reject(new ResourceNotFoundException("开发计划不存在"));
+        if(p.IsArchived)return Reject(new DomainLegalityException("已归档的开发计划不允许修改"));
+        if(!await Db.Todo.AnyAsync(x=>x.UID==q.TodoId&&x.PlanId==q.PlanId&&!x.IsArchived,ct))return Reject(new ResourceNotFoundException("科技树节点不存在或不属于当前计划"));
+        var l=await Db.RoadmapNodeLayouts.FirstOrDefaultAsync(x=>x.TodoId==q.TodoId,ct);
+        if(l is not null&&l.PlanId!=q.PlanId)return Reject(new DomainLegalityException("布局与任务所属计划不一致"));
+        return true;
+    }
+}
