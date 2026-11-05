@@ -26,7 +26,7 @@ public sealed class CreateTodoPlanActiveValidator(AqLife.Application.Abstraction
 
 }
 
-public sealed class CreateTodoTitleValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<CreateTodoCommand>
+public sealed class CreateTodoTitleValidator() : AbstractValidator<CreateTodoCommand>
 {
     private protected override string ErrorMessage { init; get; } = "任务标题不能为空且不能超过 500 个字符";
     private protected override async Task<bool> IsValidAsync(CreateTodoCommand command, CancellationToken ct)

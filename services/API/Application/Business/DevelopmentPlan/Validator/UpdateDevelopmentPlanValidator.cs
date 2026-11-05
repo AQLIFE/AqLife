@@ -26,7 +26,7 @@ public sealed class UpdateDevelopmentPlanActiveValidator(AqLife.Application.Abst
 
 }
 
-public sealed class UpdateDevelopmentPlanNameValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<UpdateDevelopmentPlanCommand>
+public sealed class UpdateDevelopmentPlanNameValidator() : AbstractValidator<UpdateDevelopmentPlanCommand>
 {
     private protected override string ErrorMessage { init; get; } = "开发计划名称不能为空且不能超过 128 个字符";
     private protected override async Task<bool> IsValidAsync(UpdateDevelopmentPlanCommand command, CancellationToken ct)
@@ -36,7 +36,7 @@ public sealed class UpdateDevelopmentPlanNameValidator(AqLife.Application.Abstra
 
 }
 
-public sealed class UpdateDevelopmentPlanDescriptionValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<UpdateDevelopmentPlanCommand>
+public sealed class UpdateDevelopmentPlanDescriptionValidator() : AbstractValidator<UpdateDevelopmentPlanCommand>
 {
     private protected override string ErrorMessage { init; get; } = "开发计划描述不能超过 2000 个字符";
     private protected override async Task<bool> IsValidAsync(UpdateDevelopmentPlanCommand command, CancellationToken ct)

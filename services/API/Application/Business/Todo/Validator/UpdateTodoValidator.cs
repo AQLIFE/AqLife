@@ -27,7 +27,7 @@ public sealed class UpdateTodoPlanActiveValidator(AqLife.Application.Abstraction
 
 }
 
-public sealed class UpdateTodoTitleValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<UpdateTodoCommand>
+public sealed class UpdateTodoTitleValidator() : AbstractValidator<UpdateTodoCommand>
 {
     private protected override string ErrorMessage { init; get; } = "任务标题不能为空且不能超过 500 个字符";
     private protected override async Task<bool> IsValidAsync(UpdateTodoCommand command, CancellationToken ct)
@@ -37,7 +37,7 @@ public sealed class UpdateTodoTitleValidator(AqLife.Application.Abstractions.Per
 
 }
 
-public sealed class UpdateTodoStatusValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<UpdateTodoCommand>
+public sealed class UpdateTodoStatusValidator() : AbstractValidator<UpdateTodoCommand>
 {
     private protected override string ErrorMessage { init; get; } = "无效的任务状态";
     private protected override async Task<bool> IsValidAsync(UpdateTodoCommand command, CancellationToken ct)

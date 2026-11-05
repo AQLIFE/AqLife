@@ -15,7 +15,7 @@ public sealed class ArchiveDevelopmentPlanExistsValidator(AqLife.Application.Abs
 
 }
 
-public sealed class ArchiveDevelopmentPlanNotDefaultValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<ArchiveDevelopmentPlanCommand>
+public sealed class ArchiveDevelopmentPlanNotDefaultValidator() : AbstractValidator<ArchiveDevelopmentPlanCommand>
 {
     private protected override string ErrorMessage { init; get; } = "默认开发计划不能归档";
     private protected override async Task<bool> IsValidAsync(ArchiveDevelopmentPlanCommand command, CancellationToken ct)
