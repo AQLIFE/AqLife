@@ -22,42 +22,69 @@ cp services/API/Web/Configurations/appsettings.Development.example.json services
 dotnet ef database update --project .\services\API\PostgreSqlMigrations\PostgreSqlMigrations.csproj --startup-project .\services\API\Web\Web.csproj
 ## 这里是示例,请根据实际部署路径修改
 
-## HTTPS 开发环境
+## HTTP / HTTPS 局域网开发环境
 
-开发模式下，API 与两个 Vue 前端默认使用本地 HTTPS：
+开发环境同时提供 HTTP 与 HTTPS。HTTP/HTTPS 使用独立 Vite 进程和端口，API 则由同一个 Kestrel 进程同时监听两个协议：
 
-| 服务 | HTTPS 地址 | HTTP 兼容地址 |
+| 服务 | HTTP | HTTPS |
 |---|---|---|
-| API / Swagger | https://localhost:7110/swagger | http://localhost:5110 |
-| Web | https://localhost:5173 | Vite 的 HTTP 服务关闭 |
-| MGS | https://localhost:5200 | Vite 的 HTTP 服务关闭 |
+| API / Swagger | http://localhost:5110/swagger | https://localhost:7110/swagger |
+| Web | http://localhost:5173 | https://localhost:5174 |
+| MGS | http://localhost:5200 | https://localhost:5201 |
 
-首次启动需要安装 .NET 8 SDK。启动任意开发服务时，脚本会尝试信任 ASP.NET Core 开发证书，并导出给 Vite 使用的本地 PFX 到仓库根目录 `.https/localhost.pfx`。证书目录已加入 `.gitignore`，不要提交该证书。
+所有开发监听均绑定 `0.0.0.0`，因此本机和局域网设备都可以访问。请将下文的 `192.168.0.100` 替换为运行仓库电脑的实际局域网 IPv4 地址。
 
-Windows / macOS 通常可以通过以下命令信任开发证书：
+### 1. 生成可供局域网使用的 HTTPS 证书（Windows）
 
-```shell
-dotnet dev-certs https --trust
+.NET 自带的 localhost 开发证书只适用于 localhost，不能直接用于通过局域网 IP 访问。局域网 HTTPS 需要 SAN 中包含本机 IP 的证书。可在 Windows 安装 [mkcert](https://github.com/FiloSottile/mkcert) 和 OpenSSL，然后在仓库根目录执行：
+
+```powershell
+mkdir .https -Force
+mkcert -install
+mkcert -cert-file .https/lan.pem -key-file .https/lan-key.pem localhost 127.0.0.1 ::1 192.168.0.100
+openssl pkcs12 -export -out .https/localhost.pfx -inkey .https/lan-key.pem -in .https/lan.pem -passout pass:aqlife-local-dev-only
 ```
 
-Linux 上如果平台不支持自动信任，请按浏览器/发行版的方式手动信任本机 ASP.NET Core 开发证书。若浏览器提示证书不受信任，先运行上面的命令（或手动信任证书）后重启浏览器。
+这里的 PFX 文件名和密码是开发脚本约定。证书目录已加入 `.gitignore`，不要提交证书或私钥。mkcert 的 `rootCA-key.pem` 是 CA 私钥，绝对不要复制到其他设备或提交仓库。
 
-如果在本地 `.env` 文件中手动设置了 `VITE_API`，请将其值设为 `https://localhost:7110`；未设置时，API Client 会使用该 HTTPS 地址作为默认值。
+### 2. 配置 API 使用该证书
 
-运行前端：
+在仓库根目录执行 PowerShell 命令，将证书路径和密码写入 .NET User Secrets（不会写入 Git）：
+
+```powershell
+$pfx = (Resolve-Path .https/localhost.pfx).Path
+dotnet user-secrets set "Kestrel:Certificates:Default:Path" "$pfx" --project services/API/Web
+dotnet user-secrets set "Kestrel:Certificates:Default:Password" "aqlife-local-dev-only" --project services/API/Web
+```
+
+API Development profile 已监听 `0.0.0.0:5110` 和 `0.0.0.0:7110`。启动 API 时会保留已经生成的 LAN PFX，不会再用 localhost 证书覆盖它。
+
+### 3. 配置 CORS 和前端 API 地址
+
+将 `services/API/Web/Configurations/appsettings.Development.example.json` 复制为 `appsettings.Development.json`，按实际情况修改数据库等配置，并把 `Cors:AllowedOrigins` 中的 `192.168.0.100` 替换为开发电脑的 LAN IP。
+
+前端 API 地址通过 `config/env` 下的 Vite 环境文件中的 `VITE_API` 配置。HTTP 页面应请求 `http://开发电脑IP:5110`；HTTPS 页面应请求 `https://开发电脑IP:7110`。浏览器不允许 HTTPS 页面请求 HTTP API（Mixed Content），因此两种协议模式不能共用一个固定的跨协议 API 地址。切换前端协议时同步切换 `VITE_API`，然后重启对应 Vite 进程。
+
+### 4. 启动服务
 
 ```shell
+# HTTP
+npm run dev:api
 npm run dev:web
 npm run dev:mgs
+
+# HTTPS（另开终端；与 HTTP 服务可同时运行）
+npm run dev:web:https
+npm run dev:mgs:https
 ```
 
-运行 API：
+### 5. 让局域网其他设备信任证书并开放防火墙
 
-```shell
-npm run dev:api
-```
+在开发电脑执行 `mkcert -CAROOT` 查看 CA 目录，将其中的 `rootCA.pem` 安全地复制到需要访问的局域网设备，并将其安装为受信任根证书。不要复制 `rootCA-key.pem`。浏览器可能需要完全重启后才会识别新信任。
 
-HTTPS 开发证书只用于本机开发，不可用于生产环境。生产部署应由反向代理/托管平台终止 TLS，或为 Kestrel 配置由可信 CA 签发的证书；生产证书和密码通过部署环境的 Secret 管理，不要放进仓库。
+在开发电脑的 Windows Defender 防火墙中允许入站 TCP 端口 `5110, 7110, 5173, 5174, 5200, 5201`。只建议在可信的专用局域网配置入站规则，不要将开发服务暴露到公网。
+
+HTTPS 开发证书只用于开发环境，不可用于生产环境。生产部署应由反向代理/托管平台终止 TLS，或为 Kestrel 配置由可信 CA 签发的证书；生产证书和密码通过部署环境的 Secret 管理，不要放进仓库。
 
 ## 以Dev模式启动
 
