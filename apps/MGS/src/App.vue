@@ -19,6 +19,7 @@ const loading = bootstrapLoading.isLoading
 const currentTitle = computed(() => {
   if (route.path.startsWith('/blog')) return 'Blog'
   if (route.path.startsWith('/todo')) return 'Todo'
+  if (route.path.startsWith('/corpus')) return '语录管理'
   if (route.path.startsWith('/development-plan')) return '开发路线图'
   if (route.path.startsWith('/tag')) return 'Tags'
   if (route.path.startsWith('/favorite')) return '收藏管理'
