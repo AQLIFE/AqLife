@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router'
 import NavigationBar from '@/components/NavigationBar.vue'
-import DevPlan from './components/DevPlan.vue'
+// import DevPlan from './components/DevPlan.vue'
 import FAuthorCard from '@/components/skeletons/FAuthorCard.vue'
 import SearchBox from '@/components/SearchBox.vue'
 import { SidebarType } from '@/types/sidebarType'
 import BlogOverview from '@/components/BlogOverview.vue'
-import { computed, ref } from 'vue'
+import { computed, ref,type Component } from 'vue'
 import { ElButton, ElDrawer } from 'element-plus'
 import { Menu, Search, User } from '@element-plus/icons-vue'
 import TocTree from './components/TocTree.vue'
@@ -22,7 +22,7 @@ function openMobilePanel(panel: 'search' | 'sidebar' | 'account') {
   mobilePanel.value = panel
   mobileDrawerOpen.value = true
 }
-const sideManager = computed(() => {
+const sideManager = computed(():{component:Component,props:object}|null => {
     switch (route.meta.sidebarType) {
         case SidebarType.Preview:
             return {
@@ -33,11 +33,11 @@ const sideManager = computed(() => {
                 },
             }
 
-        case SidebarType.About:
-            return {
-                component: DevPlan,
-                props: {},
-            }
+        // case SidebarType.About:
+        //     return {
+        //         component: DevPlan,
+        //         props: {},
+        //     }
 
         default:
             return null

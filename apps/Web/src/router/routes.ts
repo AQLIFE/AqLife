@@ -35,7 +35,7 @@ export const routes = [
     meta: {
       navTitle: '关于',
       navIcon: WebIconName.About,
-      showInNav: true,
+      showInNav: false,
       order: 2,
       sidebarType: SidebarType.About,
     },

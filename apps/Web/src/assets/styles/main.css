@@ -41,7 +41,7 @@ body {
 
 * {
   box-sizing: border-box;
-  border-radius: 0px !important;
+  /* border-radius: 0px !important; */
   font-family: 'Cascadia Code PL', 'Consolas', monospace;
 }
 
