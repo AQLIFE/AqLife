@@ -43,15 +43,20 @@ if (!trusted) {
   )
 }
 
-runDotnet([
-  'dev-certs',
-  'https',
-  '--export-path',
-  certificatePath,
-  '--password',
-  certificatePassword,
-  '--format',
-  'Pfx',
-])
-
-console.log(`[AqLife] HTTPS 证书已准备：${path.relative(monorepoRoot, certificatePath)}`)
+if (fs.existsSync(certificatePath)) {
+  console.log(
+    `[AqLife] 保留现有 HTTPS 证书：${path.relative(monorepoRoot, certificatePath)}`,
+  )
+} else {
+  runDotnet([
+    'dev-certs',
+    'https',
+    '--export-path',
+    certificatePath,
+    '--password',
+    certificatePassword,
+    '--format',
+    'Pfx',
+  ])
+  console.log(`[AqLife] HTTPS 证书已准备：${path.relative(monorepoRoot, certificatePath)}`)
+}
