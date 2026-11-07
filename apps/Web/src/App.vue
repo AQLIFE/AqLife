@@ -7,7 +7,7 @@ import SearchBox from '@/components/SearchBox.vue'
 import { SidebarType } from '@/types/sidebarType'
 import BlogOverview from '@/components/BlogOverview.vue'
 import { computed, ref,type Component } from 'vue'
-import { ElButton, ElDrawer } from 'element-plus'
+import { ElButton, ElDrawer, ElSkeletonItem } from 'element-plus'
 import { Menu, Search, User } from '@element-plus/icons-vue'
 import TocTree from './components/TocTree.vue'
 import { useArticleStore } from './stores/articleStore.ts'
@@ -53,8 +53,12 @@ const sideManager = computed(():{component:Component,props:object}|null => {
       <SearchBox/>
      </div>
      <div class="tools-content">
-      <component :is="sideManager?.component" v-bind="sideManager?.props"/>
-     </div>
+        <div v-if="route.meta.sidebarType === SidebarType.Preview && articleStore.isLoading" class="toc-skeleton">
+          <ElSkeletonItem variant="text" class="toc-skeleton-title" />
+          <ElSkeletonItem v-for="index in 7" :key="index" variant="text" class="toc-skeleton-item" />
+        </div>
+        <component v-else :is="sideManager?.component" v-bind="sideManager?.props"/>
+      </div>
     </aside>
     <main id="content" :class="{ 'is-preview-fullscreen': isPreviewFullscreen }">
       <div v-if="!isPreviewFullscreen" class="mobile-toolbar" aria-label="移动端工具栏">
@@ -97,7 +101,11 @@ const sideManager = computed(():{component:Component,props:object}|null => {
         <SearchBox />
       </div>
       <div v-else-if="mobilePanel === 'sidebar'" class="mobile-drawer-sidebar">
-        <component :is="sideManager?.component" v-bind="sideManager?.props" />
+        <div v-if="route.meta.sidebarType === SidebarType.Preview && articleStore.isLoading" class="toc-skeleton">
+          <ElSkeletonItem variant="text" class="toc-skeleton-title" />
+          <ElSkeletonItem v-for="index in 7" :key="index" variant="text" class="toc-skeleton-item" />
+        </div>
+        <component v-else :is="sideManager?.component" v-bind="sideManager?.props" />
       </div>
       <div v-else class="mobile-drawer-account">
         <FAuthorCard />
@@ -265,6 +273,11 @@ const sideManager = computed(():{component:Component,props:object}|null => {
 
   overflow: hidden;
 }
+
+.toc-skeleton { padding: 24px 20px; display: flex; flex-direction: column; gap: 16px; }
+.toc-skeleton-title { width: 42%; height: 18px; margin-bottom: 8px; }
+.toc-skeleton-item { width: 82%; height: 13px; }
+.toc-skeleton-item:nth-child(3n) { width: 64%; margin-left: 16px; }
 
 .mobile-drawer-search,
 .mobile-drawer-sidebar,
