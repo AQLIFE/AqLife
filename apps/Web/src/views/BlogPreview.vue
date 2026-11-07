@@ -1,6 +1,6 @@
 <template>
   <div class="blog-preview">
-    <ElPageHeader class="header" :icon="ArrowLeft" @back="router.push('/blog')">
+    <ElPageHeader class="header" :icon="ArrowLeft" @back="handleBack">
       <template #content>
         <div class="article-header">
           <div class="article-title-row">
@@ -70,12 +70,14 @@ import {
 } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useArticleStore } from '@/stores/articleStore'
+import { useBlogStore } from '@/stores/fileStore'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import { extractTocTree } from '@aqlife/domain'
 
 const route = useRoute()
 const router = useRouter()
 const articleStore = useArticleStore()
+const blogStore = useBlogStore()
 const fileApi = new FileApi(apiConfiguration)
 const baseurl = import.meta.env.VITE_API
 const isFullscreen = computed(() => articleStore.isFullscreen)
@@ -139,20 +141,43 @@ const articleTags = computed(() =>
 const hasViewed = ref(false)
 const isViewing = ref(false)
 
-async function handleEndReached() {
-  if (hasViewed.value || isViewing.value) {
+async function completePreview() {
+  const uid = fileMeta.value?.uid
+
+  if (!uid || hasViewed.value || isViewing.value) {
     return
   }
 
   isViewing.value = true
 
   try {
-    await fileApi.apiFilePreviewCompletePatch({uID:fileMeta.value?.uid})
-
+    await fileApi.apiFilePreviewCompletePatch({ uID: uid })
     hasViewed.value = true
+    fileMeta.value.viewCount = (fileMeta.value.viewCount ?? 0) + 1
+  } catch (error) {
+    console.error('更新文章阅览量失败:', error)
   } finally {
     isViewing.value = false
   }
+}
+
+async function handleEndReached() {
+  await completePreview()
+}
+
+async function handleBack() {
+  await completePreview()
+
+  const uid = fileMeta.value?.uid
+  if (uid && hasViewed.value) {
+    blogStore.cacheBlogList = blogStore.cacheBlogList.map(blog =>
+      blog.uid === uid
+        ? { ...blog, viewCount: fileMeta.value?.viewCount }
+        : blog,
+    )
+  }
+
+  await router.push('/blog')
 }
 const markdownContainer = ref<HTMLElement | null>(null)
 let requestVersion = 0
@@ -203,6 +228,7 @@ async function loadArticle(id: string) {
 
     sourceMarkdown.value = markdown
     fileMeta.value = file
+    hasViewed.value = false
     articleStore.activeAnchor = ''
 
     if (file) {
