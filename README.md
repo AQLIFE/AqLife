@@ -43,7 +43,9 @@ API、Web 和 MGS 统一通过环境变量 `APP_ENV` 选择运行环境和协议
 
 ### 1. 启动服务
 
-在仓库根目录分别启动需要的服务。未设置 `APP_ENV` 时默认 dev：
+在仓库根目录分别启动需要的服务。命令名固定对应运行环境，不需要手动设置 `APP_ENV`，也不会受到终端中遗留的 `APP_ENV` 值影响：
+
+开发环境（Development + HTTP）：
 
 ```shell
 npm run dev:api
@@ -51,27 +53,15 @@ npm run dev:web
 npm run dev:mgs
 ```
 
-切换到 prod（HTTPS + ASP.NET Core Production）时，先设置环境变量，再启动所需服务：
+生产模式（Production + HTTPS，本地/局域网联调使用）：
 
-Linux / macOS：
-
-```bash
-export APP_ENV=prod
-npm run dev:api
-npm run dev:web
-npm run dev:mgs
+```shell
+npm run prod:api
+npm run prod:web
+npm run prod:mgs
 ```
 
-Windows PowerShell：
-
-```powershell
-$env:APP_ENV = "prod"
-npm run dev:api
-npm run dev:web
-npm run dev:mgs
-```
-
-切换回 dev 时，将变量设置为 `dev`，或在当前终端执行 `unset APP_ENV`（PowerShell 使用 `Remove-Item Env:APP_ENV`）。切换环境前先停止旧进程。
+每个服务可单独启动，不要求三个服务同时运行。切换环境前先停止旧进程。API 的 HTTPS 模式默认读取仓库根目录 `.https/server.pfx`；如需自定义证书路径，可设置 `ASPNETCORE_Kestrel__Certificates__Default__Path`，证书密码通过 .NET User Secrets 或 `ASPNETCORE_Kestrel__Certificates__Default__Password` 提供。
 
 ### 2. HTTPS 证书生成（Ubuntu / Windows / macOS）
 
