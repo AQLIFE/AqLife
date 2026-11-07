@@ -16,7 +16,10 @@
     "generate:contract": "npm run generate:contract --workspace=@aqlife/scripts",
     "dev:api": "npm run dev:api --workspace=@aqlife/scripts",
     "dev:web": "npm run dev:web --workspace=@aqlife/scripts",
-    "dev:mgs": "npm run dev:mgs --workspace=@aqlife/scripts"
+    "dev:mgs": "npm run dev:mgs --workspace=@aqlife/scripts",
+    "prod:web": "npm run prod:web --workspace=@aqlife/scripts",
+    "prod:mgs": "npm run prod:mgs --workspace=@aqlife/scripts",
+    "prod:api": "npm run prod:api --workspace=@aqlife/scripts"
   },
   "devDependencies": {
     "@iconify/utils": "^3.1.3",

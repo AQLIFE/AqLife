@@ -8,13 +8,13 @@
   },
   "scripts": {
     "dev": "vite --host --mode dev",
+    "prod": "vite --host --mode prod",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
-    "format": "prettier --write src/",
-    "predev": "node ../../tools/scripts/prepare-https.mjs"
+    "format": "prettier --write src/"
   },
   "dependencies": {
     "@aqlife/api-client": "*",
