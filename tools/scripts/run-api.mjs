@@ -15,7 +15,7 @@ export function runApi(appEnv) {
   const env = {
     APP_ENV: appEnv,
     ASPNETCORE_ENVIRONMENT: useHttps ? 'Production' : 'Development',
-    ASPNETCORE_URLS: useHttps ? 'https://0.0.0.0:5110' : 'http://0.0.0.0:5110',
+    ASPNETCORE_URLS: useHttps ? 'https://0.0.0.0:7110' : 'http://0.0.0.0:5110',
   }
 
   if (useHttps) {
