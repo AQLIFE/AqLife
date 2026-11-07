@@ -5,7 +5,7 @@ export function resolveApiBasePath(
   const browserFallback =
     typeof window === 'undefined'
       ? 'http://localhost:5110'
-      : `${window.location.protocol}//${window.location.hostname}:${window.location.protocol === 'https:' ? '5110' : '5110'}`
+      : `${window.location.protocol}//${window.location.hostname}:5110`
 
   const base = envValue?.trim() || fallback || browserFallback
   return base.replace(/\/+$/, '')
