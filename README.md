@@ -22,21 +22,28 @@ cp services/API/Web/Configurations/appsettings.Development.example.json services
 dotnet ef database update --project .\services\API\PostgreSqlMigrations\PostgreSqlMigrations.csproj --startup-project .\services\API\Web\Web.csproj
 ## 这里是示例,请根据实际部署路径修改
 
-## 开发环境协议选择（HTTP 默认，HTTPS 可选）
+## 环境选择与协议（APP_ENV）
 
-API、Web 和 MGS 每次启动只监听一种协议，不会同时打开 HTTP 与 HTTPS。默认使用 HTTP，不需要证书；需要 HTTPS 时，在运行参数中添加 `--https`（仓库也提供 `:https` 快捷脚本）。HTTP 与 HTTPS 使用相同端口，仅协议不同：
+API、Web 和 MGS 统一通过环境变量 `APP_ENV` 选择运行环境和协议：
 
-| 服务 | HTTP（默认） | HTTPS（可选） |
-|---|---|---|
-| API / Swagger | http://localhost:5110/swagger | https://localhost:5110/swagger |
-| Web | http://localhost:5173 | https://localhost:5173 |
-| MGS | http://localhost:5200 | https://localhost:5200 |
+| APP_ENV | API ASP.NET Core 环境 | API | Web | MGS |
+|---|---|---|---|---|
+| 未设置 / `dev` | Development | HTTP | HTTP | HTTP |
+| `prod` | Production | HTTPS | HTTPS | HTTPS |
+
+仅支持 `dev` 和 `prod`；未设置时默认 `dev`，其他值会直接报错。三个服务每次只监听一种协议，不会同时打开 HTTP 与 HTTPS。HTTP 与 HTTPS 使用相同端口：
+
+| 服务 | 端口 | dev | prod |
+|---|---:|---|---|
+| API / Swagger | 5110 | http://localhost:5110/swagger | https://localhost:5110/swagger |
+| Web | 5173 | http://localhost:5173 | https://localhost:5173 |
+| MGS | 5200 | http://localhost:5200 | https://localhost:5200 |
 
 服务监听 `0.0.0.0`，可供本机和局域网设备访问。局域网访问时，请将 `localhost` 替换为运行服务电脑的局域网 IP 或证书中包含的 DNS 名称。HTTPS 证书必须包含这些访问名称/IP 的 Subject Alternative Name（SAN）。
 
-### 1. HTTP 默认启动
+### 1. 启动服务
 
-在仓库根目录分别启动需要的服务：
+在仓库根目录分别启动需要的服务。未设置 `APP_ENV` 时默认 dev：
 
 ```shell
 npm run dev:api
@@ -44,9 +51,31 @@ npm run dev:web
 npm run dev:mgs
 ```
 
+切换到 prod（HTTPS + ASP.NET Core Production）时，先设置环境变量，再启动所需服务：
+
+Linux / macOS：
+
+```bash
+export APP_ENV=prod
+npm run dev:api
+npm run dev:web
+npm run dev:mgs
+```
+
+Windows PowerShell：
+
+```powershell
+$env:APP_ENV = "prod"
+npm run dev:api
+npm run dev:web
+npm run dev:mgs
+```
+
+切换回 dev 时，将变量设置为 `dev`，或在当前终端执行 `unset APP_ENV`（PowerShell 使用 `Remove-Item Env:APP_ENV`）。切换环境前先停止旧进程。
+
 ### 2. HTTPS 证书生成（Ubuntu / Windows / macOS）
 
-开发 HTTPS 使用 mkcert 创建本地开发 CA 和服务端证书。mkcert 与 OpenSSL 均可跨平台使用。以下以 Ubuntu 为例；Windows/macOS 可安装对应平台的 mkcert 和 OpenSSL，然后执行相同的 mkcert / openssl 命令。
+prod 模式下 Web 和 MGS 使用 PEM 证书，API 使用 PFX 证书。开发/局域网测试可使用 mkcert 创建本地 CA 和服务端证书。mkcert 与 OpenSSL 均可跨平台使用。以下以 Ubuntu 为例；Windows/macOS 可安装对应平台的 mkcert 和 OpenSSL，然后执行相同的 mkcert / openssl 命令。
 
 Ubuntu 安装依赖和 mkcert（以下下载地址示例为 x86_64；ARM64 请将架构改为 `linux/arm64`）：
 
@@ -71,7 +100,7 @@ mkcert \
 
 mkcert 会在本机创建并信任一个开发 CA，并签发服务端证书。生成的 `.https/server.pem` 和 `.https/server-key.pem` 供 Vite HTTPS 使用。**不要分享或提交 mkcert 的 `rootCA-key.pem`，它是 CA 私钥。**
 
-为 ASP.NET Core API 另行导出 PFX。命令会交互式要求输入 PFX 密码，请设置一个本地开发密码并记住它：
+为 ASP.NET Core API 另行导出 PFX。命令会交互式要求输入 PFX 密码，请设置一个本地测试密码并记住它：
 
 ```bash
 openssl pkcs12 -export \
@@ -84,31 +113,16 @@ openssl pkcs12 -export \
 
 ### 3. 配置 API HTTPS 证书
 
-API 使用 .NET User Secrets 保存 PFX 路径和密码，不要将证书密码写入仓库配置文件：
+API 的 PFX 路径和密码通过配置提供。可在本机使用 .NET User Secrets：
 
 ```bash
 dotnet user-secrets set "Kestrel:Certificates:Default:Path" "$(pwd)/.https/server.pfx" --project services/API/Web
 dotnet user-secrets set "Kestrel:Certificates:Default:Password" "替换为生成 PFX 时设置的密码" --project services/API/Web
 ```
 
-如果更换证书或移动仓库，请更新 User Secrets 中的绝对证书路径。Vite 会直接读取 `.https/server.pem` 和 `.https/server-key.pem`。
+脚本默认使用 `.https/server.pfx`。如需指定其他证书路径，可设置环境变量 `ASPNETCORE_Kestrel__Certificates__Default__Path`；密码可通过 `ASPNETCORE_Kestrel__Certificates__Default__Password` 提供。生产部署建议通过部署平台的 Secret 管理这两个值，不要将生产私钥或密码提交到仓库。项目显式加载 User Secrets，因此本机可用上述命令为 prod 模式提供测试证书密码；生产服务器应优先使用环境变量或 Secret 注入。
 
-### 4. 选择 HTTPS 启动
-
-HTTPS 可通过运行参数显式启用：
-
-```shell
-npm run dev:api -- --https
-npm run dev:web -- --https
-npm run dev:mgs -- --https
-
-# 等价的快捷命令
-npm run dev:api:https
-npm run dev:web:https
-npm run dev:mgs:https
-```
-
-同一服务不要同时启动 HTTP 和 HTTPS 实例。切换协议时先停止旧进程，再启动另一种模式。API HTTPS 启动前必须完成上一节的 PFX 和 User Secrets 配置。
+### 4. 前端 API 地址
 
 前端 API 默认根据当前页面的协议、主机名自动选择 API 地址：HTTP 页面使用 `http://当前主机:5110`，HTTPS 页面使用 `https://当前主机:5110`。如果设置了 `VITE_API`，该环境变量会覆盖自动推导的默认值；请确保它与前端协议一致，避免浏览器 Mixed Content 拦截。
 
@@ -140,16 +154,16 @@ macOS 客户端可通过“钥匙串访问”将 `rootCA.pem` 导入“系统”
 
 ### 6. CORS 与防火墙
 
-将 `services/API/Web/Configurations/appsettings.Development.example.json` 复制为 `appsettings.Development.json`，按实际数据库等配置修改，并将 CORS 示例中的 `192.168.0.100` 替换为开发电脑的 LAN IP。示例同时列出 HTTP/HTTPS 前端来源；实际启动仍只会启用所选协议。
+Development 环境从 `appsettings.Development.json` 读取 CORS 配置；Production 环境如需跨域访问，也应在 `appsettings.Production.json` 或环境变量中配置 `Cors:AllowedOrigins`。将示例中的 `192.168.0.100` 替换为实际开发电脑的 LAN IP。API 只会在配置了允许来源时启用该 CORS 策略。
 
 局域网访问时，在开发电脑防火墙中允许所选服务端口的入站 TCP 连接：
-- API：HTTP 或 HTTPS 均为 `5110`
-- Web：`5173`
-- MGS：`5200`
+- API：5110
+- Web：5173
+- MGS：5200
 
-Ubuntu 可使用 UFW，例如仅在可信 LAN 中开放所需端口：`sudo ufw allow 5110/tcp`、`sudo ufw allow 5173/tcp`、`sudo ufw allow 5200/tcp`；HTTPS 模式 API 端口仍为 `5110`。不要将开发服务直接暴露到公网。
+Ubuntu 可使用 UFW，例如仅在可信 LAN 中开放所需端口：`sudo ufw allow 5110/tcp`、`sudo ufw allow 5173/tcp`、`sudo ufw allow 5200/tcp`。不要将开发服务直接暴露到公网。
 
-开发 CA 和证书仅用于本地开发，不可用于生产环境。生产部署应使用可信 CA 签发的证书，或由反向代理/托管平台终止 TLS；生产私钥和密码通过部署 Secret 管理。
+mkcert 开发 CA 和证书仅用于本地开发或可信局域网测试，不可用于真正的公网生产环境。正式生产部署应使用可信 CA 签发的证书，或由反向代理/托管平台终止 TLS；生产私钥和密码通过部署 Secret 管理。
 
 ## 以Dev模式启动
 
