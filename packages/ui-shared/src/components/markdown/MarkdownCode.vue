@@ -18,7 +18,10 @@
           :aria-label="copied ? '复制成功' : '复制代码'"
           @click="onCopy"
         >
-          <Copy class="code-block__copy-icon" />
+          <!-- <Copy class="code-block__copy-icon" /> -->
+          <ElIcon class="code-block__copy-icon">
+            <CopyDocument/>
+          </ElIcon>
         </button>
       </div>
     </header>
@@ -34,7 +37,7 @@
 
 <script setup lang="ts">
 import { notify } from '../../feedback/notification'
-import { Copy } from '@element-plus/icons-vue'
+import { CopyDocument } from '@element-plus/icons-vue'
 import { ref, computed } from 'vue'
 import hljs from 'highlight.js'
 // 引入你喜欢的代码高亮主题（highlight.js 内置了几十种主题，可以去 node_modules 里挑）

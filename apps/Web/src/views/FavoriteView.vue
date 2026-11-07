@@ -156,7 +156,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.archive-page { height: 100%; min-height: 0; overflow: auto;scrollbar-width: none; padding: 34px clamp(16px, 4vw, 48px) 48px; box-sizing: border-box; background: var(--el-bg-color); color: var(--el-text-color-primary); }
+.archive-page { height: 100%; min-height: 0; overflow: auto;scrollbar-width: none; padding: 34px clamp(16px, 4vw, 48px) 48px; box-sizing: border-box; /* background: var(--el-bg-color); */ color: var(--el-text-color-primary); }
 .archive-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; max-width: 1120px; margin: 0 auto 28px; }
 .eyebrow { margin: 0 0 8px; color: var(--el-color-primary); font-size: 11px; font-weight: 700; letter-spacing: .16em; }
 .archive-heading h1 { margin: 0; font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(28px, 4vw, 42px); font-weight: 500; letter-spacing: .02em; }
