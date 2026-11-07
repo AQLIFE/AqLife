@@ -55,6 +55,7 @@ import {
   computed,
   watch,
   onMounted,
+  nextTick,
 } from 'vue'
 import {
   useRoute,
@@ -202,6 +203,7 @@ async function loadArticle(id: string) {
 
     sourceMarkdown.value = markdown
     fileMeta.value = file
+    articleStore.activeAnchor = ''
 
     if (file) {
       articleStore.blogTitle = file.fileName ?? ''
@@ -217,6 +219,7 @@ async function loadArticle(id: string) {
     sourceMarkdown.value = ''
     fileMeta.value = null
     articleStore.blogTitle = ''
+    articleStore.activeAnchor = ''
   }
 }
 
@@ -235,15 +238,26 @@ watch(
 )
 watch(
   () => sourceMarkdown.value,
-  markdown => {
+  async markdown => {
     articleStore.markdown = markdown
     articleStore.toc = extractTocTree(markdown)
+    articleStore.activeAnchor = ''
+    await nextTick()
+    handleMarkdownScroll()
   },
   {
     immediate: true,
   },
 )
 let scrollFrame: number | null = null
+let markdownResizeObserver: ResizeObserver | null = null
+let markdownMutationObserver: MutationObserver | null = null
+
+function getScrollViewport(): HTMLElement | null {
+  return markdownContainer.value
+    ?.closest('.el-scrollbar')
+    ?.querySelector<HTMLElement>('.el-scrollbar__wrap') ?? null
+}
 
 function updateActiveAnchor() {
   const container = markdownContainer.value
@@ -263,38 +277,32 @@ function updateActiveAnchor() {
     return
   }
 
-  const containerTop = container.getBoundingClientRect().bottom/* container.getBoundingClientRect().top */
+  // Element Plus 的实际滚动容器是 scrollbar__wrap，不是 Markdown 内容节点。
+  const viewportRect = (
+    getScrollViewport() ?? container
+  ).getBoundingClientRect()
+  const activationLine = viewportRect.top + 32
 
-  const visibleHeadings = headings.filter(heading => {
-    const rect = heading.getBoundingClientRect()
+  // 当前章节取滚动激活线之前最近的标题；尚未滚到第一个标题时取第一个可见标题。
+  let activeHeading: HTMLElement | undefined
 
-    return (
-      rect.bottom > containerTop &&
-      rect.top < container.getBoundingClientRect().bottom
-    )
-  })
-
-  if (!visibleHeadings.length) {
-    return
-  }
-
-  let closest = visibleHeadings[0]
-  let closestDistance = Math.abs(
-    closest.getBoundingClientRect().top - containerTop,
-  )
-
-  for (const heading of visibleHeadings.slice(1)) {
-    const distance = Math.abs(
-      heading.getBoundingClientRect().top - containerTop,
-    )
-
-    if (distance < closestDistance) {
-      closest = heading
-      closestDistance = distance
+  for (const heading of headings) {
+    if (heading.getBoundingClientRect().top <= activationLine) {
+      activeHeading = heading
+    } else {
+      break
     }
   }
 
-  articleStore.activeAnchor = closest.id
+  if (!activeHeading) {
+    activeHeading = headings.find(
+      heading => heading.getBoundingClientRect().bottom > viewportRect.top,
+    )
+  }
+
+  if (activeHeading) {
+    articleStore.activeAnchor = activeHeading.id
+  }
 }
 
 function handleMarkdownScroll() {
@@ -308,15 +316,32 @@ function handleMarkdownScroll() {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('keydown', handleKeydown)
-  // markdownContainer.value?.addEventListener(
-  //   'scroll',
-  //   handleMarkdownScroll,
-  //   { passive: true },
-  // )
 
-  updateActiveAnchor()
+  await nextTick()
+  const container = markdownContainer.value
+
+  if (container) {
+    // Markdown 节点可能异步替换，图片加载也会改变标题位置。
+    markdownMutationObserver = new MutationObserver(handleMarkdownScroll)
+    markdownMutationObserver.observe(container, {
+      childList: true,
+      subtree: true,
+    })
+
+    if (typeof ResizeObserver !== 'undefined') {
+      markdownResizeObserver = new ResizeObserver(handleMarkdownScroll)
+      markdownResizeObserver.observe(container)
+
+      const viewport = getScrollViewport()
+      if (viewport) {
+        markdownResizeObserver.observe(viewport)
+      }
+    }
+  }
+
+  handleMarkdownScroll()
 })
 
 onBeforeUnmount(() => {
@@ -324,10 +349,10 @@ onBeforeUnmount(() => {
   articleStore.isFullscreen = false
   requestVersion++
 
-  // markdownContainer.value?.removeEventListener(
-  //   'scroll',
-  //   handleMarkdownScroll,
-  // )
+  markdownResizeObserver?.disconnect()
+  markdownMutationObserver?.disconnect()
+  markdownResizeObserver = null
+  markdownMutationObserver = null
 
   if (scrollFrame !== null) {
     cancelAnimationFrame(scrollFrame)
