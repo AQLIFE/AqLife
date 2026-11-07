@@ -6,7 +6,7 @@ import { run } from './lib/exec.mjs'
 const useHttps = process.argv.includes('--https')
 const env = {
   ASPNETCORE_ENVIRONMENT: 'Development',
-  ASPNETCORE_URLS: useHttps ? 'https://0.0.0.0:7110' : 'http://0.0.0.0:5110',
+  ASPNETCORE_URLS: useHttps ? 'https://0.0.0.0:5110' : 'http://0.0.0.0:5110',
 }
 
 if (useHttps) {
