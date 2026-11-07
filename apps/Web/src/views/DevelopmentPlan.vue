@@ -141,7 +141,7 @@ onMounted(refresh)
 </template>
 
 <style scoped>
-.roadmap-page { display:flex; flex-direction:column; gap:18px; padding:24px; min-height:100%; color:var(--el-text-color-primary); }
+.roadmap-page { display:flex; flex-direction:column; gap:18px; padding:24px; height:100%; min-height:0; box-sizing:border-box; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior-y:contain; color:var(--el-text-color-primary); }
 .roadmap-header { display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; }
 .eyebrow,.detail-kicker { color:var(--el-text-color-secondary); font-size:10px; letter-spacing:1.6px; }
 .roadmap-header h1 { margin:7px 0; font-size:26px; }.roadmap-header p { margin:0; color:var(--el-text-color-secondary); font-size:13px; }
