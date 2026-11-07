@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { ElButton, ElOption, ElSelect, ElTag, ElMessage } from 'element-plus'
+import { ElButton, ElDialog, ElOption, ElSelect, ElTag, ElMessage } from 'element-plus'
 import { Refresh, Lock } from '@element-plus/icons-vue'
 import { TodoApi, TodoStatus, type TodoDto, type TodoRoadmapDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
@@ -11,6 +11,7 @@ const api = new TodoApi(apiConfiguration)
 const roadmap = ref<TodoRoadmapDto | null>(null)
 const loading = ref(false)
 const selectedId = ref('')
+const mobileDetailOpen = ref(false)
 const plans = computed(() => store.plans)
 const selectedPlanId = computed(() => store.selectedPlanId)
 const nodes = computed(() => roadmap.value?.nodes ?? [])
@@ -40,6 +41,10 @@ const edges = computed(() => dependencies.value.flatMap(edge => {
 }))
 const incoming = computed(() => dependencies.value.filter(x => x.successorId === selectedId.value))
 
+function selectNode(uid?: string) {
+  selectedId.value = uid ?? ''
+  if (window.matchMedia('(max-width: 650px)').matches) mobileDetailOpen.value = true
+}
 function titleOf(todo: Partial<TodoDto>) { return todo.title || todo.desc || '未命名任务' }
 function statusValue(todo: TodoDto) {
   if (todo.status === 'Completed' || Number(todo.status) === TodoStatus.Completed) return 3
@@ -107,7 +112,7 @@ onMounted(refresh)
           <article v-for="node in nodes" :key="node.uid" class="roadmap-node"
             :class="[statusClass(node), { selected: selectedId === node.uid }]"
             :style="{ left: (positions[node.uid!]?.x ?? 0) + 'px', top: (positions[node.uid!]?.y ?? 0) + 'px' }"
-            @click="selectedId = node.uid ?? ''">
+            @click="selectNode(node.uid)">
             <div class="node-top"><span>{{ node.isBlocked ? '等待前置' : statusLabel(node) }}</span><span>优先级 {{ node.priority ?? 1 }}</span></div>
             <h3>{{ titleOf(node) }}</h3>
             <p>{{ node.description || '暂无任务说明' }}</p>
@@ -137,6 +142,37 @@ onMounted(refresh)
       </aside>
       <aside class="detail-panel empty-detail" v-else><Lock /><p>选择一个任务节点查看详情</p></aside>
     </main>
+    <ElDialog
+      v-model="mobileDetailOpen"
+      class="mobile-detail-dialog"
+      :show-close="true"
+      :append-to-body="true"
+      :lock-scroll="true"
+      :close-on-click-modal="true"
+      :close-on-press-escape="true"
+      width="100%"
+      title="任务详情"
+    >
+      <div v-if="selected" class="mobile-detail-content">
+        <div class="detail-kicker">PUBLIC TASK</div>
+        <h2>{{ titleOf(selected) }}</h2>
+        <p class="detail-description">{{ selected.description || '暂无任务说明' }}</p>
+        <div class="detail-state" :class="statusClass(selected)">{{ selected.isBlocked ? '被前置任务阻塞' : statusLabel(selected) }}</div>
+        <div class="detail-meta"><span>优先级</span><strong>{{ selected.priority ?? 1 }}</strong></div>
+        <div class="detail-meta"><span>父任务</span><strong>{{ selected.ftid ? titleOf(nodeById.get(selected.ftid) ?? {}) : '无' }}</strong></div>
+        <div class="detail-meta"><span>未完成前置</span><strong>{{ selected.incompleteDependencyCount ?? 0 }}</strong></div>
+        <div class="dependency-section">
+          <div class="section-heading"><strong>前置依赖</strong></div>
+          <div v-if="incoming.length === 0" class="muted">没有前置依赖</div>
+          <div v-for="edge in incoming" :key="edge.predecessorId" class="dependency-item">
+            <span>{{ titleOf(nodeById.get(edge.predecessorId ?? '') ?? {}) }}</span>
+            <ElTag v-if="nodeById.get(edge.predecessorId ?? '')?.status === 'Completed' || Number(nodeById.get(edge.predecessorId ?? '')?.status) === 3" type="success" size="small">已完成</ElTag>
+            <ElTag v-else type="info" size="small">未完成</ElTag>
+          </div>
+          <p class="hint">依赖关系仅用于说明任务解锁条件，不代表父子归属。</p>
+        </div>
+      </div>
+    </ElDialog>
   </div>
 </template>
 
@@ -164,4 +200,38 @@ onMounted(refresh)
 .empty-detail { display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--el-text-color-secondary); }
 @media (max-width:1050px) { .roadmap-workspace { grid-template-columns:minmax(0,1fr); }.detail-panel { border-left:0; border-top:1px solid var(--el-border-color); }.stats-row { grid-template-columns:repeat(2,minmax(120px,1fr)); } }
 @media (max-width:650px) { .roadmap-header { align-items:stretch; }.header-actions { width:100%; }.plan-select { width:100%; }.stats-row { grid-template-columns:repeat(2,minmax(0,1fr)); }.roadmap-page { padding:14px; } }
+</style>
+
+<style>
+@media (max-width: 650px) {
+  .mobile-detail-dialog.el-dialog {
+    display: flex;
+    flex-direction: column;
+    width: 100vw !important;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0 !important;
+    border-radius: 0;
+  }
+  .mobile-detail-dialog .el-dialog__header {
+    flex: 0 0 auto;
+    margin-right: 0;
+    padding: 18px 18px 12px;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+  }
+  .mobile-detail-dialog .el-dialog__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 20px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mobile-detail-content h2 {
+    margin: 9px 0;
+    font-size: 20px;
+    overflow-wrap: anywhere;
+  }
+}
 </style>
