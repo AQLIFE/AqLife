@@ -140,25 +140,38 @@ const articleTags = computed(() =>
 
 const hasViewed = ref(false)
 const isViewing = ref(false)
+let viewingPromise: Promise<void> | null = null
 
-async function completePreview() {
+function completePreview(): Promise<void> {
   const uid = fileMeta.value?.uid
 
-  if (!uid || hasViewed.value || isViewing.value) {
-    return
+  if (!uid || hasViewed.value) {
+    return Promise.resolve()
+  }
+
+  // 如果滚动到底部时已经开始请求，Back 需要等待同一个请求完成。
+  if (viewingPromise) {
+    return viewingPromise
   }
 
   isViewing.value = true
+  viewingPromise = (async () => {
+    try {
+      await fileApi.apiFilePreviewCompletePatch({ uID: uid })
+      hasViewed.value = true
 
-  try {
-    await fileApi.apiFilePreviewCompletePatch({ uID: uid })
-    hasViewed.value = true
-    fileMeta.value.viewCount = (fileMeta.value.viewCount ?? 0) + 1
-  } catch (error) {
-    console.error('更新文章阅览量失败:', error)
-  } finally {
-    isViewing.value = false
-  }
+      if (fileMeta.value?.uid === uid) {
+        fileMeta.value.viewCount = (fileMeta.value.viewCount ?? 0) + 1
+      }
+    } catch (error) {
+      console.error('更新文章阅览量失败:', error)
+    } finally {
+      isViewing.value = false
+      viewingPromise = null
+    }
+  })()
+
+  return viewingPromise
 }
 
 async function handleEndReached() {
