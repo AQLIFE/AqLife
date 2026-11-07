@@ -12,11 +12,13 @@
       <div class="code-block__actions">
         <button
           class="code-block__copy"
+          :class="{ 'is-copied': copied }"
           type="button"
-          title="复制代码"
+          :title="copied ? '复制成功' : '复制代码'"
+          :aria-label="copied ? '复制成功' : '复制代码'"
           @click="onCopy"
         >
-          {{ copied ? 'Copied' : 'Copy' }}
+          <Copy class="code-block__copy-icon" />
         </button>
       </div>
     </header>
@@ -32,7 +34,7 @@
 
 <script setup lang="ts">
 import { notify } from '../../feedback/notification'
-// import { Copy } from '@element-plus/icons-vue'
+import { Copy } from '@element-plus/icons-vue'
 import { ref, computed } from 'vue'
 import hljs from 'highlight.js'
 // 引入你喜欢的代码高亮主题（highlight.js 内置了几十种主题，可以去 node_modules 里挑）
@@ -122,19 +124,34 @@ const onCopy = async () => {
 }
 
 .code-block__copy {
-  padding: 0 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
 
   border: 0;
   background: transparent;
   color: #ccc;
 
   cursor: pointer;
+  transition: color 0.2s ease;
 }
 
 .code-block__copy:hover {
   color: #fff;
 }
 
+.code-block__copy.is-copied {
+  color: #67c23a;
+}
+
+.code-block__copy-icon {
+  width: 16px;
+  height: 16px;
+}
+ 
 .code-block__body {
   background-color: #282c34;
 }
