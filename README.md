@@ -35,7 +35,7 @@ API、Web 和 MGS 统一通过环境变量 `APP_ENV` 选择运行环境和协议
 
 | 服务 | 端口 | dev | prod |
 |---|---:|---|---|
-| API / Swagger | dev: 5110<br>prod: 7110 | http://localhost:5110/swagger | https://localhost:7110/swagger |
+| API | dev: 5110<br>prod: 7110 | http://localhost:5110/swagger（Development） | https://localhost:7110（Production；Swagger 不开放） |
 | Web | 5173 | http://localhost:5173 | https://localhost:5173 |
 | MGS | 5200 | http://localhost:5200 | https://localhost:5200 |
 
