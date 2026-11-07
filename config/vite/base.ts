@@ -14,6 +14,14 @@ const domainSrcDir = path.join(monorepoRoot, 'packages/domain/src')
 const iconsSrcDir = path.join(monorepoRoot, 'packages/icons/src')
 const uiSharedSrcDir = path.join(monorepoRoot, 'packages/ui-shared/src')
 
+export function getAqlifeAppEnvironment(): 'dev' | 'prod' {
+  const appEnv = (process.env.APP_ENV ?? 'dev').trim().toLowerCase()
+  if (appEnv !== 'dev' && appEnv !== 'prod') {
+    throw new Error(`无效的 APP_ENV="${appEnv}"，仅支持 dev 或 prod。`)
+  }
+  return appEnv
+}
+
 export function createAqlifeViteConfig(appRoot: string, options?: { port?: number }): UserConfig {
   const appSrc = path.join(appRoot, 'src')
 
