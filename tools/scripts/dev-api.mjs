@@ -3,28 +3,37 @@ import path from 'node:path'
 import { paths } from './lib/paths.mjs'
 import { run } from './lib/exec.mjs'
 
-const useHttps = process.argv.includes('--https')
+const appEnv = (process.env.APP_ENV ?? 'dev').trim().toLowerCase()
+if (appEnv !== 'dev' && appEnv !== 'prod') {
+  throw new Error(`无效的 APP_ENV="${appEnv}"，仅支持 dev 或 prod。`)
+}
+
+const useHttps = appEnv === 'prod'
 const env = {
-  ASPNETCORE_ENVIRONMENT: 'Development',
+  APP_ENV: appEnv,
+  ASPNETCORE_ENVIRONMENT: useHttps ? 'Production' : 'Development',
   ASPNETCORE_URLS: useHttps ? 'https://0.0.0.0:5110' : 'http://0.0.0.0:5110',
 }
 
 if (useHttps) {
-  const certificatePath = path.join(paths.root, '.https', 'server.pfx')
+  const certificatePath = path.resolve(
+    process.env.ASPNETCORE_Kestrel__Certificates__Default__Path ??
+      path.join(paths.root, '.https', 'server.pfx'),
+  )
   if (!fs.existsSync(certificatePath)) {
     throw new Error(
-      'HTTPS 证书不存在：.https/server.pfx。请先按照 README「HTTPS 开发证书」章节生成证书，并配置 Kestrel User Secrets。',
+      `HTTPS 证书不存在：${certificatePath}。请按照 README 的证书章节生成 PFX，或通过 ASPNETCORE_Kestrel__Certificates__Default__Path 指定证书路径。`,
     )
   }
 
   env.ASPNETCORE_Kestrel__Certificates__Default__Path = certificatePath
-  console.log('[AqLife] 使用 HTTPS 启动 API...')
+  console.log('[AqLife] APP_ENV=prod：使用 ASP.NET Core Production 环境和 HTTPS 启动 API...')
 } else {
-  console.log('[AqLife] 使用 HTTP 启动 API（默认模式）...')
+  console.log('[AqLife] APP_ENV=dev：使用 ASP.NET Core Development 环境和 HTTP 启动 API...')
 }
 
 run('dotnet', ['run', '--project', paths.apiWebProject, '--no-launch-profile'], {
   cwd: paths.root,
   env,
-  label: useHttps ? 'dotnet run API/Web (HTTPS)' : 'dotnet run API/Web (HTTP)',
+  label: useHttps ? 'dotnet run API/Web (Production + HTTPS)' : 'dotnet run API/Web (Development + HTTP)',
 })
