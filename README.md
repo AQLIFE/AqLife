@@ -28,7 +28,7 @@ API、Web 和 MGS 每次启动只监听一种协议，不会同时打开 HTTP �
 
 | 服务 | HTTP（默认） | HTTPS（可选） |
 |---|---|---|
-| API / Swagger | http://localhost:5110/swagger | https://localhost:7110/swagger |
+| API / Swagger | http://localhost:5110/swagger | https://localhost:5110/swagger |
 | Web | http://localhost:5173 | https://localhost:5173 |
 | MGS | http://localhost:5200 | https://localhost:5200 |
 
@@ -138,11 +138,11 @@ macOS 客户端可通过“钥匙串访问”将 `rootCA.pem` 导入“系统”
 将 `services/API/Web/Configurations/appsettings.Development.example.json` 复制为 `appsettings.Development.json`，按实际数据库等配置修改，并将 CORS 示例中的 `192.168.0.100` 替换为开发电脑的 LAN IP。示例同时列出 HTTP/HTTPS 前端来源；实际启动仍只会启用所选协议。
 
 局域网访问时，在开发电脑防火墙中允许所选服务端口的入站 TCP 连接：
-- API：HTTP `5110` 或 HTTPS `7110`
+- API：HTTP 或 HTTPS 均为 `5110`
 - Web：`5173`
 - MGS：`5200`
 
-Ubuntu 可使用 UFW，例如仅在可信 LAN 中开放所需端口：`sudo ufw allow 5110/tcp`、`sudo ufw allow 5173/tcp`、`sudo ufw allow 5200/tcp`；HTTPS 模式则将 API 端口改为 `7110`。不要将开发服务直接暴露到公网。
+Ubuntu 可使用 UFW，例如仅在可信 LAN 中开放所需端口：`sudo ufw allow 5110/tcp`、`sudo ufw allow 5173/tcp`、`sudo ufw allow 5200/tcp`；HTTPS 模式 API 端口仍为 `5110`。不要将开发服务直接暴露到公网。
 
 开发 CA 和证书仅用于本地开发，不可用于生产环境。生产部署应使用可信 CA 签发的证书，或由反向代理/托管平台终止 TLS；生产私钥和密码通过部署 Secret 管理。
 
