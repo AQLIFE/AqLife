@@ -22,69 +22,129 @@ cp services/API/Web/Configurations/appsettings.Development.example.json services
 dotnet ef database update --project .\services\API\PostgreSqlMigrations\PostgreSqlMigrations.csproj --startup-project .\services\API\Web\Web.csproj
 ## 这里是示例,请根据实际部署路径修改
 
-## HTTP / HTTPS 局域网开发环境
+## 开发环境协议选择（HTTP 默认，HTTPS 可选）
 
-开发环境同时提供 HTTP 与 HTTPS。HTTP/HTTPS 使用独立 Vite 进程和端口，API 则由同一个 Kestrel 进程同时监听两个协议：
+API、Web 和 MGS 每次启动只监听一种协议，不会同时打开 HTTP 与 HTTPS。默认使用 HTTP，不需要证书；需要 HTTPS 时，在启动命令后显式选择 `:https`。HTTP 与 HTTPS 使用相同端口，仅协议不同：
 
-| 服务 | HTTP | HTTPS |
+| 服务 | HTTP（默认） | HTTPS（可选） |
 |---|---|---|
 | API / Swagger | http://localhost:5110/swagger | https://localhost:7110/swagger |
-| Web | http://localhost:5173 | https://localhost:5174 |
-| MGS | http://localhost:5200 | https://localhost:5201 |
+| Web | http://localhost:5173 | https://localhost:5173 |
+| MGS | http://localhost:5200 | https://localhost:5200 |
 
-所有开发监听均绑定 `0.0.0.0`，因此本机和局域网设备都可以访问。请将下文的 `192.168.0.100` 替换为运行仓库电脑的实际局域网 IPv4 地址。
+服务监听 `0.0.0.0`，可供本机和局域网设备访问。局域网访问时，请将 `localhost` 替换为运行服务电脑的局域网 IP 或证书中包含的 DNS 名称。HTTPS 证书必须包含这些访问名称/IP 的 Subject Alternative Name（SAN）。
 
-### 1. 生成可供局域网使用的 HTTPS 证书（Windows）
+### 1. HTTP 默认启动
 
-.NET 自带的 localhost 开发证书只适用于 localhost，不能直接用于通过局域网 IP 访问。局域网 HTTPS 需要 SAN 中包含本机 IP 的证书。可在 Windows 安装 [mkcert](https://github.com/FiloSottile/mkcert) 和 OpenSSL，然后在仓库根目录执行：
-
-```powershell
-mkdir .https -Force
-mkcert -install
-mkcert -cert-file .https/lan.pem -key-file .https/lan-key.pem localhost 127.0.0.1 ::1 192.168.0.100
-openssl pkcs12 -export -out .https/localhost.pfx -inkey .https/lan-key.pem -in .https/lan.pem -passout pass:aqlife-local-dev-only
-```
-
-这里的 PFX 文件名和密码是开发脚本约定。证书目录已加入 `.gitignore`，不要提交证书或私钥。mkcert 的 `rootCA-key.pem` 是 CA 私钥，绝对不要复制到其他设备或提交仓库。
-
-### 2. 配置 API 使用该证书
-
-在仓库根目录执行 PowerShell 命令，将证书路径和密码写入 .NET User Secrets（不会写入 Git）：
-
-```powershell
-$pfx = (Resolve-Path .https/localhost.pfx).Path
-dotnet user-secrets set "Kestrel:Certificates:Default:Path" "$pfx" --project services/API/Web
-dotnet user-secrets set "Kestrel:Certificates:Default:Password" "aqlife-local-dev-only" --project services/API/Web
-```
-
-API Development profile 已监听 `0.0.0.0:5110` 和 `0.0.0.0:7110`。启动 API 时会保留已经生成的 LAN PFX，不会再用 localhost 证书覆盖它。
-
-### 3. 配置 CORS 和前端 API 地址
-
-将 `services/API/Web/Configurations/appsettings.Development.example.json` 复制为 `appsettings.Development.json`，按实际情况修改数据库等配置，并把 `Cors:AllowedOrigins` 中的 `192.168.0.100` 替换为开发电脑的 LAN IP。
-
-前端 API 地址通过 `config/env` 下的 Vite 环境文件中的 `VITE_API` 配置。HTTP 页面应请求 `http://开发电脑IP:5110`；HTTPS 页面应请求 `https://开发电脑IP:7110`。浏览器不允许 HTTPS 页面请求 HTTP API（Mixed Content），因此两种协议模式不能共用一个固定的跨协议 API 地址。切换前端协议时同步切换 `VITE_API`，然后重启对应 Vite 进程。
-
-### 4. 启动服务
+在仓库根目录分别启动需要的服务：
 
 ```shell
-# HTTP
 npm run dev:api
 npm run dev:web
 npm run dev:mgs
+```
 
-# HTTPS（另开终端；与 HTTP 服务可同时运行）
+### 2. HTTPS 证书生成（Ubuntu / Windows / macOS）
+
+开发 HTTPS 使用 mkcert 创建本地开发 CA 和服务端证书。mkcert 与 OpenSSL 均可跨平台使用。以下以 Ubuntu 为例；Windows/macOS 可安装对应平台的 mkcert 和 OpenSSL，然后执行相同的 mkcert / openssl 命令。
+
+Ubuntu 安装依赖和 mkcert（以下下载地址示例为 x86_64；ARM64 请将架构改为 `linux/arm64`）：
+
+```bash
+sudo apt update
+sudo apt install -y libnss3-tools ca-certificates curl openssl
+curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+chmod +x mkcert-v*-linux-amd64
+sudo install -m 0755 mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+```
+
+在仓库根目录创建证书。将 `192.168.0.100` 替换为开发电脑当前的局域网 IPv4 地址；如果通过局域网 DNS 名称访问，也将该名称加入最后的参数：
+
+```bash
+mkdir -p .https
+mkcert -install
+mkcert \
+  -cert-file .https/server.pem \
+  -key-file .https/server-key.pem \
+  localhost 127.0.0.1 ::1 192.168.0.100
+```
+
+mkcert 会在本机创建并信任一个开发 CA，并签发服务端证书。生成的 `.https/server.pem` 和 `.https/server-key.pem` 供 Vite HTTPS 使用。**不要分享或提交 mkcert 的 `rootCA-key.pem`，它是 CA 私钥。**
+
+为 ASP.NET Core API 另行导出 PFX。命令会交互式要求输入 PFX 密码，请设置一个本地开发密码并记住它：
+
+```bash
+openssl pkcs12 -export \
+  -out .https/server.pfx \
+  -inkey .https/server-key.pem \
+  -in .https/server.pem
+```
+
+证书文件只保存在本机的 `.https/` 目录，该目录已加入 `.gitignore`。
+
+### 3. 配置 API HTTPS 证书
+
+API 使用 .NET User Secrets 保存 PFX 路径和密码，不要将证书密码写入仓库配置文件：
+
+```bash
+dotnet user-secrets set "Kestrel:Certificates:Default:Path" "$(pwd)/.https/server.pfx" --project services/API/Web
+dotnet user-secrets set "Kestrel:Certificates:Default:Password" "替换为生成 PFX 时设置的密码" --project services/API/Web
+```
+
+如果更换证书或移动仓库，请更新 User Secrets 中的绝对证书路径。Vite 会直接读取 `.https/server.pem` 和 `.https/server-key.pem`。
+
+### 4. 选择 HTTPS 启动
+
+HTTPS 需要在对应服务命令中明确添加 `:https`：
+
+```shell
+npm run dev:api:https
 npm run dev:web:https
 npm run dev:mgs:https
 ```
 
-### 5. 让局域网其他设备信任证书并开放防火墙
+同一服务不要同时启动 HTTP 和 HTTPS 实例。切换协议时先停止旧进程，再启动另一种模式。API HTTPS 启动前必须完成上一节的 PFX 和 User Secrets 配置。
 
-在开发电脑执行 `mkcert -CAROOT` 查看 CA 目录，将其中的 `rootCA.pem` 安全地复制到需要访问的局域网设备，并将其安装为受信任根证书。不要复制 `rootCA-key.pem`。浏览器可能需要完全重启后才会识别新信任。
+前端 API 默认根据当前页面的协议、主机名自动选择 API 地址：HTTP 页面使用 `http://当前主机:5110`，HTTPS 页面使用 `https://当前主机:7110`。如果设置了 `VITE_API`，该环境变量会覆盖自动推导的默认值；请确保它与前端协议一致，避免浏览器 Mixed Content 拦截。
 
-在开发电脑的 Windows Defender 防火墙中允许入站 TCP 端口 `5110, 7110, 5173, 5174, 5200, 5201`。只建议在可信的专用局域网配置入站规则，不要将开发服务暴露到公网。
+### 5. 让其他局域网设备信任开发 CA
 
-HTTPS 开发证书只用于开发环境，不可用于生产环境。生产部署应由反向代理/托管平台终止 TLS，或为 Kestrel 配置由可信 CA 签发的证书；生产证书和密码通过部署环境的 Secret 管理，不要放进仓库。
+mkcert 的 `-install` 只为运行命令的开发电脑安装信任。其他设备也必须信任同一个 CA 根证书，才能无警告访问 HTTPS。先在开发电脑执行：
+
+```bash
+mkcert -CAROOT
+```
+
+将该目录中的 `rootCA.pem` 安全复制到需要访问的客户端设备。**只复制 `rootCA.pem`，绝对不要复制 `rootCA-key.pem`。** 不要通过公开仓库、公共网盘或不可信渠道分发根证书。
+
+Ubuntu 客户端安装系统信任：
+
+```bash
+sudo cp rootCA.pem /usr/local/share/ca-certificates/aqlife-dev-ca.crt
+sudo update-ca-certificates
+```
+
+Windows 客户端可先将 CA 转为 DER 格式，再导入本机受信任根证书存储（以管理员身份运行终端）：
+
+```powershell
+openssl x509 -in rootCA.pem -outform DER -out aqlife-dev-ca.cer
+certutil -addstore -f Root aqlife-dev-ca.cer
+```
+
+macOS 客户端可通过“钥匙串访问”将 `rootCA.pem` 导入“系统”钥匙串并设为信任。Firefox 若未使用系统证书库，还需要在 Firefox 的证书设置中单独导入根 CA。安装后完全重启浏览器。
+
+### 6. CORS 与防火墙
+
+将 `services/API/Web/Configurations/appsettings.Development.example.json` 复制为 `appsettings.Development.json`，按实际数据库等配置修改，并将 CORS 示例中的 `192.168.0.100` 替换为开发电脑的 LAN IP。示例同时列出 HTTP/HTTPS 前端来源；实际启动仍只会启用所选协议。
+
+局域网访问时，在开发电脑防火墙中允许所选服务端口的入站 TCP 连接：
+- API：HTTP `5110` 或 HTTPS `7110`
+- Web：`5173`
+- MGS：`5200`
+
+Ubuntu 可使用 UFW，例如仅在可信 LAN 中开放所需端口：`sudo ufw allow 5110/tcp`、`sudo ufw allow 5173/tcp`、`sudo ufw allow 5200/tcp`；HTTPS 模式则将 API 端口改为 `7110`。不要将开发服务直接暴露到公网。
+
+开发 CA 和证书仅用于本地开发，不可用于生产环境。生产部署应使用可信 CA 签发的证书，或由反向代理/托管平台终止 TLS；生产私钥和密码通过部署 Secret 管理。
 
 ## 以Dev模式启动
 
