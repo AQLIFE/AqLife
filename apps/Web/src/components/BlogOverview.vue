@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useTagStore } from '@/stores/tagStore';
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { ElButton } from 'element-plus';
 import { FileOrder, FileScope, TagApi, FileApi, type BlogCategoryStatistics, type FileDto } from '@/api';
 import { apiConfiguration } from '@/services/api';
@@ -13,6 +14,7 @@ const BlogCategoryView = ref<BlogCategoryStatistics[]>([])
 const hotList = ref<FileDto[]>()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useBlogStore()
+const route = useRoute()
 async function loadAllPublishedBlogCount(): Promise<number> {
     let page = 1
     const pageSize = 100
@@ -66,6 +68,20 @@ onBeforeMount(async () => {
     ]
     hotList.value = popular.items ?? []
 })
+
+watch(
+    () => route.path,
+    async (path, previousPath) => {
+        if (previousPath?.startsWith('/preview/') && path === '/blog') {
+            const result = await fileApi.apiFileGet({
+                scope: FileScope.Blog,
+                order: FileOrder.MostViewed,
+                pageSize: 5,
+            })
+            hotList.value = result.items ?? []
+        }
+    },
+)
 </script>
 
 <template>
