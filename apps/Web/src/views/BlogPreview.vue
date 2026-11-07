@@ -139,7 +139,6 @@ const articleTags = computed(() =>
 )
 
 const hasViewed = ref(false)
-const isViewing = ref(false)
 let viewingPromise: Promise<void> | null = null
 
 function completePreview(): Promise<void> {
@@ -154,7 +153,6 @@ function completePreview(): Promise<void> {
     return viewingPromise
   }
 
-  isViewing.value = true
   viewingPromise = (async () => {
     try {
       await fileApi.apiFilePreviewCompletePatch({ uID: uid })
@@ -166,7 +164,6 @@ function completePreview(): Promise<void> {
     } catch (error) {
       console.error('更新文章阅览量失败:', error)
     } finally {
-      isViewing.value = false
       viewingPromise = null
     }
   })()
