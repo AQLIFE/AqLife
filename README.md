@@ -24,7 +24,7 @@ dotnet ef database update --project .\services\API\PostgreSqlMigrations\PostgreS
 
 ## 开发环境协议选择（HTTP 默认，HTTPS 可选）
 
-API、Web 和 MGS 每次启动只监听一种协议，不会同时打开 HTTP 与 HTTPS。默认使用 HTTP，不需要证书；需要 HTTPS 时，在启动命令后显式选择 `:https`。HTTP 与 HTTPS 使用相同端口，仅协议不同：
+API、Web 和 MGS 每次启动只监听一种协议，不会同时打开 HTTP 与 HTTPS。默认使用 HTTP，不需要证书；需要 HTTPS 时，在运行参数中添加 `--https`（仓库也提供 `:https` 快捷脚本）。HTTP 与 HTTPS 使用相同端口，仅协议不同：
 
 | 服务 | HTTP（默认） | HTTPS（可选） |
 |---|---|---|
@@ -95,9 +95,14 @@ dotnet user-secrets set "Kestrel:Certificates:Default:Password" "替换为生成
 
 ### 4. 选择 HTTPS 启动
 
-HTTPS 需要在对应服务命令中明确添加 `:https`：
+HTTPS 可通过运行参数显式启用：
 
 ```shell
+npm run dev:api -- --https
+npm run dev:web -- --https
+npm run dev:mgs -- --https
+
+# 等价的快捷命令
 npm run dev:api:https
 npm run dev:web:https
 npm run dev:mgs:https
