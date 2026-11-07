@@ -1,10 +1,8 @@
 import { paths, workspaces } from './lib/paths.mjs'
 import { npmRun } from './lib/exec.mjs'
 
-const script = process.argv.includes('--https') ? 'dev:https' : 'dev'
-
-npmRun(script, {
+npmRun('dev', {
   workspace: workspaces.web,
   cwd: paths.root,
-  label: `${script} @aqlife/web`,
+  label: `vite web (${process.env.APP_ENV ?? 'dev'})`,
 })
