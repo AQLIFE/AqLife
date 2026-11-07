@@ -105,7 +105,7 @@ npm run dev:mgs:https
 
 同一服务不要同时启动 HTTP 和 HTTPS 实例。切换协议时先停止旧进程，再启动另一种模式。API HTTPS 启动前必须完成上一节的 PFX 和 User Secrets 配置。
 
-前端 API 默认根据当前页面的协议、主机名自动选择 API 地址：HTTP 页面使用 `http://当前主机:5110`，HTTPS 页面使用 `https://当前主机:7110`。如果设置了 `VITE_API`，该环境变量会覆盖自动推导的默认值；请确保它与前端协议一致，避免浏览器 Mixed Content 拦截。
+前端 API 默认根据当前页面的协议、主机名自动选择 API 地址：HTTP 页面使用 `http://当前主机:5110`，HTTPS 页面使用 `https://当前主机:5110`。如果设置了 `VITE_API`，该环境变量会覆盖自动推导的默认值；请确保它与前端协议一致，避免浏览器 Mixed Content 拦截。
 
 ### 5. 让其他局域网设备信任开发 CA
 
