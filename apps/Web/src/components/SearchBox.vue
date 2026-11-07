@@ -183,6 +183,9 @@ function handleSelect(uid: string) {
   if (SearchHistory.value.length > 20) {
     SearchHistory.value.pop()
   }
+
+  // ElSelect 的 Enter 键会选中默认首项；选择后直接打开对应文章。
+  void router.push({ path: `/preview/${uid}` })
 }
 
 
