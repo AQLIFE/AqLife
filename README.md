@@ -35,7 +35,7 @@ API、Web 和 MGS 统一通过环境变量 `APP_ENV` 选择运行环境和协议
 
 | 服务 | 端口 | dev | prod |
 |---|---:|---|---|
-| API / Swagger | 5110 | http://localhost:5110/swagger | https://localhost:5110/swagger |
+| API / Swagger | dev: 5110<br>prod: 7110 | http://localhost:5110/swagger | https://localhost:7110/swagger |
 | Web | 5173 | http://localhost:5173 | https://localhost:5173 |
 | MGS | 5200 | http://localhost:5200 | https://localhost:5200 |
 
@@ -114,7 +114,7 @@ dotnet user-secrets set "Kestrel:Certificates:Default:Password" "替换为生成
 
 ### 4. 前端 API 地址
 
-前端 API 默认根据当前页面的协议、主机名自动选择 API 地址：HTTP 页面使用 `http://当前主机:5110`，HTTPS 页面使用 `https://当前主机:5110`。如果设置了 `VITE_API`，该环境变量会覆盖自动推导的默认值；请确保它与前端协议一致，避免浏览器 Mixed Content 拦截。
+前端 API 默认根据当前页面的协议、主机名自动选择 API 地址：HTTP 页面使用 `http://当前主机:5110`，HTTPS 页面使用 `https://当前主机:7110`。如果设置了 `VITE_API`，该环境变量会覆盖自动推导的默认值；请确保它与前端协议一致，避免浏览器 Mixed Content 拦截。
 
 ### 5. 让其他局域网设备信任开发 CA
 
@@ -147,7 +147,7 @@ macOS 客户端可通过“钥匙串访问”将 `rootCA.pem` 导入“系统”
 Development 环境从 `appsettings.Development.json` 读取 CORS 配置；Production 环境如需跨域访问，也应在 `appsettings.Production.json` 或环境变量中配置 `Cors:AllowedOrigins`。将示例中的 `192.168.0.100` 替换为实际开发电脑的 LAN IP。API 只会在配置了允许来源时启用该 CORS 策略。
 
 局域网访问时，在开发电脑防火墙中允许所选服务端口的入站 TCP 连接：
-- API：5110
+- API：dev 5110 / prod 7110
 - Web：5173
 - MGS：5200
 
