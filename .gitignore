@@ -123,4 +123,4 @@ API/API.mermaid
 *.http.user
 *.http.local
 services/API/Web/Configurations/appsettings.Development.json
-.https/*
+.https/

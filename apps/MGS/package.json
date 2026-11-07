@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite --host --mode dev",
+    "prod": "vite --host --mode prod",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
@@ -15,8 +16,7 @@
     "lint": "run-s \"lint:*\"",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
-    "format": "prettier --write --experimental-cli src/",
-    "predev": "node ../../tools/scripts/prepare-https.mjs"
+    "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
     "@aqlife/api-client": "*",
@@ -26,9 +26,7 @@
     "@aqlife/icons": "*",
     "@element-plus/icons-vue": "^2.3.2",
     "element-plus": "^2.14.2",
-    "pinia": "^3.0.4",
-    "vue": "^3.5.38",
-    "vue-router": "^4.5.1"
+    "pinia": "^3.0.4"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",
@@ -39,8 +37,6 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-oxlint": "~1.69.0",
     "eslint-plugin-vue": "~10.9.2",
-    "jiti": "^2.7.0",
-    "npm-run-all2": "^9.0.2",
     "oxlint": "~1.69.0",
     "prettier": "3.8.4",
     "typescript": "~6.0.3",

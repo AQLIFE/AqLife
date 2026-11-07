@@ -35,11 +35,14 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<FileUploadFilter>();
 builder.Services.AddScoped<ResumableFileUploadService>();
 
-if (builder.Environment.IsDevelopment())
+var configuredCorsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+if (builder.Environment.IsDevelopment() && configuredCorsOrigins.Length == 0)
 {
-    var configuredCorsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-        ?? throw new ConfigurationNotFoundException("未找到 Cors 配置");
+    throw new ConfigurationNotFoundException("未找到 Cors:AllowedOrigins 配置");
+}
 
+if (configuredCorsOrigins.Length > 0)
+{
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AqLifeAllowSpecificOrigins", policy =>
@@ -56,7 +59,10 @@ var app = builder.Build();
 app.UseExceptionHandler();
 app.CheckDatabaseConnection();
 await app.OutputKeyAsync();
-app.UseCors("AqLifeAllowSpecificOrigins");
+if (configuredCorsOrigins.Length > 0)
+{
+    app.UseCors("AqLifeAllowSpecificOrigins");
+}
 app.UseAuthentication();
 app.UseAuthorization();
 
