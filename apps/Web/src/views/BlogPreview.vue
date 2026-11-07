@@ -4,7 +4,8 @@
       <template #content>
         <div class="article-header">
           <div class="article-title-row">
-            <span class="article-title">
+            <span v-if="articleStore.isLoading" class="article-title-skeleton" />
+            <span v-else class="article-title">
               {{ fileMeta?.fileName }}
             </span>
 
@@ -29,7 +30,20 @@
     </ElPageHeader>
 
     <ElScrollbar class="markdown-scrollbar" @scroll="handleMarkdownScroll" @end-reached="handleEndReached">
-      <div ref="markdownContainer" class="markdown-content" v-loading="markdownRenderRef?.loading">
+      <div v-if="articleStore.isLoading" class="preview-skeleton" aria-label="正在加载文章">
+        <div class="skeleton-meta"><span /><span /></div>
+        <div class="skeleton-line skeleton-line-title" />
+        <div class="skeleton-line skeleton-line-wide" />
+        <div class="skeleton-line skeleton-line-medium" />
+        <div class="skeleton-block" />
+        <div class="skeleton-line skeleton-line-wide" />
+        <div class="skeleton-line skeleton-line-medium" />
+        <div class="skeleton-line skeleton-line-short" />
+        <div class="skeleton-block skeleton-block-large" />
+        <div class="skeleton-line skeleton-line-wide" />
+        <div class="skeleton-line skeleton-line-medium" />
+      </div>
+      <div v-else ref="markdownContainer" class="markdown-content" v-loading="markdownRenderRef?.loading">
         <MarkdownRender ref="markdownRenderRef" :markdown="sourceMarkdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
       </div>
     </ElScrollbar>
@@ -223,6 +237,9 @@ async function getPreview(
 
 async function loadArticle(id: string) {
   const currentVersion = ++requestVersion
+  articleStore.isLoading = true
+  articleStore.activeAnchor = ''
+  articleStore.toc = []
 
   try {
     const [markdown, meta] = await Promise.all([
@@ -246,6 +263,9 @@ async function loadArticle(id: string) {
     } else {
       articleStore.blogTitle = ''
     }
+
+    await nextTick()
+    if (currentVersion === requestVersion) articleStore.isLoading = false
   } catch (error) {
     if (currentVersion !== requestVersion) {
       return
@@ -256,6 +276,8 @@ async function loadArticle(id: string) {
     fileMeta.value = null
     articleStore.blogTitle = ''
     articleStore.activeAnchor = ''
+    articleStore.toc = []
+    articleStore.isLoading = false
   }
 }
 
@@ -383,6 +405,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeydown)
   articleStore.isFullscreen = false
+  articleStore.isLoading = false
   requestVersion++
 
   markdownResizeObserver?.disconnect()
@@ -423,6 +446,33 @@ onBeforeUnmount(() => {
 
   min-width: 0;
 }
+
+.article-title-skeleton {
+  display: block;
+  width: min(260px, 45vw);
+  height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--el-fill-color-light) 25%, var(--el-fill-color) 50%, var(--el-fill-color-light) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+.preview-skeleton { max-width: 920px; margin: 0 auto; padding: 30px 32px 48px; }
+.skeleton-meta { display: flex; gap: 10px; margin-bottom: 28px; }
+.skeleton-meta span, .skeleton-line, .skeleton-block {
+  display: block; border-radius: 5px;
+  background: linear-gradient(90deg, var(--el-fill-color-light) 25%, var(--el-fill-color) 50%, var(--el-fill-color-light) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+.skeleton-meta span { width: 64px; height: 18px; }
+.skeleton-line { height: 14px; margin: 16px 0; }
+.skeleton-line-title { width: 48%; height: 26px; margin-bottom: 26px; }
+.skeleton-line-wide { width: 92%; }
+.skeleton-line-medium { width: 72%; }
+.skeleton-line-short { width: 38%; }
+.skeleton-block { width: 100%; height: 190px; margin: 28px 0; }
+.skeleton-block-large { height: 260px; }
+@keyframes skeleton-shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
 .article-title-row {
   display: flex;
@@ -484,6 +534,9 @@ onBeforeUnmount(() => {
     margin-left: 4px;
   }
 
+  .preview-skeleton { padding: 22px 14px 32px; }
+  .skeleton-block { height: 150px; }
+  .skeleton-block-large { height: 210px; }
   .article-title-row {
     align-items: flex-start;
     flex-direction: column;
