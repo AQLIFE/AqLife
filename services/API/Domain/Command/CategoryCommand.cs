@@ -1,6 +1,7 @@
-﻿using AqLife.Domain.CommandInterface;
+using AqLife.Domain.CommandInterface;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
+using System.ComponentModel.DataAnnotations;
 
 namespace AqLife.Domain.Command
 {
@@ -11,13 +12,22 @@ namespace AqLife.Domain.Command
     }
 
     /// <summary>
-    /// 分类查询
+    /// 查询分类及其关联业务数量。CID 指定时仅返回对应分类。
     /// </summary>
-    /// <param name="CID">当存在该参数时,会根据对应 SeafchType 参数进行搜索</param>
-    /// <param name="SearchType"></param>
-    public record CategoryQuery(Guid? CID = null, CategoryQueryType SearchType = CategoryQueryType.Blog) : IQuery<PageResult<CategoryDto>?>;
+    public record CategoryQuery(Guid? CID = null, CategoryQueryType SearchType = CategoryQueryType.Blog)
+        : IQuery<PageResult<CategoryDto>?>;
 
-    public record CreateCategoryCommand(string Name, string desc, Guid? ParentId) : ICreateCommand;
-    public record UpdateCategoryCommand(Guid UID, string Name, string desc, Guid? ParentId) : IUpdateCommand, IRequireValidEntity<CategoryEntity>;
-    public record DeleteCategoryCommand(Guid UID) : IDeleteCommand, IRequireValidEntity<CategoryEntity>;
+    public record CreateCategoryCommand(
+        [property: Required, StringLength(32)] string Name,
+        [property: StringLength(256)] string Description,
+        Guid? ParentId) : ICreateCommand;
+
+    public record UpdateCategoryCommand(
+        Guid UID,
+        [property: Required, StringLength(32)] string Name,
+        [property: StringLength(256)] string Description,
+        Guid? ParentId) : IUpdateCommand, IRequireValidEntity<CategoryEntity>;
+
+    public record DeleteCategoryCommand(Guid UID)
+        : IDeleteCommand, IRequireValidEntity<CategoryEntity>;
 }

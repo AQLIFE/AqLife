@@ -49,11 +49,11 @@ namespace AqLife.Application.Business.Favorite.Validator
     public class CreateValidCategoryFavoriteValidator(IApplicationDbContext dbContext)
         : AbstractValidator<CreateFavoriteCommand>
     {
-        private protected override string ErrorMessage { init; get; } = "关联分类不存在";
+        private protected override string ErrorMessage { init; get; } = "Favorite 必须指定一个有效分类";
 
         private protected override async Task<bool> IsValidAsync(CreateFavoriteCommand command, CancellationToken ct)
-            => command.CID is null ||
-               await dbContext.Categories.AnyAsync(category => category.UID == command.CID, ct);
+            => command.CID is Guid categoryId &&
+               await dbContext.Categories.AnyAsync(category => category.UID == categoryId, ct);
     }
 
     public class UpdateValidTagsFavoriteValidator(IApplicationDbContext dbContext)
@@ -100,10 +100,10 @@ namespace AqLife.Application.Business.Favorite.Validator
     public class UpdateValidCategoryFavoriteValidator(IApplicationDbContext dbContext)
         : AbstractValidator<UpdateFavoriteCommand>
     {
-        private protected override string ErrorMessage { init; get; } = "关联分类不存在";
+        private protected override string ErrorMessage { init; get; } = "Favorite 必须指定一个有效分类";
 
         private protected override async Task<bool> IsValidAsync(UpdateFavoriteCommand command, CancellationToken ct)
-            => command.CID is null ||
-               await dbContext.Categories.AnyAsync(category => category.UID == command.CID, ct);
+            => command.CID is Guid categoryId &&
+               await dbContext.Categories.AnyAsync(category => category.UID == categoryId, ct);
     }
 }

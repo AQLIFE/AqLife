@@ -5,6 +5,7 @@ using AqLife.Application.Behaviors;
 using AqLife.Application.Business.Account;
 using AqLife.Application.Business.Account.Search;
 using AqLife.Application.Business.Account.Services;
+using AqLife.Application.Business.Category.Search;
 using AqLife.Application.Business.Corpus;
 using AqLife.Application.Business.Corpus.Search;
 using AqLife.Application.Business.Favorite.Search;
@@ -45,6 +46,8 @@ public static class ApplicationExtensions
         services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, DefaultAccount>();
         services.AddScoped<ISearchStrategy<CorpusEntity, EntitySearchCriteria>, AllCorpusSearchStrategy>();
         services.AddScoped<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>, AllFavoriteSearchStrategy>();
+        services.AddScoped<ISearchStrategy<CategoryEntity, CategorySearchCriteria>, FilteredCategorySearchStrategy>();
+        services.AddScoped<ISearchStrategy<CategoryEntity, CategorySearchCriteria>, AllCategorySearchStrategy>();
 
         services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, ValidAccount>();
         services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, FilteredFilesSearchStrategy>();
@@ -58,7 +61,7 @@ public static class ApplicationExtensions
         services.AddScoped<TagSearch>();
         services.AddScoped<TodoSearch>();
         services.AddScoped<FavoriteSearch>();
-        //services.AddScoped<Category>();
+        services.AddScoped<CategorySearch>();
 
         services.AddScoped<FileReader>();
         services.AddScoped<FileWriter>();
@@ -98,14 +101,11 @@ public static class ApplicationExtensions
         services.AddSingleton<CategoryMapper>();
         services.AddScoped<CategoryMappingService>();
         services.AddScoped<IViewMapper<CategoryEntity, CategoryDto>>(sp => sp.GetRequiredService<CategoryMappingService>());
-        //services.AddScoped<ICreateMapper<FileMetaEntity, IFormFile>>(sp => sp.GetRequiredService<FileMappingService>());
-
 
         services.AddSingleton<FavoriteMediaMapper>();
         services.AddSingleton<FavoriteMapper>();
         services.AddSingleton<IViewMapper<FavoriteItemEntity, FavoriteDto>>(sp => sp.GetRequiredService<FavoriteMapper>());
         services.AddSingleton<ICreateMapper<FavoriteItemEntity, CreateFavoriteCommand>>(sp => sp.GetRequiredService<FavoriteMapper>());
-
 
         services.AddSingleton<QueryMapper>();
         services.AddScoped(typeof(PageResultMapper<,>));
