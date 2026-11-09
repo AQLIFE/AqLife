@@ -15,6 +15,7 @@ docs/CorpusApi.md
 docs/CorpusDto.md
 docs/CorpusDtoPageResult.md
 docs/CreateAccountCommand.md
+docs/CreateCategoryCommand.md
 docs/CreateCorpusCommand.md
 docs/CreateDevelopmentPlanCommand.md
 docs/CreateFavoriteCommand.md
@@ -62,6 +63,7 @@ docs/TodoDto.md
 docs/TodoDtoPageResult.md
 docs/TodoRoadmapDto.md
 docs/TodoStatus.md
+docs/UpdateCategoryCommand.md
 docs/UpdateDevelopmentPlanCommand.md
 docs/UpdateFavoriteCommand.md
 docs/UpdateFileTagCommand.md
@@ -90,6 +92,7 @@ src/models/CheckFileHashQuery.ts
 src/models/CorpusDto.ts
 src/models/CorpusDtoPageResult.ts
 src/models/CreateAccountCommand.ts
+src/models/CreateCategoryCommand.ts
 src/models/CreateCorpusCommand.ts
 src/models/CreateDevelopmentPlanCommand.ts
 src/models/CreateFavoriteCommand.ts
@@ -131,6 +134,7 @@ src/models/TodoDto.ts
 src/models/TodoDtoPageResult.ts
 src/models/TodoRoadmapDto.ts
 src/models/TodoStatus.ts
+src/models/UpdateCategoryCommand.ts
 src/models/UpdateDevelopmentPlanCommand.ts
 src/models/UpdateFavoriteCommand.ts
 src/models/UpdateFileTagCommand.ts

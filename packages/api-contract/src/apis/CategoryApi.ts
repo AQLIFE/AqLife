@@ -23,10 +23,32 @@ import {
     CategoryQueryTypeFromJSON,
     CategoryQueryTypeToJSON,
 } from '../models/CategoryQueryType';
+import {
+    type CreateCategoryCommand,
+    CreateCategoryCommandFromJSON,
+    CreateCategoryCommandToJSON,
+} from '../models/CreateCategoryCommand';
+import {
+    type UpdateCategoryCommand,
+    UpdateCategoryCommandFromJSON,
+    UpdateCategoryCommandToJSON,
+} from '../models/UpdateCategoryCommand';
+
+export interface ApiCategoryDeleteRequest {
+    uID?: string;
+}
 
 export interface ApiCategoryGetRequest {
     cID?: string;
     searchType?: CategoryQueryType;
+}
+
+export interface ApiCategoryPostRequest {
+    createCategoryCommand?: CreateCategoryCommand;
+}
+
+export interface ApiCategoryPutRequest {
+    updateCategoryCommand?: UpdateCategoryCommand;
 }
 
 /**
@@ -36,6 +58,27 @@ export interface ApiCategoryGetRequest {
  * @interface CategoryApiInterface
  */
 export interface CategoryApiInterface {
+    /**
+     * Creates request options for apiCategoryDelete without sending the request
+     * @param {string} [uID] 
+     * @throws {RequiredError}
+     * @memberof CategoryApiInterface
+     */
+    apiCategoryDeleteRequestOpts(requestParameters: ApiCategoryDeleteRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} [uID] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CategoryApiInterface
+     */
+    apiCategoryDeleteRaw(requestParameters: ApiCategoryDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     */
+    apiCategoryDelete(requestParameters: ApiCategoryDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
     /**
      * Creates request options for apiCategoryGet without sending the request
      * @param {string} [cID] 
@@ -59,12 +102,92 @@ export interface CategoryApiInterface {
      */
     apiCategoryGet(requestParameters: ApiCategoryGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryDtoPageResult>;
 
+    /**
+     * Creates request options for apiCategoryPost without sending the request
+     * @param {CreateCategoryCommand} [createCategoryCommand] 
+     * @throws {RequiredError}
+     * @memberof CategoryApiInterface
+     */
+    apiCategoryPostRequestOpts(requestParameters: ApiCategoryPostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {CreateCategoryCommand} [createCategoryCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CategoryApiInterface
+     */
+    apiCategoryPostRaw(requestParameters: ApiCategoryPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiCategoryPost(requestParameters: ApiCategoryPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiCategoryPut without sending the request
+     * @param {UpdateCategoryCommand} [updateCategoryCommand] 
+     * @throws {RequiredError}
+     * @memberof CategoryApiInterface
+     */
+    apiCategoryPutRequestOpts(requestParameters: ApiCategoryPutRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {UpdateCategoryCommand} [updateCategoryCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CategoryApiInterface
+     */
+    apiCategoryPutRaw(requestParameters: ApiCategoryPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiCategoryPut(requestParameters: ApiCategoryPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
 }
 
 /**
  * 
  */
 export class CategoryApi extends runtime.BaseAPI implements CategoryApiInterface {
+
+    /**
+     * Creates request options for apiCategoryDelete without sending the request
+     */
+    async apiCategoryDeleteRequestOpts(requestParameters: ApiCategoryDeleteRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['uID'] != null) {
+            queryParameters['UID'] = requestParameters['uID'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/Category`;
+
+        return {
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiCategoryDeleteRaw(requestParameters: ApiCategoryDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.apiCategoryDeleteRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async apiCategoryDelete(requestParameters: ApiCategoryDeleteRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiCategoryDeleteRaw(requestParameters, initOverrides);
+    }
 
     /**
      * Creates request options for apiCategoryGet without sending the request
@@ -106,6 +229,90 @@ export class CategoryApi extends runtime.BaseAPI implements CategoryApiInterface
      */
     async apiCategoryGet(requestParameters: ApiCategoryGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryDtoPageResult> {
         const response = await this.apiCategoryGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiCategoryPost without sending the request
+     */
+    async apiCategoryPostRequestOpts(requestParameters: ApiCategoryPostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/Category`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CreateCategoryCommandToJSON(requestParameters['createCategoryCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiCategoryPostRaw(requestParameters: ApiCategoryPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiCategoryPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiCategoryPost(requestParameters: ApiCategoryPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiCategoryPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiCategoryPut without sending the request
+     */
+    async apiCategoryPutRequestOpts(requestParameters: ApiCategoryPutRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/Category`;
+
+        return {
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdateCategoryCommandToJSON(requestParameters['updateCategoryCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiCategoryPutRaw(requestParameters: ApiCategoryPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiCategoryPutRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiCategoryPut(requestParameters: ApiCategoryPutRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiCategoryPutRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

@@ -57,7 +57,10 @@ All URIs are relative to *http://localhost*
 *AccountApi* | [**apiAccountPost**](docs/AccountApi.md#apiaccountpost) | **POST** /api/Account | 
 *AccountApi* | [**apiAccountProfilePatch**](docs/AccountApi.md#apiaccountprofilepatch) | **PATCH** /api/Account/profile | 
 *AccountApi* | [**apiAccountSubscriptionsPut**](docs/AccountApi.md#apiaccountsubscriptionsput) | **PUT** /api/Account/subscriptions | 
+*CategoryApi* | [**apiCategoryDelete**](docs/CategoryApi.md#apicategorydelete) | **DELETE** /api/Category | 
 *CategoryApi* | [**apiCategoryGet**](docs/CategoryApi.md#apicategoryget) | **GET** /api/Category | 
+*CategoryApi* | [**apiCategoryPost**](docs/CategoryApi.md#apicategorypost) | **POST** /api/Category | 
+*CategoryApi* | [**apiCategoryPut**](docs/CategoryApi.md#apicategoryput) | **PUT** /api/Category | 
 *CorpusApi* | [**apiCorpusDelete**](docs/CorpusApi.md#apicorpusdelete) | **DELETE** /api/Corpus | 
 *CorpusApi* | [**apiCorpusGet**](docs/CorpusApi.md#apicorpusget) | **GET** /api/Corpus | 
 *CorpusApi* | [**apiCorpusPost**](docs/CorpusApi.md#apicorpuspost) | **POST** /api/Corpus | 
@@ -120,6 +123,7 @@ All URIs are relative to *http://localhost*
 - [CorpusDto](docs/CorpusDto.md)
 - [CorpusDtoPageResult](docs/CorpusDtoPageResult.md)
 - [CreateAccountCommand](docs/CreateAccountCommand.md)
+- [CreateCategoryCommand](docs/CreateCategoryCommand.md)
 - [CreateCorpusCommand](docs/CreateCorpusCommand.md)
 - [CreateDevelopmentPlanCommand](docs/CreateDevelopmentPlanCommand.md)
 - [CreateFavoriteCommand](docs/CreateFavoriteCommand.md)
@@ -161,6 +165,7 @@ All URIs are relative to *http://localhost*
 - [TodoDtoPageResult](docs/TodoDtoPageResult.md)
 - [TodoRoadmapDto](docs/TodoRoadmapDto.md)
 - [TodoStatus](docs/TodoStatus.md)
+- [UpdateCategoryCommand](docs/UpdateCategoryCommand.md)
 - [UpdateDevelopmentPlanCommand](docs/UpdateDevelopmentPlanCommand.md)
 - [UpdateFavoriteCommand](docs/UpdateFavoriteCommand.md)
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
