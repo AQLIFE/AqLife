@@ -43,6 +43,9 @@ namespace PostgreSqlMigrations.Migrations
                 table: "FavoriteMedia",
                 column: "UID");
 
+            // The SQL default is only needed to assign unique IDs to rows that predate this column.
+            migrationBuilder.Sql("ALTER TABLE \"FavoriteMedia\" ALTER COLUMN \"UID\" DROP DEFAULT;");
+
             migrationBuilder.CreateTable(
                 name: "Category",
                 columns: table => new
