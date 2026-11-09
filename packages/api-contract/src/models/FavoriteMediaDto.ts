@@ -24,6 +24,12 @@ export interface FavoriteMediaDto {
      * @type {string}
      * @memberof FavoriteMediaDto
      */
+    uid?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FavoriteMediaDto
+     */
     fileId?: string;
     /**
      * 
@@ -56,6 +62,7 @@ export function FavoriteMediaDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
+        'uid': json['uid'] == null ? undefined : json['uid'],
         'fileId': json['fileId'] == null ? undefined : json['fileId'],
         'role': json['role'] == null ? undefined : json['role'],
         'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
@@ -73,6 +80,7 @@ export function FavoriteMediaDtoToJSONTyped(value?: FavoriteMediaDto | null, ign
 
     return {
         
+        'uid': value['uid'],
         'fileId': value['fileId'],
         'role': value['role'],
         'sortOrder': value['sortOrder'],

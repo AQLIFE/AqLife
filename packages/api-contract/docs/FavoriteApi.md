@@ -79,7 +79,7 @@ No authorization required
 
 ## apiFavoriteGet
 
-> FavoriteDtoPageResult apiFavoriteGet(uID, contentType, tagId, page, pageSize, includeUnpublished)
+> FavoriteDtoPageResult apiFavoriteGet(uID, categoryId, tagId, cName, page, pageSize)
 
 
 
@@ -100,15 +100,15 @@ async function example() {
     // string (optional)
     uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
     // string (optional)
-    contentType: contentType_example,
+    categoryId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
     // string (optional)
     tagId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    cName: cName_example,
     // number (optional)
     page: 56,
     // number (optional)
     pageSize: 56,
-    // boolean (optional)
-    includeUnpublished: true,
   } satisfies ApiFavoriteGetRequest;
 
   try {
@@ -129,11 +129,11 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
-| **contentType** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **categoryId** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **tagId** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **cName** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **page** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
-| **includeUnpublished** | `boolean` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 

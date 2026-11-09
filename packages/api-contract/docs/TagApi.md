@@ -153,7 +153,7 @@ No authorization required
 
 ## apiTagOverviewGet
 
-> Array&lt;BlogCategoryStatistics&gt; apiTagOverviewGet(isAll)
+> CategoryDtoPageResult apiTagOverviewGet(cID, searchType)
 
 
 
@@ -171,8 +171,10 @@ async function example() {
   const api = new TagApi();
 
   const body = {
-    // boolean (optional)
-    isAll: true,
+    // string (optional)
+    cID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // CategoryQueryType | - 0 = Blog - 1 = Favorite (optional)
+    searchType: ...,
   } satisfies ApiTagOverviewGetRequest;
 
   try {
@@ -192,11 +194,12 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **isAll** | `boolean` |  | [Optional] [Defaults to `undefined`] |
+| **cID** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **searchType** | `CategoryQueryType` | - 0 &#x3D; Blog - 1 &#x3D; Favorite | [Optional] [Defaults to `undefined`] [Enum: 0, 1] |
 
 ### Return type
 
-[**Array&lt;BlogCategoryStatistics&gt;**](BlogCategoryStatistics.md)
+[**CategoryDtoPageResult**](CategoryDtoPageResult.md)
 
 ### Authorization
 

@@ -9,12 +9,12 @@ Name | Type
 `uid` | string
 `title` | string
 `description` | string
-`contentType` | string
 `sourceUrl` | string
 `sortOrder` | number
 `isPublished` | boolean
 `createdAt` | string
 `updatedAt` | string
+`cid` | string
 `media` | [Array&lt;FavoriteMediaDto&gt;](FavoriteMediaDto.md)
 `tagIds` | Array&lt;string&gt;
 
@@ -28,12 +28,12 @@ const example = {
   "uid": null,
   "title": null,
   "description": null,
-  "contentType": null,
   "sourceUrl": null,
   "sortOrder": null,
   "isPublished": null,
   "createdAt": null,
   "updatedAt": null,
+  "cid": null,
   "media": null,
   "tagIds": null,
 } satisfies FavoriteDto

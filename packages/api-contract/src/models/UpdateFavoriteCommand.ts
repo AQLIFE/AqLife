@@ -50,7 +50,7 @@ export interface UpdateFavoriteCommand {
      * @type {string}
      * @memberof UpdateFavoriteCommand
      */
-    contentType?: string | null;
+    cid?: string;
     /**
      * 
      * @type {string}
@@ -97,7 +97,7 @@ export function UpdateFavoriteCommandFromJSONTyped(json: any, ignoreDiscriminato
         'uid': json['uid'] == null ? undefined : json['uid'],
         'title': json['title'] == null ? undefined : json['title'],
         'description': json['description'] == null ? undefined : json['description'],
-        'contentType': json['contentType'] == null ? undefined : json['contentType'],
+        'cid': json['cid'] == null ? undefined : json['cid'],
         'sourceUrl': json['sourceUrl'] == null ? undefined : json['sourceUrl'],
         'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
         'media': json['media'] == null ? undefined : ((json['media'] as Array<any>).map(FavoriteMediaInputFromJSON)),
@@ -119,7 +119,7 @@ export function UpdateFavoriteCommandToJSONTyped(value?: UpdateFavoriteCommand |
         'uid': value['uid'],
         'title': value['title'],
         'description': value['description'],
-        'contentType': value['contentType'],
+        'cid': value['cid'],
         'sourceUrl': value['sourceUrl'],
         'sortOrder': value['sortOrder'],
         'media': value['media'] == null ? undefined : ((value['media'] as Array<any>).map(FavoriteMediaInputToJSON)),

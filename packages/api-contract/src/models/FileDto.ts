@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { CategoryDto } from './CategoryDto';
+import {
+    CategoryDtoFromJSON,
+    CategoryDtoFromJSONTyped,
+    CategoryDtoToJSON,
+    CategoryDtoToJSONTyped,
+} from './CategoryDto';
 import type { FileStatus } from './FileStatus';
 import {
     FileStatusFromJSON,
@@ -114,6 +121,12 @@ export interface FileDto {
      * @memberof FileDto
      */
     isTemplate?: boolean;
+    /**
+     * 
+     * @type {CategoryDto}
+     * @memberof FileDto
+     */
+    category?: CategoryDto;
 }
 
 
@@ -148,6 +161,7 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
         'viewCount': json['viewCount'] == null ? undefined : json['viewCount'],
         'version': json['version'] == null ? undefined : json['version'],
         'isTemplate': json['isTemplate'] == null ? undefined : json['isTemplate'],
+        'category': json['category'] == null ? undefined : CategoryDtoFromJSON(json['category']),
     };
 }
 
@@ -175,6 +189,7 @@ export function FileDtoToJSONTyped(value?: FileDto | null, ignoreDiscriminator: 
         'viewCount': value['viewCount'],
         'version': value['version'],
         'isTemplate': value['isTemplate'],
+        'category': CategoryDtoToJSON(value['category']),
     };
 }
 

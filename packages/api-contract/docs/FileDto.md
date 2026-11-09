@@ -19,6 +19,7 @@ Name | Type
 `viewCount` | number
 `version` | number
 `isTemplate` | boolean
+`category` | [CategoryDto](CategoryDto.md)
 
 ## Example
 
@@ -40,6 +41,7 @@ const example = {
   "viewCount": null,
   "version": null,
   "isTemplate": null,
+  "category": null,
 } satisfies FileDto
 
 console.log(example)
