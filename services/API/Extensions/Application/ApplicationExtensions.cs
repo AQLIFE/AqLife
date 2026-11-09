@@ -93,14 +93,14 @@ public static class ApplicationExtensions
         services.AddSingleton<IViewMapper<CorpusEntity, CorpusDto>>(sp => sp.GetRequiredService<CorpusMapper>());
         services.AddSingleton<ICreateMapper<CorpusEntity, CreateCorpusCommand>>(sp => sp.GetRequiredService<CorpusMapper>());
 
-        services.AddSingleton<FileMapper>();
+        services.AddScoped<FileMapper>();
         services.AddScoped<FileMappingService>();
         services.AddScoped<IViewMapper<FileMetaEntity, FileDto>>(sp => sp.GetRequiredService<FileMappingService>());
         services.AddScoped<ICreateMapper<FileMetaEntity, IFormFile>>(sp => sp.GetRequiredService<FileMappingService>());
 
         services.AddSingleton<CategoryMapper>();
-        services.AddScoped<CategoryMappingService>();
-        services.AddScoped<IViewMapper<CategoryEntity, CategoryDto>>(sp => sp.GetRequiredService<CategoryMappingService>());
+        services.AddScoped<MapperServices>();
+        services.AddScoped<IViewMapper<CategoryEntity, CategoryDto>>(sp => sp.GetRequiredService<MapperServices>());
 
         services.AddSingleton<FavoriteMediaMapper>();
         services.AddSingleton<FavoriteMapper>();
