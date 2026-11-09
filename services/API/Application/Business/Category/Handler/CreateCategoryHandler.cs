@@ -17,7 +17,7 @@ public sealed class CreateCategoryHandler(IApplicationDbContext dbContext)
 
         var entity = new CategoryEntity(
             command.Name.Trim(),
-            command.Description?.Trim() ?? string.Empty,
+            command.desc?.Trim() ?? string.Empty,
             parent);
 
         await dbContext.Categories.AddAsync(entity, ct);

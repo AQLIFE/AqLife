@@ -19,13 +19,13 @@ namespace AqLife.Domain.Command
 
     public record CreateCategoryCommand(
         [property: Required, StringLength(32)] string Name,
-        [property: StringLength(256)] string Description,
+        [property: StringLength(256)] string desc,
         Guid? ParentId) : ICreateCommand;
 
     public record UpdateCategoryCommand(
         Guid UID,
         [property: Required, StringLength(32)] string Name,
-        [property: StringLength(256)] string Description,
+        [property: StringLength(256)] string desc,
         Guid? ParentId) : IUpdateCommand, IRequireValidEntity<CategoryEntity>;
 
     public record DeleteCategoryCommand(Guid UID)
