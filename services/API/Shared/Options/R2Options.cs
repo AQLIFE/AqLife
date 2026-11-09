@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AqLife.Shared.Options
+﻿namespace AqLife.Shared.Options
 {
     public sealed class R2Options
     {

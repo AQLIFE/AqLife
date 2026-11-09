@@ -3,12 +3,10 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
-using AqLife.Domain.CommandInterface;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.IView;
 using AqLife.Shared.Options;
-using AqLife.Shared.Tools;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -45,17 +43,17 @@ public class FileSearch(
     protected override async Task<IQueryable<FileMetaEntity>> BuildBaseQueryAsync(IQueryable<FileMetaEntity> queryable, FileQuery query)
     {
         queryable = queryable.Include(e => e.PublishMeta).Include(e => e.InteractionMeta).Include(e => e.FileTags).ThenInclude(x => x.Tag);
-        if(query.Scope == FileScope.Template && !IsValid) throw new RequestCheckException("You are not authorized to access template files.");// 前置验证已覆盖，确保未登录用户无法访问模板文件
+        if (query.Scope == FileScope.Template && !IsValid) throw new RequestCheckException("You are not authorized to access template files.");// 前置验证已覆盖，确保未登录用户无法访问模板文件
         queryable = query.Scope switch
         {
             FileScope.Template => queryable.Where(e => e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension)),
             FileScope.Image => queryable.Where(e => !e.IsTemplate && options.Value.AllowedImageExtensions.Contains(e.Extension)),
             FileScope.Video => queryable.Where(e => !e.IsTemplate && options.Value.AllowedVideoExtensions.Contains(e.Extension)),
             FileScope.Blog => queryable.Where(e => !e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension)),
-            FileScope.Default=> queryable.Where(e => !e.IsTemplate && options.Value.AllowedExtensions.Contains(e.Extension)),
-            FileScope.All => queryable.Where(e =>  options.Value.AllowedExtensions.Contains(e.Extension)),// 不区分模板查询全部匹配类型文件
-            _ => queryable.Where(e=>!e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension))
+            FileScope.Default => queryable.Where(e => !e.IsTemplate && options.Value.AllowedExtensions.Contains(e.Extension)),
+            FileScope.All => queryable.Where(e => options.Value.AllowedExtensions.Contains(e.Extension)),// 不区分模板查询全部匹配类型文件
+            _ => queryable.Where(e => !e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension))
         };
-        return IsValid? queryable : queryable.Where(e => !e.IsTemplate && e.PublishMeta.PublishStatus == FileStatus.Published);
+        return IsValid ? queryable : queryable.Where(e => !e.IsTemplate && e.PublishMeta.PublishStatus == FileStatus.Published);
     }
 }

@@ -1,6 +1,6 @@
 using AqLife.Domain.Entities;
-using AqLife.Domain.Entities.File;
 using AqLife.Domain.Entities.Favorite;
+using AqLife.Domain.Entities.File;
 using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Abstractions.Persistence
@@ -21,6 +21,8 @@ namespace AqLife.Application.Abstractions.Persistence
         DbSet<FavoriteItemEntity> FavoriteItems { get; }
         DbSet<FavoriteMediaEntity> FavoriteMedia { get; }
         DbSet<FavoriteTagEntity> FavoriteTags { get; }
+
+        DbSet<CategoryEntity> Categories { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         Task<ITransaction> BeginTransactionAsync(CancellationToken ct);

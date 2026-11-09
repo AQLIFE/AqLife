@@ -4,7 +4,7 @@ using AqLife.Domain.Entities;
 using AqLife.Domain.Services;
 using AqLife.Shared.IView;
 
-namespace AqLife.Application.Business.Todo
+namespace AqLife.Application.Mappers
 {
     public sealed class TodoMapper :
         IViewMapper<TodoEntity, TodoDto>,

@@ -2,20 +2,18 @@ using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.BackServices;
 using AqLife.Application.Behaviors;
-using AqLife.Application.Business;
 using AqLife.Application.Business.Account;
 using AqLife.Application.Business.Account.Search;
 using AqLife.Application.Business.Account.Services;
 using AqLife.Application.Business.Corpus;
 using AqLife.Application.Business.Corpus.Search;
-using AqLife.Application.Business.DevelopmentPlan;
+using AqLife.Application.Business.Favorite.Search;
 using AqLife.Application.Business.File;
 using AqLife.Application.Business.File.Search;
 using AqLife.Application.Business.File.Service;
 using AqLife.Application.Business.File.Validator;
 using AqLife.Application.Business.Tag;
 using AqLife.Application.Business.Tag.Search;
-using AqLife.Application.Business.Todo;
 using AqLife.Application.Business.Todo.Search;
 using AqLife.Application.Mappers;
 using AqLife.Application.Search;
@@ -24,6 +22,7 @@ using AqLife.Domain.Command;
 using AqLife.Domain.CommandInterface;
 using AqLife.Domain.Contracts;
 using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.Favorite;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;
 using AqLife.Shared.Tools;
@@ -55,6 +54,8 @@ public static class ApplicationExtensions
         services.AddScoped<CorpusSearch>();
         services.AddScoped<TagSearch>();
         services.AddScoped<TodoSearch>();
+        services.AddScoped<FavoriteSearch>();
+        //services.AddScoped<Category>();
 
         services.AddScoped<FileReader>();
         services.AddScoped<FileWriter>();
@@ -90,6 +91,18 @@ public static class ApplicationExtensions
         services.AddScoped<FileMappingService>();
         services.AddScoped<IViewMapper<FileMetaEntity, FileDto>>(sp => sp.GetRequiredService<FileMappingService>());
         services.AddScoped<ICreateMapper<FileMetaEntity, IFormFile>>(sp => sp.GetRequiredService<FileMappingService>());
+
+        services.AddSingleton<CategoryMapper>();
+        services.AddScoped<CategoryMappingService>();
+        services.AddScoped<IViewMapper<CategoryEntity, CategoryDto>>(sp => sp.GetRequiredService<CategoryMappingService>());
+        //services.AddScoped<ICreateMapper<FileMetaEntity, IFormFile>>(sp => sp.GetRequiredService<FileMappingService>());
+
+
+        services.AddSingleton<FavoriteMediaMapper>();
+        services.AddSingleton<FavoriteMapper>();
+        services.AddSingleton<IViewMapper<FavoriteItemEntity, FavoriteDto>>(sp => sp.GetRequiredService<FavoriteMapper>());
+        services.AddSingleton<ICreateMapper<FavoriteItemEntity, CreateFavoriteCommand>>(sp => sp.GetRequiredService<FavoriteMapper>());
+
 
         services.AddSingleton<QueryMapper>();
         services.AddScoped(typeof(PageResultMapper<,>));

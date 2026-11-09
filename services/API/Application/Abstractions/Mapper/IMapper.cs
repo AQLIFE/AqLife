@@ -1,4 +1,6 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Domain.CommandInterface;
+using AqLife.Domain.Contracts;
 using AqLife.Shared.IView;
 
 namespace AqLife.Application.Abstractions.Mapper
@@ -18,5 +20,10 @@ namespace AqLife.Application.Abstractions.Mapper
     public interface IViewMapper<T, TView> where T : IEntity where TView : IEntityDto
     {
         TView ToDto(T source);
+    }
+
+    public interface ISearchMapper<TQuery, TCriteria> where TQuery : IPageQuery where TCriteria : ISearchCriteria
+    {
+        TCriteria ToCriteria(TQuery query);
     }
 }

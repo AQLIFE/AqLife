@@ -27,7 +27,7 @@ namespace AqLife.Domain.Command
     /// <param name="PageSize"></param>
     /// <param name="Order"></param>
     /// <param name="Scope">查询文件的类型</param>
-    public record FileQuery(Guid? UID = null, string? Title = null,Guid? CategoryUID=null, int Page=1,int PageSize=10, FileOrder Order= FileOrder.Latest, FileScope Scope = FileScope.Blog) : IPageQuery, IQuery<PageResult<FileDto>>;
+    public record FileQuery(Guid? UID = null, string? Title = null, Guid? CategoryUID = null, int Page = 1, int PageSize = 10, FileOrder Order = FileOrder.Latest, FileScope Scope = FileScope.Blog) : IPageQuery, IQuery<PageResult<FileDto>>;
     /// <summary>
     /// 下载文件,返回文件流和相关元数据
     /// </summary>
@@ -37,7 +37,7 @@ namespace AqLife.Domain.Command
     /// 预览文件,返回文件流和相关元数据
     /// </summary>
     /// <param name="UID"></param>
-    public record PreviewFileQuery(Guid UID,bool IsTemplate=false) : IRequireValidEntity<FileMetaEntity>, IQuery<FilePreviewModel>;
+    public record PreviewFileQuery(Guid UID, bool IsTemplate = false) : IRequireValidEntity<FileMetaEntity>, IQuery<FilePreviewModel>;
     /// <summary>
     /// 删除文件,同时删除相关的元数据和文件存储
     /// </summary>
@@ -71,7 +71,7 @@ namespace AqLife.Domain.Command
     /// </summary>
     /// <param name="UID"></param>
     /// <param name="ScheduledAt"></param>
-    public record ScheduledFileCommand(Guid UID,DateTimeOffset? ScheduledAt) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
+    public record ScheduledFileCommand(Guid UID, DateTimeOffset? ScheduledAt) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
     /// <summary>
     /// 取消发布,用于改变已发布和计划发布的博文
     /// </summary>
@@ -83,7 +83,7 @@ namespace AqLife.Domain.Command
     /// <param name="File"></param>
     /// <param name="ScheduledTime"></param>
     [Obsolete("Use ScheduledFileCommand instead")]
-    public record PublishFileCommand(IFormFile File, DateTimeOffset? ScheduledTime=null) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
+    public record PublishFileCommand(IFormFile File, DateTimeOffset? ScheduledTime = null) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
     {
         public IEnumerable<IFormFile> GetFiles() => [File];
     }

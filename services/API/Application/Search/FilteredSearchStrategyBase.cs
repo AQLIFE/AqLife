@@ -1,7 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Contracts;
 using AqLife.Shared.Exceptions;
-using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Search
 {
@@ -13,12 +12,9 @@ namespace AqLife.Application.Search
     where TEntity : class, IEntity
     where TSearchCriteria : ISearchCriteria
     {
-        public virtual  bool IsMatch(TSearchCriteria c)
+        public virtual bool IsMatch(TSearchCriteria c)
             => c.UID is not null || !string.IsNullOrWhiteSpace(c.Keyword);
-        public virtual async Task<IQueryable<TEntity>> ExecuteAsync(
-            IQueryable<TEntity> queryable,
-            TSearchCriteria c,
-            CancellationToken ct = default)
+        public virtual IQueryable<TEntity> Execute(IQueryable<TEntity> queryable, TSearchCriteria c, CancellationToken ct = default)
         {
             if (c.UID is Guid id)
                 return queryable.Where(e => e.UID == id);

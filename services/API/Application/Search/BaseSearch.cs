@@ -42,7 +42,7 @@ namespace AqLife.Application.Search
         /// </summary>
         /// <param name="queryble"></param>
         /// <returns></returns>
-        protected abstract IQueryable<TEntity> ApplyDefaultOrder(IQueryable<TEntity> queryble,TQuery query);
+        protected abstract IQueryable<TEntity> ApplyDefaultOrder(IQueryable<TEntity> queryble, TQuery query);
 
         // 核心逻辑复用：不需要子类 override 
         public async Task<IQueryable<TEntity>> SearchAsync(TQuery query, CancellationToken ct)
@@ -51,8 +51,8 @@ namespace AqLife.Application.Search
             ISearchStrategy<TEntity, TSearchCriteria> strategy = searchStrategies.FirstOrDefault(s => s.IsMatch(criteria)) ?? throw new RequestCheckException("无法完成搜索，请反馈");
 
             IQueryable<TEntity> queryable = await BuildBaseQueryAsync(storage.Set<TEntity>().AsNoTracking(), query);
-            queryable = ApplyDefaultOrder(queryable,query);
-            queryable = await strategy.ExecuteAsync(queryable, criteria, ct);
+            queryable = ApplyDefaultOrder(queryable, query);
+            queryable = strategy.Execute(queryable, criteria, ct);
 
             return queryable;
         }
@@ -66,7 +66,7 @@ namespace AqLife.Application.Search
                 queryable = queryable
                     .Skip((pageQuery.Page - 1) * pageQuery.PageSize)
                     .Take(pageQuery.PageSize + 1);
-                return new PageResult<TEntity>(await queryable.Take(pageQuery.PageSize).ToListAsync(ct), pageQuery.Page, pageQuery.PageSize,queryable.Count()>pageQuery.PageSize);
+                return new PageResult<TEntity>(await queryable.Take(pageQuery.PageSize).ToListAsync(ct), pageQuery.Page, pageQuery.PageSize, queryable.Count() > pageQuery.PageSize);
             }
             else throw new("未配置业务属性，无法分页");
         }

@@ -3,12 +3,6 @@ using Amazon.S3.Model;
 using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Shared.Options;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Duende.IdentityModel.ClaimComparer;
 
 namespace AqLife.Infrastructure.FileStorage
 {

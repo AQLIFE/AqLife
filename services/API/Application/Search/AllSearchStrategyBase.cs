@@ -1,6 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Contracts;
-using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Search
 {
@@ -12,7 +11,7 @@ namespace AqLife.Application.Search
         public virtual bool IsMatch(TSearchCriteria c)
             => c.UID is null && string.IsNullOrWhiteSpace(c.Keyword);
 
-        public virtual async Task<IQueryable<TEntity>> ExecuteAsync(
+        public virtual IQueryable<TEntity> Execute(
             IQueryable<TEntity> queryable,
             TSearchCriteria c,
             CancellationToken ct = default)

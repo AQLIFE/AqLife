@@ -13,6 +13,6 @@ namespace AqLife.Shared.Options
         [Description("正在执行")]
         Execute = 2,
         [Description("执行完成")]
-        Completed =3
+        Completed = 3
     }
 }

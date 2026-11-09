@@ -1,12 +1,11 @@
 ﻿using AqLife.Application.Search;
 using AqLife.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Account.Search
 {
     public class DefaultAccount : AllSearchStrategyBase<AccountEntity, EntitySearchCriteria>
     {
-        public override async Task<IQueryable<AccountEntity>> ExecuteAsync(
+        public override IQueryable<AccountEntity> Execute(
             IQueryable<AccountEntity> queryable,
             EntitySearchCriteria c,
             CancellationToken ct = default)

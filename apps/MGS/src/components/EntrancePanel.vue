@@ -59,7 +59,7 @@ const router = useRouter()
   align-items: center;
   justify-content: center;
   gap: 18px;
-  padding: 36px 20px 24px;
+  /* padding: 36px 20px 24px; */
   background:
     radial-gradient(ellipse at 12% 8%, rgba(63, 111, 229, .09), transparent 34%),
     radial-gradient(ellipse at 90% 88%, rgba(63, 111, 229, .06), transparent 32%),

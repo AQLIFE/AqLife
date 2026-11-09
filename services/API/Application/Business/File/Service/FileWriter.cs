@@ -13,7 +13,7 @@ namespace AqLife.Application.Business.File.Service
     /// <param name="appStorage"></param>
     /// <param name="fileStorage"></param>
     /// <param name="uploadContext"></param>
-    public class FileWriter(IApplicationDbContext appStorage, IFileStorage fileStorage, UploadContext uploadContext,ICreateMapper<FileMetaEntity,IFormFile> fileMapper)
+    public class FileWriter(IApplicationDbContext appStorage, IFileStorage fileStorage, UploadContext uploadContext, ICreateMapper<FileMetaEntity, IFormFile> fileMapper)
     {
 
         public async Task<List<Guid>> WriteAsync(IEnumerable<IFormFile> files, CancellationToken ct, bool isTemplate = false, DateTimeOffset? publishAt = null)
@@ -40,7 +40,7 @@ namespace AqLife.Application.Business.File.Service
                         continue;
                     }// 若存在于数据库,则直接将其作为结果返回,不再写入物理文件存储和数据库
 
-                    
+
                     FileMetaEntity meta = fileMapper.ToEntity(file).SetTemplate(isTemplate);
                     await fileStorage.SaveAsync(file.OpenReadStream(), meta.StorageKey, ct);
 
@@ -71,7 +71,7 @@ namespace AqLife.Application.Business.File.Service
         }
 
         private async Task<Dictionary<string, Guid>> FindExistingFilesAsync(IEnumerable<string> hashes, bool isTemplate, CancellationToken ct)
-            => await appStorage.File.Include(e=>e.PublishMeta).Where(e => hashes.Contains(e.FileHash) && e.IsTemplate == isTemplate)
+            => await appStorage.File.Include(e => e.PublishMeta).Where(e => hashes.Contains(e.FileHash) && e.IsTemplate == isTemplate)
                 .ToDictionaryAsync(e => e.FileHash, e => e.UID, ct);
     }
 }

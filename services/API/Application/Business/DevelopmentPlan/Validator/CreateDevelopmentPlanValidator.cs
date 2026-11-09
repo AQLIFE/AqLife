@@ -1,7 +1,5 @@
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
-using AqLife.Shared.Exceptions;
-using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.DevelopmentPlan.Validator;
 
 public sealed class CreateDevelopmentPlanNameValidator() : AbstractValidator<CreateDevelopmentPlanCommand>

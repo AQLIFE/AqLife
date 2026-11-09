@@ -1,11 +1,11 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
 using Microsoft.EntityFrameworkCore;
-using AqLife.Application.Mappers;
 
 
 namespace AqLife.Application.Business.Todo.Search
@@ -17,7 +17,7 @@ namespace AqLife.Application.Business.Todo.Search
         protected override EntitySearchCriteria MapToCriteria(TodoQuery query)
         => queryMapper.ToCriteria(query);
 
-        protected override IQueryable<TodoEntity> ApplyDefaultOrder(IQueryable<TodoEntity> queryble,TodoQuery query)
+        protected override IQueryable<TodoEntity> ApplyDefaultOrder(IQueryable<TodoEntity> queryble, TodoQuery query)
         => queryble.OrderBy(e => e.CreatedAt);
 
         protected override async Task<IQueryable<TodoEntity>> BuildBaseQueryAsync(IQueryable<TodoEntity> queryable, TodoQuery query)

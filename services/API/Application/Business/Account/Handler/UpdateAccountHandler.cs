@@ -1,12 +1,11 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.BackServices;
 using AqLife.Application.Business.File.Service;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using AqLife.Shared.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using AqLife.Application.Business.Account;
-using AqLife.Shared.Exceptions;
-using AqLife.Application.BackServices;
 
 namespace AqLife.Application.Business.Account.Handler
 {
@@ -15,14 +14,14 @@ namespace AqLife.Application.Business.Account.Handler
         public async Task<string> Handle(UpdateAccountProfileCommand command, CancellationToken ct)
         {
             AccountEntity account = await storage.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
-            account.UpdateProfile(command.Name, command.Desc??string.Empty);
+            account.UpdateProfile(command.Name, command.Desc ?? string.Empty);
             return account.LoginName;
         }
     }
 
 
     // 需要准备用 Notification 优化业务表达 ,纳入 plan 2
-    public class UpdateAccountAvatarHandler(IApplicationDbContext storage, FileWriter fileWriter, FileDeleter fileDeleter,IFilePublishService filePublishService) : IRequestHandler<UpdateAccountAvatarCommand, string>
+    public class UpdateAccountAvatarHandler(IApplicationDbContext storage, FileWriter fileWriter, FileDeleter fileDeleter, IFilePublishService filePublishService) : IRequestHandler<UpdateAccountAvatarCommand, string>
     {
         public async Task<string> Handle(UpdateAccountAvatarCommand command, CancellationToken ct)
         {
@@ -44,7 +43,7 @@ namespace AqLife.Application.Business.Account.Handler
     /// </summary>
     /// <param name="storage"></param>
     /// <param name="subscriptionMapper"></param>
-    public class UpdateAccountSubscriptionsHandler(IApplicationDbContext storage, SubscriptionMapper subscriptionMapper,IFilePublishService filePublishService) : IRequestHandler<UpdateAccountSubscriptionsCommand, string>
+    public class UpdateAccountSubscriptionsHandler(IApplicationDbContext storage, SubscriptionMapper subscriptionMapper, IFilePublishService filePublishService) : IRequestHandler<UpdateAccountSubscriptionsCommand, string>
     {
         public async Task<string> Handle(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         {

@@ -1,10 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
-using AqLife.Application.Mappers;
 
 namespace AqLife.Application.Business.Corpus.Search
 {
@@ -16,7 +16,7 @@ namespace AqLife.Application.Business.Corpus.Search
         protected override EntitySearchCriteria MapToCriteria(CorpusQuery query)
         => queryMapper.ToCriteria(query);
 
-        protected override IQueryable<CorpusEntity> ApplyDefaultOrder(IQueryable<CorpusEntity> queryble,CorpusQuery query)
+        protected override IQueryable<CorpusEntity> ApplyDefaultOrder(IQueryable<CorpusEntity> queryble, CorpusQuery query)
         => queryble.OrderBy(e => e.CreateDate);
     }
 }

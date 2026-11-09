@@ -1,6 +1,4 @@
 ﻿using AqLife.Domain.Contracts;
-using AqLife.Shared.Exceptions;
-using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -29,9 +27,10 @@ namespace AqLife.Domain.Entities.File
         [Column, ConcurrencyCheck]
         public int Version { get; private set; } = 1;
 
+
         [Column]
         public bool IsTemplate { get; private set; } = false;
-       
+
 
         [NotMapped]
         public string StorageKey => UID + Extension;
@@ -43,8 +42,16 @@ namespace AqLife.Domain.Entities.File
         public virtual required InteractionMetaEntity InteractionMeta { get; set; }
         public virtual required PublishMetaEntity PublishMeta { get; set; }
 
+        [Column]
+        public Guid? CategoryUID { get; private set; }
+
+        [ForeignKey(nameof(CategoryUID))]
+
+        public virtual CategoryEntity? Category { get; private set; }
+
         [SetsRequiredMembers]
-        public FileMetaEntity() {
+        public FileMetaEntity()
+        {
             InteractionMeta = new InteractionMetaEntity(this.UID);
             PublishMeta = new PublishMetaEntity(this.UID);
         }
@@ -63,16 +70,21 @@ namespace AqLife.Domain.Entities.File
         /// <param name="file">源文件</param>
         /// <param name="hash">文件哈希</param>
         [SetsRequiredMembers]
-        public FileMetaEntity(IFormFile file, string hash):this(file)
+        public FileMetaEntity(IFormFile file, string hash) : this(file)
         {
             FileHash = hash;
         }
-        
+
 
         public FileMetaEntity SetTemplate(bool isTemplate = true)
         {
             IsTemplate = isTemplate;
             return this;
+        }
+
+        public void SetCategory(Guid categoryUID)
+        {
+            CategoryUID = categoryUID;
         }
 
         public FileMetaEntity IncrementVersion()

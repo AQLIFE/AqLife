@@ -1,22 +1,16 @@
 ﻿using AqLife.Domain.Contracts;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AqLife.Domain.Entities.File
 {
     //设计上 1:1
-    public class PublishMetaEntity: IEntity
+    public class PublishMetaEntity : IEntity
     {
-        [Key]   
+        [Key]
         public Guid UID { get; init; } = Guid.Empty;
-        
+
         public DateTimeOffset? PublishAt { get; private set; } = null;
 
         public FileStatus PublishStatus { private set; get; } = FileStatus.Draft;

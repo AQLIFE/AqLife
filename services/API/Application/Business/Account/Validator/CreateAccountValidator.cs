@@ -2,9 +2,7 @@
 using AqLife.Application.Business.Account.Services;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
-using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace AqLife.Application.Business.Account.Validator
 {

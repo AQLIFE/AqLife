@@ -1,6 +1,4 @@
-﻿using AqLife.Application.Abstractions.Persistence;
-using AqLife.Domain.Command;
-using AqLife.Domain.CommandInterface;
+﻿using AqLife.Domain.CommandInterface;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Tools;
 using MediatR;
@@ -9,10 +7,10 @@ using Microsoft.AspNetCore.Http;
 namespace AqLife.Application.Behaviors
 {
 
-    public class UploadContextBehavior<TRequest, TResponse>(UploadContext uploadContext): IPipelineBehavior<TRequest, TResponse>
+    public class UploadContextBehavior<TRequest, TResponse>(UploadContext uploadContext) : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>, IAppRequest
     {
-        public async Task<TResponse> Handle(TRequest request,RequestHandlerDelegate<TResponse> next,CancellationToken cancellationToken)
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             if (request is not IHasFormFiles fileRequest)
                 return await next(cancellationToken);

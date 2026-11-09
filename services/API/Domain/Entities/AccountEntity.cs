@@ -51,12 +51,12 @@ namespace AqLife.Domain.Entities
         /// 使用:设计 决定 Filecontroller 必须返回对应头像GUID
         /// </summary>
         public Guid Avatar { get; private set; } = Guid.Empty;
-        
+
         public bool IsValid { get; private set; } = true;
 
-        
+
         public string LoginName { get; init; } = IdentityGenerator.GenerateSecureLoginName();
-        
+
         public string LoginPasswordHash { get; private set; } = string.Empty;
 
         public ICollection<SubscriptionEntity> Subscriptions { get; set; } = [];

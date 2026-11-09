@@ -1,5 +1,5 @@
-using AqLife.Domain.Entities;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
 using AqLife.Domain.Services;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
@@ -190,7 +190,6 @@ namespace AqLife.CoreTest.UnitTest.Domain
             var todo = new TodoEntity(PlanId, "  Build roadmap  ", "  Detailed notes  ", priority: 4);
 
             Assert.Equal("Build roadmap", todo.Title);
-            Assert.Equal("Build roadmap", todo.Desc);
             Assert.Equal("Detailed notes", todo.Description);
 
             todo.UpdateDetails("  Implement API  ", "  Backend details  ", 8);

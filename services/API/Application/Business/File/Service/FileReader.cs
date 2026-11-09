@@ -33,9 +33,9 @@ namespace AqLife.Application.Business.File.Service
                 throw new ResourceNotFoundException("不存在文件记录");
         }
 
-        public async Task<FileDownloadModel> ReadAsync(Guid id,FileScope scope=FileScope.Default, CancellationToken ct=default)
+        public async Task<FileDownloadModel> ReadAsync(Guid id, FileScope scope = FileScope.Default, CancellationToken ct = default)
         {
-            FileMetaEntity fileInfo = (await fileSearch.SearchAsync(query: new FileQuery(UID: id,Scope:scope), ct)).FirstOrDefault() ?? throw new ResourceNotFoundException("不存在文件记录");
+            FileMetaEntity fileInfo = (await fileSearch.SearchAsync(query: new FileQuery(UID: id, Scope: scope), ct)).FirstOrDefault() ?? throw new ResourceNotFoundException("不存在文件记录");
             Stream stream = await fileStorage.OpenReadAsync(fileInfo.StorageKey, ct);
             var contentType = GetFileMimeType(fileInfo.StorageKey);
             return new FileDownloadModel(stream, contentType, fileInfo.FileName);
@@ -57,13 +57,13 @@ namespace AqLife.Application.Business.File.Service
             return (GetFileMimeType(fileInfo.StorageKey), range);
         }
 
-        public async Task<string> GetContentAsync(string fileName,CancellationToken ct)
+        public async Task<string> GetContentAsync(string fileName, CancellationToken ct)
         {
             await using var stream = await fileStorage.OpenReadAsync(fileName, ct);
 
             using var reader = new StreamReader(stream);
 
-            return  await reader.ReadToEndAsync(ct);
+            return await reader.ReadToEndAsync(ct);
         }
     }
 }

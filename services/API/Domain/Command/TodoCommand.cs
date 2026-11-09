@@ -1,8 +1,8 @@
 using AqLife.Domain.CommandInterface;
-using MediatR;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
 using AqLife.Shared.Options;
+using MediatR;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 

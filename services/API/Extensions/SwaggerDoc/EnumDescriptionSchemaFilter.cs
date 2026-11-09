@@ -1,13 +1,8 @@
 ﻿using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 
 namespace AqLife.Extensions.SwaggerDoc
 {
@@ -56,7 +51,7 @@ namespace AqLife.Extensions.SwaggerDoc
             openApiSchema.Extensions["x-enum-descriptions"] =
                 new JsonNodeExtension(descriptions);
 
-            var enumDescription = string.Join("\n",displayLines.Select(line => $"- {line}"));
+            var enumDescription = string.Join("\n", displayLines.Select(line => $"- {line}"));
 
             openApiSchema.Description = string.IsNullOrWhiteSpace(
                 openApiSchema.Description)

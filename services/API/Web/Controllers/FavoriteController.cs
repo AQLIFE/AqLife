@@ -12,8 +12,6 @@ public class FavoriteController(IMediator mediator) : ControllerBase
     [HttpGet, AllowAnonymous]
     public async Task<PageResult<FavoriteDto>> Search([FromQuery] FavoriteQuery query, CancellationToken ct)
     {
-        if (User.Identity?.IsAuthenticated != true)
-            query = query with { IncludeUnpublished = false };
         return await mediator.Send(query, ct);
     }
 

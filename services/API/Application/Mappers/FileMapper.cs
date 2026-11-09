@@ -1,6 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
-using AqLife.Application.Business.Tag;
-using AqLife.Domain.Command;
+using AqLife.Application.Mappers;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;
@@ -11,22 +10,25 @@ using Riok.Mapperly.Abstractions;
 namespace AqLife.Application.Business.File
 {
     [Mapper]
-    public partial class FileMapper(IViewMapper<TagEntity,TagDto> tagMapper)
+    public partial class FileMapper(IViewMapper<TagEntity, TagDto> tagMapper, CategoryMapper categoryMapper)
         : IViewMapper<FileMetaEntity, FileDto>,
         ICreateMapper<FileMetaEntity, IFormFile>
     {
         [MapperIgnoreSource(nameof(FileMetaEntity.StorageKey))]
+        [MapperIgnoreSource(nameof(FileMetaEntity.CategoryUID))]
         [MapProperty(nameof(FileMetaEntity.Extension), nameof(FileDto.FileType))]
         [MapProperty(nameof(FileMetaEntity.FileTags), nameof(FileDto.Tags))]
         [MapProperty(nameof(FileMetaEntity.PublishMeta.PublishStatus), nameof(FileDto.PublishStatus))]
         [MapProperty(nameof(FileMetaEntity.PublishMeta.PublishAt), nameof(FileDto.PublishAt))]
         [MapProperty(nameof(FileMetaEntity.InteractionMeta.ViewCount), nameof(FileDto.ViewCount))]
         [MapProperty(nameof(FileMetaEntity.FileIntroduction), nameof(FileDto.FileIntroduction))]
+        [MapProperty(nameof(FileMetaEntity.Category), nameof(FileDto.Category))]
         public partial FileDto ToDto(FileMetaEntity source);
 
         public string Convert(DateTimeOffset dateTime) => dateTime.ToString("yyyy-MM-dd");
-        
+
         public TagDto Convert(FileTagEntity tagEntity) => tagMapper.ToDto(tagEntity.Tag);
+        public CategoryDto? Convert(CategoryEntity? categoryEntity) => categoryEntity is not null ? categoryMapper.ToDto(categoryEntity) : null;
 
         /// <summary>
         /// Creates a new FileMetaEntity from an IFormFile.
@@ -34,21 +36,27 @@ namespace AqLife.Application.Business.File
         /// <param name="file"></param>
         /// <returns></returns>
         public partial FileMetaEntity ToEntity(IFormFile file);
-        
+
 
     }
 
-    
-    public partial class FileMappingService(IHttpContextAccessor httpContext, FileMapper fileMapper,UploadContext uploadContext)
+    /// <summary>
+    /// 封装后的FileMapper ,用于完成 基于身份和会话上下文的数据转换
+    /// </summary>
+    /// <param name="httpContext"></param>
+    /// <param name="fileMapper"></param>
+    /// <param name="uploadContext"></param>
+    public partial class FileMappingService(IHttpContextAccessor httpContext, FileMapper fileMapper, UploadContext uploadContext)
         : IViewMapper<FileMetaEntity, FileDto>,
         ICreateMapper<FileMetaEntity, IFormFile>
     {
         public FileDto ToDto(FileMetaEntity source)
-            => httpContext.HttpContext?.User.Identity?.IsAuthenticated == true 
-            ? fileMapper.ToDto(source) 
-            : source.Desensitize( 
+            => httpContext.HttpContext?.User.Identity?.IsAuthenticated == true
+            ? fileMapper.ToDto(source)
+            : source.Desensitize(
                 source.FileTags.Select(fileMapper.Convert),
-                fileMapper.Convert(source.UploadTime)
+                fileMapper.Convert(source.UploadTime),
+                fileMapper.Convert(source.Category)
                 );
 
         public FileMetaEntity ToEntity(IFormFile file)
@@ -59,19 +67,23 @@ namespace AqLife.Application.Business.File
 
     internal static class SafeDesensitization
     {
-        internal static FileDto Desensitize(this FileMetaEntity source,IEnumerable<TagDto> tagsDto,string dateTime)
-        => new (
-            UID:source.UID,
-            FileName:source.FileName,
-            Tags:tagsDto,
-            PublishAt:null,
-            PublishStatus:null,
-            FileSize:source.FileSize,
-            FileHash:source.FileHash,
-            UploadTime:dateTime,
-            FileType:source.Extension,
+        internal static FileDto Desensitize(this FileMetaEntity source, IEnumerable<TagDto> tagsDto, string dateTime, CategoryDto? categoryDto)
+        => new(
+            UID: source.UID,
+            FileName: source.FileName,
+            Tags: tagsDto,
+            PublishAt: null,
+            PublishStatus: null,
+            FileSize: source.FileSize,
+            FileHash: source.FileHash,
+            UploadTime: dateTime,
+            FileType: source.Extension,
             FileIntroduction: source.FileIntroduction,
-            ViewCount:source.InteractionMeta.ViewCount
+            ViewCount: source.InteractionMeta.ViewCount,
+            Version: source.Version,
+            IsTemplate: source.IsTemplate,
+            Category: categoryDto
+
         );
     }
 

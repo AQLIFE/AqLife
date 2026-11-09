@@ -63,6 +63,35 @@ namespace PostgreSqlMigrations.Migrations
                     b.ToTable("Accounts");
                 });
 
+            modelBuilder.Entity("AqLife.Domain.Entities.CategoryEntity", b =>
+                {
+                    b.Property<Guid>("UID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CategoryDescription")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UID");
+
+                    b.HasIndex("CategoryName")
+                        .IsUnique();
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Category");
+                });
+
             modelBuilder.Entity("AqLife.Domain.Entities.CorpusEntity", b =>
                 {
                     b.Property<Guid>("UID")
@@ -134,10 +163,8 @@ namespace PostgreSqlMigrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                    b.Property<Guid>("CategoryUID")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -145,6 +172,9 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<Guid>("FavoriteCategoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
@@ -166,11 +196,16 @@ namespace PostgreSqlMigrations.Migrations
 
                     b.HasKey("UID");
 
+                    b.HasIndex("CategoryUID");
+
                     b.ToTable("FavoriteItems");
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteMediaEntity", b =>
                 {
+                    b.Property<Guid>("UID")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("FavoriteId")
                         .HasColumnType("uuid");
 
@@ -185,7 +220,9 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.HasKey("FavoriteId", "FileId");
+                    b.HasKey("UID", "FavoriteId", "FileId");
+
+                    b.HasIndex("FavoriteId");
 
                     b.HasIndex("FileId");
 
@@ -211,6 +248,9 @@ namespace PostgreSqlMigrations.Migrations
                 {
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CategoryUID")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Extension")
@@ -240,6 +280,8 @@ namespace PostgreSqlMigrations.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("UID");
+
+                    b.HasIndex("CategoryUID");
 
                     b.ToTable("FileMeta");
                 });
@@ -383,9 +425,6 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<string>("AliasName")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsCategory")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -443,11 +482,6 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("Desc");
-
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -471,6 +505,10 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -483,6 +521,26 @@ namespace PostgreSqlMigrations.Migrations
                     b.HasIndex("PlanId", "FTID", "SortOrder");
 
                     b.ToTable("TodoList");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.CategoryEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.CategoryEntity", "ParentCategory")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.CategoryEntity", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryUID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteMediaEntity", b =>
@@ -517,6 +575,15 @@ namespace PostgreSqlMigrations.Migrations
                         .IsRequired();
 
                     b.Navigation("Favorite");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.File.FileMetaEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.CategoryEntity", "Category")
+                        .WithMany("Files")
+                        .HasForeignKey("CategoryUID");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.File.InteractionMetaEntity", b =>
@@ -618,6 +685,11 @@ namespace PostgreSqlMigrations.Migrations
             modelBuilder.Entity("AqLife.Domain.Entities.AccountEntity", b =>
                 {
                     b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.CategoryEntity", b =>
+                {
+                    b.Navigation("Files");
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", b =>

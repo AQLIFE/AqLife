@@ -1,20 +1,10 @@
-﻿using AqLife.Application.Abstractions.FileStorage;
-using AqLife.Application.Abstractions.Persistence;
-using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Business.File;
-using AqLife.Application.Business.File.Search;
+﻿using AqLife.Application.Business.File.Search;
 using AqLife.Application.Business.File.Service;
-using AqLife.Application.Business.Tag.Search;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.File;
-using AqLife.Shared.Exceptions;
 using AqLife.Shared.IView;
-using AqLife.Shared.Options;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using System.IO.Pipelines;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace AqLife.Application.Business.File.Handler
 {

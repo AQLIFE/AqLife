@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace AqLife.Application.Business.File.Handler;
+
 public class ProcessScheduledPostsHandler(
     BlogSearch search,
     TimeProvider timeProvider,
@@ -11,7 +12,7 @@ public class ProcessScheduledPostsHandler(
     ILogger<ProcessScheduledPostsHandler> logger)
     : IRequestHandler<ProcessScheduledPostsCommand, ProcessScheduledPostsResult>
 {
-	public async Task<ProcessScheduledPostsResult> Handle(ProcessScheduledPostsCommand command, CancellationToken ct)
+    public async Task<ProcessScheduledPostsResult> Handle(ProcessScheduledPostsCommand command, CancellationToken ct)
     {
         var now = timeProvider.GetUtcNow();
         var scheduledPosts = await search.GetScheduledPostsDueAsync(now, ct);

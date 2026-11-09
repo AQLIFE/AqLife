@@ -73,7 +73,7 @@ onBeforeMount(async () => {
 .workspace { min-width:0;flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden; }
 .workspace-content { min-height:0;flex:1;overflow:auto; }
 .auth-layout { min-height:100vh; }
-.entrance-layout { min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px; }
+.entrance-layout { min-height:100vh;display:flex;align-items:center;justify-content:center; }
 .mgs-fade-enter-active,.mgs-fade-leave-active { transition:opacity .12s ease,transform .12s ease; }
 .mgs-fade-enter-from,.mgs-fade-leave-to { opacity:0;transform:translateY(3px); }
 </style>

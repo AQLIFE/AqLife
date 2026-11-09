@@ -2,7 +2,6 @@
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using MediatR;
-using AqLife.Application.Business.Corpus;
 
 namespace AqLife.Application.Business.Corpus.Handler
 {

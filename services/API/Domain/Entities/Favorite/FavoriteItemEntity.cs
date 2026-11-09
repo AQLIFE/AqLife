@@ -1,4 +1,5 @@
 using AqLife.Domain.Contracts;
+using Riok.Mapperly.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,9 +17,6 @@ public class FavoriteItemEntity : IEntity
     [Column(TypeName = "text")]
     public string Description { get; private set; } = string.Empty;
 
-    [Required, StringLength(32)]
-    public string ContentType { get; private set; } = "Other";
-
     [StringLength(2048)]
     public string? SourceUrl { get; private set; }
 
@@ -26,29 +24,32 @@ public class FavoriteItemEntity : IEntity
 
     public bool IsPublished { get; private set; }
 
+
     public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
     public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
+    public Guid FavoriteCategoryId { get; private set; }
+    public CategoryEntity Category { get; set; } = new CategoryEntity(string.Empty);// 对于收藏系统:必须存在一个分类
 
     public ICollection<FavoriteMediaEntity> Media { get; set; } = [];
 
     public ICollection<FavoriteTagEntity> Tags { get; set; } = [];
 
-    private FavoriteItemEntity() { }
-
-    public FavoriteItemEntity(string title, string description, string contentType, string? sourceUrl, int sortOrder)
+    public FavoriteItemEntity() { }
+    [MapperConstructor]
+    public FavoriteItemEntity(string title, string description, string? sourceUrl, int sortOrder, Guid FavoriteCategoryId)
     {
-        Update(title, description, contentType, sourceUrl, sortOrder);
+        Update(title, description, sourceUrl, sortOrder, FavoriteCategoryId);
     }
 
-    public void Update(string title, string description, string contentType, string? sourceUrl, int sortOrder)
+    public void Update(string title, string description, string? sourceUrl, int sortOrder, Guid cid)
     {
         Title = title.Trim();
         Description = description ?? string.Empty;
-        ContentType = contentType.Trim();
         SourceUrl = string.IsNullOrWhiteSpace(sourceUrl) ? null : sourceUrl.Trim();
         SortOrder = sortOrder;
         UpdatedAt = DateTimeOffset.UtcNow;
+        FavoriteCategoryId = cid;
     }
 
     public void SetPublished(bool published)
@@ -59,8 +60,9 @@ public class FavoriteItemEntity : IEntity
 }
 
 [Table("FavoriteMedia")]
-public class FavoriteMediaEntity
+public class FavoriteMediaEntity : IEntity
 {
+    public Guid UID { get; init; } = Guid.NewGuid();
     public Guid FavoriteId { get; private set; }
     public Guid FileId { get; private set; }
     [Required, StringLength(24)]
@@ -69,8 +71,9 @@ public class FavoriteMediaEntity
 
     public FavoriteItemEntity? Favorite { get; private set; }
 
-    private FavoriteMediaEntity() { }
+    public FavoriteMediaEntity() { }
 
+    [MapperConstructor]
     public FavoriteMediaEntity(Guid favoriteId, Guid fileId, string role, int sortOrder)
     {
         FavoriteId = favoriteId;
@@ -88,7 +91,7 @@ public class FavoriteTagEntity
     public FavoriteItemEntity? Favorite { get; private set; }
 
     private FavoriteTagEntity() { }
-
+    [MapperConstructor]
     public FavoriteTagEntity(Guid favoriteId, Guid tagId)
     {
         FavoriteId = favoriteId;

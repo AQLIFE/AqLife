@@ -1,7 +1,7 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
-using AqLife.Domain.Entities.File;
 using AqLife.Domain.Entities.Favorite;
+using AqLife.Domain.Entities.File;
 using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure
@@ -24,6 +24,7 @@ namespace AqLife.Infrastructure
         public DbSet<FavoriteItemEntity> FavoriteItems { get; set; }
         public DbSet<FavoriteMediaEntity> FavoriteMedia { get; set; }
         public DbSet<FavoriteTagEntity> FavoriteTags { get; set; }
+        public DbSet<CategoryEntity> Categories { get; set; }
 
         public async Task<ITransaction> BeginTransactionAsync(CancellationToken ct)
         {
@@ -35,7 +36,7 @@ namespace AqLife.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FavoriteMediaEntity>().HasKey(x => new { x.FavoriteId, x.FileId });
+            modelBuilder.Entity<FavoriteMediaEntity>().HasKey(x => new { x.UID, x.FavoriteId, x.FileId });
             modelBuilder.Entity<FavoriteTagEntity>().HasKey(x => new { x.FavoriteId, x.TagId });
 
             modelBuilder.Entity<FavoriteItemEntity>()

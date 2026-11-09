@@ -3,7 +3,7 @@ using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
 
-namespace AqLife.Application.Business.DevelopmentPlan
+namespace AqLife.Application.Mappers
 {
     public sealed class DevelopmentPlanMapper :
         IViewMapper<DevelopmentPlanEntity, DevelopmentPlanDto>,

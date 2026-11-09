@@ -24,7 +24,7 @@ public static class InfrastructureExtensions
         services.AddScoped<IApplicationDbContext, AppStorage>();
         services.AddScoped<IResumableFileUploadService, ResumableFileUploadService>();
 
-        if(!environment.IsTest()) // 非 Test 模式
+        if (!environment.IsTest()) // 非 Test 模式
         {
             services.AddSingleton<IAmazonS3>(sp =>
             {

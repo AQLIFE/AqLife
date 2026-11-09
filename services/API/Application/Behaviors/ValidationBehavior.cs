@@ -1,7 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using AqLife.Domain.CommandInterface;
+﻿using AqLife.Domain.CommandInterface;
 using AqLife.Domain.Contracts;
-using AqLife.Shared.Exceptions;
 using MediatR;
 
 namespace AqLife.Application.Behaviors;

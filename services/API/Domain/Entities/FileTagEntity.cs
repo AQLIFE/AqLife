@@ -14,6 +14,6 @@ namespace AqLife.Domain.Entities
         // 设定策略,每次更新 md 文件时,仅允许一条分类+若干标签
 
         public virtual required FileMetaEntity File { get; set; }
-        public virtual required TagEntity Tag { get; set; } 
+        public virtual required TagEntity Tag { get; set; }
     }
 }

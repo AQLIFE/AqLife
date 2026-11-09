@@ -17,12 +17,7 @@ namespace AqLife.Domain.Entities
 
         public Guid PlanId { get; private set; } = DevelopmentPlanEntity.DefaultPlanId;
 
-        // Title is the domain property; the existing database column remains Desc.
-        [Column("Desc"), Required]
         public string Title { get; private set; } = string.Empty;
-
-        [NotMapped]
-        public string Desc => Title;
 
         public string? Description { get; private set; }
 

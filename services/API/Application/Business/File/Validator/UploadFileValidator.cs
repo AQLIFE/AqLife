@@ -1,13 +1,9 @@
-﻿using AqLife.Application.Abstractions.Persistence;
-using AqLife.Application.Validators;
+﻿using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Domain.CommandInterface;
 using AqLife.Shared.Options;
-using AqLife.Shared.Tools;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using static System.Net.WebRequestMethods;
 
 namespace AqLife.Application.Business.File.Validator
 {
@@ -60,7 +56,7 @@ namespace AqLife.Application.Business.File.Validator
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
         {
             var files = command.GetFiles();
-            var keys = files.Select(f => (Name: f.FileName.Trim().ToLowerInvariant(),f.Length)).ToList();
+            var keys = files.Select(f => (Name: f.FileName.Trim().ToLowerInvariant(), f.Length)).ToList();
             return keys.Count == keys.Distinct().Count();
         }
 

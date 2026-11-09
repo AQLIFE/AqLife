@@ -1,6 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Business.File;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;
 using AqLife.Shared.Options;
 using MediatR;
@@ -8,12 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Overview.Handler
 {
-    public class OverviewQueryHandler(
-        IApplicationDbContext dbContext) : IRequestHandler<OverviewQuery, OverviewDto>
+    public class OverviewQueryHandler(IApplicationDbContext dbContext, FileMappingService fileMapper) : IRequestHandler<OverviewQuery, OverviewDto>
     {
         public async Task<OverviewDto> Handle(OverviewQuery query, CancellationToken ct)
         {
-            var files = dbContext.File
+            var filequery = dbContext.File
                 .AsNoTracking()
                 .Where(file => !file.IsTemplate)
                 .Include(file => file.PublishMeta)
@@ -21,31 +20,18 @@ namespace AqLife.Application.Business.Overview.Handler
                 .Include(file => file.FileTags)
                     .ThenInclude(fileTag => fileTag.Tag);
 
-            var draftCount = await files.CountAsync(file => file.PublishMeta.PublishStatus == FileStatus.Draft, ct);
-            var scheduledCount = await files.CountAsync(file => file.PublishMeta.PublishStatus == FileStatus.Scheduled, ct);
-            var publishedCount = await files.CountAsync(file => file.PublishMeta.PublishStatus == FileStatus.Published, ct);
+            var group = filequery.GroupBy(file => file.PublishMeta.PublishStatus); // 分组可以减少数据库查询次数，避免多次查询数据库
 
-            var recentFiles = await files
+            var draftCount = await group.CountAsync(item => item.Key == FileStatus.Draft, ct);
+            var scheduledCount = await group.CountAsync(item => item.Key == FileStatus.Scheduled, ct);
+            var publishedCount = await group.CountAsync(item => item.Key == FileStatus.Published, ct);
+
+
+
+            var recentFiles = await filequery
                 .OrderByDescending(file => file.UploadTime)
                 .Take(Math.Clamp(query.RecentCount, 1, 20))
-                .Select(file => new FileDto(
-                    file.UID,
-                    file.FileName,
-                    file.FileTags.Select(fileTag => new TagDto(
-                        fileTag.Tag.UID.ToString(),
-                        fileTag.Tag.Name,
-                        fileTag.Tag.AliasName,
-                        fileTag.Tag.IsCategory)),
-                    file.PublishMeta.PublishStatus,
-                    file.PublishMeta.PublishAt,
-                    file.FileSize,
-                    file.FileHash,
-                    file.UploadTime.ToString(),
-                    file.Extension,
-                    file.FileIntroduction,
-                    file.InteractionMeta.ViewCount,
-                    file.Version,
-                    file.IsTemplate))
+                .Select(file => fileMapper.ToDto(file))
                 .ToListAsync(ct);
 
             return new OverviewDto(

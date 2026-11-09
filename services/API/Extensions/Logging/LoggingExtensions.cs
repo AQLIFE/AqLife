@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Core;
 using Serilog.Formatting.Compact;
 
 namespace AqLife.Extensions.Logging;
@@ -24,10 +23,10 @@ public static class LoggingExtensions
                 "logs/db_log-.json",
                 rollingInterval: RollingInterval.Day);
     static private LoggerConfiguration TestLogger => BaseLoggerConfig;
-    static private LoggerConfiguration DefaultLogger => BaseLoggerConfig.WriteTo.Console(outputTemplate:outputTemplate);
+    static private LoggerConfiguration DefaultLogger => BaseLoggerConfig.WriteTo.Console(outputTemplate: outputTemplate);
 
     public static IServiceCollection AddAqLifeSerilog(
-        this IServiceCollection services,IHostEnvironment environment,IConfiguration configuration)
+        this IServiceCollection services, IHostEnvironment environment, IConfiguration configuration)
     {
         LoggerConfiguration loggerConfig = environment.IsTest() ? TestLogger : DefaultLogger;
 
@@ -35,7 +34,7 @@ public static class LoggingExtensions
 
         services.AddSerilog(dispose: true);
 
-        Log.Information("[Serilog][{@LogType}]=>{@LogDesc}",BehavioralLevel.OptionType,"Serilog 已经开始工作了!");
+        Log.Information("[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.OptionType, "Serilog 已经开始工作了!");
 
         return services;
     }

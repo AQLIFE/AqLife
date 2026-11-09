@@ -1,26 +1,23 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
-using AqLife.Shared.Options;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AqLife.Application.Business.Tag.Handler
 {
-    public class CategoryQueryHandler(IApplicationDbContext dbContext,IOptions<FilePolicyOption> options) : IRequestHandler<CategoryQuery, IEnumerable<BlogCategoryStatistics>?>
+    // 分类查询处理器
+    public class CategoryQueryHandler(IApplicationDbContext dbContext, CategoryMappingService categoryMapper, IHttpContextAccessor httpContext) : IRequestHandler<CategoryQuery, PageResult<CategoryDto>?>
     {
-        public async Task<IEnumerable<BlogCategoryStatistics>?> Handle(CategoryQuery query, CancellationToken ct)
+        bool Isvalid => httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
+        public async Task<PageResult<CategoryDto>?> Handle(CategoryQuery query, CancellationToken ct)
         {
-            // allowedDownload 目前只有 .md
-            return await dbContext.Tags.Include(e=>e.FileTags).ThenInclude(x=>x.File).Where(e => e.IsCategory)
-                .Select(e => new BlogCategoryStatistics( e.UID.ToString(),  e.Name, e.FileTags.Count(ft => ft.File.PublishMeta.PublishStatus == FileStatus.Published && options.Value.AllowedDownload.Contains(ft.File.Extension)))).ToListAsync(ct);
-
+            IQueryable<CategoryEntity> queryable = Isvalid ? dbContext.Categories.Include(e => e.ParentCategory) : dbContext.Categories.Include(e => e.Files).ThenInclude(file => file.PublishMeta).Include(e => e.ParentCategory);
+            IEnumerable<CategoryDto> result = queryable.Select(categoryMapper.ToDto).OrderByDescending(e => e.CategoryCount).Skip(0).Take(10);// 这样会得到所有分类及其文件数量，但不包括文件的详细信息
+            return new PageResult<CategoryDto>([.. result], 1, 10, false);// 写死返回总量,只显示前10个数量集
         }
     }
 }

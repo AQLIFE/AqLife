@@ -1,13 +1,7 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
-using AqLife.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AqLife.Application.Business.Account.Services
 {
@@ -41,7 +35,7 @@ namespace AqLife.Application.Business.Account.Services
                 .SingleOrDefaultAsync(ct);
         }
 
-        public async Task<bool> ValidateSystemKey(string systemKey,CancellationToken ct = default)
+        public async Task<bool> ValidateSystemKey(string systemKey, CancellationToken ct = default)
         {
             SystemStateEntity? systemState =
                 await context.SystemStates
@@ -55,7 +49,7 @@ namespace AqLife.Application.Business.Account.Services
             return systemState.SystemKeyHash == systemKey;
         }
 
-        public async Task<bool> VoidSystemKey(string systemKey,CancellationToken ct = default)
+        public async Task<bool> VoidSystemKey(string systemKey, CancellationToken ct = default)
         {
             SystemStateEntity? key =
                 await context.SystemStates

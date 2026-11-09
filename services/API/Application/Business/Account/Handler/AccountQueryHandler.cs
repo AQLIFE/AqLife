@@ -2,7 +2,6 @@
 using AqLife.Domain.Command;
 using AqLife.Shared.IView;
 using MediatR;
-using AqLife.Application.Business.Account;
 
 namespace AqLife.Application.Business.Account.Handler
 {

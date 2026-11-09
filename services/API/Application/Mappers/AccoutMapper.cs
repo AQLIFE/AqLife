@@ -33,8 +33,6 @@ namespace AqLife.Application.Business.Account
 
         private SubscriptionDto Convert(SubscriptionEntity entity) => subMapper.ToDto(entity);
 
-        private string Convert(Guid id) => id.ToString();
-        private Guid Convert(string id) => Guid.TryParse(id, out var guid) ? guid : Guid.Empty; // string -> Guid
     }
 
 

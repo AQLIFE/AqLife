@@ -1,14 +1,12 @@
 using AqLife.Application.Business.File.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.File;
-using AqLife.Extensions.Database;
 using AqLife.Infrastructure;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.IView;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System.Security.Claims;
 
 namespace AqLife.CoreTest.IntegrationTest.File;
 

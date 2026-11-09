@@ -6,8 +6,8 @@ namespace AqLife.Application.Business.Todo.Search
 {
     public sealed class AllTodoSearchStrategy : AllSearchStrategyBase<TodoEntity, EntitySearchCriteria>
     {
-        public override Task<IQueryable<TodoEntity>> ExecuteAsync(
+        public override IQueryable<TodoEntity> Execute(
             IQueryable<TodoEntity> queryable, EntitySearchCriteria criteria, CancellationToken ct = default)
-            => Task.FromResult(queryable.Where(e => e.Status != TodoStatus.Completed && !e.IsArchived));
+            => queryable.Where(e => e.Status != TodoStatus.Completed && !e.IsArchived);
     }
 }

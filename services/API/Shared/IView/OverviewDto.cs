@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace AqLife.Shared.IView
+﻿namespace AqLife.Shared.IView
 {
     public record OverviewDto(
         int DraftCount,

@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AqLife.Shared.Options
 {
@@ -25,7 +24,7 @@ namespace AqLife.Shared.Options
 
         public string[] AllowedExtensions => [.. AllowedBlogExtensions, .. AllowedImageExtensions, .. AllowedVideoExtensions];
 
-        public FilePolicyOption() {}
+        public FilePolicyOption() { }
     }
 
     public enum FileStatus { Draft, Scheduled, Published }

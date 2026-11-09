@@ -2,7 +2,7 @@
 {
     public interface IFileStorage
     {
-        Task SaveAsync(Stream content, string key, CancellationToken ct =default);
+        Task SaveAsync(Stream content, string key, CancellationToken ct = default);
 
         Task<bool> DeleteAsync(string key, CancellationToken ct = default);
 

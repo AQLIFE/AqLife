@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Validators
 {
-    public class ExistenceValidator<TRequest,TEntity>(IApplicationDbContext storage) : AbstractValidator<TRequest>
+    public class ExistenceValidator<TRequest, TEntity>(IApplicationDbContext storage) : AbstractValidator<TRequest>
         where TRequest : IRequireValidEntity<TEntity>
         where TEntity : class, IEntity
     {

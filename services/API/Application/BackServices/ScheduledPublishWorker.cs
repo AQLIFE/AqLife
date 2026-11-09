@@ -12,7 +12,7 @@ namespace AqLife.Application.BackServices
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation("[Serilog][{@LogType}]=>{@LogDesc}",BehavioralLevel.ServiceType,"Scheduled publish worker started.");
+            logger.LogInformation("[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.ServiceType, "Scheduled publish worker started.");
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -30,7 +30,7 @@ namespace AqLife.Application.BackServices
                         var result = await mediator.Send(new ProcessScheduledPostsCommand(), stoppingToken);
                         await context.SaveChangesAsync();
                         await transaction.CommitAsync();
-                        logger.LogInformation("[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.ServiceType,$"Scheduled posts processed. Found: {result.Found}, Published: {result.Published}, Failed: {result.Failed}");
+                        logger.LogInformation("[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.ServiceType, $"Scheduled posts processed. Found: {result.Found}, Published: {result.Published}, Failed: {result.Failed}");
                     }
                     catch (Exception ex)
                     {
