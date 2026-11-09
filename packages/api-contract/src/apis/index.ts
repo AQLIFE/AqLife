@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AccountApi';
+export * from './CategoryApi'
 export * from './CorpusApi';
 export * from './DevelopmentPlanApi';
 export * from './FavoriteApi';
