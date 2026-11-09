@@ -37,12 +37,6 @@ export interface UpdateTagCommand {
      * @memberof UpdateTagCommand
      */
     aliasName?: string | null;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof UpdateTagCommand
-     */
-    isCategory?: boolean;
 }
 
 /**
@@ -65,7 +59,6 @@ export function UpdateTagCommandFromJSONTyped(json: any, ignoreDiscriminator: bo
         'uid': json['uid'] == null ? undefined : json['uid'],
         'tagName': json['tagName'] == null ? undefined : json['tagName'],
         'aliasName': json['aliasName'] == null ? undefined : json['aliasName'],
-        'isCategory': json['isCategory'] == null ? undefined : json['isCategory'],
     };
 }
 
@@ -83,7 +76,6 @@ export function UpdateTagCommandToJSONTyped(value?: UpdateTagCommand | null, ign
         'uid': value['uid'],
         'tagName': value['tagName'],
         'aliasName': value['aliasName'],
-        'isCategory': value['isCategory'],
     };
 }
 

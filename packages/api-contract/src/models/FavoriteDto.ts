@@ -80,7 +80,7 @@ export interface FavoriteDto {
      * @type {string}
      * @memberof FavoriteDto
      */
-    cid?: string;
+    cid?: string | null;
     /**
      * 
      * @type {Array<FavoriteMediaDto>}

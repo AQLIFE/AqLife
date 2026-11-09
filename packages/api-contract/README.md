@@ -57,6 +57,7 @@ All URIs are relative to *http://localhost*
 *AccountApi* | [**apiAccountPost**](docs/AccountApi.md#apiaccountpost) | **POST** /api/Account | 
 *AccountApi* | [**apiAccountProfilePatch**](docs/AccountApi.md#apiaccountprofilepatch) | **PATCH** /api/Account/profile | 
 *AccountApi* | [**apiAccountSubscriptionsPut**](docs/AccountApi.md#apiaccountsubscriptionsput) | **PUT** /api/Account/subscriptions | 
+*CategoryApi* | [**apiCategoryGet**](docs/CategoryApi.md#apicategoryget) | **GET** /api/Category | 
 *CorpusApi* | [**apiCorpusDelete**](docs/CorpusApi.md#apicorpusdelete) | **DELETE** /api/Corpus | 
 *CorpusApi* | [**apiCorpusGet**](docs/CorpusApi.md#apicorpusget) | **GET** /api/Corpus | 
 *CorpusApi* | [**apiCorpusPost**](docs/CorpusApi.md#apicorpuspost) | **POST** /api/Corpus | 
@@ -90,7 +91,6 @@ All URIs are relative to *http://localhost*
 *OverviewApi* | [**apiOverviewGet**](docs/OverviewApi.md#apioverviewget) | **GET** /api/Overview | 
 *TagApi* | [**apiTagDelete**](docs/TagApi.md#apitagdelete) | **DELETE** /api/Tag | 
 *TagApi* | [**apiTagGet**](docs/TagApi.md#apitagget) | **GET** /api/Tag | 
-*TagApi* | [**apiTagOverviewGet**](docs/TagApi.md#apitagoverviewget) | **GET** /api/Tag/overview | 
 *TagApi* | [**apiTagPatch**](docs/TagApi.md#apitagpatch) | **PATCH** /api/Tag | 
 *TagApi* | [**apiTagPost**](docs/TagApi.md#apitagpost) | **POST** /api/Tag | 
 *TodoApi* | [**apiTodoDelete**](docs/TodoApi.md#apitododelete) | **DELETE** /api/Todo | 

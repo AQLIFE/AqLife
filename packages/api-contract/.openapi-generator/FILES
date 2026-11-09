@@ -6,6 +6,7 @@ docs/AccountDto.md
 docs/AccountProfile.md
 docs/AddTodoDependencyCommand.md
 docs/CancelScheduledFileCommand.md
+docs/CategoryApi.md
 docs/CategoryDto.md
 docs/CategoryDtoPageResult.md
 docs/CategoryQueryType.md
@@ -68,6 +69,7 @@ docs/UpdateTagCommand.md
 docs/UpdateTodoCommand.md
 package.json
 src/apis/AccountApi.ts
+src/apis/CategoryApi.ts
 src/apis/CorpusApi.ts
 src/apis/DevelopmentPlanApi.ts
 src/apis/FavoriteApi.ts
