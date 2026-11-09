@@ -44,6 +44,7 @@ public static class ApplicationExtensions
         services.AddScoped<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>, FilteredFavoriteSearchStrategy>();
         services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, DefaultAccount>();
         services.AddScoped<ISearchStrategy<CorpusEntity, EntitySearchCriteria>, AllCorpusSearchStrategy>();
+        services.AddScoped<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>, AllFavoriteSearchStrategy>();
 
         services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, ValidAccount>();
         services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, FilteredFilesSearchStrategy>();
