@@ -10,7 +10,9 @@ using Riok.Mapperly.Abstractions;
 namespace AqLife.Application.Business.File
 {
     [Mapper]
-    public partial class FileMapper(IViewMapper<TagEntity, TagDto> tagMapper, CategoryMapper categoryMapper)
+    public partial class FileMapper(
+        IViewMapper<TagEntity, TagDto> tagMapper,
+        IViewMapper<CategoryEntity, CategoryDto> categoryMapper)
         : IViewMapper<FileMetaEntity, FileDto>,
         ICreateMapper<FileMetaEntity, IFormFile>
     {
@@ -33,20 +35,16 @@ namespace AqLife.Application.Business.File
         /// <summary>
         /// Creates a new FileMetaEntity from an IFormFile.
         /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
         public partial FileMetaEntity ToEntity(IFormFile file);
-
-
     }
 
     /// <summary>
-    /// 封装后的FileMapper ,用于完成 基于身份和会话上下文的数据转换
+    /// 封装后的 FileMapper，用于完成基于身份和会话上下文的数据转换。
     /// </summary>
-    /// <param name="httpContext"></param>
-    /// <param name="fileMapper"></param>
-    /// <param name="uploadContext"></param>
-    public partial class FileMappingService(IHttpContextAccessor httpContext, FileMapper fileMapper, UploadContext uploadContext)
+    public partial class FileMappingService(
+        IHttpContextAccessor httpContext,
+        FileMapper fileMapper,
+        UploadContext uploadContext)
         : IViewMapper<FileMetaEntity, FileDto>,
         ICreateMapper<FileMetaEntity, IFormFile>
     {
@@ -56,35 +54,33 @@ namespace AqLife.Application.Business.File
             : source.Desensitize(
                 source.FileTags.Select(fileMapper.Convert),
                 fileMapper.Convert(source.UploadTime),
-                fileMapper.Convert(source.Category)
-                );
+                fileMapper.Convert(source.Category));
 
         public FileMetaEntity ToEntity(IFormFile file)
-        {
-            return fileMapper.ToEntity(file).UpdateHash(uploadContext.FileHashes[file]);
-        }
+            => fileMapper.ToEntity(file).UpdateHash(uploadContext.FileHashes[file]);
     }
 
     internal static class SafeDesensitization
     {
-        internal static FileDto Desensitize(this FileMetaEntity source, IEnumerable<TagDto> tagsDto, string dateTime, CategoryDto? categoryDto)
-        => new(
-            UID: source.UID,
-            FileName: source.FileName,
-            Tags: tagsDto,
-            PublishAt: null,
-            PublishStatus: null,
-            FileSize: source.FileSize,
-            FileHash: source.FileHash,
-            UploadTime: dateTime,
-            FileType: source.Extension,
-            FileIntroduction: source.FileIntroduction,
-            ViewCount: source.InteractionMeta.ViewCount,
-            Version: source.Version,
-            IsTemplate: source.IsTemplate,
-            Category: categoryDto
-
-        );
+        internal static FileDto Desensitize(
+            this FileMetaEntity source,
+            IEnumerable<TagDto> tagsDto,
+            string dateTime,
+            CategoryDto? categoryDto)
+            => new(
+                UID: source.UID,
+                FileName: source.FileName,
+                Tags: tagsDto,
+                PublishAt: null,
+                PublishStatus: null,
+                FileSize: source.FileSize,
+                FileHash: source.FileHash,
+                UploadTime: dateTime,
+                FileType: source.Extension,
+                FileIntroduction: source.FileIntroduction,
+                ViewCount: source.InteractionMeta.ViewCount,
+                Version: source.Version,
+                IsTemplate: source.IsTemplate,
+                Category: categoryDto);
     }
-
 }
