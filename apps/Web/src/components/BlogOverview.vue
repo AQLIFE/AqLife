@@ -3,7 +3,7 @@ import { useTagStore } from '@/stores/tagStore';
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElButton } from 'element-plus';
-import { FileOrder, FileScope, TagApi, FileApi, CategoryQueryType, type CategoryDto, type FileDto } from '@/api';
+import { FileOrder, FileScope, TagApi, CategoryApi, FileApi, CategoryQueryType, type CategoryDto, type FileDto } from '@/api';
 import { apiConfiguration } from '@/services/api';
 // import { View, Timer } from '@element-plus/icons-vue';
 import { useBlogStore } from '../stores/fileStore';
@@ -50,6 +50,7 @@ async function handleFilter(tagId: string) {
 
 onBeforeMount(async () => {
     const tagApi = new TagApi(apiConfiguration)
+const categoryApi = new CategoryApi(apiConfiguration)
     const tagStore = useTagStore()
 
     if (tagStore.tagList.length === 0) {
@@ -57,7 +58,7 @@ onBeforeMount(async () => {
     }
 
     const [categories, allPublishedBlogCount, popular] = await Promise.all([
-        tagApi.apiTagOverviewGet({ searchType: CategoryQueryType.Blog }),
+        categoryApi.apiCategoryGet({ searchType: CategoryQueryType.Blog }),
         loadAllPublishedBlogCount(),
         fileApi.apiFileGet({ scope: FileScope.Blog, order: FileOrder.MostViewed, pageSize: 5 }),
     ])

@@ -3,13 +3,14 @@ import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElButton, ElEmpty, ElMessage, ElOption, ElSelect, ElTag } from 'element-plus'
 import { ArrowRight, Refresh } from '@element-plus/icons-vue'
-import { FavoriteApi, FileApi, TagApi, CategoryQueryType, type CategoryDto, type FavoriteDto, type TagDto } from '@/api'
+import { FavoriteApi, FileApi, TagApi, CategoryApi, CategoryQueryType, type CategoryDto, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 
 const router = useRouter()
 const favoriteApi = new FavoriteApi(apiConfiguration)
 const fileApi = new FileApi(apiConfiguration)
 const tagApi = new TagApi(apiConfiguration)
+const categoryApi = new CategoryApi(apiConfiguration)
 
 const items = ref<FavoriteDto[]>([])
 const tags = ref<TagDto[]>([])
@@ -84,7 +85,7 @@ onBeforeMount(async () => {
   try {
     const [tagResult, categoryResult] = await Promise.all([
       tagApi.apiTagGet({ page: 1, pageSize: 100 }),
-      tagApi.apiTagOverviewGet({ searchType: CategoryQueryType.Favorite }),
+      categoryApi.apiCategoryGet({ searchType: CategoryQueryType.Favorite }),
     ])
     tags.value = tagResult.items ?? []
     categories.value = categoryResult.items ?? []

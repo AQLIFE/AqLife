@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace AqLife.Application.Business.Tag.Handler
+namespace AqLife.Application.Business.Category.Handler
 {
     public class CategoryQueryHandler(
         IApplicationDbContext dbContext,

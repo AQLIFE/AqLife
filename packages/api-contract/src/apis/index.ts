@@ -1,3 +1,4 @@
+export * from './CategoryApi';
 /* tslint:disable */
 /* eslint-disable */
 export * from './AccountApi';

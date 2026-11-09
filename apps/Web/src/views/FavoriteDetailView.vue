@@ -3,7 +3,7 @@ import { onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElButton, ElEmpty, ElMessage } from 'element-plus'
 import { ArrowLeft, ArrowRight, Share } from '@element-plus/icons-vue'
-import { FavoriteApi, FileApi, TagApi, CategoryQueryType, type CategoryDto, type FavoriteDto, type TagDto } from '@/api'
+import { FavoriteApi, FileApi, TagApi, CategoryApi, CategoryQueryType, type CategoryDto, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { FavoriteDetailContent } from '@aqlife/ui-shared'
 
@@ -12,6 +12,7 @@ const router = useRouter()
 const favoriteApi = new FavoriteApi(apiConfiguration)
 const fileApi = new FileApi(apiConfiguration)
 const tagApi = new TagApi(apiConfiguration)
+const categoryApi = new CategoryApi(apiConfiguration)
 
 const favorite = ref<FavoriteDto | null>(null)
 const tags = ref<TagDto[]>([])
@@ -97,7 +98,7 @@ async function loadFavorite(uid: string) {
     try {
       const [tagResult, categoryResult] = await Promise.all([
         tagApi.apiTagGet({ page: 1, pageSize: 100 }),
-        tagApi.apiTagOverviewGet({ searchType: CategoryQueryType.Favorite }),
+        categoryApi.apiCategoryGet({ searchType: CategoryQueryType.Favorite }),
       ])
       tags.value = tagResult.items ?? []
       categories.value = categoryResult.items ?? []

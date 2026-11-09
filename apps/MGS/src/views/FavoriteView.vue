@@ -6,7 +6,7 @@ import {
 } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Upload } from '@element-plus/icons-vue'
 import {
-  FavoriteApi, FileApi, FileScope, TagApi, CategoryQueryType,
+  FavoriteApi, FileApi, FileScope, TagApi, CategoryApi, CategoryQueryType,
   type CategoryDto, type FavoriteDto, type FavoriteMediaInput, type FileDto, type TagDto,
 } from '@/api'
 import { apiConfiguration } from '@/services/api'
@@ -19,6 +19,7 @@ import type { UploadFile } from 'element-plus'
 const favoriteApi = new FavoriteApi(apiConfiguration)
 const fileApi = new FileApi(apiConfiguration)
 const tagApi = new TagApi(apiConfiguration)
+const categoryApi = new CategoryApi(apiConfiguration)
 
 const items = ref<FavoriteDto[]>([])
 const files = ref<FileDto[]>([])
@@ -62,7 +63,7 @@ async function loadData() {
       favoriteApi.apiFavoriteGet({ page: 1, pageSize: 100 }),
       tagApi.apiTagGet({ page: 1, pageSize: 100 }),
       fileApi.apiFileGet({ page: 1, pageSize: 100, scope: FileScope.Image }),
-      tagApi.apiTagOverviewGet({ searchType: CategoryQueryType.Favorite }),
+      categoryApi.apiCategoryGet({ searchType: CategoryQueryType.Favorite }),
     ])
     items.value = favoriteResult.items ?? []
     tags.value = tagResult.items ?? []

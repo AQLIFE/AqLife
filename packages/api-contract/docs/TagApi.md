@@ -151,48 +151,6 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## apiTagOverviewGet
-
-> CategoryDtoPageResult apiTagOverviewGet(cid, searchType)
-
-
-
-### Example
-
-```ts
-import {
-  Configuration,
-  TagApi,
-} from '@aqlife/api-contract';
-import type { ApiTagOverviewGetRequest } from '@aqlife/api-contract';
-
-async function example() {
-  const api = new TagApi();
-  const body = {
-    cid: undefined,
-    searchType: 0,
-  } satisfies ApiTagOverviewGetRequest;
-
-  const data = await api.apiTagOverviewGet(body);
-  console.log(data);
-}
-```
-
-### Parameters
-
-| Name | Type | Description | Notes |
-|-------------|-------------|-------------|-------------|
-| **cid** | `string` | Category UID filter | [Optional] |
-| **searchType** | `number` | 0 = Blog, 1 = Favorite | [Optional] |
-
-### Return type
-
-[**CategoryDtoPageResult**](CategoryDtoPageResult.md)
-
-### Authorization
-
-No authorization required
-
 ## apiTagPatch
 
 > string apiTagPatch(updateTagCommand)
