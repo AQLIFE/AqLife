@@ -1,12 +1,13 @@
 import ErrorView from '@/views/ErrorView.vue'
 import LoginView from '@/views/LoginView.vue'
 import { MgsIconName, mgsIconRegistry } from '@aqlife/icons'
-import { User, Document, PriceTag, List, Collection, ChatLineRound } from '@element-plus/icons-vue'
+import { User, Document, PriceTag, List, Collection, ChatLineRound, Folder } from '@element-plus/icons-vue'
 import HomeView from '@/views/HomeView.vue'
 import AccountView from '@/views/AccountView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import SubscriptionsView from '@/views/SubscriptionsView.vue'
 import TagView from '@/views/TagView.vue'
+import CategoryView from '@/views/CategoryView.vue'
 import TodoView from '@/views/TodoView.vue'
 import CorpusView from '@/views/CorpusView.vue'
 import DevelopmentPlanView from '@/views/DevelopmentPlanView.vue'
@@ -75,14 +76,19 @@ export const routes = [
     meta: { navTitle: 'Tags', navIcon: PriceTag, showInNav: true, order: 4, navSection: 'SYSTEM', sidebarType: SidebarType.None },
   },
   {
-    path: '/development-plan',
-    component: DevelopmentPlanView,
-    meta: { navTitle: 'Plan', navIcon: mgsIconRegistry[MgsIconName.Architecture], showInNav: true, order: 6, navSection: 'CONTENT', sidebarType: SidebarType.None },
+    path: '/category',
+    component: CategoryView,
+    meta: { navTitle: 'Categories', navIcon: Folder, showInNav: true, order: 5, navSection: 'SYSTEM', sidebarType: SidebarType.None },
   },
   {
     path: '/todo',
     component: TodoView,
     meta: { navTitle: 'Todo', navIcon: mgsIconRegistry[MgsIconName.Plan], showInNav: true, order: 5, navSection: 'CONTENT', sidebarType: SidebarType.None },
+  },
+  {
+    path: '/development-plan',
+    component: DevelopmentPlanView,
+    meta: { navTitle: 'Plan', navIcon: mgsIconRegistry[MgsIconName.Architecture], showInNav: true, order: 6, navSection: 'CONTENT', sidebarType: SidebarType.None },
   },
   {
     path: '/corpus',
