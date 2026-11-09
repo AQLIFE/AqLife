@@ -22,7 +22,7 @@ namespace AqLife.Application.Business.Favorite.Search
             {
                 { UID: { } uid } => queryable.Where(x => x.UID == uid),
 
-                { Keyword: { Length: > 0 } keyword } => queryable.Where(x => x.Title.Contains(keyword) || x.Description.Contains(keyword)),
+                { Keyword: { } keyword } when !string.IsNullOrWhiteSpace(keyword) => queryable.Where(x => x.Title.Contains(keyword) || x.Description.Contains(keyword)),
 
                 { CategoryId: { } categoryId } => queryable.Where(x => x.FavoriteCategoryId == categoryId),
 

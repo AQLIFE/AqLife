@@ -42,7 +42,7 @@ public class FileSearch(
 
     protected override async Task<IQueryable<FileMetaEntity>> BuildBaseQueryAsync(IQueryable<FileMetaEntity> queryable, FileQuery query)
     {
-        queryable = queryable.Include(e => e.PublishMeta).Include(e => e.InteractionMeta).Include(e => e.FileTags).ThenInclude(x => x.Tag);
+        queryable = queryable.Include(e => e.PublishMeta).Include(e => e.InteractionMeta).Include(e => e.Category).Include(e => e.FileTags).ThenInclude(x => x.Tag);
         if (query.Scope == FileScope.Template && !IsValid) throw new RequestCheckException("You are not authorized to access template files.");// 前置验证已覆盖，确保未登录用户无法访问模板文件
         queryable = query.Scope switch
         {

@@ -50,12 +50,6 @@ export interface FavoriteDto {
      * @type {string}
      * @memberof FavoriteDto
      */
-    contentType?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof FavoriteDto
-     */
     sourceUrl?: string | null;
     /**
      * 
@@ -81,6 +75,12 @@ export interface FavoriteDto {
      * @memberof FavoriteDto
      */
     updatedAt?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FavoriteDto
+     */
+    cid?: string | null;
     /**
      * 
      * @type {Array<FavoriteMediaDto>}
@@ -115,13 +115,13 @@ export function FavoriteDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'uid': json['uid'] == null ? undefined : json['uid'],
         'title': json['title'] == null ? undefined : json['title'],
         'description': json['description'] == null ? undefined : json['description'],
-        'contentType': json['contentType'] == null ? undefined : json['contentType'],
         'sourceUrl': json['sourceUrl'] == null ? undefined : json['sourceUrl'],
         'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
         'isPublished': json['isPublished'] == null ? undefined : json['isPublished'],
         'createdAt': json['createdAt'] == null ? undefined : json['createdAt'],
         'updatedAt': json['updatedAt'] == null ? undefined : json['updatedAt'],
         'media': json['media'] == null ? undefined : ((json['media'] as Array<any>).map(FavoriteMediaDtoFromJSON)),
+        'cid': json['cid'] == null ? undefined : json['cid'],
         'tagIds': json['tagIds'] == null ? undefined : json['tagIds'],
     };
 }
@@ -140,13 +140,13 @@ export function FavoriteDtoToJSONTyped(value?: FavoriteDto | null, ignoreDiscrim
         'uid': value['uid'],
         'title': value['title'],
         'description': value['description'],
-        'contentType': value['contentType'],
         'sourceUrl': value['sourceUrl'],
         'sortOrder': value['sortOrder'],
         'isPublished': value['isPublished'],
         'createdAt': value['createdAt'],
         'updatedAt': value['updatedAt'],
         'media': value['media'] == null ? undefined : ((value['media'] as Array<any>).map(FavoriteMediaDtoToJSON)),
+        'cid': value['cid'],
         'tagIds': value['tagIds'],
     };
 }

@@ -153,7 +153,7 @@ No authorization required
 
 ## apiTagOverviewGet
 
-> Array&lt;BlogCategoryStatistics&gt; apiTagOverviewGet(isAll)
+> CategoryDtoPageResult apiTagOverviewGet(cid, searchType)
 
 
 
@@ -167,54 +167,31 @@ import {
 import type { ApiTagOverviewGetRequest } from '@aqlife/api-contract';
 
 async function example() {
-  console.log("🚀 Testing @aqlife/api-contract SDK...");
   const api = new TagApi();
-
   const body = {
-    // boolean (optional)
-    isAll: true,
+    cid: undefined,
+    searchType: 0,
   } satisfies ApiTagOverviewGetRequest;
 
-  try {
-    const data = await api.apiTagOverviewGet(body);
-    console.log(data);
-  } catch (error) {
-    console.error(error);
-  }
+  const data = await api.apiTagOverviewGet(body);
+  console.log(data);
 }
-
-// Run the test
-example().catch(console.error);
 ```
 
 ### Parameters
 
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **isAll** | `boolean` |  | [Optional] [Defaults to `undefined`] |
+| Name | Type | Description | Notes |
+|-------------|-------------|-------------|-------------|
+| **cid** | `string` | Category UID filter | [Optional] |
+| **searchType** | `number` | 0 = Blog, 1 = Favorite | [Optional] |
 
 ### Return type
 
-[**Array&lt;BlogCategoryStatistics&gt;**](BlogCategoryStatistics.md)
+[**CategoryDtoPageResult**](CategoryDtoPageResult.md)
 
 ### Authorization
 
 No authorization required
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: `text/plain`, `application/json`, `text/json`
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **200** | OK |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
-
 
 ## apiTagPatch
 

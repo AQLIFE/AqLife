@@ -36,12 +36,19 @@ namespace AqLife.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FavoriteMediaEntity>().HasKey(x => new { x.UID, x.FavoriteId, x.FileId });
+            modelBuilder.Entity<FavoriteMediaEntity>().HasKey(x => x.UID);
+            modelBuilder.Entity<FavoriteMediaEntity>()
+                .HasIndex(x => new { x.FavoriteId, x.FileId })
+                .IsUnique();
             modelBuilder.Entity<FavoriteTagEntity>().HasKey(x => new { x.FavoriteId, x.TagId });
 
             modelBuilder.Entity<FavoriteItemEntity>()
                 .HasMany(x => x.Media).WithOne(x => x.Favorite)
                 .HasForeignKey(x => x.FavoriteId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<FavoriteItemEntity>()
+                .HasOne(x => x.Category).WithMany()
+                .HasForeignKey(x => x.CategoryUID)
+                .OnDelete(DeleteBehavior.SetNull);
             modelBuilder.Entity<FavoriteItemEntity>()
                 .HasMany(x => x.Tags).WithOne(x => x.Favorite)
                 .HasForeignKey(x => x.FavoriteId).OnDelete(DeleteBehavior.Cascade);

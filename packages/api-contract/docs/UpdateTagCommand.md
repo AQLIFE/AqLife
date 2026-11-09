@@ -9,7 +9,6 @@ Name | Type
 `uid` | string
 `tagName` | string
 `aliasName` | string
-`isCategory` | boolean
 
 ## Example
 
@@ -21,7 +20,6 @@ const example = {
   "uid": null,
   "tagName": null,
   "aliasName": null,
-  "isCategory": null,
 } satisfies UpdateTagCommand
 
 console.log(example)

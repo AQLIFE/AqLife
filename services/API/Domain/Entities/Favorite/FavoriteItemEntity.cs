@@ -24,32 +24,35 @@ public class FavoriteItemEntity : IEntity
 
     public bool IsPublished { get; private set; }
 
-
     public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
     public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
-    public Guid FavoriteCategoryId { get; private set; }
-    public CategoryEntity Category { get; set; } = new CategoryEntity(string.Empty);// 对于收藏系统:必须存在一个分类
+
+    public Guid? CategoryUID { get; private set; }
+
+    [ForeignKey(nameof(CategoryUID))]
+    public CategoryEntity? Category { get; private set; }
 
     public ICollection<FavoriteMediaEntity> Media { get; set; } = [];
 
     public ICollection<FavoriteTagEntity> Tags { get; set; } = [];
 
     public FavoriteItemEntity() { }
+
     [MapperConstructor]
-    public FavoriteItemEntity(string title, string description, string? sourceUrl, int sortOrder, Guid FavoriteCategoryId)
+    public FavoriteItemEntity(string title, string description, string? sourceUrl, int sortOrder, Guid? categoryUID)
     {
-        Update(title, description, sourceUrl, sortOrder, FavoriteCategoryId);
+        Update(title, description, sourceUrl, sortOrder, categoryUID);
     }
 
-    public void Update(string title, string description, string? sourceUrl, int sortOrder, Guid cid)
+    public void Update(string title, string description, string? sourceUrl, int sortOrder, Guid? categoryUID)
     {
         Title = title.Trim();
         Description = description ?? string.Empty;
         SourceUrl = string.IsNullOrWhiteSpace(sourceUrl) ? null : sourceUrl.Trim();
         SortOrder = sortOrder;
         UpdatedAt = DateTimeOffset.UtcNow;
-        FavoriteCategoryId = cid;
+        CategoryUID = categoryUID;
     }
 
     public void SetPublished(bool published)
@@ -62,11 +65,15 @@ public class FavoriteItemEntity : IEntity
 [Table("FavoriteMedia")]
 public class FavoriteMediaEntity : IEntity
 {
+    [Key]
     public Guid UID { get; init; } = Guid.NewGuid();
+
     public Guid FavoriteId { get; private set; }
     public Guid FileId { get; private set; }
+
     [Required, StringLength(24)]
     public string Role { get; private set; } = "Image";
+
     public int SortOrder { get; private set; }
 
     public FavoriteItemEntity? Favorite { get; private set; }
@@ -91,6 +98,7 @@ public class FavoriteTagEntity
     public FavoriteItemEntity? Favorite { get; private set; }
 
     private FavoriteTagEntity() { }
+
     [MapperConstructor]
     public FavoriteTagEntity(Guid favoriteId, Guid tagId)
     {

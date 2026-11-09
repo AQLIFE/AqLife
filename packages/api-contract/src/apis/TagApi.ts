@@ -14,10 +14,10 @@
 
 import * as runtime from '../runtime';
 import {
-    type BlogCategoryStatistics,
-    BlogCategoryStatisticsFromJSON,
-    BlogCategoryStatisticsToJSON,
-} from '../models/BlogCategoryStatistics';
+    type CategoryDtoPageResult,
+    CategoryDtoPageResultFromJSON,
+} from '../models/CategoryDtoPageResult';
+import type { CategoryQueryType } from '../models/CategoryQueryType';
 import {
     type CreateTagCommand,
     CreateTagCommandFromJSON,
@@ -51,7 +51,8 @@ export interface ApiTagGetRequest {
 }
 
 export interface ApiTagOverviewGetRequest {
-    isAll?: boolean;
+    cid?: string;
+    searchType?: CategoryQueryType;
 }
 
 export interface ApiTagPatchRequest {
@@ -119,7 +120,7 @@ export interface TagApiInterface {
 
     /**
      * Creates request options for apiTagOverviewGet without sending the request
-     * @param {boolean} [isAll] 
+     * @param {string} [cid] @param {CategoryQueryType} [searchType] 
      * @throws {RequiredError}
      * @memberof TagApiInterface
      */
@@ -127,16 +128,16 @@ export interface TagApiInterface {
 
     /**
      * 
-     * @param {boolean} [isAll] 
+     * @param {string} [cid] @param {CategoryQueryType} [searchType] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TagApiInterface
      */
-    apiTagOverviewGetRaw(requestParameters: ApiTagOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<BlogCategoryStatistics>>>;
+    apiTagOverviewGetRaw(requestParameters: ApiTagOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CategoryDtoPageResult>>;
 
     /**
      */
-    apiTagOverviewGet(requestParameters: ApiTagOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<BlogCategoryStatistics>>;
+    apiTagOverviewGet(requestParameters: ApiTagOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryDtoPageResult>;
 
     /**
      * Creates request options for apiTagPatch without sending the request
@@ -281,8 +282,12 @@ export class TagApi extends runtime.BaseAPI implements TagApiInterface {
     async apiTagOverviewGetRequestOpts(requestParameters: ApiTagOverviewGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters['isAll'] != null) {
-            queryParameters['IsAll'] = requestParameters['isAll'];
+        if (requestParameters['cid'] != null) {
+            queryParameters['CID'] = requestParameters['cid'];
+        }
+
+        if (requestParameters['searchType'] != null) {
+            queryParameters['SearchType'] = requestParameters['searchType'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -300,16 +305,16 @@ export class TagApi extends runtime.BaseAPI implements TagApiInterface {
 
     /**
      */
-    async apiTagOverviewGetRaw(requestParameters: ApiTagOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<BlogCategoryStatistics>>> {
+    async apiTagOverviewGetRaw(requestParameters: ApiTagOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CategoryDtoPageResult>> {
         const requestOptions = await this.apiTagOverviewGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(BlogCategoryStatisticsFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => CategoryDtoPageResultFromJSON(jsonValue));
     }
 
     /**
      */
-    async apiTagOverviewGet(requestParameters: ApiTagOverviewGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<BlogCategoryStatistics>> {
+    async apiTagOverviewGet(requestParameters: ApiTagOverviewGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryDtoPageResult> {
         const response = await this.apiTagOverviewGetRaw(requestParameters, initOverrides);
         return await response.value();
     }

@@ -3,12 +3,12 @@ import { useTagStore } from '@/stores/tagStore';
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElButton } from 'element-plus';
-import { FileOrder, FileScope, TagApi, FileApi, type BlogCategoryStatistics, type FileDto } from '@/api';
+import { FileOrder, FileScope, TagApi, FileApi, CategoryQueryType, type CategoryDto, type FileDto } from '@/api';
 import { apiConfiguration } from '@/services/api';
 // import { View, Timer } from '@element-plus/icons-vue';
 import { useBlogStore } from '../stores/fileStore';
 
-const BlogCategoryView = ref<BlogCategoryStatistics[]>([])
+const BlogCategoryView = ref<CategoryDto[]>([])
 
 // const category = computed(() => useTagStore().tagList.filter(e => e.isCategory))
 const hotList = ref<FileDto[]>()
@@ -57,13 +57,13 @@ onBeforeMount(async () => {
     }
 
     const [categories, allPublishedBlogCount, popular] = await Promise.all([
-        tagApi.apiTagOverviewGet(),
+        tagApi.apiTagOverviewGet({ searchType: CategoryQueryType.Blog }),
         loadAllPublishedBlogCount(),
         fileApi.apiFileGet({ scope: FileScope.Blog, order: FileOrder.MostViewed, pageSize: 5 }),
     ])
 
     BlogCategoryView.value = [
-        ...categories,
+        ...(categories.items ?? []),
         { uid: '', categoryName: 'ALL', categoryCount: allPublishedBlogCount },
     ]
     hotList.value = popular.items ?? []

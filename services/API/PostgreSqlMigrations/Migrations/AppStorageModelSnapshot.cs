@@ -163,7 +163,7 @@ namespace PostgreSqlMigrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CategoryUID")
+                    b.Property<Guid?>("CategoryUID")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
@@ -172,9 +172,6 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<Guid>("FavoriteCategoryId")
-                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
@@ -220,9 +217,11 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.HasKey("UID", "FavoriteId", "FileId");
+                    b.HasKey("UID");
 
                     b.HasIndex("FavoriteId");
+
+                    b.HasIndex("FavoriteId", "FileId").IsUnique();
 
                     b.HasIndex("FileId");
 
@@ -537,8 +536,7 @@ namespace PostgreSqlMigrations.Migrations
                     b.HasOne("AqLife.Domain.Entities.CategoryEntity", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryUID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
                 });

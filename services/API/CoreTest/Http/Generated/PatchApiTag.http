@@ -12,7 +12,6 @@ Content-Type: {{contentType}}
 {
   "uid": "uid",
   "tagName": "tagName",
-  "aliasName": "aliasName",
-  "isCategory": false
+  "aliasName": "aliasName"
 }
 

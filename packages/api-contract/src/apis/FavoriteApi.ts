@@ -40,11 +40,11 @@ export interface ApiFavoriteDeleteRequest {
 
 export interface ApiFavoriteGetRequest {
     uID?: string;
-    contentType?: string;
+    categoryId?: string;
     tagId?: string;
+    cName?: string;
     page?: number;
     pageSize?: number;
-    includeUnpublished?: boolean;
 }
 
 export interface ApiFavoritePostRequest {
@@ -90,11 +90,11 @@ export interface FavoriteApiInterface {
     /**
      * Creates request options for apiFavoriteGet without sending the request
      * @param {string} [uID] 
-     * @param {string} [contentType] 
+     * @param {string} [categoryId] 
      * @param {string} [tagId] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
-     * @param {boolean} [includeUnpublished] 
+     * @param {string} [cName] 
      * @throws {RequiredError}
      * @memberof FavoriteApiInterface
      */
@@ -103,11 +103,11 @@ export interface FavoriteApiInterface {
     /**
      * 
      * @param {string} [uID] 
-     * @param {string} [contentType] 
+     * @param {string} [categoryId] 
      * @param {string} [tagId] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
-     * @param {boolean} [includeUnpublished] 
+     * @param {string} [cName] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FavoriteApiInterface
@@ -236,8 +236,8 @@ export class FavoriteApi extends runtime.BaseAPI implements FavoriteApiInterface
             queryParameters['UID'] = requestParameters['uID'];
         }
 
-        if (requestParameters['contentType'] != null) {
-            queryParameters['ContentType'] = requestParameters['contentType'];
+        if (requestParameters['categoryId'] != null) {
+            queryParameters['CategoryId'] = requestParameters['categoryId'];
         }
 
         if (requestParameters['tagId'] != null) {
@@ -252,8 +252,8 @@ export class FavoriteApi extends runtime.BaseAPI implements FavoriteApiInterface
             queryParameters['PageSize'] = requestParameters['pageSize'];
         }
 
-        if (requestParameters['includeUnpublished'] != null) {
-            queryParameters['IncludeUnpublished'] = requestParameters['includeUnpublished'];
+        if (requestParameters['cName'] != null) {
+            queryParameters['CName'] = requestParameters['cName'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

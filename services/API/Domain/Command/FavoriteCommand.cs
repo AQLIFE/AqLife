@@ -13,7 +13,7 @@ public record FavoriteMediaInput(Guid FavoriteId, Guid FileId, string Role = "Im
 public record CreateFavoriteCommand(
     [Required, StringLength(160)] string Title,
     string Description,
-    Guid CID,
+    Guid? CID,
     string? SourceUrl,
     int SortOrder = 0,
     IEnumerable<FavoriteMediaInput>? Media = null,
@@ -23,7 +23,7 @@ public record UpdateFavoriteCommand(
     Guid UID,
     [Required, StringLength(160)] string Title,
     string? Description,
-    Guid CID,
+    Guid? CID,
     string? SourceUrl,
     int SortOrder = 0,
     IEnumerable<FavoriteMediaInput>? Media = null,

@@ -9,7 +9,6 @@ Name | Type
 `uid` | string
 `name` | string
 `aliasName` | string
-`isCategory` | boolean
 
 ## Example
 
@@ -21,7 +20,6 @@ const example = {
   "uid": null,
   "name": null,
   "aliasName": null,
-  "isCategory": null,
 } satisfies TagDto
 
 console.log(example)

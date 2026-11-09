@@ -6,8 +6,8 @@ import {
 } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Upload } from '@element-plus/icons-vue'
 import {
-  FavoriteApi, FileApi, FileScope, TagApi,
-  type FavoriteDto, type FavoriteMediaInput, type FileDto, type TagDto,
+  FavoriteApi, FileApi, FileScope, TagApi, CategoryQueryType,
+  type CategoryDto, type FavoriteDto, type FavoriteMediaInput, type FileDto, type TagDto,
 } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
@@ -23,6 +23,7 @@ const tagApi = new TagApi(apiConfiguration)
 const items = ref<FavoriteDto[]>([])
 const files = ref<FileDto[]>([])
 const tags = ref<TagDto[]>([])
+const categories = ref<CategoryDto[]>([])
 const loading = ref(false)
 const saving = ref(false)
 const dialogVisible = ref(false)
@@ -32,24 +33,16 @@ const detailImageUrls = ref<Record<string, string>>({})
 const fileDialogVisible = ref(false)
 const editing = ref<FavoriteDto | null>(null)
 const keyword = ref('')
-const typeFilter = ref('')
+const categoryFilter = ref('')
 const selectedFileIds = ref<string[]>([])
 const selectedTagIds = ref<string[]>([])
 const previewUrls = ref<Record<string, string>>({})
 const quickUploading = ref(false)
 
-const contentTypes = [
-  { label: '食物', value: 'Food' },
-  { label: '书籍', value: 'Book' },
-  { label: '游戏', value: 'Game' },
-  { label: '技术', value: 'Tech' },
-  { label: '生活', value: 'Life' },
-  { label: '其他', value: 'Other' },
-]
 const form = ref({
   title: '',
   description: '',
-  contentType: 'Other',
+  cid: '',
   sourceUrl: '',
   sortOrder: 0,
 })
@@ -57,22 +50,24 @@ const form = ref({
 const filteredItems = computed(() => {
   const q = keyword.value.trim().toLocaleLowerCase()
   return items.value.filter(item =>
-    (!typeFilter.value || item.contentType === typeFilter.value) &&
-    (!q || [item.title, item.description, item.contentType].some(value => value?.toLocaleLowerCase().includes(q))),
+    (!categoryFilter.value || item.cid === categoryFilter.value) &&
+    (!q || [item.title, item.description].some(value => value?.toLocaleLowerCase().includes(q))),
   )
 })
 
 async function loadData() {
   loading.value = true
   try {
-    const [favoriteResult, tagResult, fileResult] = await Promise.all([
-      favoriteApi.apiFavoriteGet({ page: 1, pageSize: 100, includeUnpublished: true }),
+    const [favoriteResult, tagResult, fileResult, categoryResult] = await Promise.all([
+      favoriteApi.apiFavoriteGet({ page: 1, pageSize: 100 }),
       tagApi.apiTagGet({ page: 1, pageSize: 100 }),
       fileApi.apiFileGet({ page: 1, pageSize: 100, scope: FileScope.Image }),
+      tagApi.apiTagOverviewGet({ searchType: CategoryQueryType.Favorite }),
     ])
     items.value = favoriteResult.items ?? []
     tags.value = tagResult.items ?? []
     files.value = fileResult.items ?? []
+    categories.value = categoryResult.items ?? []
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : 'Favorite 数据加载失败')
   } finally {
@@ -102,7 +97,7 @@ function editFromDetail() {
 }
 function openCreate() {
   editing.value = null
-  form.value = { title: '', description: '', contentType: 'Other', sourceUrl: '', sortOrder: 0 }
+  form.value = { title: '', description: '', cid: '', sourceUrl: '', sortOrder: 0 }
   selectedFileIds.value = []
   selectedTagIds.value = []
   dialogVisible.value = true
@@ -125,7 +120,7 @@ async function openEdit(item: FavoriteDto) {
   form.value = {
     title: item.title ?? '',
     description: item.description ?? '',
-    contentType: item.contentType ?? 'Other',
+    cid: item.cid ?? '',
     sourceUrl: item.sourceUrl ?? '',
     sortOrder: item.sortOrder ?? 0,
   }
@@ -140,10 +135,6 @@ async function save() {
     ElMessage.warning('请填写标题')
     return
   }
-  if (!form.value.contentType) {
-    ElMessage.warning('请选择内容类型')
-    return
-  }
   saving.value = true
   try {
     const media: FavoriteMediaInput[] = selectedFileIds.value.map((fileId, index) => ({
@@ -152,7 +143,7 @@ async function save() {
     const payload = {
       title: form.value.title.trim(),
       description: form.value.description.trim(),
-      contentType: form.value.contentType,
+      cid: form.value.cid || null,
       sourceUrl: form.value.sourceUrl.trim() || null,
       sortOrder: Number(form.value.sortOrder) || 0,
       media,
@@ -268,9 +259,9 @@ onBeforeMount(loadData)
     </MgsPageHeader>
 
     <MgsToolbar>
-      <ElInput v-model="keyword" clearable placeholder="搜索标题、描述或类型" />
-      <ElSelect v-model="typeFilter" clearable placeholder="全部类型" class="type-filter">
-        <ElOption v-for="type in contentTypes" :key="type.value" :label="type.label" :value="type.value" />
+      <ElInput v-model="keyword" clearable placeholder="搜索标题或描述" />
+      <ElSelect v-model="categoryFilter" clearable placeholder="全部分类" class="type-filter">
+        <ElOption v-for="category in categories" :key="category.uid" :label="category.categoryName ?? '未命名分类'" :value="category.uid ?? ''" />
       </ElSelect>
     </MgsToolbar>
 
@@ -281,9 +272,9 @@ onBeforeMount(loadData)
           <ElButton link type="primary" @click="openDetail(row)">{{ row.title || '未命名收藏' }}</ElButton>
         </template>
       </ElTableColumn>
-      <ElTableColumn prop="contentType" label="类型" width="110">
+      <ElTableColumn label="分类" width="130">
         <template #default="{ row }">
-          <ElTag>{{ contentTypes.find(type => type.value === row.contentType)?.label ?? row.contentType }}</ElTag>
+          {{ categories.find(category => category.uid === row.cid)?.categoryName ?? '未分类' }}
         </template>
       </ElTableColumn>
       <ElTableColumn label="媒体" min-width="180">
@@ -313,7 +304,7 @@ onBeforeMount(loadData)
 
     <ElDialog v-model="detailDialogVisible" title="收藏详情" width="min(920px, 94vw)" top="5vh" destroy-on-close>
       <div v-if="detailItem" class="favorite-detail-dialog">
-        <FavoriteDetailContent :favorite="detailItem" :tags="tags" :image-urls="detailImageUrls" editable @edit="editFromDetail" />
+        <FavoriteDetailContent :favorite="detailItem" :tags="tags" :categories="categories" :image-urls="detailImageUrls" editable @edit="editFromDetail" />
       </div>
     </ElDialog>
     <ElDialog v-model="dialogVisible" :title="editing ? '编辑收藏' : '新增收藏'" width="min(720px, 94vw)" destroy-on-close>
@@ -321,9 +312,9 @@ onBeforeMount(loadData)
         <ElFormItem label="标题" required>
           <ElInput v-model="form.title" maxlength="160" show-word-limit />
         </ElFormItem>
-        <ElFormItem label="内容类型" required>
-          <ElSelect v-model="form.contentType" class="full-width">
-            <ElOption v-for="type in contentTypes" :key="type.value" :label="type.label" :value="type.value" />
+        <ElFormItem label="分类">
+          <ElSelect v-model="form.cid" clearable class="full-width" placeholder="不指定分类">
+            <ElOption v-for="category in categories" :key="category.uid" :label="category.categoryName ?? '未命名分类'" :value="category.uid ?? ''" />
           </ElSelect>
         </ElFormItem>
         <ElFormItem label="描述">

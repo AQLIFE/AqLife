@@ -3,7 +3,7 @@ import { onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElButton, ElEmpty, ElMessage } from 'element-plus'
 import { ArrowLeft, ArrowRight, Share } from '@element-plus/icons-vue'
-import { FavoriteApi, FileApi, TagApi, type FavoriteDto, type TagDto } from '@/api'
+import { FavoriteApi, FileApi, TagApi, CategoryQueryType, type CategoryDto, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { FavoriteDetailContent } from '@aqlife/ui-shared'
 
@@ -15,6 +15,7 @@ const tagApi = new TagApi(apiConfiguration)
 
 const favorite = ref<FavoriteDto | null>(null)
 const tags = ref<TagDto[]>([])
+const categories = ref<CategoryDto[]>([])
 const imageUrls = ref<Record<string, string>>({})
 const loading = ref(false)
 const notFound = ref(false)
@@ -94,8 +95,12 @@ async function loadFavorite(uid: string) {
     const result = await favoriteApi.apiFavoriteGet({ uID: uid, page: 1, pageSize: 1 })
     favorite.value = result.items?.find(item => item.uid === uid) ?? null
     try {
-      const tagResult = await tagApi.apiTagGet({ page: 1, pageSize: 100 })
+      const [tagResult, categoryResult] = await Promise.all([
+        tagApi.apiTagGet({ page: 1, pageSize: 100 }),
+        tagApi.apiTagOverviewGet({ searchType: CategoryQueryType.Favorite }),
+      ])
       tags.value = tagResult.items ?? []
+      categories.value = categoryResult.items ?? []
     } catch {
       tags.value = []
     }
@@ -169,7 +174,7 @@ onBeforeUnmount(releaseImageUrls)
     </ElEmpty>
 
     <div v-else-if="favorite" class="detail-content">
-      <FavoriteDetailContent :favorite="favorite" :tags="tags" :image-urls="imageUrls" />
+      <FavoriteDetailContent :favorite="favorite" :tags="tags" :categories="categories" :image-urls="imageUrls" />
       <footer class="detail-footer">
         <ElButton plain :icon="ArrowLeft" :disabled="!previousFavorite" @click="openNeighbor(previousFavorite)">
           {{ previousFavorite ? '上一篇：' + (previousFavorite.title || '未命名收藏') : '已经是第一篇' }}

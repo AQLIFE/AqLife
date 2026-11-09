@@ -2,29 +2,23 @@
 import { computed } from 'vue'
 import { ElButton, ElImage, ElTag } from 'element-plus'
 import { Edit } from '@element-plus/icons-vue'
-import type { FavoriteDto, TagDto } from '@aqlife/api-contract'
+import type { CategoryDto, FavoriteDto, TagDto } from '@aqlife/api-contract'
 
 const props = withDefaults(defineProps<{
   favorite: FavoriteDto
   tags?: TagDto[]
+  categories?: CategoryDto[]
   imageUrls?: Record<string, string>
   editable?: boolean
 }>(), {
   tags: () => [],
+  categories: () => [],
   imageUrls: () => ({}),
   editable: false,
 })
 
 defineEmits<{ edit: [] }>()
 
-const typeOptions = [
-  { value: 'Food', label: '食物' },
-  { value: 'Book', label: '书籍' },
-  { value: 'Game', label: '游戏' },
-  { value: 'Tech', label: '技术' },
-  { value: 'Life', label: '生活' },
-  { value: 'Other', label: '其他' },
-]
 const mediaItems = computed(() =>
   [...(props.favorite.media ?? [])]
     .filter(media => !!media.fileId)
@@ -40,10 +34,9 @@ const favoriteTags = computed(() =>
     .map(id => props.tags.find(tag => tag.uid === id)?.name)
     .filter((name): name is string => !!name),
 )
-const contentTypeLabel = computed(() =>
-  typeOptions.find(type => type.value === props.favorite.contentType)?.label
-    ?? props.favorite.contentType
-    ?? '收藏',
+const categoryLabel = computed(() =>
+  props.categories.find(category => category.uid === props.favorite.cid)?.categoryName
+    ?? '未分类',
 )
 
 function formatDate(value?: string) {
@@ -56,7 +49,7 @@ function formatDate(value?: string) {
     <header class="detail-header">
       <div class="detail-heading-row">
         <div class="detail-eyebrow">
-          <span>{{ contentTypeLabel }}</span>
+          <span>{{ categoryLabel }}</span>
           <span v-if="favorite.createdAt">{{ formatDate(favorite.createdAt) }}</span>
         </div>
         <ElButton v-if="editable" type="primary" :icon="Edit" @click="$emit('edit')">编辑收藏</ElButton>
@@ -94,7 +87,7 @@ function formatDate(value?: string) {
     <section class="detail-info">
       <div class="section-heading"><h2>收藏信息</h2></div>
       <dl>
-        <div><dt>内容类型</dt><dd>{{ contentTypeLabel }}</dd></div>
+        <div><dt>分类</dt><dd>{{ categoryLabel }}</dd></div>
         <div v-if="favorite.createdAt"><dt>添加时间</dt><dd>{{ formatDate(favorite.createdAt) }}</dd></div>
         <div v-if="favorite.updatedAt"><dt>更新时间</dt><dd>{{ formatDate(favorite.updatedAt) }}</dd></div>
         <div v-if="favorite.sourceUrl">

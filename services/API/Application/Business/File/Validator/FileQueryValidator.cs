@@ -4,6 +4,7 @@ using AqLife.Domain.Command;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.File.Validator
 {
@@ -12,11 +13,11 @@ namespace AqLife.Application.Business.File.Validator
         private protected override string ErrorMessage { init; get; } = "无效的搜索条件";
         private protected override async Task<bool> IsValidAsync(FileQuery query, CancellationToken ct)
         {
-            if (query.CategoryUID is not null)
-                return dbContext.Categories.Any(e => e.UID == query.CategoryUID);
-            else return true;
+            if (query.CategoryUID is not Guid categoryId)
+                return true;
+
+            return await dbContext.Categories.AnyAsync(e => e.UID == categoryId, ct);
         }
-        // 启用Tag 搜索后,UID 必须提供,且该Tag 必须存在且是Category
     }
 
     public class FileQueryScopeValidator(IHttpContextAccessor httpContext) : AbstractValidator<FileQuery>

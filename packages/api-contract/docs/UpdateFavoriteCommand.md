@@ -9,7 +9,7 @@ Name | Type
 `uid` | string
 `title` | string
 `description` | string
-`contentType` | string
+`cid` | string
 `sourceUrl` | string
 `sortOrder` | number
 `media` | [Array&lt;FavoriteMediaInput&gt;](FavoriteMediaInput.md)
@@ -25,7 +25,7 @@ const example = {
   "uid": null,
   "title": null,
   "description": null,
-  "contentType": null,
+  "cid": null,
   "sourceUrl": null,
   "sortOrder": null,
   "media": null,
