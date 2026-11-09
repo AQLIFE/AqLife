@@ -50,7 +50,7 @@ export interface UpdateFavoriteCommand {
      * @type {string}
      * @memberof UpdateFavoriteCommand
      */
-    cid?: string | null;
+    cid?: string;
     /**
      * 
      * @type {string}
