@@ -36,6 +36,8 @@ public sealed class MapperServices(
     public bool ShouldDesensitize =>
         httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated != true;
 
+    public string[] AllowedBlogExtensions => filePolicy.Value.AllowedBlogExtensions;
+
     public CategoryDto ToDto(CategoryEntity source)
     {
         if (!ShouldDesensitize)
@@ -43,7 +45,7 @@ public sealed class MapperServices(
             return categoryMapper.ToDto(source);
         }
 
-        var allowedExtensions = filePolicy.Value.AllowedBlogExtensions;
+        var allowedExtensions = AllowedBlogExtensions;
         var categoryCount = source.Files.Count(file =>
             !file.IsTemplate &&
             file.PublishMeta.PublishStatus == FileStatus.Published &&
