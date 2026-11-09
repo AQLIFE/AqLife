@@ -136,6 +136,10 @@ async function save() {
     ElMessage.warning('请填写标题')
     return
   }
+  if (!form.value.cid.trim()) {
+    ElMessage.warning('请选择分类')
+    return
+  }
   saving.value = true
   try {
     const media: FavoriteMediaInput[] = selectedFileIds.value.map((fileId, index) => ({
@@ -144,7 +148,7 @@ async function save() {
     const payload = {
       title: form.value.title.trim(),
       description: form.value.description.trim(),
-      cid: form.value.cid || null,
+      cid: form.value.cid,
       sourceUrl: form.value.sourceUrl.trim() || null,
       sortOrder: Number(form.value.sortOrder) || 0,
       media,
@@ -313,8 +317,8 @@ onBeforeMount(loadData)
         <ElFormItem label="标题" required>
           <ElInput v-model="form.title" maxlength="160" show-word-limit />
         </ElFormItem>
-        <ElFormItem label="分类">
-          <ElSelect v-model="form.cid" clearable class="full-width" placeholder="不指定分类">
+        <ElFormItem label="分类" required>
+          <ElSelect v-model="form.cid" class="full-width" placeholder="请选择分类">
             <ElOption v-for="category in categories" :key="category.uid" :label="category.categoryName ?? '未命名分类'" :value="category.uid ?? ''" />
           </ElSelect>
         </ElFormItem>
