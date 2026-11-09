@@ -17,6 +17,7 @@ public sealed class CategoryQueryHandler(
     public async Task<PageResult<CategoryDto>?> Handle(CategoryQuery query, CancellationToken ct)
     {
         var shouldDesensitize = mapperServices.ShouldDesensitize;
+        var allowedBlogExtensions = mapperServices.AllowedBlogExtensions;
         var categories = await categorySearch.SearchAsync(query, ct);
 
         // 先投影可由 EF Core 翻译的标量字段和统计值，再按统计值排序。
@@ -32,7 +33,7 @@ public sealed class CategoryQueryHandler(
                         ? dbContext.File.Count(file =>
                             file.CategoryUID == category.UID &&
                             !file.IsTemplate &&
-                            filePolicyExtensions.Contains(file.Extension) &&
+                            allowedBlogExtensions.Contains(file.Extension) &&
                             file.PublishMeta.PublishStatus == FileStatus.Published)
                         : dbContext.File.Count(file => file.CategoryUID == category.UID))
                     : (shouldDesensitize
@@ -57,6 +58,4 @@ public sealed class CategoryQueryHandler(
 
         return new PageResult<CategoryDto>(result, 1, 10, false);
     }
-
-    private string[] filePolicyExtensions => mapperServices.AllowedBlogExtensions;
 }
