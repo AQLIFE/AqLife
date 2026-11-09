@@ -3,32 +3,26 @@ import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElButton, ElEmpty, ElMessage, ElOption, ElSelect, ElTag } from 'element-plus'
 import { ArrowRight, Refresh } from '@element-plus/icons-vue'
-import { FavoriteApi, FileApi, TagApi, type FavoriteDto, type TagDto } from '@/api'
+import { FavoriteApi, FileApi, TagApi, CategoryApi, CategoryQueryType, type CategoryDto, type FavoriteDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 
 const router = useRouter()
 const favoriteApi = new FavoriteApi(apiConfiguration)
 const fileApi = new FileApi(apiConfiguration)
 const tagApi = new TagApi(apiConfiguration)
+const categoryApi = new CategoryApi(apiConfiguration)
 
 const items = ref<FavoriteDto[]>([])
 const tags = ref<TagDto[]>([])
+const categories = ref<CategoryDto[]>([])
 const loading = ref(false)
 const hasMore = ref(false)
 const page = ref(1)
-const selectedType = ref('')
+const selectedCategory = ref('')
 const selectedTag = ref('')
 const imageUrls = ref<Record<string, string>>({})
 const objectUrls = new Set<string>()
 
-const typeOptions = [
-  { value: 'Food', label: '食物' },
-  { value: 'Book', label: '书籍' },
-  { value: 'Game', label: '游戏' },
-  { value: 'Tech', label: '技术' },
-  { value: 'Life', label: '生活' },
-  { value: 'Other', label: '其他' },
-]
 
 const tagName = (id: string) => tags.value.find(tag => tag.uid === id)?.name ?? '标签'
 
@@ -43,7 +37,7 @@ async function loadItems(reset = false) {
     const result = await favoriteApi.apiFavoriteGet({
       page: page.value,
       pageSize: 24,
-      contentType: selectedType.value || undefined,
+      categoryId: selectedCategory.value || undefined,
       tagId: selectedTag.value || undefined,
     })
     const received = result.items ?? []
@@ -78,8 +72,8 @@ function openDetail(uid?: string) {
   if (uid) void router.push('/favorite/' + encodeURIComponent(uid))
 }
 
-function changeType(value: string) {
-  selectedType.value = value
+function changeCategory(value: string) {
+  selectedCategory.value = value
   void loadItems(true)
 }
 function changeTag(value: string) {
@@ -89,8 +83,12 @@ function changeTag(value: string) {
 
 onBeforeMount(async () => {
   try {
-    const result = await tagApi.apiTagGet({ page: 1, pageSize: 100 })
-    tags.value = result.items ?? []
+    const [tagResult, categoryResult] = await Promise.all([
+      tagApi.apiTagGet({ page: 1, pageSize: 100 }),
+      categoryApi.apiCategoryGet({ searchType: CategoryQueryType.Favorite }),
+    ])
+    tags.value = tagResult.items ?? []
+    categories.value = categoryResult.items ?? []
   } catch {
     // 标签筛选不可用时仍可浏览全部收藏。
   }
@@ -115,8 +113,8 @@ onBeforeUnmount(() => {
     </header>
 
     <div class="archive-toolbar">
-      <ElSelect :model-value="selectedType" clearable placeholder="所有类别" @change="changeType">
-        <ElOption v-for="type in typeOptions" :key="type.value" :label="type.label" :value="type.value" />
+      <ElSelect :model-value="selectedCategory" clearable placeholder="所有分类" @change="changeCategory">
+        <ElOption v-for="category in categories" :key="category.uid" :label="category.categoryName ?? '未命名分类'" :value="category.uid ?? ''" />
       </ElSelect>
       <ElSelect :model-value="selectedTag" clearable filterable placeholder="所有标签" @change="changeTag">
         <ElOption v-for="tag in tags" :key="tag.uid ?? tag.name ?? 'tag'" :label="tag.name ?? '未命名标签'" :value="tag.uid ?? ''" />
@@ -134,7 +132,7 @@ onBeforeUnmount(() => {
         </div>
         <div class="card-body">
           <div class="card-meta">
-            <span>{{ typeOptions.find(type => type.value === item.contentType)?.label ?? item.contentType }}</span>
+            <span>{{ categories.find(category => category.uid === item.cid)?.categoryName ?? '未分类' }}</span>
             <span v-if="item.createdAt">{{ item.createdAt.slice(0, 10) }}</span>
           </div>
           <h2>{{ item.title || '未命名收藏' }}</h2>

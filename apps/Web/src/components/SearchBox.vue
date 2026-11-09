@@ -77,7 +77,6 @@
               v-for="tag in item.tags"
               :key="tag.uid!"
               size="small"
-              :type="tag.isCategory ? 'success' : 'info'"
             >
               {{ tag.name }}
             </ElTag>

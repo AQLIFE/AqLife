@@ -10,6 +10,6 @@ public record FavoriteDto(
     bool IsPublished,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
-    Guid Cid,
+    Guid? Cid,
     IEnumerable<FavoriteMediaDto> Media,
     IEnumerable<Guid> TagIds) : IEntityDto;

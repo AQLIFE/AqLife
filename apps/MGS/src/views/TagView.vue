@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { notify, useLoadingTask } from '@aqlife/ui-shared'
-import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessageBox, ElOption, ElSegmented, ElSelect, ElSwitch, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
+import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessageBox, ElOption, ElSegmented, ElSelect, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
 import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { computed, onBeforeMount, ref } from 'vue'
 import { TagApi, type CreateTagCommand, type TagDto, type UpdateTagCommand } from '@/api'
@@ -9,18 +9,16 @@ import { useTagStore } from '@/stores/uuseTagStore'
 import MgsPageHeader from '../components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
-const columnMap: Record<string, string> = { uid: '唯一标识', name: '标签名称', aliasName: '标签别名', isCategory: '分类标识' }
+const columnMap: Record<string, string> = { uid: '唯一标识', name: '标签名称', aliasName: '标签别名' }
 const activeSelect = ref<string>('选择字段')
 const searchQuery = ref('')
-const selectCategory = ref<number>(-1)
-const segmentedOptions = [{ label: '全部', value: -1 }, { label: '普通标签', value: 0 }, { label: '分类', value: 1 }]
 const tagStore = useTagStore()
 const proxyTags = ref<TagDto[]>([])
 const { isLoading: isTableLoading, run: withTableLoading } = useLoadingTask('mgs:table:tags')
 const dialogVisible = ref(false)
 const isSaving = ref(false)
 const editingTag = ref<TagDto | null>(null)
-const addTagDto = ref<CreateTagCommand>({ name: '', aliasName: '', isCategory: false })
+const addTagDto = ref<CreateTagCommand>({ name: '', aliasName: '' })
 const tagApi = new TagApi(apiConfiguration)
 
 onBeforeMount(async () => {
@@ -31,11 +29,10 @@ onBeforeMount(async () => {
   }
 })
 // const tableColumns = computed(() => Object.keys(columnMap))
-const tempList = computed(() => Object.keys(columnMap).filter(key => key !== 'isCategory'))
+const tempList = computed(() => Object.keys(columnMap))
 
 function filterData() {
   let result = [...tagStore.tags]
-  if (selectCategory.value !== -1) result = result.filter(tag => tag.isCategory === Boolean(selectCategory.value))
   const keyword = searchQuery.value.trim().toLowerCase()
   if (keyword && activeSelect.value !== '选择字段') {
     const field = activeSelect.value as keyof TagDto
@@ -45,12 +42,12 @@ function filterData() {
 }
 function openCreate() {
   editingTag.value = null
-  addTagDto.value = { name: '', aliasName: '', isCategory: false }
+  addTagDto.value = { name: '', aliasName: '' }
   dialogVisible.value = true
 }
 function openEdit(tag: TagDto) {
   editingTag.value = tag
-  addTagDto.value = { name: tag.name ?? '', aliasName: tag.aliasName ?? '', isCategory: !!tag.isCategory }
+  addTagDto.value = { name: tag.name ?? '', aliasName: tag.aliasName ?? '' }
   dialogVisible.value = true
 }
 async function saveTag() {
@@ -59,13 +56,13 @@ async function saveTag() {
   isSaving.value = true
   try {
     if (editingTag.value?.uid) {
-      const command: UpdateTagCommand = { uid: editingTag.value.uid, tagName: name, aliasName: addTagDto.value.aliasName?.trim() || null, isCategory: !!addTagDto.value.isCategory }
+      const command: UpdateTagCommand = { uid: editingTag.value.uid, tagName: name, aliasName: addTagDto.value.aliasName?.trim() || null }
       await tagApi.apiTagPatch({ updateTagCommand: command })
       const index = tagStore.tags.findIndex(tag => tag.uid === editingTag.value?.uid)
-      if (index >= 0) tagStore.tags[index] = { ...tagStore.tags[index], name, aliasName: command.aliasName, isCategory: command.isCategory }
+      if (index >= 0) tagStore.tags[index] = { ...tagStore.tags[index], name, aliasName: command.aliasName }
       notify.success('标签已更新')
     } else {
-      const uid = await tagApi.apiTagPost({ createTagCommand: { name, aliasName: addTagDto.value.aliasName?.trim() || null, isCategory: !!addTagDto.value.isCategory } })
+      const uid = await tagApi.apiTagPost({ createTagCommand: { name, aliasName: addTagDto.value.aliasName?.trim() || null } })
       const result = await tagApi.apiTagGet({ uID: uid })
       const created = result.items?.[0]
       if (!created) throw new Error('创建后未找到对应标签')
@@ -96,14 +93,13 @@ async function deleteTag(tag: TagDto) {
 
 <template>
   <div class="todo-view-root">
-    <MgsPageHeader title="标签" description="管理标签,维护标签名称、别名和分类属性">
+    <MgsPageHeader title="标签" description="管理普通标签的名称和别名">
       <template #actions>
         <ElButton :icon="Refresh" @click="filterData">Refresh</ElButton>
         <ElButton type="primary" :icon="Plus" @click="openCreate">New Tag</ElButton>
       </template>
     </MgsPageHeader>
     <MgsToolbar>
-      <ElSegmented v-model="selectCategory" :options="segmentedOptions" @change="filterData" />
       <ElInput v-model="searchQuery" placeholder="输入关键词" clearable @keyup.enter="filterData" @clear="filterData">
         <template #prepend>
           <ElSelect v-model="activeSelect" placeholder="搜索字段" style="width:120px">
@@ -126,10 +122,6 @@ async function deleteTag(tag: TagDto) {
       </ElTableColumn>
       <ElTableColumn prop="aliasName" label="标签别名" min-width="160"><template #default="{ row }">{{ row.aliasName || '—'
           }}</template></ElTableColumn>
-      <ElTableColumn prop="isCategory" label="类型" width="120"><template #default="{ row }">
-          <ElTag :type="row.isCategory ? 'success' : 'info'">{{ row.isCategory ? '分类' : '普通标签' }}</ElTag>
-        </template>
-      </ElTableColumn>
       <ElTableColumn prop="uid" label="UID" min-width="220" show-overflow-tooltip />
       <ElTableColumn label="操作" width="150" fixed="right"><template #default="{ row }">
           <ElButton link type="primary" :icon="Edit" @click="openEdit(row)">编辑</ElButton>
@@ -145,9 +137,6 @@ async function deleteTag(tag: TagDto) {
         </ElFormItem>
         <ElFormItem label="标签别名">
           <ElInput v-model="addTagDto.aliasName" maxlength="100" />
-        </ElFormItem>
-        <ElFormItem label="分类标签">
-          <ElSwitch v-model="addTagDto.isCategory" inline-prompt active-text="分类" inactive-text="普通" />
         </ElFormItem>
       </ElForm>
       <template #footer>

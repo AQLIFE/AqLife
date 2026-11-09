@@ -82,7 +82,7 @@ namespace AqLife.Domain.Entities.File
             return this;
         }
 
-        public void SetCategory(Guid categoryUID)
+        public void SetCategory(Guid? categoryUID)
         {
             CategoryUID = categoryUID;
         }
