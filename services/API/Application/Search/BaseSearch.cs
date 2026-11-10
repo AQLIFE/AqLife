@@ -53,6 +53,16 @@ namespace AqLife.Application.Search
         protected private abstract IQueryable<TEntity> ApplyDefaultOrder(IQueryable<TEntity> queryble, TQuery query);
 
         /// <summary>
+        /// 对搜索结果应用统一的结果策略，默认不改变查询。
+        /// </summary>
+        /// <param name="queryable">已执行搜索策略的查询。</param>
+        /// <param name="query">原始查询条件。</param>
+        /// <returns>应用结果策略后的查询。</returns>
+        protected private virtual IQueryable<TEntity> ApplyResultPolicy(
+            IQueryable<TEntity> queryable, TQuery query)
+            => queryable;
+
+        /// <summary>
         /// 核心逻辑复用：不需要子类 override 
         /// </summary>
         /// <param name="query"></param>
@@ -67,6 +77,7 @@ namespace AqLife.Application.Search
             IQueryable<TEntity> queryable = BuildBaseQuery(storage.Set<TEntity>().AsNoTracking(), query);
             queryable = ApplyDefaultOrder(queryable, query);
             queryable = strategy.Execute(queryable, criteria, ct);
+            queryable = ApplyResultPolicy(queryable, query);
 
             return queryable;
         }

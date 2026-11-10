@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
@@ -27,6 +28,13 @@ public class FileSearch(
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
     : BaseSearch<FileQuery, FileMetaEntity, FileDto, FileSearchCriteria>(storage,httpContext, searchStrategies)
 {
+    private static readonly Expression<Func<FileMetaEntity, FileMetaEntity>>
+        AnonymousProjection = e => e.Desensitize();
+
+    protected private override IQueryable<FileMetaEntity> ApplyResultPolicy(
+        IQueryable<FileMetaEntity> queryable, FileQuery query)
+        => IsValid ? queryable : queryable.Select(AnonymousProjection);
+
     protected private override FileSearchCriteria MapToCriteria(FileQuery query)
         => queryMapper.ToCriteria(query);
     protected private override IQueryable<FileMetaEntity> ApplyDefaultOrder(IQueryable<FileMetaEntity> queryble, FileQuery query)
