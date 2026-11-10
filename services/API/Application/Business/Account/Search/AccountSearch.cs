@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Account.Search
 {
     // 尝试使用BaseSearch来实现AccountSearch，减少重复代码,等待测试
-    public class AccountSearch(QueryMapper queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<AccountEntity, EntitySearchCriteria>> searchStrategies)
+    public sealed class AccountSearch(QueryMapper queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<AccountEntity, EntitySearchCriteria>> searchStrategies)
         : BaseSearch<AccountQuery, AccountEntity, AccountDto, EntitySearchCriteria>(storage, httpContext, searchStrategies)
     {
         protected private override IQueryable<AccountEntity> BuildBaseQuery(IQueryable<AccountEntity> queryable, AccountQuery query)
@@ -21,5 +21,8 @@ namespace AqLife.Application.Business.Account.Search
 
         protected private override IQueryable<AccountEntity> ApplyDefaultOrder(IQueryable<AccountEntity> queryble, AccountQuery query)
         => queryble.OrderBy(e => e.Name);
+
+        private protected override IQueryable<AccountEntity> ApplyResultPolicy(IQueryable<AccountEntity> queryable, AccountQuery query)
+        => queryable.Where(e => e.IsValid);
     }
 }

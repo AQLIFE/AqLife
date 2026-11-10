@@ -4,7 +4,7 @@ using AqLife.Shared.Exceptions;
 
 namespace AqLife.Application.Business.File.Search
 {
-    public class FilteredFilesSearchStrategy
+    public sealed class FilteredFilesSearchStrategy
         : FilteredSearchStrategyBase<FileMetaEntity, FileSearchCriteria>
     {
         public override bool IsMatch(FileSearchCriteria criteria)
@@ -12,7 +12,7 @@ namespace AqLife.Application.Business.File.Search
                !string.IsNullOrWhiteSpace(criteria.Keyword) ||
                criteria.CategoryUID is not null;
 
-        protected override IQueryable<FileMetaEntity> ApplyKeywordFilter(
+        protected private override IQueryable<FileMetaEntity> ApplyKeywordFilter(
             IQueryable<FileMetaEntity> queryable, string keyword)
             => queryable.Where(e => e.FileName.Contains(keyword));
 

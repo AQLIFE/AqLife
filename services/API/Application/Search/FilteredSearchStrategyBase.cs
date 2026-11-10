@@ -22,7 +22,7 @@ namespace AqLife.Application.Search
                 return ApplyKeywordFilter(queryable, c.Keyword.Trim());
             else throw new RequestFailException("不合规的操作，该请求不应被处理");
         }
-        protected abstract IQueryable<TEntity> ApplyKeywordFilter(
+        protected private abstract IQueryable<TEntity> ApplyKeywordFilter(
             IQueryable<TEntity> queryable, string keyword);
     }
 }

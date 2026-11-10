@@ -39,7 +39,7 @@ namespace AqLife.Application.Search
         /// <returns></returns>
         protected private abstract TSearchCriteria MapToCriteria(TQuery query);
         /// <summary>
-        /// 构建查询：子类实现
+        /// 构建查询：子类实现; 推荐只做 Include 和 Where ,条件，排序和分页在基类中处理
         /// </summary>
         /// <param name="queryable"></param>
         /// <param name="query"></param>

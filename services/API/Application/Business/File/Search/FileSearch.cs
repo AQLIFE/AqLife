@@ -21,7 +21,7 @@ public readonly record struct FileSearchCriteria(
     Guid? CategoryUID
 ) : ISearchCriteria;
 
-public class FileSearch(
+public sealed class FileSearch(
     IOptions<FilePolicyOption> options,
     QueryMapper queryMapper,
     IApplicationDbContext storage, IHttpContextAccessor httpContext,

@@ -1,19 +1,16 @@
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Search;
 using AqLife.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Category.Search;
 
 public sealed class FilteredCategorySearchStrategy
-    : ISearchStrategy<CategoryEntity, EntitySearchCriteria>
+    : FilteredSearchStrategyBase<CategoryEntity, EntitySearchCriteria>
 {
-    public bool IsMatch(EntitySearchCriteria criteria) => criteria.UID is not null;
+    protected private override IQueryable<CategoryEntity> ApplyKeywordFilter(IQueryable<CategoryEntity> queryable, string keyword)
+        => queryable.Where(e => e.CategoryName.Contains(keyword));
 
-    public IQueryable<CategoryEntity> Execute(
-        IQueryable<CategoryEntity> queryable,
-        EntitySearchCriteria criteria,
-        CancellationToken ct = default)
-        => criteria.UID is Guid uid
-            ? queryable.Where(category => category.UID == uid)
-            : queryable;
+    public override IQueryable<CategoryEntity> Execute(IQueryable<CategoryEntity> queryable,EntitySearchCriteria criteria,CancellationToken ct = default)
+        => criteria.UID is Guid uid ? queryable.Where(category => category.UID == uid) : queryable;
 }

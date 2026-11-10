@@ -16,7 +16,5 @@ namespace AqLife.Application.Business.Favorite.Search
     {
         public override bool IsMatch(FavoriteSearchCriteria c)
         => base.IsMatch(c) && c.TagId is null && c.CategoryId is null;
-        //public override IQueryable<FavoriteItemEntity> Execute(IQueryable<FavoriteItemEntity> queryable,FavoriteSearchCriteria criteria,CancellationToken ct = default)
-        //=> queryable;
     }
 }

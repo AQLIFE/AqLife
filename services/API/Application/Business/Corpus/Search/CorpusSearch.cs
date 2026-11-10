@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Corpus.Search
 {
-    public class CorpusSearch(QueryMapper queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,IEnumerable<ISearchStrategy<CorpusEntity, EntitySearchCriteria>> searchStrategies) 
+    public sealed class CorpusSearch(QueryMapper queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,IEnumerable<ISearchStrategy<CorpusEntity, EntitySearchCriteria>> searchStrategies) 
         : BaseSearch<CorpusQuery, CorpusEntity, CorpusDto, EntitySearchCriteria>(storage,httpContext, searchStrategies)
     {
         protected private override IQueryable<CorpusEntity> BuildBaseQuery(IQueryable<CorpusEntity> queryable, CorpusQuery query)

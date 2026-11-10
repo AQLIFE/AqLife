@@ -5,13 +5,14 @@ using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
+using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace AqLife.Application.Business.Todo.Search
 {
-    public class TodoSearch(QueryMapper queryMapper, IApplicationDbContext storage,IHttpContextAccessor httpContext,
+    public sealed class TodoSearch(QueryMapper queryMapper, IApplicationDbContext storage,IHttpContextAccessor httpContext,
         IEnumerable<ISearchStrategy<TodoEntity, EntitySearchCriteria>> searchStrategies
         ) : BaseSearch<TodoQuery, TodoEntity, TodoDto, EntitySearchCriteria>(storage, httpContext,searchStrategies)
     {
@@ -23,5 +24,8 @@ namespace AqLife.Application.Business.Todo.Search
 
         protected private override IQueryable<TodoEntity> BuildBaseQuery(IQueryable<TodoEntity> queryable, TodoQuery query)
        => query.IsTree ? queryable.Where(t => t.FTID == null).Include(e => e.Children) : queryable;
+
+        private protected override IQueryable<TodoEntity> ApplyResultPolicy(IQueryable<TodoEntity> queryable, TodoQuery query)
+        => IsValid ? queryable : queryable.Where(e => e.Status != TodoStatus.Completed && !e.IsArchived);
     }
 }
