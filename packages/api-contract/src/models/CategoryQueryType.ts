@@ -14,7 +14,7 @@
 
 
 /**
- * - 0 = Blog
+ * - 0 = File
  * - 1 = Favorite
  * @export
  */
@@ -22,7 +22,7 @@ export const CategoryQueryType = {
     /**
     * 
     */
-    Blog: 0,
+    File: 0,
     /**
     * 
     */

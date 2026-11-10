@@ -39,8 +39,10 @@ export interface ApiCategoryDeleteRequest {
 }
 
 export interface ApiCategoryGetRequest {
-    cID?: string;
+    uID?: string;
     searchType?: CategoryQueryType;
+    page?: number;
+    pageSize?: number;
 }
 
 export interface ApiCategoryPostRequest {
@@ -81,8 +83,10 @@ export interface CategoryApiInterface {
 
     /**
      * Creates request options for apiCategoryGet without sending the request
-     * @param {string} [cID] 
-     * @param {CategoryQueryType} [searchType] - 0 &#x3D; Blog - 1 &#x3D; Favorite
+     * @param {string} [uID] 
+     * @param {CategoryQueryType} [searchType] - 0 &#x3D; File - 1 &#x3D; Favorite
+     * @param {number} [page] 
+     * @param {number} [pageSize] 
      * @throws {RequiredError}
      * @memberof CategoryApiInterface
      */
@@ -90,8 +94,10 @@ export interface CategoryApiInterface {
 
     /**
      * 
-     * @param {string} [cID] 
-     * @param {CategoryQueryType} [searchType] - 0 &#x3D; Blog - 1 &#x3D; Favorite
+     * @param {string} [uID] 
+     * @param {CategoryQueryType} [searchType] - 0 &#x3D; File - 1 &#x3D; Favorite
+     * @param {number} [page] 
+     * @param {number} [pageSize] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CategoryApiInterface
@@ -195,12 +201,20 @@ export class CategoryApi extends runtime.BaseAPI implements CategoryApiInterface
     async apiCategoryGetRequestOpts(requestParameters: ApiCategoryGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters['cID'] != null) {
-            queryParameters['CID'] = requestParameters['cID'];
+        if (requestParameters['uID'] != null) {
+            queryParameters['UID'] = requestParameters['uID'];
         }
 
         if (requestParameters['searchType'] != null) {
             queryParameters['SearchType'] = requestParameters['searchType'];
+        }
+
+        if (requestParameters['page'] != null) {
+            queryParameters['Page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['pageSize'] != null) {
+            queryParameters['PageSize'] = requestParameters['pageSize'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

@@ -42,7 +42,13 @@ export interface CategoryDto {
      * @type {number}
      * @memberof CategoryDto
      */
-    categoryCount?: number;
+    fileCount?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CategoryDto
+     */
+    favoriteCount?: number;
     /**
      * 
      * @type {string}
@@ -71,7 +77,8 @@ export function CategoryDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'uid': json['uid'] == null ? undefined : json['uid'],
         'categoryName': json['categoryName'] == null ? undefined : json['categoryName'],
         'categoryDescription': json['categoryDescription'] == null ? undefined : json['categoryDescription'],
-        'categoryCount': json['categoryCount'] == null ? undefined : json['categoryCount'],
+        'fileCount': json['fileCount'] == null ? undefined : json['fileCount'],
+        'favoriteCount': json['favoriteCount'] == null ? undefined : json['favoriteCount'],
         'parentName': json['parentName'] == null ? undefined : json['parentName'],
     };
 }
@@ -90,7 +97,8 @@ export function CategoryDtoToJSONTyped(value?: CategoryDto | null, ignoreDiscrim
         'uid': value['uid'],
         'categoryName': value['categoryName'],
         'categoryDescription': value['categoryDescription'],
-        'categoryCount': value['categoryCount'],
+        'fileCount': value['fileCount'],
+        'favoriteCount': value['favoriteCount'],
         'parentName': value['parentName'],
     };
 }

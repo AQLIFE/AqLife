@@ -1,7 +1,7 @@
 
 # CategoryQueryType
 
-- 0 = Blog - 1 = Favorite
+- 0 = File - 1 = Favorite
 
 ## Properties
 

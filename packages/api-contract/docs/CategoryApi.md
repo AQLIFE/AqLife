@@ -78,7 +78,7 @@ No authorization required
 
 ## apiCategoryGet
 
-> CategoryDtoPageResult apiCategoryGet(cID, searchType)
+> CategoryDtoPageResult apiCategoryGet(uID, searchType, page, pageSize)
 
 
 
@@ -97,9 +97,13 @@ async function example() {
 
   const body = {
     // string (optional)
-    cID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-    // CategoryQueryType | - 0 = Blog - 1 = Favorite (optional)
+    uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // CategoryQueryType | - 0 = File - 1 = Favorite (optional)
     searchType: ...,
+    // number (optional)
+    page: 56,
+    // number (optional)
+    pageSize: 56,
   } satisfies ApiCategoryGetRequest;
 
   try {
@@ -119,8 +123,10 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **cID** | `string` |  | [Optional] [Defaults to `undefined`] |
-| **searchType** | `CategoryQueryType` | - 0 &#x3D; Blog - 1 &#x3D; Favorite | [Optional] [Defaults to `undefined`] [Enum: 0, 1] |
+| **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **searchType** | `CategoryQueryType` | - 0 &#x3D; File - 1 &#x3D; Favorite | [Optional] [Defaults to `undefined`] [Enum: 0, 1] |
+| **page** | `number` |  | [Optional] [Defaults to `undefined`] |
+| **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 

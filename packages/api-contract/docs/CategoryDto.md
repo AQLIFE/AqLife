@@ -9,7 +9,8 @@ Name | Type
 `uid` | string
 `categoryName` | string
 `categoryDescription` | string
-`categoryCount` | number
+`fileCount` | number
+`favoriteCount` | number
 `parentName` | string
 
 ## Example
@@ -22,7 +23,8 @@ const example = {
   "uid": null,
   "categoryName": null,
   "categoryDescription": null,
-  "categoryCount": null,
+  "fileCount": null,
+  "favoriteCount": null,
   "parentName": null,
 } satisfies CategoryDto
 
