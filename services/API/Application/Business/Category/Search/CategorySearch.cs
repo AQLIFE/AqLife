@@ -26,7 +26,9 @@ public sealed class CategorySearch(
 
     protected private override IQueryable<CategoryEntity> ApplyResultPolicy(
         IQueryable<CategoryEntity> queryable, CategoryQuery query)
-        => IsValid ? queryable : queryable.Select(AnonymousProjection);
+        => IsValid || query.SearchType != CategoryQueryType.File
+            ? queryable
+            : queryable.Select(AnonymousProjection);
 
     private static CategoryEntity Desensitize(CategoryEntity category)
     {
