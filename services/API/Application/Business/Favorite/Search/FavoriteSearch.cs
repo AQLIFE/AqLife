@@ -12,17 +12,15 @@ namespace AqLife.Application.Business.Favorite.Search
 {
     public readonly record struct FavoriteSearchCriteria(Guid? UID = null, string? Keyword = null, Guid? CategoryId = null, Guid? TagId = null) : ISearchCriteria;
     public class FavoriteSearch(IApplicationDbContext dbContext, QueryMapper queryMapper, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>> searchStrategies)
-        : BaseSearch<FavoriteQuery, FavoriteItemEntity, FavoriteDto, FavoriteSearchCriteria>(dbContext, searchStrategies)
+        : BaseSearch<FavoriteQuery, FavoriteItemEntity, FavoriteDto, FavoriteSearchCriteria>(dbContext, httpContext, searchStrategies)
     {
-        private bool IsValid => httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
-
-        protected override FavoriteSearchCriteria MapToCriteria(FavoriteQuery query)
+        protected private override FavoriteSearchCriteria MapToCriteria(FavoriteQuery query)
         => queryMapper.ToCriteria(query);
 
-        protected override IQueryable<FavoriteItemEntity> ApplyDefaultOrder(IQueryable<FavoriteItemEntity> queryble, FavoriteQuery query)
+        protected private override IQueryable<FavoriteItemEntity> ApplyDefaultOrder(IQueryable<FavoriteItemEntity> queryble, FavoriteQuery query)
             => queryble.OrderBy(x => x.SortOrder).ThenByDescending(x => x.CreatedAt);
 
-        protected override async Task<IQueryable<FavoriteItemEntity>> BuildBaseQueryAsync(IQueryable<FavoriteItemEntity> queryable, FavoriteQuery query)
+        protected private override IQueryable<FavoriteItemEntity> BuildBaseQuery(IQueryable<FavoriteItemEntity> queryable, FavoriteQuery query)
         {
             queryable = queryable.Include(e => e.Category).Include(x => x.Tags).Include(f => f.Media);
             return IsValid ? queryable : queryable.Where(e => e.IsPublished);// 登录后可以查看所有收藏夹，未登录用户只能查看已发布的收藏夹

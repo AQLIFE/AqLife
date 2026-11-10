@@ -1,6 +1,6 @@
-﻿using AqLife.Domain.CommandInterface;
-using AqLife.Domain.Entities;
+﻿using AqLife.Domain.Entities;
 using AqLife.Shared;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.IView;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;

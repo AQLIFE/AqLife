@@ -1,5 +1,5 @@
-﻿using AqLife.Domain.CommandInterface;
-using AqLife.Domain.Contracts;
+﻿using AqLife.Shared.Contracts;
+using AqLife.Shared.Contracts.CommandInterface;
 using MediatR;
 
 namespace AqLife.Application.Behaviors;

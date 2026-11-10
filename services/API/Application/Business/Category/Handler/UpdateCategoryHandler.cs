@@ -20,7 +20,7 @@ public sealed class UpdateCategoryHandler(IApplicationDbContext dbContext)
             ? await dbContext.Categories.SingleOrDefaultAsync(category => category.UID == parentId, ct)
             : null;
 
-        entity.Update(command.Name.Trim(), command.desc?.Trim() ?? string.Empty);
+        entity.Update(command.Name.Trim(), command.Desc?.Trim() ?? string.Empty);
         entity.SetParentCategory(parent);
         return entity.UID;
     }

@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
-using AqLife.Domain.CommandInterface;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

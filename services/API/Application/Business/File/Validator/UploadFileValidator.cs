@@ -1,6 +1,6 @@
 ﻿using AqLife.Application.Validators;
 using AqLife.Domain.Command;
-using AqLife.Domain.CommandInterface;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

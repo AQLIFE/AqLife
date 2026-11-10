@@ -1,5 +1,5 @@
-﻿using AqLife.Domain.CommandInterface;
-using AqLife.Domain.Entities.File;
+﻿using AqLife.Domain.Entities.File;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.IView;
 using AqLife.Shared.Options;
 using MediatR;

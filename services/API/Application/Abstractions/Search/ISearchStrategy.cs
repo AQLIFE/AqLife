@@ -1,4 +1,4 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Shared.Contracts;
 
 namespace AqLife.Application.Abstractions.Search
 {

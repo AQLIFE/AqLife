@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Overview.Handler
 {
-    public class OverviewQueryHandler(IApplicationDbContext dbContext, FileMappingService fileMapper) : IRequestHandler<OverviewQuery, OverviewDto>
+    public class OverviewQueryHandler(IApplicationDbContext dbContext, FileMapper fileMapper) : IRequestHandler<OverviewQuery, OverviewDto>
     {
         public async Task<OverviewDto> Handle(OverviewQuery query, CancellationToken ct)
         {

@@ -41,6 +41,7 @@ namespace AqLife.Application.Business.File
     /// <summary>
     /// 封装后的 FileMapper，用于完成基于身份和会话上下文的数据转换。
     /// </summary>
+    [Obsolete("设计取代:现在使用对应业务Search类进行全查询时会自动完成脱敏")]
     public partial class FileMappingService(
         IHttpContextAccessor httpContext,
         FileMapper fileMapper,
@@ -59,7 +60,7 @@ namespace AqLife.Application.Business.File
         public FileMetaEntity ToEntity(IFormFile file)
             => fileMapper.ToEntity(file).UpdateHash(uploadContext.FileHashes[file]);
     }
-
+    [Obsolete("设计取代:现在在 FileMetaEntity 中已原生实现预期的脱敏效果")]
     internal static class SafeDesensitization
     {
         internal static FileDto Desensitize(

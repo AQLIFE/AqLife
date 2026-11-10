@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace AqLife.Domain.CommandInterface;
+namespace AqLife.Shared.Contracts.CommandInterface;
 
 // ==========================================
 // 2. 语义化子命令 (Semantic Sub-Commands)

@@ -20,11 +20,11 @@ using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
-using AqLife.Domain.CommandInterface;
-using AqLife.Domain.Contracts;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.Favorite;
 using AqLife.Domain.Entities.File;
+using AqLife.Shared.Contracts;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.IView;
 using AqLife.Shared.Tools;
 using MediatR;
@@ -46,8 +46,8 @@ public static class ApplicationExtensions
         services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, DefaultAccount>();
         services.AddScoped<ISearchStrategy<CorpusEntity, EntitySearchCriteria>, AllCorpusSearchStrategy>();
         services.AddScoped<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>, AllFavoriteSearchStrategy>();
-        services.AddScoped<ISearchStrategy<CategoryEntity, CategorySearchCriteria>, FilteredCategorySearchStrategy>();
-        services.AddScoped<ISearchStrategy<CategoryEntity, CategorySearchCriteria>, AllCategorySearchStrategy>();
+        services.AddScoped<ISearchStrategy<CategoryEntity, EntitySearchCriteria>, FilteredCategorySearchStrategy>();
+        services.AddScoped<ISearchStrategy<CategoryEntity, EntitySearchCriteria>, AllCategorySearchStrategy>();
 
         services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, ValidAccount>();
         services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, FilteredFilesSearchStrategy>();
@@ -93,14 +93,14 @@ public static class ApplicationExtensions
         services.AddSingleton<IViewMapper<CorpusEntity, CorpusDto>>(sp => sp.GetRequiredService<CorpusMapper>());
         services.AddSingleton<ICreateMapper<CorpusEntity, CreateCorpusCommand>>(sp => sp.GetRequiredService<CorpusMapper>());
 
-        services.AddScoped<FileMapper>();
-        services.AddScoped<FileMappingService>();
-        services.AddScoped<IViewMapper<FileMetaEntity, FileDto>>(sp => sp.GetRequiredService<FileMappingService>());
-        services.AddScoped<ICreateMapper<FileMetaEntity, IFormFile>>(sp => sp.GetRequiredService<FileMappingService>());
+        services.AddSingleton<FileMapper>();
+        //services.AddScoped<FileMappingService>();
+        services.AddSingleton<IViewMapper<FileMetaEntity, FileDto>>(sp => sp.GetRequiredService<FileMapper>());
+        services.AddSingleton<ICreateMapper<FileMetaEntity, IFormFile>>(sp => sp.GetRequiredService<FileMapper>());
 
         services.AddSingleton<CategoryMapper>();
-        services.AddScoped<MapperServices>();
-        services.AddScoped<IViewMapper<CategoryEntity, CategoryDto>>(sp => sp.GetRequiredService<MapperServices>());
+        //services.AddScoped<CategoryMapperServices>();
+        services.AddSingleton<IViewMapper<CategoryEntity, CategoryDto>>(sp => sp.GetRequiredService<CategoryMapper>());
 
         services.AddSingleton<FavoriteMediaMapper>();
         services.AddSingleton<FavoriteMapper>();

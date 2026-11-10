@@ -1,6 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
-using AqLife.Domain.CommandInterface;
-using AqLife.Domain.Contracts;
+using AqLife.Shared.Contracts;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 

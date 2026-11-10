@@ -1,4 +1,4 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Shared.Contracts;
 using System.Security.Claims;
 
 namespace AqLife.Application.Abstractions.Authentication

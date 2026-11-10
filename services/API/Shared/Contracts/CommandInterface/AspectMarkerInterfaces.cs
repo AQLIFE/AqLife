@@ -1,7 +1,7 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Shared.Contracts;
 using Microsoft.AspNetCore.Http;
 
-namespace AqLife.Domain.CommandInterface;
+namespace AqLife.Shared.Contracts.CommandInterface;
 
 public interface IHasFormFiles
 {

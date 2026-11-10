@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Business\Category\" />
+    <Folder Include="Business\Category\Handler\" />
   </ItemGroup>
 
 </Project>

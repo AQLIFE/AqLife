@@ -1,6 +1,6 @@
-﻿using AqLife.Domain.Contracts;
-using AqLife.Extensions.Database;
+﻿using AqLife.Extensions.Database;
 using AqLife.Infrastructure;
+using AqLife.Shared.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;

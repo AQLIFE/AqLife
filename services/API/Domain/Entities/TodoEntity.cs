@@ -1,4 +1,4 @@
-using AqLife.Domain.Contracts;
+using AqLife.Shared.Contracts;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;

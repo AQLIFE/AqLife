@@ -1,4 +1,4 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Shared.Contracts;
 using System.ComponentModel.DataAnnotations;
 
 namespace AqLife.Domain.Entities.File

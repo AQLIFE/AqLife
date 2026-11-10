@@ -1,5 +1,7 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Domain.Command;
+using AqLife.Domain.Entities.Favorite;
 using AqLife.Domain.Entities.File;
+using AqLife.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -22,6 +24,7 @@ namespace AqLife.Domain.Entities
         public CategoryEntity? ParentCategory { get; private set; } = null;
 
         public virtual ICollection<FileMetaEntity> Files { get; set; } = [];
+        public virtual ICollection<FavoriteItemEntity> Favorites { get; set; } = [];
 
 
         public CategoryEntity() { }

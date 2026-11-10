@@ -1,4 +1,4 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Shared.Contracts;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using System.ComponentModel.DataAnnotations;
@@ -54,6 +54,12 @@ namespace AqLife.Domain.Entities.File
             if (PublishStatus == FileStatus.Draft) return;
             PublishAt = null;
             PublishStatus = FileStatus.Draft;
+        }
+        /// <summary>
+        /// 脱敏处理方法,不允许在事务中使用,仅可在查询中使用(AsNoTracking 子句)
+        /// </summary>
+        public void Desensitize (){
+            this.PublishAt = null;
         }
     }
 }
