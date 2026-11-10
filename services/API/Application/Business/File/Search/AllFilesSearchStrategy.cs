@@ -1,7 +1,6 @@
 ﻿using AqLife.Application.Search;
 using AqLife.Domain.Entities.File;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace AqLife.Application.Business.File.Search
 {
