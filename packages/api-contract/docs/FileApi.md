@@ -9,6 +9,7 @@ All URIs are relative to *http://localhost*
 | [**apiFileDownloadGet**](FileApi.md#apifiledownloadget) | **GET** /api/File/download |  |
 | [**apiFileGet**](FileApi.md#apifileget) | **GET** /api/File |  |
 | [**apiFileHashCheckPost**](FileApi.md#apifilehashcheckpost) | **POST** /api/File/hash/check |  |
+| [**apiFileOverviewGet**](FileApi.md#apifileoverviewget) | **GET** /api/File/overview |  |
 | [**apiFilePatch**](FileApi.md#apifilepatch) | **PATCH** /api/File |  |
 | [**apiFilePreviewCompletePatch**](FileApi.md#apifilepreviewcompletepatch) | **PATCH** /api/File/preview/complete |  |
 | [**apiFilePreviewGet**](FileApi.md#apifilepreviewget) | **GET** /api/File/preview |  |
@@ -356,6 +357,71 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## apiFileOverviewGet
+
+> FileOverviewDto apiFileOverviewGet(recentCount)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FileApi,
+} from '@aqlife/api-contract';
+import type { ApiFileOverviewGetRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new FileApi();
+
+  const body = {
+    // number (optional)
+    recentCount: 56,
+  } satisfies ApiFileOverviewGetRequest;
+
+  try {
+    const data = await api.apiFileOverviewGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **recentCount** | `number` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**FileOverviewDto**](FileOverviewDto.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
 - **Accept**: `text/plain`, `application/json`, `text/json`
 
 

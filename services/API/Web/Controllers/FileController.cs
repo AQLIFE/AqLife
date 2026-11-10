@@ -18,6 +18,10 @@ namespace AqLife.Web.Controllers
     [ApiController, Route("[Controller]"), Authorize]
     public class FileController(IMediator mediator, IDataProtectionProvider dataProtectionProvider, FileReader fileReader) : ControllerBase
     {
+        [HttpGet("overview")]
+        public async Task<FileOverviewDto> GetOverview([FromQuery] FileOverviewQuery query, CancellationToken ct)
+            => await mediator.Send(query, ct);
+
         [HttpGet, AllowAnonymous]
         public async Task<PageResult<FileDto>> SearchFile([FromQuery] FileQuery query, CancellationToken ct)
             => await mediator.Send(query, ct);

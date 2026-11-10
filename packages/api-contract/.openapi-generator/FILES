@@ -38,11 +38,10 @@ docs/FileDtoPageResult.md
 docs/FileHashCheckResult.md
 docs/FileHashMatch.md
 docs/FileOrder.md
+docs/FileOverviewDto.md
 docs/FileScope.md
 docs/FileStatus.md
 docs/LoginCommand.md
-docs/OverviewApi.md
-docs/OverviewDto.md
 docs/RemoveTodoDependencyCommand.md
 docs/ResumableUploadSession.md
 docs/ResumableUploadStatus.md
@@ -76,7 +75,6 @@ src/apis/CorpusApi.ts
 src/apis/DevelopmentPlanApi.ts
 src/apis/FavoriteApi.ts
 src/apis/FileApi.ts
-src/apis/OverviewApi.ts
 src/apis/TagApi.ts
 src/apis/TodoApi.ts
 src/apis/index.ts
@@ -112,10 +110,10 @@ src/models/FileDtoPageResult.ts
 src/models/FileHashCheckResult.ts
 src/models/FileHashMatch.ts
 src/models/FileOrder.ts
+src/models/FileOverviewDto.ts
 src/models/FileScope.ts
 src/models/FileStatus.ts
 src/models/LoginCommand.ts
-src/models/OverviewDto.ts
 src/models/RemoveTodoDependencyCommand.ts
 src/models/ResumableUploadSession.ts
 src/models/ResumableUploadStatus.ts

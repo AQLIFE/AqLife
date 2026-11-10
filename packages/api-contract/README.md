@@ -79,6 +79,7 @@ All URIs are relative to *http://localhost*
 *FileApi* | [**apiFileDownloadGet**](docs/FileApi.md#apifiledownloadget) | **GET** /api/File/download | 
 *FileApi* | [**apiFileGet**](docs/FileApi.md#apifileget) | **GET** /api/File | 
 *FileApi* | [**apiFileHashCheckPost**](docs/FileApi.md#apifilehashcheckpost) | **POST** /api/File/hash/check | 
+*FileApi* | [**apiFileOverviewGet**](docs/FileApi.md#apifileoverviewget) | **GET** /api/File/overview | 
 *FileApi* | [**apiFilePatch**](docs/FileApi.md#apifilepatch) | **PATCH** /api/File | 
 *FileApi* | [**apiFilePreviewCompletePatch**](docs/FileApi.md#apifilepreviewcompletepatch) | **PATCH** /api/File/preview/complete | 
 *FileApi* | [**apiFilePreviewGet**](docs/FileApi.md#apifilepreviewget) | **GET** /api/File/preview | 
@@ -91,7 +92,6 @@ All URIs are relative to *http://localhost*
 *FileApi* | [**apiFileUploadsUploadIdGet**](docs/FileApi.md#apifileuploadsuploadidget) | **GET** /api/File/uploads/{uploadId} | 
 *FileApi* | [**apiFileVideoPreviewTicketPost**](docs/FileApi.md#apifilevideopreviewticketpost) | **POST** /api/File/video-preview-ticket | 
 *FileApi* | [**apiFileVideoStreamGet**](docs/FileApi.md#apifilevideostreamget) | **GET** /api/File/video-stream | 
-*OverviewApi* | [**apiOverviewGet**](docs/OverviewApi.md#apioverviewget) | **GET** /api/Overview | 
 *TagApi* | [**apiTagDelete**](docs/TagApi.md#apitagdelete) | **DELETE** /api/Tag | 
 *TagApi* | [**apiTagGet**](docs/TagApi.md#apitagget) | **GET** /api/Tag | 
 *TagApi* | [**apiTagPatch**](docs/TagApi.md#apitagpatch) | **PATCH** /api/Tag | 
@@ -143,10 +143,10 @@ All URIs are relative to *http://localhost*
 - [FileHashCheckResult](docs/FileHashCheckResult.md)
 - [FileHashMatch](docs/FileHashMatch.md)
 - [FileOrder](docs/FileOrder.md)
+- [FileOverviewDto](docs/FileOverviewDto.md)
 - [FileScope](docs/FileScope.md)
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
-- [OverviewDto](docs/OverviewDto.md)
 - [RemoveTodoDependencyCommand](docs/RemoveTodoDependencyCommand.md)
 - [ResumableUploadSession](docs/ResumableUploadSession.md)
 - [ResumableUploadStatus](docs/ResumableUploadStatus.md)

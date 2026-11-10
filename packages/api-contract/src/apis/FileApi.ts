@@ -44,6 +44,11 @@ import {
     FileOrderToJSON,
 } from '../models/FileOrder';
 import {
+    type FileOverviewDto,
+    FileOverviewDtoFromJSON,
+    FileOverviewDtoToJSON,
+} from '../models/FileOverviewDto';
+import {
     type FileScope,
     FileScopeFromJSON,
     FileScopeToJSON,
@@ -98,6 +103,10 @@ export interface ApiFileGetRequest {
 
 export interface ApiFileHashCheckPostRequest {
     checkFileHashQuery?: CheckFileHashQuery;
+}
+
+export interface ApiFileOverviewGetRequest {
+    recentCount?: number;
 }
 
 export interface ApiFilePatchRequest {
@@ -277,6 +286,27 @@ export interface FileApiInterface {
     /**
      */
     apiFileHashCheckPost(requestParameters: ApiFileHashCheckPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileHashCheckResult>;
+
+    /**
+     * Creates request options for apiFileOverviewGet without sending the request
+     * @param {number} [recentCount] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileOverviewGetRequestOpts(requestParameters: ApiFileOverviewGetRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {number} [recentCount] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileOverviewGetRaw(requestParameters: ApiFileOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FileOverviewDto>>;
+
+    /**
+     */
+    apiFileOverviewGet(requestParameters: ApiFileOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileOverviewDto>;
 
     /**
      * Creates request options for apiFilePatch without sending the request
@@ -765,6 +795,45 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
      */
     async apiFileHashCheckPost(requestParameters: ApiFileHashCheckPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileHashCheckResult> {
         const response = await this.apiFileHashCheckPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFileOverviewGet without sending the request
+     */
+    async apiFileOverviewGetRequestOpts(requestParameters: ApiFileOverviewGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['recentCount'] != null) {
+            queryParameters['RecentCount'] = requestParameters['recentCount'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/File/overview`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiFileOverviewGetRaw(requestParameters: ApiFileOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FileOverviewDto>> {
+        const requestOptions = await this.apiFileOverviewGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => FileOverviewDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async apiFileOverviewGet(requestParameters: ApiFileOverviewGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileOverviewDto> {
+        const response = await this.apiFileOverviewGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
