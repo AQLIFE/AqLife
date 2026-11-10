@@ -6,18 +6,13 @@ using AqLife.Shared.Options;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace AqLife.Application.Business.Overview.Handler
+namespace AqLife.Application.Business.File.Handler
 {
-    public class OverviewQueryHandler(IApplicationDbContext dbContext, FileMapper fileMapper) : IRequestHandler<OverviewQuery, OverviewDto>
+    public class FileOverviewQueryHandler(IApplicationDbContext dbContext, FileMapper fileMapper) : IRequestHandler<FileOverviewQuery, FileOverviewDto>
     {
-        public async Task<OverviewDto> Handle(OverviewQuery query, CancellationToken ct)
+        public async Task<FileOverviewDto> Handle(FileOverviewQuery query, CancellationToken ct)
         {
-            var filequery = dbContext.File
-                .AsNoTracking()
-                .Where(file => !file.IsTemplate)
-                .Include(file => file.PublishMeta)
-                .Include(file => file.InteractionMeta)
-                .Include(file => file.FileTags)
+            var filequery = dbContext.File.AsNoTracking().Where(file => !file.IsTemplate).Include(file => file.PublishMeta).Include(file => file.InteractionMeta).Include(file => file.FileTags)
                     .ThenInclude(fileTag => fileTag.Tag);
 
             var group = filequery.GroupBy(file => file.PublishMeta.PublishStatus); // 分组可以减少数据库查询次数，避免多次查询数据库
@@ -28,13 +23,9 @@ namespace AqLife.Application.Business.Overview.Handler
 
 
 
-            var recentFiles = await filequery
-                .OrderByDescending(file => file.UploadTime)
-                .Take(Math.Clamp(query.RecentCount, 1, 20))
-                .Select(file => fileMapper.ToDto(file))
-                .ToListAsync(ct);
+            IEnumerable<FileDto> recentFiles = filequery.OrderByDescending(file => file.UploadTime).Take(Math.Clamp(query.RecentCount, 1, 20)).Select(fileMapper.ToDto);
 
-            return new OverviewDto(
+            return new FileOverviewDto(
                 draftCount,
                 scheduledCount,
                 publishedCount,

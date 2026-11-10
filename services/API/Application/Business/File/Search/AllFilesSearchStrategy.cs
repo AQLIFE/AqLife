@@ -8,6 +8,5 @@ namespace AqLife.Application.Business.File.Search
     {
         public override bool IsMatch(FileSearchCriteria c)
         => base.IsMatch(c) && c.CategoryUID is null;
-
     }
 }

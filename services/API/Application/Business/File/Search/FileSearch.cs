@@ -28,12 +28,15 @@ public class FileSearch(
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
     : BaseSearch<FileQuery, FileMetaEntity, FileDto, FileSearchCriteria>(storage,httpContext, searchStrategies)
 {
-    private static readonly Expression<Func<FileMetaEntity, FileMetaEntity>>
-        AnonymousProjection = e => e.Desensitize();
+    private static readonly Expression<Func<FileMetaEntity, FileMetaEntity>> AnonymousProjection = e => e.Desensitize();
 
-    protected private override IQueryable<FileMetaEntity> ApplyResultPolicy(
-        IQueryable<FileMetaEntity> queryable, FileQuery query)
-        => IsValid ? queryable : queryable.Select(AnonymousProjection);
+    /// <summary>
+    /// 根据用户身份状态返回不同的查询结果
+    /// - 未登录用户仅返回非模板文件且已发布的文件
+    /// - 已登录用户返回所有文件,包括模板文件和未发布文件
+    /// </summary>
+    protected private override IQueryable<FileMetaEntity> ApplyResultPolicy(IQueryable<FileMetaEntity> queryable, FileQuery query)
+        => IsValid? queryable : queryable.Where(e => !e.IsTemplate && e.PublishMeta.PublishStatus == FileStatus.Published).Select(AnonymousProjection);
 
     protected private override FileSearchCriteria MapToCriteria(FileQuery query)
         => queryMapper.ToCriteria(query);
@@ -50,7 +53,7 @@ public class FileSearch(
     {
         queryable = queryable.Include(e => e.PublishMeta).Include(e => e.InteractionMeta).Include(e => e.Category).Include(e => e.FileTags).ThenInclude(x => x.Tag);
         if (query.Scope == FileScope.Template && !IsValid) throw new RequestCheckException("You are not authorized to access template files.");// 前置验证已覆盖，确保未登录用户无法访问模板文件
-        queryable = query.Scope switch
+        return query.Scope switch
         {
             FileScope.Template => queryable.Where(e => e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension)),  // 模板文件仅允许博客类型的模板文件
             FileScope.Image => queryable.Where(e => !e.IsTemplate && options.Value.AllowedImageExtensions.Contains(e.Extension)),   // 图片文件仅允许特定类型的图片文件且非模板
@@ -60,11 +63,5 @@ public class FileSearch(
             FileScope.All => queryable.Where(e => options.Value.AllowedExtensions.Contains(e.Extension)),                           // 不区分模板查询全部匹配类型文件
             _ => queryable.Where(e => !e.IsTemplate && options.Value.AllowedBlogExtensions.Contains(e.Extension))                   // 与 FileScope.Blog 相同的默认行为，确保未登录用户无法访问模板文件
         };
-        /// <summary>
-        /// 根据用户身份状态返回不同的查询结果
-        /// - 未登录用户仅返回非模板文件且已发布的文件
-        /// - 已登录用户返回所有文件,包括模板文件和未发布文件
-        /// </summary>
-        return IsValid ? queryable : queryable.Where(e => !e.IsTemplate && e.PublishMeta.PublishStatus == FileStatus.Published);
     }
 }

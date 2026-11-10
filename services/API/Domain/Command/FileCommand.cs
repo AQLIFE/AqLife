@@ -12,11 +12,8 @@ namespace AqLife.Domain.Command
     /// </summary>
     /// <param name="ScheduledTime"></param>
     public record BlogUnpublishQuery(DateTimeOffset ScheduledTime) : IQuery<IEnumerable<FileDto>>;
-    /// <summary>
-    /// 阅览完成,执行对应事务
-    /// </summary>
-    /// <param name="UID"></param>
-    public record BlogPreviewCompleteCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand;
+    
+    public record FileOverviewQuery(int RecentCount = 10) : IQuery<FileOverviewDto>;
     /// <summary>
     /// 通用的文件查询,可用于获取文件列表,支持分页和排序
     /// </summary>
@@ -87,6 +84,12 @@ namespace AqLife.Domain.Command
     {
         public IEnumerable<IFormFile> GetFiles() => [File];
     }
+    /// <summary>
+    /// 阅览完成,执行对应事务
+    /// </summary>
+    /// <param name="UID"></param>
+    public record BlogPreviewCompleteCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand;
+
     /// <summary>
     /// 处理所有已到期的预约发布,将其发布到指定位置,并返回处理结果:后台任务
     /// </summary>

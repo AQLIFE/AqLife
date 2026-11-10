@@ -33,4 +33,11 @@ namespace AqLife.Shared.IView
     Stream FileStream,
     string ContentType
     );
+
+    public record FileOverviewDto(
+        int DraftCount,
+        int ScheduledCount,
+        int PublishedCount,
+        IEnumerable<FileDto> RecentFiles
+    );
 }
