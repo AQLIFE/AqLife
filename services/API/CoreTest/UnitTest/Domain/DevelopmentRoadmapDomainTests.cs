@@ -1,5 +1,5 @@
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.DevPlan;
 using AqLife.Domain.Services;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;

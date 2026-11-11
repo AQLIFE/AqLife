@@ -14,7 +14,7 @@ namespace AqLife.Shared.IView
         /// <param name="queryable"></param>
         /// <param name="query"></param>
         public PageResult(IQueryable<TData> queryable, IPageQuery query) : this(
-                [..queryable.Take(query.PageSize)],
+                [.. queryable.Take(query.PageSize)],
                 query.Page,
                 query.PageSize, queryable.Count() > query.PageSize)
         { }

@@ -21,6 +21,7 @@ using AqLife.Application.Search;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.DevPlan;
 using AqLife.Domain.Entities.Favorite;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Contracts;

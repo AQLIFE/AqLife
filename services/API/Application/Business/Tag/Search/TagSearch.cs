@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Tag.Search
 {
-    public sealed class TagSearch(QueryMapper queryMapper, IApplicationDbContext storage,IHttpContextAccessor httpContext,
+    public sealed class TagSearch(QueryMapper queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
      IEnumerable<ISearchStrategy<TagEntity, EntitySearchCriteria>> searchStrategies
     ) : BaseSearch<TagQuery, TagEntity, TagDto, EntitySearchCriteria>(storage, httpContext, searchStrategies)
     {

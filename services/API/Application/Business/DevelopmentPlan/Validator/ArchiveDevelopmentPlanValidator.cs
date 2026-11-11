@@ -1,5 +1,6 @@
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.DevelopmentPlan.Validator;
@@ -20,7 +21,7 @@ public sealed class ArchiveDevelopmentPlanNotDefaultValidator() : AbstractValida
     private protected override string ErrorMessage { init; get; } = "默认开发计划不能归档";
     private protected override async Task<bool> IsValidAsync(ArchiveDevelopmentPlanCommand command, CancellationToken ct)
     {
-        return command.UID != AqLife.Domain.Entities.DevelopmentPlanEntity.DefaultPlanId;
+        return command.UID != DevelopmentPlanEntity.DefaultPlanId;
     }
     private protected override Exception CreateException(string message) => new DomainLegalityException(message);
 

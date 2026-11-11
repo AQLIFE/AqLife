@@ -1,6 +1,5 @@
 using AqLife.Application.Search;
-using AqLife.Domain.Entities;
-using AqLife.Shared.Options;
+using AqLife.Domain.Entities.DevPlan;
 using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Todo.Search

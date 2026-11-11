@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AqLife.Domain.Entities
+namespace AqLife.Domain.Entities.DevPlan
 {
     [Table("RoadmapNodeLayouts")]
     [Index(nameof(TodoId), IsUnique = true)]
@@ -14,13 +14,13 @@ namespace AqLife.Domain.Entities
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
 
-        public Guid PlanId { get; private set; }
+        public Guid PlanId { get; init; } = Guid.Empty;
 
-        public Guid TodoId { get; private set; }
+        public Guid TodoId { get; init; } = Guid.Empty;
 
-        public double X { get; private set; }
+        public double X { get; private set; } = 0.0;
 
-        public double Y { get; private set; }
+        public double Y { get; private set; } = 0.0;
 
         public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
 

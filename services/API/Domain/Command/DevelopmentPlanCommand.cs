@@ -1,4 +1,4 @@
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.IView;
 using System.ComponentModel.DataAnnotations;

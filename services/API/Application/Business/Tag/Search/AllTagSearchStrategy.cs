@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Tag.Search
 {
-    public sealed class AllTagSearchStrategy(IHttpContextAccessor httpContext): AllSearchStrategyBase<TagEntity, EntitySearchCriteria>(httpContext)
+    public sealed class AllTagSearchStrategy(IHttpContextAccessor httpContext) : AllSearchStrategyBase<TagEntity, EntitySearchCriteria>(httpContext)
     {
-        
+
     }
 }

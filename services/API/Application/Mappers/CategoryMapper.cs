@@ -5,7 +5,6 @@ using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Riok.Mapperly.Abstractions;
 
@@ -22,8 +21,8 @@ public partial class CategoryMapper : IViewMapper<CategoryEntity, CategoryDto>
 }
 
 [Obsolete("设计取代:和File 业务相同的原因,转换功能交给底层Mapper,业务脱敏实现交由对应的 Search 类实现 ")]
-public sealed class CategoryMapperServices(IHttpContextAccessor httpContextAccessor,IOptions<FilePolicyOption> filePolicy)
-    //: IViewMapper<CategoryEntity, CategoryDto>
+public sealed class CategoryMapperServices(IHttpContextAccessor httpContextAccessor, IOptions<FilePolicyOption> filePolicy)
+//: IViewMapper<CategoryEntity, CategoryDto>
 {
     /// <summary>
     /// 未认证请求只能看到公开业务统计。
@@ -36,19 +35,6 @@ public sealed class CategoryMapperServices(IHttpContextAccessor httpContextAcces
     public string[] AllowedImageExtensions => filePolicy.Value.AllowedImageExtensions;
     public string[] AllowedVideoExtensions => filePolicy.Value.AllowedVideoExtensions;
 
-    //public CategoryDto ToDto(CategoryEntity source)
-    //{
-    //    if( IsValid )
-    //        return categoryMapper.ToDto(source);
-    //    else
-    //    {
-
-    //    }
-
-    //    return source
-
-       
-    //}
 
     public IQueryable<FileMetaEntity> BlogCount(CategoryEntity source)
     => source.Files.Where(file =>
@@ -76,12 +62,12 @@ public sealed class CategoryMapperServices(IHttpContextAccessor httpContextAcces
         source.Files.Where(e => e.PublishMeta.PublishStatus != FileStatus.Published).AsQueryable<FileMetaEntity>() :
         source.Files.Where(e => e.PublishMeta.PublishStatus == FileStatus.Published).AsQueryable<FileMetaEntity>();
     public IQueryable<IQueryable<FileMetaEntity>> FileCount(IQueryable<CategoryEntity> source, bool isPublished = true)
-        =>  source.Select(e => isPublished ? 
-            e.Files.Where(file=>file.PublishMeta.PublishStatus != FileStatus.Published).AsQueryable<FileMetaEntity>() :
-            e.Files.Where(file=>file.PublishMeta.PublishStatus == FileStatus.Published).AsQueryable<FileMetaEntity>()
+        => source.Select(e => isPublished ?
+            e.Files.Where(file => file.PublishMeta.PublishStatus != FileStatus.Published).AsQueryable<FileMetaEntity>() :
+            e.Files.Where(file => file.PublishMeta.PublishStatus == FileStatus.Published).AsQueryable<FileMetaEntity>()
         );
 
-    public IQueryable<FavoriteItemEntity> FavoriteCount(CategoryEntity source,bool isPublished=true)
+    public IQueryable<FavoriteItemEntity> FavoriteCount(CategoryEntity source, bool isPublished = true)
     => source.Favorites.Where(e => e.IsPublished).AsQueryable<FavoriteItemEntity>();
 
 }

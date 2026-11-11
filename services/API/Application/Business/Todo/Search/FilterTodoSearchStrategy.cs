@@ -1,5 +1,5 @@
 using AqLife.Application.Search;
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.DevPlan;
 
 namespace AqLife.Application.Business.Todo.Search
 {

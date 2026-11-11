@@ -1,5 +1,6 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.DevPlan;
 using AqLife.Domain.Entities.Favorite;
 using AqLife.Domain.Entities.File;
 using Microsoft.EntityFrameworkCore;
@@ -122,11 +123,11 @@ namespace AqLife.Infrastructure
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Parent-child is an organizational relationship, not a cascade-delete tree.
-            modelBuilder.Entity<TodoEntity>()
-                .HasMany(x => x.Children)
-                .WithOne()
-                .HasForeignKey(x => x.FTID)
-                .OnDelete(DeleteBehavior.Restrict);
+            //modelBuilder.Entity<TodoEntity>()
+            //    .HasMany(x => x.Children)
+            //    .WithOne()
+            //    .HasForeignKey(x => x.FTID)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<TodoDependencyEntity>()
                 .HasOne<DevelopmentPlanEntity>()

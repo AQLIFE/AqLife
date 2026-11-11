@@ -1,4 +1,4 @@
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Exceptions;
 
 namespace AqLife.Domain.Services
@@ -58,13 +58,6 @@ namespace AqLife.Domain.Services
                 if (current.IsArchived)
                     throw new DomainLegalityException("任务祖先链中存在已归档节点");
 
-                if (current.FTID is null)
-                    break;
-
-                var ancestorId = current.FTID.Value;
-                current = planTasks.FirstOrDefault(x => x.UID == ancestorId);
-                if (current is null)
-                    throw new DomainLegalityException("当前任务层级包含不存在的父任务");
             }
         }
     }

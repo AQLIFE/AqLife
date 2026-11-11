@@ -26,4 +26,9 @@ namespace AqLife.Application.Abstractions.Mapper
     {
         TCriteria ToCriteria(TQuery query);
     }
+
+    public interface IMapperConvert<TSource>
+    {
+        public abstract List<TTarget> Convert<TTarget>(TSource source) where TTarget : class;
+    }
 }

@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
@@ -40,8 +39,8 @@ public sealed class CategorySearch(
             _ => throw new RequestFailException("Invalid search type")
         };
 
-protected private override EntitySearchCriteria MapToCriteria(CategoryQuery query)
-        => queryMapper.ToCriteria(query);
+    protected private override EntitySearchCriteria MapToCriteria(CategoryQuery query)
+            => queryMapper.ToCriteria(query);
 
     protected private override IQueryable<CategoryEntity> ApplyDefaultOrder(IQueryable<CategoryEntity> queryble, CategoryQuery query)
         => queryble.OrderBy(x => x.CategoryName);

@@ -1,38 +1,39 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace AqLife.Shared.IView
 {
     public record TodoDto(
         Guid UID,
-        Guid? FTID,
-        [Required] string Desc,
-        [Required] string Status,
+        Guid PlanId,
+        string Title,
+        string Status,
         DateTimeOffset CreatedAt,
+        DateTimeOffset UpdatedAt,
         DateTimeOffset? CompletedAt,
-        int Priority,
-        ICollection<TodoDto> TodoList,
-        bool HasChildren) : IEntityDto
-    {
-        public Guid PlanId { get; init; }
-        public string Title { get; init; } = Desc;
-        public string? Description { get; init; }
-        public DateTimeOffset UpdatedAt { get; init; }
-        public int SortOrder { get; init; }
-        public bool IsArchived { get; init; }
-        public bool IsBlocked { get; init; }
-        public int IncompleteDependencyCount { get; init; }
-        public IReadOnlyCollection<Guid> BlockingTodoIds { get; init; } = Array.Empty<Guid>();
-    }
+        int SortOrder,
+        IReadOnlyCollection<Guid> PredecessorIds, // 依赖于当前任务的任务 ID 列表
+        int IncompleteDependencyCount = 0,
+        string? Description = null,
+        bool IsBlocked = true,
+        bool IsArchived = false) : IEntityDto
+    { }
 
-    public record TodoDependencyDto(Guid PredecessorId, Guid SuccessorId, DateTimeOffset CreatedAt);
-    public record RoadmapNodeLayoutDto(Guid TodoId, double X, double Y, DateTimeOffset UpdatedAt);
+    public record TodoDependencyDto(Guid PredecessorId, Guid SuccessorId, DateTimeOffset CreatedAt):IEntityDto;
+    public record RoadmapNodeLayoutDto(Guid TodoId, double X, double Y, DateTimeOffset UpdatedAt):IEntityDto;
+    /// <summary>
+    /// 整个开发计划的路线图 : 由若干个布局节点+todo信息 + 依赖图组合而成
+    /// </summary>
+    /// <param name="PlanId"></param>
+    /// <param name="PlanName"></param>
+    /// <param name="DependencyVersion"></param>
+    /// <param name="Nodes"></param>
+    /// <param name="Dependencies"></param>
+    /// <param name="Layouts"></param>
     public record TodoRoadmapDto(
         Guid PlanId,
         string PlanName,
         long DependencyVersion,
         IReadOnlyList<TodoDto> Nodes,
         IReadOnlyList<TodoDependencyDto> Dependencies,
-        IReadOnlyList<RoadmapNodeLayoutDto> Layouts);
+        IReadOnlyList<RoadmapNodeLayoutDto> Layouts):IEntityDto;
 
     public record DevelopmentPlanDto(
         Guid UID, string Name, string? Description, bool IsArchived,

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AqLife.Domain.Entities
+namespace AqLife.Domain.Entities.DevPlan
 {
     [Table("TodoDependencies")]
     [Index(nameof(PredecessorId), nameof(SuccessorId), IsUnique = true)]
@@ -15,13 +15,16 @@ namespace AqLife.Domain.Entities
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
 
-        public Guid PlanId { get; private set; }
+        public Guid PlanId { get; init; } = Guid.Empty;
 
-        public Guid PredecessorId { get; private set; }
+        public Guid PredecessorId { get; private set; } = Guid.Empty;
 
-        public Guid SuccessorId { get; private set; }
+        public Guid SuccessorId { get; private set; } = Guid.Empty;
 
-        public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+
+        public TodoEntity PredecessorTodo { get; set; } = new TodoEntity();
+        public TodoEntity SuccessorTodo { get; set; } = new TodoEntity();
 
         public TodoDependencyEntity() { }
 

@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Favorite.Search
 {
-    public readonly record struct FavoriteSearchCriteria(Guid? UID = null, string? Keyword = null, Guid? CategoryId = null, Guid? TagId = null) : ISearchCriteria;
     public sealed class FavoriteSearch(IApplicationDbContext dbContext, QueryMapper queryMapper, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>> searchStrategies)
         : BaseSearch<FavoriteQuery, FavoriteItemEntity, FavoriteDto, FavoriteSearchCriteria>(dbContext, httpContext, searchStrategies)
     {

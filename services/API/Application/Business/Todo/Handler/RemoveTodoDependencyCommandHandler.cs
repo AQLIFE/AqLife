@@ -1,17 +1,16 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities.DevPlan;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Todo.Handler;
 
-public sealed class RemoveTodoDependencyCommandHandler(IApplicationDbContext db) : IRequestHandler<RemoveTodoDependencyCommand, Guid>
+public sealed class RemoveTodoDependencyCommandHandler(IApplicationDbContext db) : IRequestHandler<RemoveTodoDependencyCommand, Unit>
 {
-    public async Task<Guid> Handle(RemoveTodoDependencyCommand q, CancellationToken ct)
+    public async Task<Unit> Handle(RemoveTodoDependencyCommand q, CancellationToken ct)
     {
-        var p = await db.DevelopmentPlans.FirstAsync(x => x.UID == q.PlanId, ct);
-        var e = await db.TodoDependencies.FirstAsync(x => x.PlanId == q.PlanId && x.PredecessorId == q.PredecessorId && x.SuccessorId == q.SuccessorId, ct);
-        db.TodoDependencies.Remove(e);
-        p.IncrementDependencyVersion();
-        return e.UID;
+        TodoDependencyEntity dependencyEntity = await db.TodoDependencies.SingleAsync(e => e.UID == q.UID, ct);// 默认没有重复UID
+        db.TodoDependencies.Remove(dependencyEntity);
+        return Unit.Value;
     }
 }

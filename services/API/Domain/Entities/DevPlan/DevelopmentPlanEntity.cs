@@ -3,8 +3,11 @@ using AqLife.Shared.Exceptions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AqLife.Domain.Entities
+namespace AqLife.Domain.Entities.DevPlan
 {
+    /// <summary>
+    /// 开发计划 : 负责管理一组 Todo
+    /// </summary>
     [Table("DevelopmentPlans")]
     public class DevelopmentPlanEntity : IEntity
     {
@@ -17,15 +20,15 @@ namespace AqLife.Domain.Entities
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
 
-        [Required, StringLength(128)]
+        [Required, StringLength(128,ErrorMessage = "计划名称不能超过128个字符")]
         public string Name { get; private set; } = string.Empty;
 
-        [StringLength(2000)]
+        [StringLength(2000,ErrorMessage = "计划描述信息不能超过2000个字符" )]
         public string? Description { get; private set; }
 
-        public bool IsArchived { get; private set; }
+        public bool IsArchived { get; private set; } = false;
 
-        public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
         public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
@@ -33,7 +36,9 @@ namespace AqLife.Domain.Entities
         /// Monotonically increasing version for dependency-graph mutations.
         /// It is a concurrency aid, not a substitute for a transaction/lock.
         /// </summary>
-        public long DependencyVersion { get; private set; }
+        public long DependencyVersion { get; private set; } = 0;
+
+        public ICollection<TodoEntity> Todos { get; set; } = [];
 
         public DevelopmentPlanEntity() { }
 

@@ -6,7 +6,7 @@ namespace AqLife.Application.Business.Favorite.Search
     public sealed class FilteredFavoriteSearchStrategy
         : FilteredSearchStrategyBase<FavoriteItemEntity, FavoriteSearchCriteria>
     {
-        public override bool IsMatch(FavoriteSearchCriteria criteria) 
+        public override bool IsMatch(FavoriteSearchCriteria criteria)
             => base.IsMatch(criteria) || criteria.CategoryId is Guid || criteria.TagId is Guid;
 
         protected private override IQueryable<FavoriteItemEntity> ApplyKeywordFilter(

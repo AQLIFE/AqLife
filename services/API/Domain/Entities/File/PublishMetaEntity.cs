@@ -58,7 +58,8 @@ namespace AqLife.Domain.Entities.File
         /// <summary>
         /// 脱敏处理方法,不允许在事务中使用,仅可在查询中使用(AsNoTracking 子句)
         /// </summary>
-        public void Desensitize (){
+        public void Desensitize()
+        {
             this.PublishAt = null;
         }
     }

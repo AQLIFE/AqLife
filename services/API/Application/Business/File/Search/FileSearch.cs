@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
@@ -11,22 +10,18 @@ using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Linq.Expressions;
 
 
 namespace AqLife.Application.Business.File.Search;
 
-public readonly record struct FileSearchCriteria(
-    Guid? UID,
-    string? Keyword,
-    Guid? CategoryUID
-) : ISearchCriteria;
 
 public sealed class FileSearch(
     IOptions<FilePolicyOption> options,
     QueryMapper queryMapper,
     IApplicationDbContext storage, IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
-    : BaseSearch<FileQuery, FileMetaEntity, FileDto, FileSearchCriteria>(storage,httpContext, searchStrategies)
+    : BaseSearch<FileQuery, FileMetaEntity, FileDto, FileSearchCriteria>(storage, httpContext, searchStrategies)
 {
     private static readonly Expression<Func<FileMetaEntity, FileMetaEntity>> AnonymousProjection = e => e.Desensitize();
 
@@ -36,7 +31,7 @@ public sealed class FileSearch(
     /// - 已登录用户返回所有文件,包括模板文件和未发布文件
     /// </summary>
     protected private override IQueryable<FileMetaEntity> ApplyResultPolicy(IQueryable<FileMetaEntity> queryable, FileQuery query)
-        => IsValid? queryable : queryable.Where(e => !e.IsTemplate && e.PublishMeta.PublishStatus == FileStatus.Published).Select(AnonymousProjection);
+        => IsValid ? queryable : queryable.Where(e => !e.IsTemplate && e.PublishMeta.PublishStatus == FileStatus.Published).Select(AnonymousProjection);
 
     protected private override FileSearchCriteria MapToCriteria(FileQuery query)
         => queryMapper.ToCriteria(query);

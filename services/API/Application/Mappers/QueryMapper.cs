@@ -1,6 +1,4 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
-using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Business.Category.Search;
 using AqLife.Application.Business.Favorite.Search;
 using AqLife.Application.Business.File.Search;
 using AqLife.Application.Search;
@@ -12,8 +10,8 @@ using Riok.Mapperly.Abstractions;
 namespace AqLife.Application.Mappers
 {
     [Mapper]
-    public partial class QueryMapper:
-          ISearchMapper<TodoQuery, EntitySearchCriteria>,
+    public partial class QueryMapper :
+          ISearchMapper<TodoQuery, TodoSearchCriteria>,
           ISearchMapper<TagQuery, EntitySearchCriteria>,
           //ISearchMapper<AccountQuery, EntitySearchCriteria>,
           ISearchMapper<FileQuery, FileSearchCriteria>,
@@ -23,13 +21,8 @@ namespace AqLife.Application.Mappers
     {
         [MapperIgnoreSource(nameof(TodoQuery.Page))]
         [MapperIgnoreSource(nameof(TodoQuery.PageSize))]
-        [MapperIgnoreSource(nameof(TodoQuery.IsTree))]
-        [MapperIgnoreSource(nameof(TodoQuery.PlanId))]
-        [MapperIgnoreSource(nameof(TodoQuery.IncludeCompleted))]
-        [MapperIgnoreSource(nameof(TodoQuery.IncludeArchived))]
-        [MapperIgnoreSource(nameof(TodoQuery.ParentId))]
-        [MapProperty(nameof(TodoQuery.Desc), nameof(EntitySearchCriteria.Keyword))]
-        public partial EntitySearchCriteria ToCriteria(TodoQuery query);
+        [MapProperty(nameof(TodoQuery.Title), nameof(TodoSearchCriteria.Keyword))]
+        public partial TodoSearchCriteria ToCriteria(TodoQuery query);
 
 
         [MapperIgnoreSource(nameof(TagQuery.Page))]

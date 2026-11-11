@@ -1,5 +1,4 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
-using AqLife.Application.Mappers;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;

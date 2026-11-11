@@ -14,11 +14,11 @@ namespace AqLife.Web.Controllers
         [AllowAnonymous]
         public Task<PageResult<TodoDto>> SearchAsync([FromQuery] TodoQuery query, CancellationToken ct)
         {
-            // Archived tasks remain available to authenticated MGS managers only.
-            var effectiveQuery = User.Identity?.IsAuthenticated == true
-                ? query
-                : query with { IncludeArchived = false };
-            return mediator.Send(effectiveQuery, ct);
+            //// Archived tasks remain available to authenticated MGS managers only.
+            //var effectiveQuery = User.Identity?.IsAuthenticated == true
+            //    ? query
+            //    : query with { IncludeArchived = false };
+            return mediator.Send(query, ct);
         }
 
         [HttpGet("roadmap"), AllowAnonymous]
@@ -33,28 +33,28 @@ namespace AqLife.Web.Controllers
         public Task<Guid> UpdateAsync(UpdateTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch("parent")]
-        public Task<Guid> SetParentAsync(SetTodoParentCommand command, CancellationToken ct)
-            => mediator.Send(command, ct);
+        //[HttpPatch("parent")]
+        //public Task<Guid> SetParentAsync(SetTodoParentCommand command, CancellationToken ct)
+        //    => mediator.Send(command, ct);
 
-        [HttpPatch("sort-order")]
-        public Task<Guid> SetSortOrderAsync(SetTodoSortOrderCommand command, CancellationToken ct)
-            => mediator.Send(command, ct);
+        //[HttpPatch("sort-order")]
+        //public Task<Guid> SetSortOrderAsync(SetTodoSortOrderCommand command, CancellationToken ct)
+        //    => mediator.Send(command, ct);
 
         [HttpPost("{uid:guid}/archive")]
-        public Task<Guid> ArchiveAsync(Guid uid, CancellationToken ct)
-            => mediator.Send(new ArchiveTodoCommand(uid), ct);
+        public Task<Guid> ArchiveAsync(ArchiveTodoCommand command, CancellationToken ct)
+            => mediator.Send(command, ct);
 
         [HttpPost("{uid:guid}/restore")]
-        public Task<Guid> RestoreAsync(Guid uid, CancellationToken ct)
-            => mediator.Send(new RestoreTodoCommand(uid), ct);
+        public Task<Guid> RestoreAsync(RestoreTodoCommand command, CancellationToken ct)
+            => mediator.Send(command, ct);
 
         [HttpPost("dependencies")]
         public Task<Guid> AddDependencyAsync(AddTodoDependencyCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
         [HttpDelete("dependencies")]
-        public Task<Guid> RemoveDependencyAsync(RemoveTodoDependencyCommand command, CancellationToken ct)
+        public Task RemoveDependencyAsync(RemoveTodoDependencyCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
         [HttpPut("roadmap/layout")]

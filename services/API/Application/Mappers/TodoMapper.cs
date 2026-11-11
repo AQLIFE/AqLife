@@ -1,70 +1,90 @@
 using AqLife.Application.Abstractions.Mapper;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
-using AqLife.Domain.Services;
+using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.IView;
+using AqLife.Shared.Options;
+using Riok.Mapperly.Abstractions;
 
 namespace AqLife.Application.Mappers
 {
-    public sealed class TodoMapper :
+    [Mapper]
+    public sealed partial class TodoMapper :
         IViewMapper<TodoEntity, TodoDto>,
         ICreateMapper<TodoEntity, CreateTodoCommand>,
-        ICreateMapper<TodoDependencyEntity, AddTodoDependencyCommand>,
-        ICreateMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>
+        ICreateMapper<TodoDependencyEntity, AddTodoDependencyCommand>, IViewMapper<TodoDependencyEntity, TodoDependencyDto>,
+        ICreateMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>,IViewMapper<RoadmapNodeLayoutEntity, RoadmapNodeLayoutDto>,IViewMapper<DevelopmentPlanEntity, TodoRoadmapDto>
     {
-        public TodoDto ToDto(TodoEntity entity)
-            => ToDto(entity, null, entity.Children.Select(ToDto).ToList());
+        [MapProperty(nameof(TodoEntity.Status), nameof(TodoDto.Status))]
+        [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.PredecessorIds))]
+        [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.IsBlocked))]
+        [MapProperty(nameof(TodoEntity.IncomingDependencies.Count), nameof(TodoDto.IncompleteDependencyCount))]
+        [MapperIgnoreSource(nameof(TodoEntity.LayoutEntity))]
+        [MapperIgnoreSource(nameof(TodoEntity.Plan))]
+        [MapperIgnoreSource(nameof(TodoEntity.OutgoingDependencies))]
+        public partial TodoDto ToDto(TodoEntity source);
 
-        public TodoDto ToDto(
-            TodoEntity entity,
-            TodoDependencyState? dependencyState,
-            IReadOnlyCollection<TodoDto>? children = null)
-        {
-            var childItems = children ?? Array.Empty<TodoDto>();
-            return new TodoDto(
-                entity.UID,
-                entity.FTID,
-                entity.Title,
-                entity.Status.ToString(),
-                entity.CreatedAt,
-                entity.CompletedAt,
-                entity.Priority,
-                childItems.ToList(),
-                childItems.Count > 0)
-            {
-                PlanId = entity.PlanId,
-                Title = entity.Title,
-                Description = entity.Description,
-                UpdatedAt = entity.UpdatedAt,
-                SortOrder = entity.SortOrder,
-                IsArchived = entity.IsArchived,
-                IsBlocked = dependencyState?.IsBlocked ?? false,
-                IncompleteDependencyCount = dependencyState?.IncompleteDependencyCount ?? 0,
-                BlockingTodoIds = dependencyState?.BlockingTodoIds ?? Array.Empty<Guid>()
-            };
-        }
+        public string Convert(TodoStatus status) => status.ToString();
 
-        public TodoDependencyDto ToDto(TodoDependencyEntity entity)
-            => new(entity.PredecessorId, entity.SuccessorId, entity.CreatedAt);
+        private static bool IsBlocked(TodoDependencyEntity todoDependencies)
+            => todoDependencies.PredecessorTodo.Status != TodoStatus.Completed;
 
-        public RoadmapNodeLayoutDto ToDto(RoadmapNodeLayoutEntity entity)
-            => new(entity.TodoId, entity.X, entity.Y, entity.UpdatedAt);
+        public bool Convert(ICollection<TodoDependencyEntity> todoDependencies)
+            => todoDependencies.Any(IsBlocked); // 未完成即视为阻塞
 
-        public TodoRoadmapDto ToRoadmapDto(
-            DevelopmentPlanEntity plan,
-            IReadOnlyList<TodoDto> nodes,
-            IReadOnlyList<TodoDependencyDto> dependencies,
-            IReadOnlyList<RoadmapNodeLayoutDto> layouts)
-            => new(plan.UID, plan.Name, plan.DependencyVersion, nodes, dependencies, layouts);
+        public int ConvertToCount(ICollection<TodoDependencyEntity> todoDependencies)
+           => todoDependencies.Count(IsBlocked);
 
-        public TodoEntity ToEntity(CreateTodoCommand command)
-            => new(command.PlanId, command.EffectiveTitle, command.Description, command.Priority,
-                command.EffectiveParentId, command.SortOrder);
+        public static IReadOnlyCollection<Guid> ConvertToList(ICollection<TodoDependencyEntity> todoDependencies)
+            => [.. todoDependencies.Select(x => x.UID)];
 
-        public TodoDependencyEntity ToEntity(AddTodoDependencyCommand command)
-            => new(command.PlanId, command.PredecessorId, command.SuccessorId);
 
-        public RoadmapNodeLayoutEntity ToEntity(SaveRoadmapNodeLayoutCommand command)
-            => new(command.PlanId, command.TodoId, command.X, command.Y);
+        [MapperIgnoreTarget(nameof(TodoEntity.UID))]
+        [MapperIgnoreTarget(nameof(TodoEntity.CreatedAt))]
+        [MapperIgnoreTarget(nameof(TodoEntity.UpdatedAt))]
+        [MapperIgnoreTarget(nameof(TodoEntity.CompletedAt))]
+        [MapperIgnoreTarget(nameof(TodoEntity.IsArchived))]
+        [MapperIgnoreTarget(nameof(TodoEntity.Status))]
+        [MapperIgnoreTarget(nameof(TodoEntity.IncomingDependencies))]
+        [MapperIgnoreTarget(nameof(TodoEntity.OutgoingDependencies))]
+        [MapperIgnoreTarget(nameof(TodoEntity.LayoutEntity))]
+        [MapperIgnoreTarget(nameof(TodoEntity.Plan))]
+        public partial TodoEntity ToEntity(CreateTodoCommand command);
+
+        [MapperIgnoreTarget(nameof(TodoDependencyEntity.UID))]
+        [MapperIgnoreTarget(nameof(TodoDependencyEntity.CreatedAt))]
+        [MapperIgnoreTarget(nameof(TodoDependencyEntity.PredecessorTodo))]
+        [MapperIgnoreTarget(nameof(TodoDependencyEntity.SuccessorTodo))]
+        public partial TodoDependencyEntity ToEntity(AddTodoDependencyCommand command);
+
+        [MapperIgnoreSource(nameof(TodoDependencyEntity.UID))]
+        [MapperIgnoreSource(nameof(TodoDependencyEntity.PlanId))]
+        [MapperIgnoreSource(nameof(TodoDependencyEntity.PredecessorTodo))]
+        [MapperIgnoreSource(nameof(TodoDependencyEntity.SuccessorTodo))]
+        public partial TodoDependencyDto ToDto(TodoDependencyEntity source);
+
+
+        //[MapperIgnoreTarget(nameof(RoadmapNodeLayoutEntity.UID))]
+        [MapperIgnoreTarget(nameof(RoadmapNodeLayoutEntity.UpdatedAt))]
+        public partial RoadmapNodeLayoutEntity ToEntity(SaveRoadmapNodeLayoutCommand command);
+
+        [MapperIgnoreSource(nameof(RoadmapNodeLayoutEntity.UID))]
+        [MapperIgnoreSource(nameof(RoadmapNodeLayoutEntity.PlanId))]
+        public partial RoadmapNodeLayoutDto ToDto(RoadmapNodeLayoutEntity source);
+
+        [MapperIgnoreSource(nameof(DevelopmentPlanEntity.Description))]
+        [MapperIgnoreSource(nameof(DevelopmentPlanEntity.IsArchived))]
+        [MapperIgnoreSource(nameof(DevelopmentPlanEntity.CreatedAt))]
+        [MapperIgnoreSource(nameof(DevelopmentPlanEntity.UpdatedAt))]
+        [MapProperty(nameof(DevelopmentPlanEntity.UID),nameof(TodoRoadmapDto.PlanId))]
+        [MapProperty(nameof(DevelopmentPlanEntity.Name), nameof(TodoRoadmapDto.PlanName))]
+        [MapProperty(nameof(DevelopmentPlanEntity.Todos), nameof(TodoRoadmapDto.Nodes),Use = nameof(MapToTodoDto))]
+        [MapProperty(nameof(DevelopmentPlanEntity.Todos), nameof(TodoRoadmapDto.Layouts),Use = nameof(MapToLayoutDto))]
+        [MapProperty(nameof(DevelopmentPlanEntity.Todos), nameof(TodoRoadmapDto.Dependencies), Use = nameof(MapToDependencyDto))]
+        public partial TodoRoadmapDto ToDto(DevelopmentPlanEntity source);
+
+
+        public IReadOnlyList<TodoDto> MapToTodoDto(ICollection<TodoEntity> source) => source.Select(this.ToDto).ToList();
+        public IReadOnlyList<RoadmapNodeLayoutDto> MapToLayoutDto(ICollection<TodoEntity> source) => source.Select(e=>this.ToDto(e.LayoutEntity)).ToList();
+        public IReadOnlyList<TodoDependencyDto> MapToDependencyDto(ICollection<TodoEntity> source) => source.SelectMany(e => e.IncomingDependencies.Select(this.ToDto)).ToList();
     }
 }

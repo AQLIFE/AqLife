@@ -1,5 +1,4 @@
-﻿using AqLife.Domain.Command;
-using AqLife.Domain.Entities.Favorite;
+﻿using AqLife.Domain.Entities.Favorite;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;

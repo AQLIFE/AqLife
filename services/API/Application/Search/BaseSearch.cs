@@ -91,7 +91,7 @@ namespace AqLife.Application.Search
             => queryable
                 .Skip((pageQuery.Page - 1) * pageQuery.PageSize)
                 .Take(pageQuery.PageSize + 1);
-        
+
         /// <summary>
         /// 执行分页查询 : 加载实体
         /// </summary>
@@ -106,10 +106,10 @@ namespace AqLife.Application.Search
             {
                 IQueryable<TEntity> pageQueryable = BuildPageQuery(queryable, pageQuery);
                 //IEnumerable<TEntity> pageResult = queryable.Take(pageQuery.PageSize);
-                return new PageResult<TEntity>(pageQueryable,pageQuery);
+                return new PageResult<TEntity>(pageQueryable, pageQuery);
             }
             else throw new("未配置业务属性，无法分页");
         }
-                
+
     }
 }
