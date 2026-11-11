@@ -31,6 +31,13 @@ namespace AqLife.Application.Mappers
         public partial EntitySearchCriteria ToCriteria(TagQuery query);
 
 
+        [MapProperty(nameof(DevelopmentPlanQuery.Title), nameof(EntitySearchCriteria.Keyword))]
+        public partial EntitySearchCriteria ToCriteria(DevelopmentPlanQuery query);
+
+        [MapperIgnoreTarget(nameof(EntitySearchCriteria.Keyword))]
+        [MapperIgnoreSource(nameof(TodoRoadmapQuery.PlanId))]
+        public partial EntitySearchCriteria ToCriteria(TodoRoadmapQuery query);
+
 
         [MapperIgnoreTarget(nameof(EntitySearchCriteria.Keyword))]
         public partial EntitySearchCriteria ToCriteria(AccountQuery query);// 特殊实现,该Query 仅用于查询当前用户,不需要 Keyword, 但仍然使用 EntitySearchCriteria 作为通用查询参数

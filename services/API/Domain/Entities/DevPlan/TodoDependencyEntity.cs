@@ -10,7 +10,7 @@ namespace AqLife.Domain.Entities.DevPlan
     [Index(nameof(PredecessorId), nameof(SuccessorId), IsUnique = true)]
     [Index(nameof(PlanId), nameof(PredecessorId))]
     [Index(nameof(PlanId), nameof(SuccessorId))]
-    public class TodoDependencyEntity : IEntity
+    public sealed class TodoDependencyEntity : IEntity
     {
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
@@ -22,9 +22,12 @@ namespace AqLife.Domain.Entities.DevPlan
         public Guid SuccessorId { get; private set; } = Guid.Empty;
 
         public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+        
+        [ForeignKey(nameof(PredecessorId))]
+        public TodoEntity PredecessorTodo { get; set; } = null!;
 
-        public TodoEntity PredecessorTodo { get; set; } = new TodoEntity();
-        public TodoEntity SuccessorTodo { get; set; } = new TodoEntity();
+        [ForeignKey(nameof(SuccessorId))]
+        public TodoEntity SuccessorTodo { get; set; } = null!;
 
         public TodoDependencyEntity() { }
 

@@ -1,5 +1,6 @@
 using AqLife.Application.Search;
 using AqLife.Domain.Entities.Favorite;
+using AqLife.Shared.Exceptions;
 
 namespace AqLife.Application.Business.Favorite.Search
 {
@@ -26,7 +27,7 @@ namespace AqLife.Application.Business.Favorite.Search
                 queryable.Where(x => x.CategoryUID == categoryId),
             { TagId: { } tagId } =>
                 queryable.Where(x => x.Tags.Any(t => t.TagId == tagId)),
-            _ => queryable
+            _ => throw new RequestFailException("不合规的操作，该请求不应被处理")
         };
     }
 }

@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Business.DevelopmentPlan.Search;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.DevPlan;
@@ -10,17 +11,13 @@ using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Todo.Handler;
 
 public sealed class TodoRoadmapQueryHandler(
-    IApplicationDbContext db,
+    IApplicationDbContext db, DevelopmentPlanSearch<TodoRoadmapQuery> roadmapSearch,
     TodoMapper mapper) : IRequestHandler<TodoRoadmapQuery, TodoRoadmapDto>
 {
     public async Task<TodoRoadmapDto> Handle(TodoRoadmapQuery q, CancellationToken ct)
     {
-        DevelopmentPlanEntity developmentPlan = await db.DevelopmentPlans.AsNoTracking()
-            .Where(e => e.UID == q.PlanId).Include(e => e.Todos).ThenInclude(todo => todo.LayoutEntity)
-            .Include(e => e.Todos).ThenInclude(todo => todo.IncomingDependencies)
-            .Include(e => e.Todos).ThenInclude(todo => todo.OutgoingDependencies)
-            .AsSplitQuery().SingleAsync(ct);
+        IQueryable<DevelopmentPlanEntity> developmentPlan = await roadmapSearch.SearchAsync(q, ct);
 
-        return mapper.ToDto(developmentPlan);
+        return mapper.ToDto(await developmentPlan.SingleAsync(ct));// 对于 TodoRoadmapQuery , 只会返回一个 DevelopmentPlanEntity, 因为在 Validator 中已经验证了 PlanId 的合法性
     }
 }

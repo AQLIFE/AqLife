@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.Exceptions;
 using MediatR;
@@ -21,6 +22,12 @@ namespace AqLife.Application.Behaviors
             try
             {
                 var response = await next(cancellationToken); // 执行真正的业务
+                if( request is IRequireDependencyVersionIncrement devPlan)
+                {
+                    DevelopmentPlanEntity developmentPlanEntity = await storage.DevelopmentPlans.SingleAsync(e => e.UID == devPlan.PlanId, cancellationToken);
+                    developmentPlanEntity.IncrementDependencyVersion();
+                }
+
                 await storage.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken); // 提交 : 隐式事务回滚机制,若在Commit之前触发异常,则会自动回滚
                 return response;

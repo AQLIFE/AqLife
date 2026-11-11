@@ -14,15 +14,14 @@ namespace AqLife.Application.Search
     /// </summary>
     /// <typeparam name="TQuery"></typeparam>
     /// <typeparam name="TEntity"></typeparam>
-    /// <typeparam name="TEntityDto"></typeparam>
     /// <param name="storage"></param>
     /// <param name="searchStrategies"></param>
-    public abstract class BaseSearch<TQuery, TEntity, TEntityDto, TSearchCriteria>(
+    public abstract class BaseSearch<TQuery, TEntity, TSearchCriteria>(
     IApplicationDbContext storage,
     IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<TEntity, TSearchCriteria>> searchStrategies
-) : ISearch<TQuery, TEntity, TEntityDto>
-    //where TQuery : IQuery<TEntityDto> // 部分业务 不需要返回DTO
+) : ISearch<TQuery, TEntity>
+    where TQuery :class
     where TEntity : class, IEntity
     where TSearchCriteria : ISearchCriteria
     {

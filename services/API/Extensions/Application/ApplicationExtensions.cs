@@ -8,6 +8,7 @@ using AqLife.Application.Business.Account.Services;
 using AqLife.Application.Business.Category.Search;
 using AqLife.Application.Business.Corpus;
 using AqLife.Application.Business.Corpus.Search;
+using AqLife.Application.Business.DevelopmentPlan.Search;
 using AqLife.Application.Business.Favorite.Search;
 using AqLife.Application.Business.File;
 using AqLife.Application.Business.File.Search;
@@ -42,7 +43,7 @@ public static class ApplicationExtensions
 
         services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, AllFilesSearchStrategy>();
         services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, AllTagSearchStrategy>();
-        services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, AllTodoSearchStrategy>();
+        services.AddScoped<ISearchStrategy<TodoEntity, TodoSearchCriteria>, AllTodoSearchStrategy>();
         services.AddScoped<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>, FilteredFavoriteSearchStrategy>();
         services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, DefaultAccount>();
         services.AddScoped<ISearchStrategy<CorpusEntity, EntitySearchCriteria>, AllCorpusSearchStrategy>();
@@ -53,7 +54,7 @@ public static class ApplicationExtensions
         services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, ValidAccount>();
         services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, FilteredFilesSearchStrategy>();
         services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();
-        services.AddScoped<ISearchStrategy<TodoEntity, EntitySearchCriteria>, FilterTodoSearchStrategy>();
+        services.AddScoped<ISearchStrategy<TodoEntity, TodoSearchCriteria>, FilterTodoSearchStrategy>();
         services.AddScoped<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>, FilteredFavoriteSearchStrategy>();
 
         services.AddScoped<AccountSearch>();
@@ -63,6 +64,8 @@ public static class ApplicationExtensions
         services.AddScoped<TodoSearch>();
         services.AddScoped<FavoriteSearch>();
         services.AddScoped<CategorySearch>();
+        services.AddScoped<DevelopmentPlanSearch<DevelopmentPlanQuery>>();
+        services.AddScoped<DevelopmentPlanSearch<TodoRoadmapQuery>>();
 
         services.AddScoped<FileReader>();
         services.AddScoped<FileWriter>();

@@ -12,6 +12,7 @@ namespace AqLife.Application.Mappers
         ICreateMapper<DevelopmentPlanEntity, CreateDevelopmentPlanCommand>
     {
         [MapperIgnoreSource(nameof(DevelopmentPlanEntity.Todos))]
+        [MapperIgnoreSource(nameof(DevelopmentPlanEntity.DependencyVersion))]
         public partial DevelopmentPlanDto ToDto(DevelopmentPlanEntity entity);
 
         [MapperIgnoreTarget(nameof(DevelopmentPlanEntity.UID))]

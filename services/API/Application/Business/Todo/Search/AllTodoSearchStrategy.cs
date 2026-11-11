@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Todo.Search
 {
-    public sealed class AllTodoSearchStrategy(IHttpContextAccessor httpContext) : AllSearchStrategyBase<TodoEntity, EntitySearchCriteria>(httpContext)
+    public sealed class AllTodoSearchStrategy(IHttpContextAccessor httpContext) : AllSearchStrategyBase<TodoEntity, TodoSearchCriteria>(httpContext)
     {
     }
 }

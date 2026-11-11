@@ -29,7 +29,6 @@ namespace AqLife.Shared.IView
     /// <param name="Layouts"></param>
     public record TodoRoadmapDto(
         Guid PlanId,
-        string PlanName,
         long DependencyVersion,
         IReadOnlyList<TodoDto> Nodes,
         IReadOnlyList<TodoDependencyDto> Dependencies,
@@ -37,5 +36,5 @@ namespace AqLife.Shared.IView
 
     public record DevelopmentPlanDto(
         Guid UID, string Name, string? Description, bool IsArchived,
-        DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt, long DependencyVersion) : IEntityDto;
+        DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt) : IEntityDto;
 }

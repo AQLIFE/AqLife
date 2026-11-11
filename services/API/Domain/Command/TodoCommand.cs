@@ -19,16 +19,11 @@ namespace AqLife.Domain.Command
     public record TodoQuery(
         Guid? UID,
         string? Title,
-        Guid? PlanId,         // 每个 Todo 都必须归属与某个计划
+        Guid? PlanId,         // 查询归属于该计划ID的任务,如果为 null 则查询所有计划的任务
         int Page = 1,
         int PageSize = 50
         ) : IPageQuery, IQuery<PageResult<TodoDto>>;
-    /// <summary>
-    /// 开发计划全量查询: 包含 任务 , 任务依赖 , 任务布局
-    /// </summary>
-    /// <param name="PlanId"></param>
-    public record TodoRoadmapQuery(Guid PlanId) : IQuery<TodoRoadmapDto>;
-
+    
     /// <summary>
     /// 添加 任务 : 自动添加 布局,设置对应计划组
     /// </summary>
@@ -51,7 +46,7 @@ namespace AqLife.Domain.Command
         [Range(0, int.MaxValue)] public int SortOrder { get; init; } = 0;
     }
     /// <summary>
-    /// 更新 任务的优先级
+    /// 更新 任务状态
     /// </summary>
     /// <param name="UID"></param>
     /// <param name="SortOrder"></param>
@@ -77,14 +72,14 @@ namespace AqLife.Domain.Command
     /// <param name="PlanId"></param>
     /// <param name="PredecessorId"></param>
     /// <param name="SuccessorId"></param>
-    public record AddTodoDependencyCommand(Guid PlanId, Guid PredecessorId, Guid SuccessorId) : ICreateCommand,IRequireDevPlan;
+    public record AddTodoDependencyCommand(Guid PlanId, Guid PredecessorId, Guid SuccessorId) : ICreateCommand, IRequireDependencyVersionIncrement;
     /// <summary>
     /// 移除任务依赖
     /// </summary>
     /// <param name="PlanId"></param>
     /// <param name="PredecessorId"></param>
     /// <param name="SuccessorId"></param>
-    public record RemoveTodoDependencyCommand(Guid UID,Guid PlanId) : IRequireValidEntity<TodoDependencyEntity>, IDeleteCommand,IRequireDevPlan;
+    public record RemoveTodoDependencyCommand(Guid UID,Guid PlanId) : IRequireValidEntity<TodoDependencyEntity>, IDeleteCommand, IRequireDependencyVersionIncrement;
     /// <summary>
     /// 更新 任务布局节点[x,y]
     /// </summary>
@@ -93,6 +88,6 @@ namespace AqLife.Domain.Command
     /// <param name="TodoId"></param>
     /// <param name="X"></param>
     /// <param name="Y"></param>
-    public record SaveRoadmapNodeLayoutCommand(Guid UID,Guid PlanId, Guid TodoId, double X, double Y) : IRequireValidEntity<RoadmapNodeLayoutEntity>, IUpdateCommand,IRequireDevPlan;
+    public record SaveRoadmapNodeLayoutCommand(Guid UID,Guid PlanId, Guid TodoId, double X, double Y) : IRequireValidEntity<RoadmapNodeLayoutEntity>, IUpdateCommand, IRequireDependencyVersionIncrement;
 
 }

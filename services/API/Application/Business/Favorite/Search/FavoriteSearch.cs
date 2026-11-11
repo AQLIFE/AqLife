@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Favorite.Search
 {
     public sealed class FavoriteSearch(IApplicationDbContext dbContext, QueryMapper queryMapper, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>> searchStrategies)
-        : BaseSearch<FavoriteQuery, FavoriteItemEntity, FavoriteDto, FavoriteSearchCriteria>(dbContext, httpContext, searchStrategies)
+        : BaseSearch<FavoriteQuery, FavoriteItemEntity, FavoriteSearchCriteria>(dbContext, httpContext, searchStrategies)
     {
         protected private override FavoriteSearchCriteria MapToCriteria(FavoriteQuery query)
         => queryMapper.ToCriteria(query);

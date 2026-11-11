@@ -18,7 +18,8 @@ namespace AqLife.Application.Business.Category.Search;
 
 public sealed class CategorySearch(
     IApplicationDbContext dbContext, QueryMapper queryMapper, IHttpContextAccessor httpContext, IOptions<FilePolicyOption> options,
-    IEnumerable<ISearchStrategy<CategoryEntity, EntitySearchCriteria>> strategies) : BaseSearch<CategoryQuery, CategoryEntity, CategoryDto, EntitySearchCriteria>(dbContext, httpContext, strategies)
+    IEnumerable<ISearchStrategy<CategoryEntity, EntitySearchCriteria>> strategies) :
+    BaseSearch<CategoryQuery, CategoryEntity, EntitySearchCriteria>(dbContext, httpContext, strategies)
 {
     protected private override IQueryable<CategoryEntity> ApplyResultPolicy(
         IQueryable<CategoryEntity> queryable, CategoryQuery query)

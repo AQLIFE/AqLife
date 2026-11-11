@@ -11,7 +11,7 @@ namespace AqLife.Application.Business.Tag.Search
 {
     public sealed class TagSearch(QueryMapper queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
      IEnumerable<ISearchStrategy<TagEntity, EntitySearchCriteria>> searchStrategies
-    ) : BaseSearch<TagQuery, TagEntity, TagDto, EntitySearchCriteria>(storage, httpContext, searchStrategies)
+    ) : BaseSearch<TagQuery, TagEntity, EntitySearchCriteria>(storage, httpContext, searchStrategies)
     {
         protected private override EntitySearchCriteria MapToCriteria(TagQuery query)
         => queryMapper.ToCriteria(query);

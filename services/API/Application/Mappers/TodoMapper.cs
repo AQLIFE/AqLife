@@ -15,7 +15,7 @@ namespace AqLife.Application.Mappers
         ICreateMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>,IViewMapper<RoadmapNodeLayoutEntity, RoadmapNodeLayoutDto>,IViewMapper<DevelopmentPlanEntity, TodoRoadmapDto>
     {
         [MapProperty(nameof(TodoEntity.Status), nameof(TodoDto.Status))]
-        [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.PredecessorIds))]
+        [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.PredecessorIds), Use = nameof(MapToPredecessorIds))]
         [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.IsBlocked))]
         [MapProperty(nameof(TodoEntity.IncomingDependencies.Count), nameof(TodoDto.IncompleteDependencyCount))]
         [MapperIgnoreSource(nameof(TodoEntity.LayoutEntity))]
@@ -34,8 +34,16 @@ namespace AqLife.Application.Mappers
         public int ConvertToCount(ICollection<TodoDependencyEntity> todoDependencies)
            => todoDependencies.Count(IsBlocked);
 
-        public static IReadOnlyCollection<Guid> ConvertToList(ICollection<TodoDependencyEntity> todoDependencies)
-            => [.. todoDependencies.Select(x => x.UID)];
+        /// <summary>
+        /// 主用于 返回 incomingDependencies 的 PredecessorId
+        /// </summary>
+        /// <param name="incomingDependencies"></param>
+        /// <returns></returns>
+        public static IReadOnlyCollection<Guid> MapToPredecessorIds(ICollection<TodoDependencyEntity> incomingDependencies)
+            => [.. incomingDependencies.Select(x => x.PredecessorId)];
+
+        public static IReadOnlyCollection<Guid> MapToSuccessorIds(ICollection<TodoDependencyEntity> outgoingDependencies)
+            => [.. outgoingDependencies.Select(x => x.SuccessorId)];
 
 
         [MapperIgnoreTarget(nameof(TodoEntity.UID))]
@@ -75,8 +83,8 @@ namespace AqLife.Application.Mappers
         [MapperIgnoreSource(nameof(DevelopmentPlanEntity.IsArchived))]
         [MapperIgnoreSource(nameof(DevelopmentPlanEntity.CreatedAt))]
         [MapperIgnoreSource(nameof(DevelopmentPlanEntity.UpdatedAt))]
+        [MapperIgnoreSource(nameof(DevelopmentPlanEntity.Name))]
         [MapProperty(nameof(DevelopmentPlanEntity.UID),nameof(TodoRoadmapDto.PlanId))]
-        [MapProperty(nameof(DevelopmentPlanEntity.Name), nameof(TodoRoadmapDto.PlanName))]
         [MapProperty(nameof(DevelopmentPlanEntity.Todos), nameof(TodoRoadmapDto.Nodes),Use = nameof(MapToTodoDto))]
         [MapProperty(nameof(DevelopmentPlanEntity.Todos), nameof(TodoRoadmapDto.Layouts),Use = nameof(MapToLayoutDto))]
         [MapProperty(nameof(DevelopmentPlanEntity.Todos), nameof(TodoRoadmapDto.Dependencies), Use = nameof(MapToDependencyDto))]
@@ -84,7 +92,7 @@ namespace AqLife.Application.Mappers
 
 
         public IReadOnlyList<TodoDto> MapToTodoDto(ICollection<TodoEntity> source) => source.Select(this.ToDto).ToList();
-        public IReadOnlyList<RoadmapNodeLayoutDto> MapToLayoutDto(ICollection<TodoEntity> source) => source.Select(e=>this.ToDto(e.LayoutEntity)).ToList();
+        public IReadOnlyList<RoadmapNodeLayoutDto> MapToLayoutDto(ICollection<TodoEntity> source) => source.Select(e=>this.ToDto(e.LayoutEntity)).ToList();// B02 问题待定
         public IReadOnlyList<TodoDependencyDto> MapToDependencyDto(ICollection<TodoEntity> source) => source.SelectMany(e => e.IncomingDependencies.Select(this.ToDto)).ToList();
     }
 }

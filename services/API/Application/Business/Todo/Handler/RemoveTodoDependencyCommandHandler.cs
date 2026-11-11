@@ -9,7 +9,7 @@ public sealed class RemoveTodoDependencyCommandHandler(IApplicationDbContext db)
 {
     public async Task<Unit> Handle(RemoveTodoDependencyCommand q, CancellationToken ct)
     {
-        TodoDependencyEntity dependencyEntity = await db.TodoDependencies.SingleAsync(e => e.UID == q.UID, ct);// 默认没有重复UID
+        TodoDependencyEntity dependencyEntity = await db.TodoDependencies.SingleAsync(e => e.UID == q.UID, ct);// 默认没有重复UID 且 于属于 planId 所指的Plan; RemoveTodoDependencyLegalityValidator 业务会保障这点
         db.TodoDependencies.Remove(dependencyEntity);
         return Unit.Value;
     }

@@ -21,7 +21,7 @@ public sealed class FileSearch(
     QueryMapper queryMapper,
     IApplicationDbContext storage, IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
-    : BaseSearch<FileQuery, FileMetaEntity, FileDto, FileSearchCriteria>(storage, httpContext, searchStrategies)
+    : BaseSearch<FileQuery, FileMetaEntity, FileSearchCriteria>(storage, httpContext, searchStrategies)
 {
     private static readonly Expression<Func<FileMetaEntity, FileMetaEntity>> AnonymousProjection = e => e.Desensitize();
 

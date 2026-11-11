@@ -3,8 +3,8 @@ using AqLife.Shared.IView;
 
 namespace AqLife.Application.Abstractions.Search
 {
-    public interface ISearch<TQuery, TEntity, TEntityDto>
-    //where TQuery : IQuery<IEnumerable<TEntityDto>>
+    public interface ISearch<TQuery, TEntity>
+    where TQuery : class // 备用吧,等待未来实现
     where TEntity : IEntity
     {
         Task<IQueryable<TEntity>> SearchAsync(TQuery query, CancellationToken ct);

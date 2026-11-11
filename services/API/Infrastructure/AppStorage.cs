@@ -135,12 +135,12 @@ namespace AqLife.Infrastructure
                 .HasForeignKey(x => x.PlanId)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<TodoDependencyEntity>()
-                .HasOne<TodoEntity>()
+                .HasOne<TodoEntity>(e=>e.PredecessorTodo)
                 .WithMany()
                 .HasForeignKey(x => x.PredecessorId)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<TodoDependencyEntity>()
-                .HasOne<TodoEntity>()
+                .HasOne<TodoEntity>(e=>e.SuccessorTodo)
                 .WithMany()
                 .HasForeignKey(x => x.SuccessorId)
                 .OnDelete(DeleteBehavior.Restrict);

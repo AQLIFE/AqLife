@@ -14,13 +14,13 @@ namespace AqLife.Application.Business.Todo.Search
 {
     public sealed class TodoSearch(QueryMapper queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
         IEnumerable<ISearchStrategy<TodoEntity, TodoSearchCriteria>> searchStrategies
-        ) : BaseSearch<TodoQuery, TodoEntity, TodoDto, TodoSearchCriteria>(storage, httpContext, searchStrategies)
+        ) : BaseSearch<TodoQuery, TodoEntity, TodoSearchCriteria>(storage, httpContext, searchStrategies)
     {
         protected private override TodoSearchCriteria MapToCriteria(TodoQuery query)
         => queryMapper.ToCriteria(query);
 
         protected private override IQueryable<TodoEntity> ApplyDefaultOrder(IQueryable<TodoEntity> queryble, TodoQuery query)
-        => queryble.OrderBy(e => e.CreatedAt);
+        => queryble.OrderBy(e => e.SortOrder);
 
         protected private override IQueryable<TodoEntity> BuildBaseQuery(IQueryable<TodoEntity> queryable, TodoQuery query)
         => queryable.Include(e =>e.IncomingDependencies).Include(e => e.OutgoingDependencies).Include(e=>e.LayoutEntity).Include(e=>e.Plan).AsSplitQuery();

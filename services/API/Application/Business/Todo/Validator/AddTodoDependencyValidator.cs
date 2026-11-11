@@ -26,7 +26,7 @@ public sealed class AddTodoDependencyPredecessorIdExistsValidator(AqLife.Applica
 
 public sealed class AddTodoDependencySuccessorIdExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
-    private protected override string ErrorMessage { init; get; } = "目标任务不存在";
+    private protected override string ErrorMessage { init; get; } = "继任者任务不存在";
     private protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
     => await db.Todo.AnyAsync(x => x.UID == command.SuccessorId, ct);
     private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);

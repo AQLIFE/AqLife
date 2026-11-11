@@ -33,19 +33,19 @@ namespace AqLife.Web.Controllers
         public Task<Guid> UpdateAsync(UpdateTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        //[HttpPatch("parent")]
-        //public Task<Guid> SetParentAsync(SetTodoParentCommand command, CancellationToken ct)
-        //    => mediator.Send(command, ct);
+        [HttpPatch("{UID:guid}/status")]
+        public Task<Guid> SetParentAsync(UpdateTodoStatusCommand command, CancellationToken ct)
+            => mediator.Send(command, ct);
 
         //[HttpPatch("sort-order")]
         //public Task<Guid> SetSortOrderAsync(SetTodoSortOrderCommand command, CancellationToken ct)
         //    => mediator.Send(command, ct);
 
-        [HttpPost("{uid:guid}/archive")]
+        [HttpPatch("{uid:guid}/archive")]
         public Task<Guid> ArchiveAsync(ArchiveTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPost("{uid:guid}/restore")]
+        [HttpPatch("{uid:guid}/restore")]
         public Task<Guid> RestoreAsync(RestoreTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
