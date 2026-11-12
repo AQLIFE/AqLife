@@ -33,7 +33,7 @@ namespace AqLife.Application.Validators
     {
         private protected override string ErrorMessage { init; get; } = "请求的任务不属于该计划";
         private protected override async Task<bool> IsValidAsync(TRequest query, CancellationToken ct)
-            => await storage.DevelopmentPlans.AnyAsync(e => e.Todos.Any(x=>x.UID == query.UID));
+            => await storage.Todo.AnyAsync(x=>x.UID == query.UID && x.PlanId == query.PlanId,ct);
 
         private protected override Exception CreateException(string message)
         => new DomainLegalityException(message);

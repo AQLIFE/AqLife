@@ -21,31 +21,32 @@ namespace AqLife.Domain.Services
             if (planTasks.Any(x => x.PlanId != candidate.PlanId))
                 throw new DomainLegalityException("任务集合包含其他开发计划的任务");
 
-            var predecessorExists = planTasks.Any(x => x.UID == candidate.PredecessorId);
-            var successorExists = planTasks.Any(x => x.UID == candidate.SuccessorId);
-            if (!predecessorExists || !successorExists)
-                throw new DomainLegalityException("依赖任务必须存在于当前开发计划");
+            //var predecessorExists = planTasks.Any(x => x.UID == candidate.PredecessorId);
+            //var successorExists = planTasks.Any(x => x.UID == candidate.SuccessorId);
+            //if (!predecessorExists || !successorExists)
+            //    throw new DomainLegalityException("依赖任务必须存在于当前开发计划");
 
-            var predecessor = planTasks.First(x => x.UID == candidate.PredecessorId);
-            var successor = planTasks.First(x => x.UID == candidate.SuccessorId);
-            if (predecessor.IsArchived || successor.IsArchived)
-                throw new DomainLegalityException("归档任务不能建立依赖关系");
+            //var predecessor = planTasks.First(x => x.UID == candidate.PredecessorId);
+            //var successor = planTasks.First(x => x.UID == candidate.SuccessorId);
+            //if (predecessor.IsArchived || successor.IsArchived)
+            //    throw new DomainLegalityException("归档任务不能建立依赖关系");
 
             var edges = existingDependencies.ToArray();
 
-            if (edges.Any(x => x.PlanId != candidate.PlanId))
-                throw new DomainLegalityException("依赖集合包含其他开发计划的关系");
+            //if (edges.Any(x => x.PlanId != candidate.PlanId))
+            //    throw new DomainLegalityException("依赖集合包含其他开发计划的关系");
 
-            if (edges.Any(x =>
-                x.PredecessorId == candidate.PredecessorId &&
-                x.SuccessorId == candidate.SuccessorId))
-                throw new DomainLegalityException("该任务依赖关系已经存在");
+            //if (edges.Any(x =>
+            //    x.PredecessorId == candidate.PredecessorId &&
+            //    x.SuccessorId == candidate.SuccessorId))
+            //    throw new DomainLegalityException("该任务依赖关系已经存在");
 
             // Adding predecessor -> successor creates a cycle exactly when predecessor
             // is already reachable from successor in the existing graph.
             var adjacency = edges
                 .GroupBy(x => x.PredecessorId)
                 .ToDictionary(g => g.Key, g => g.Select(x => x.SuccessorId).ToArray());
+            // 按照前置依赖的任务ID 分组,转换成字典类型,key 为前置ID, value 为 继任者Id
 
             var pending = new Stack<Guid>();
             var visited = new HashSet<Guid>();

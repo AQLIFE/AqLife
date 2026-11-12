@@ -15,7 +15,7 @@ public sealed class AddTodoDependencyCommandHandler(
         var plan = await db.DevelopmentPlans.FirstAsync(x => x.UID == q.PlanId, ct);
         var dependency = mapper.ToEntity(q);
         await db.TodoDependencies.AddAsync(dependency, ct);
-        plan.IncrementDependencyVersion();
+        //plan.IncrementDependencyVersion(); // 自动实现
         return dependency.UID;
     }
 }

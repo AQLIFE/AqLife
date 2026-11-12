@@ -16,6 +16,7 @@ public sealed class DevelopmentPlanQueryHandler(
     public async Task<IReadOnlyList<DevelopmentPlanDto>> Handle(DevelopmentPlanQuery q, CancellationToken ct)
     {
         IQueryable<DevelopmentPlanEntity> plans = await searcher.SearchAsync(q, ct);
-        return [..plans.Select(mapper.ToDto)];
+        var result =  await plans.ToListAsync(ct);
+        return [..result.Select(mapper.ToDto)];
     }
 }

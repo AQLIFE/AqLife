@@ -30,10 +30,10 @@ namespace AqLife.Domain.Entities.DevPlan
         [Range(0, int.MaxValue, ErrorMessage = "任务排序必须是非负整数")]
         public int SortOrder { get; private set; } = 0;
         
-        public DevelopmentPlanEntity Plan { get; set; } = new ();
+        public DevelopmentPlanEntity Plan { get; set; } = null!;
+        public RoadmapNodeLayoutEntity LayoutEntity { get; set; } = null!;
         public ICollection<TodoDependencyEntity> IncomingDependencies { get; set; } = [];
         public ICollection<TodoDependencyEntity> OutgoingDependencies { get; set; } = [];
-        public RoadmapNodeLayoutEntity LayoutEntity { get; set; } = new();
 
         public TodoEntity() { }
 

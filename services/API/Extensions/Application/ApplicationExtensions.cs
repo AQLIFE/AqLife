@@ -41,21 +41,24 @@ public static class ApplicationExtensions
     {
         services.AddScoped<UploadContext>();
 
+        services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, DefaultAccount>(); 
+        services.AddScoped<ISearchStrategy<CorpusEntity, EntitySearchCriteria>, AllCorpusSearchStrategy>();
         services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, AllFilesSearchStrategy>();
         services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, AllTagSearchStrategy>();
         services.AddScoped<ISearchStrategy<TodoEntity, TodoSearchCriteria>, AllTodoSearchStrategy>();
-        services.AddScoped<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>, FilteredFavoriteSearchStrategy>();
-        services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, DefaultAccount>();
-        services.AddScoped<ISearchStrategy<CorpusEntity, EntitySearchCriteria>, AllCorpusSearchStrategy>();
         services.AddScoped<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>, AllFavoriteSearchStrategy>();
-        services.AddScoped<ISearchStrategy<CategoryEntity, EntitySearchCriteria>, FilteredCategorySearchStrategy>();
         services.AddScoped<ISearchStrategy<CategoryEntity, EntitySearchCriteria>, AllCategorySearchStrategy>();
+        services.AddScoped<ISearchStrategy<DevelopmentPlanEntity, EntitySearchCriteria>, AllDevPlanSearchStrategy>();
+        
 
         services.AddScoped<ISearchStrategy<AccountEntity, EntitySearchCriteria>, ValidAccount>();
+        services.AddScoped<ISearchStrategy<CorpusEntity, EntitySearchCriteria>, FilteredCorpusSearchStrategy>();
         services.AddScoped<ISearchStrategy<FileMetaEntity, FileSearchCriteria>, FilteredFilesSearchStrategy>();
         services.AddScoped<ISearchStrategy<TagEntity, EntitySearchCriteria>, FilterTagSearchStrategy>();
         services.AddScoped<ISearchStrategy<TodoEntity, TodoSearchCriteria>, FilterTodoSearchStrategy>();
         services.AddScoped<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>, FilteredFavoriteSearchStrategy>();
+        services.AddScoped<ISearchStrategy<CategoryEntity, EntitySearchCriteria>, FilteredCategorySearchStrategy>();
+        services.AddScoped<ISearchStrategy<DevelopmentPlanEntity, EntitySearchCriteria>, FilteredDevPlanSearchStrategy>();
 
         services.AddScoped<AccountSearch>();
         services.AddScoped<FileSearch>();
@@ -134,6 +137,8 @@ public static class ApplicationExtensions
         services.AddScoped(typeof(IValidator<>), typeof(FileTypeValidator<>));
         services.AddScoped(typeof(IValidator<>), typeof(FileSizeValidator<>));
         services.AddScoped(typeof(IValidator<>), typeof(FileDuplicateValidator<>));
+        services.AddScoped(typeof(IValidator<>), typeof(DevPlanValidator<>));
+        services.AddScoped(typeof(IValidator<>), typeof(DevPlanUpdateValidator<>));
         foreach (var type in validatorTypes)
             foreach (var item in type.GetInterfaces())
                 services.AddScoped(item, type);

@@ -9,6 +9,7 @@ using AqLife.Shared.Exceptions;
 using AqLife.Shared.IView;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,15 +31,22 @@ namespace AqLife.Application.Business.DevelopmentPlan.Search
             _ => throw new RequestFailException("Invalid query type")
         };
 
+        private  IQueryable<DevelopmentPlanEntity> BuildBaseQueryInternal(IQueryable<DevelopmentPlanEntity> queryable, TDevPlanQuery query)
+        {
+            IIncludableQueryable<DevelopmentPlanEntity,IEnumerable<TodoEntity>> includeTodo = IsValid ? queryable.Include(e => e.Todos) : queryable.Include(e => e.Todos.Where(to => !to.IsArchived));
+            queryable = includeTodo.ThenInclude(todo => todo.LayoutEntity);
+            queryable = includeTodo.ThenInclude(todo => todo.IncomingDependencies);
+            queryable = includeTodo.ThenInclude(todo => todo.OutgoingDependencies);
+            return queryable.AsSplitQuery();
+        }
+
         protected private override IQueryable<DevelopmentPlanEntity> BuildBaseQuery(IQueryable<DevelopmentPlanEntity> queryable, TDevPlanQuery query)
         {
             queryable = IsValid ? queryable : queryable.Where(e => !e.IsArchived);
             return query switch
             {
                 DevelopmentPlanQuery planQuery => queryable,
-                TodoRoadmapQuery roadmapQuery => queryable.Include(e => IsValid ? e.Todos : e.Todos.Where(to => !to.IsArchived)).ThenInclude(todo => todo.LayoutEntity)
-                    .Include(e => e.Todos).ThenInclude(todo => todo.IncomingDependencies)
-                    .Include(e => e.Todos).ThenInclude(todo => todo.OutgoingDependencies).AsSplitQuery(),
+                TodoRoadmapQuery roadmapQuery => BuildBaseQueryInternal(queryable,query),
                 _ => throw new RequestFailException("Invalid query type")
             };
         }

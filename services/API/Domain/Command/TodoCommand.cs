@@ -88,6 +88,6 @@ namespace AqLife.Domain.Command
     /// <param name="TodoId"></param>
     /// <param name="X"></param>
     /// <param name="Y"></param>
-    public record SaveRoadmapNodeLayoutCommand(Guid UID,Guid PlanId, Guid TodoId, double X, double Y) : IRequireValidEntity<RoadmapNodeLayoutEntity>, IUpdateCommand, IRequireDependencyVersionIncrement;
+    public record SaveRoadmapNodeLayoutCommand(Guid PlanId, Guid TodoId, double X, double Y) : ICommand,IRequireDevPlan; // Upsert 操作
 
 }

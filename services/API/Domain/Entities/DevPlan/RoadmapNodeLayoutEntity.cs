@@ -11,12 +11,12 @@ namespace AqLife.Domain.Entities.DevPlan
     [Index(nameof(PlanId))]
     public class RoadmapNodeLayoutEntity : IEntity
     {
-        [Key]
+        [NotMapped]// 仅满足 继承链要求
         public Guid UID { get; init; } = Guid.NewGuid();
+        public Guid TodoId { get; init; } = Guid.Empty;// 该模型的真正主键
 
         public Guid PlanId { get; init; } = Guid.Empty;
 
-        public Guid TodoId { get; init; } = Guid.Empty;
 
         public double X { get; private set; } = 0.0;
 
