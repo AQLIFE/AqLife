@@ -12,11 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace PostgreSqlMigrations.Migrations
 {
     [DbContext(typeof(AppStorage))]
-    [Migration("20261112132005_InitialPostgreSQL")]
-    partial class InitialPostgreSQL
+    [Migration("20261112132005_InitialNewBaseLinePostgreSQL")]
+    partial class InitialNewBaseLinePostgreSQL
     {
         /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
