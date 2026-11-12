@@ -12,7 +12,7 @@ public sealed class SaveRoadmapNodeLayoutCommandHandler(
 {
     public async Task<Guid> Handle(SaveRoadmapNodeLayoutCommand q, CancellationToken ct)
     {
-        var layout = await db.RoadmapNodeLayouts.SingleAsync(x => x.TodoId == q.TodoId, ct);
+        var layout = await db.RoadmapNodeLayouts.SingleOrDefaultAsync(x => x.TodoId == q.TodoId, ct);
         if (layout is null)
         {
             layout = mapper.ToEntity(q);

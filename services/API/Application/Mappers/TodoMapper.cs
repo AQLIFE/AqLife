@@ -71,11 +71,11 @@ namespace AqLife.Application.Mappers
         public partial TodoDependencyDto ToDto(TodoDependencyEntity source);
 
 
-        //[MapperIgnoreTarget(nameof(RoadmapNodeLayoutEntity.UID))]
+        [MapProperty(nameof(SaveRoadmapNodeLayoutCommand.TodoId),nameof(RoadmapNodeLayoutEntity.UID))]
         [MapperIgnoreTarget(nameof(RoadmapNodeLayoutEntity.UpdatedAt))]
         public partial RoadmapNodeLayoutEntity ToEntity(SaveRoadmapNodeLayoutCommand command);
 
-        [MapperIgnoreSource(nameof(RoadmapNodeLayoutEntity.UID))]
+        [MapProperty(nameof(RoadmapNodeLayoutEntity.UID), nameof(RoadmapNodeLayoutDto.TodoId)]
         [MapperIgnoreSource(nameof(RoadmapNodeLayoutEntity.PlanId))]
         public partial RoadmapNodeLayoutDto ToDto(RoadmapNodeLayoutEntity source);
 
@@ -92,7 +92,7 @@ namespace AqLife.Application.Mappers
 
 
         public IReadOnlyList<TodoDto> MapToTodoDto(ICollection<TodoEntity> source) => source.Select(this.ToDto).ToList();
-        public IReadOnlyList<RoadmapNodeLayoutDto> MapToLayoutDto(ICollection<TodoEntity> source) => source.Select(e=>this.ToDto(e.LayoutEntity)).ToList();// B02 问题待定
+        public IReadOnlyList<RoadmapNodeLayoutDto> MapToLayoutDto(ICollection<TodoEntity> source) => source.Count == 0 ? [] : source.Select(e=>this.ToDto(e.LayoutEntity)).ToList();// B02 问题待定
         public IReadOnlyList<TodoDependencyDto> MapToDependencyDto(ICollection<TodoEntity> source) => source.SelectMany(e => e.IncomingDependencies.Select(this.ToDto)).ToList();
     }
 }

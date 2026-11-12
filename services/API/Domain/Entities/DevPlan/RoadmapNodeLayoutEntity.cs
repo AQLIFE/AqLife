@@ -7,13 +7,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AqLife.Domain.Entities.DevPlan
 {
     [Table("RoadmapNodeLayouts")]
-    [Index(nameof(TodoId), IsUnique = true)]
     [Index(nameof(PlanId))]
     public class RoadmapNodeLayoutEntity : IEntity
     {
-        [NotMapped]// 仅满足 继承链要求
-        public Guid UID { get; init; } = Guid.NewGuid();
-        public Guid TodoId { get; init; } = Guid.Empty;// 该模型的真正主键
+        [Key]// 同时作为外键,引用自 Todo 表
+        public Guid UID { get; init; } 
+        //public Guid TodoId { get; init; } = Guid.Empty;// 该模型的真正主键
 
         public Guid PlanId { get; init; } = Guid.Empty;
 
@@ -30,9 +29,11 @@ namespace AqLife.Domain.Entities.DevPlan
         {
             if (planId == Guid.Empty || todoId == Guid.Empty)
                 throw new DomainLegalityException("计划 ID 和任务 ID 不能为 Empty");
+            if (planId == todoId)
+                throw new DomainLegalityException("计划ID与 任务Id 相同");//增加容错,避免后续开发过程中制造低级错误
 
             PlanId = planId;
-            TodoId = todoId;
+            UID = todoId;
             SetPosition(x, y);
         }
 

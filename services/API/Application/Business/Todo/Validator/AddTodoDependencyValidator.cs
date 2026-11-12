@@ -8,15 +8,18 @@ using System.ComponentModel;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 namespace AqLife.Application.Business.Todo.Validator;
 
+[Obsolete("可以被 DevPlanValidator 取代")]
 public sealed class AddTodoDependencyPlanExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     private protected override string ErrorMessage { init; get; } = "开发计划不存在";
     private protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
     => await db.DevelopmentPlans.AnyAsync(x => x.UID == command.PlanId, ct);
     private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
-
 }
-
+/// <summary>
+/// Todo 存在性 : 前置Todo是否存在
+/// </summary>
+/// <param name="db"></param>
 public sealed class AddTodoDependencyPredecessorIdExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     private protected override string ErrorMessage { init; get; } = "前置任务依赖不存在";
@@ -25,7 +28,10 @@ public sealed class AddTodoDependencyPredecessorIdExistsValidator(AqLife.Applica
     private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
 }
 
-
+/// <summary>
+/// Todo 存在性 : 继任者是否存在
+/// </summary>
+/// <param name="db"></param>
 public sealed class AddTodoDependencySuccessorIdExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     private protected override string ErrorMessage { init; get; } = "继任者任务不存在";
@@ -33,7 +39,10 @@ public sealed class AddTodoDependencySuccessorIdExistsValidator(AqLife.Applicati
     => await db.Todo.AnyAsync(x => x.UID == command.SuccessorId, ct);
     private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
 }
-
+/// <summary>
+/// 计划归属
+/// </summary>
+/// <param name="db"></param>
 public sealed class AddTodoDependencyPlanLegalityValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     private protected override string ErrorMessage { init; get; } = "创建的依赖关系中存在不属于当前计划的任务";
@@ -45,7 +54,10 @@ public sealed class AddTodoDependencyPlanLegalityValidator(AqLife.Application.Ab
     }
     private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
 }
-
+/// <summary>
+/// 自身依赖
+/// </summary>
+/// <param name="db"></param>
 public sealed class AddTodoDependencyLegalityValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     private protected override string ErrorMessage { init; get; } = "目标任务不能是自身的依赖";
@@ -54,7 +66,10 @@ public sealed class AddTodoDependencyLegalityValidator(AqLife.Application.Abstra
     private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
 }
 
-
+/// <summary>
+/// 重复依赖
+/// </summary>
+/// <param name="db"></param>
 public sealed class AddTodoDependencyRepetitivenessValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     private protected override string ErrorMessage { init; get; } = "该依赖关系已存在";
@@ -62,18 +77,25 @@ public sealed class AddTodoDependencyRepetitivenessValidator(AqLife.Application.
     => await db.TodoDependencies.AnyAsync(e => e.PredecessorId == command.PredecessorId && e.SuccessorId == command.SuccessorId, ct);
     private protected override Exception CreateException(string message) => new DomainLegalityException(message);
 }
-
-public sealed class AddTodoDependencyArchiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
+/// <summary>
+/// 归档合法性
+/// </summary>
+/// <param name="db"></param>
+public sealed class AddTodoDependencyArchiveLegalityValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     private protected override string ErrorMessage { init; get; } = "依赖关系中存在归档任务,禁止创建";
     private protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
-    => await db.TodoDependencies.AnyAsync(e => !e.PredecessorTodo.IsArchived && !e.SuccessorTodo.IsArchived, ct);
+    {
+        TodoEntity successorTodo =   await db.Todo.SingleOrDefaultAsync(todo => todo.UID == command.SuccessorId,ct) ?? throw new ResourceNotFoundException("不存在的继任Id"); // 当前想要添加依赖的 任务
+        TodoEntity predecessorTodo = await db.Todo.SingleOrDefaultAsync(todo => todo.UID == command.PredecessorId,ct) ?? throw new ResourceNotFoundException("不存在的前置Id"); // 即将添加的 继任者
+        return !successorTodo.IsArchived && !predecessorTodo.IsArchived;
+    }
     private protected override Exception CreateException(string message) => new DomainLegalityException(message);
 }
 
 
 /// <summary>
-/// 检查即将创建的依赖是否存在循环引用;疑似可以替代 AddTodoDependencyLegalityValidator
+/// 图循环检查 :检查即将创建的依赖是否存在循环引用;疑似可以替代 AddTodoDependencyLegalityValidator
 /// </summary>
 /// <param name="db"></param>
 public sealed class AddTodoDependencyGraphValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
@@ -82,8 +104,7 @@ public sealed class AddTodoDependencyGraphValidator(AqLife.Application.Abstracti
     private protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
     {
         //IIncludableQueryable<DevelopmentPlanEntity, IEnumerable<TodoEntity>> todos = db.DevelopmentPlans.Include(e => e.Todos.Where(todo => !todo.IsArchived));//已存在的计划内todo
-        //IQueryable<TodoEntity> flagTodo = db.Todo.Where(todo => todo.UID == command.SuccessorId); // 当前想要添加依赖的 任务
-        //IQueryable<TodoEntity> predecessorTodo = db.Todo.Where(todo => todo.UID == command.PredecessorId); // 即将添加的 继任者
+       
         IDictionary<Guid, Guid[]> Adjacency = await db.TodoDependencies.Where(e => e.PlanId == command.PlanId)
                 .GroupBy(x => x.PredecessorId)
                 .ToDictionaryAsync(g => g.Key, g => g.Select(x => x.SuccessorId).ToArray(),ct);
