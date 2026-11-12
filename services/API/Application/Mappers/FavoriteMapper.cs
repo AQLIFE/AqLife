@@ -11,14 +11,15 @@ namespace AqLife.Application.Mappers
         : ICreateMapper<FavoriteItemEntity, CreateFavoriteCommand>,
         IViewMapper<FavoriteItemEntity, FavoriteDto>
     {
+
         [MapperIgnoreSource(nameof(CreateFavoriteCommand.TagIds))]
         [MapperIgnoreSource(nameof(CreateFavoriteCommand.Media))]
+        [MapperIgnoreTarget(nameof(FavoriteItemEntity.Tags))]
+        [MapperIgnoreTarget(nameof(FavoriteItemEntity.Media))]
         [MapperIgnoreTarget(nameof(FavoriteItemEntity.UID))]
         [MapperIgnoreTarget(nameof(FavoriteItemEntity.CreatedAt))]
         [MapperIgnoreTarget(nameof(FavoriteItemEntity.UpdatedAt))]
         [MapperIgnoreTarget(nameof(FavoriteItemEntity.IsPublished))]
-        [MapperIgnoreTarget(nameof(FavoriteItemEntity.Tags))]
-        [MapperIgnoreTarget(nameof(FavoriteItemEntity.Media))]
         [MapperIgnoreTarget(nameof(FavoriteItemEntity.Category))]
         [MapProperty(nameof(CreateFavoriteCommand.CID), nameof(FavoriteItemEntity.CategoryUID))]
         public partial FavoriteItemEntity ToEntity(CreateFavoriteCommand source);
@@ -33,21 +34,23 @@ namespace AqLife.Application.Mappers
             => source.Select(x => x.TagId);
 
         [UserMapping]
+        //[MapperIgnoreSource(nameof(FavoriteMediaEntity.Favorite))]
+        [MapperIgnoreSource(nameof(FavoriteMediaEntity.FavoriteId))]
         public IEnumerable<FavoriteMediaDto> Convert(IEnumerable<FavoriteMediaEntity> source)
             => source.Select(mediaMapper.ToDto);
     }
 
     [Mapper]
     public partial class FavoriteMediaMapper
-        : IViewMapper<FavoriteMediaEntity, FavoriteMediaDto>,
-          ICreateMapper<FavoriteMediaEntity, FavoriteMediaInput>
+        : IRelationshipViewMapper<FavoriteMediaEntity, FavoriteMediaDto>,
+        IRelationshipUpdateMapper<FavoriteMediaEntity,FavoriteMediaInput>
     {
-        [MapperIgnoreSource(nameof(FavoriteMediaEntity.FavoriteId))]
-        [MapperIgnoreSource(nameof(FavoriteMediaEntity.Favorite))]
+        //[MapperIgnoreSource(nameof(FavoriteMediaEntity.Favorite))]
         public partial FavoriteMediaDto ToDto(FavoriteMediaEntity source);
 
-        [MapperIgnoreTarget(nameof(FavoriteMediaEntity.UID))]
-        [MapperIgnoreTarget(nameof(FavoriteMediaEntity.FavoriteId))]
+        //[MapperIgnoreTarget(nameof(FavoriteMediaEntity.FavoriteId))]
+        //[MapperIgnoreTarget(nameof(FavoriteMediaEntity.Favorite))]
+        [MapperIgnoreTarget(nameof(FavoriteMediaEntity.Role))]
         public partial FavoriteMediaEntity ToEntity(FavoriteMediaInput source);
     }
 }

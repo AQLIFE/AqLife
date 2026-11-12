@@ -3,6 +3,7 @@ using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace AqLife.Application.BackServices
 {
@@ -33,6 +34,12 @@ namespace AqLife.Application.BackServices
             FileMetaEntity file = await fileQueryable.SingleOrDefaultAsync(e => e.UID == guid, ct) ?? throw new ResourceNotFoundException("File not found");
             file.PublishMeta.Schedule(agreementTime);
             return guid;
+        }
+
+        public async Task<Guid> Handle(Guid fileId, DateTimeOffset? dateTimeOffset = null, CancellationToken ct = default)
+        {
+            if (dateTimeOffset is DateTimeOffset offset) return await Agreement(fileId, offset, ct);
+            else return await PublishAsync(fileId, ct);
         }
     }
 }

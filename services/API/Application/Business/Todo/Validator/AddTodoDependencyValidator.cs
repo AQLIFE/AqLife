@@ -8,14 +8,7 @@ using System.ComponentModel;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 namespace AqLife.Application.Business.Todo.Validator;
 
-[Obsolete("可以被 DevPlanValidator 取代")]
-public sealed class AddTodoDependencyPlanExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
-{
-    private protected override string ErrorMessage { init; get; } = "开发计划不存在";
-    private protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
-    => await db.DevelopmentPlans.AnyAsync(x => x.UID == command.PlanId, ct);
-    private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
-}
+
 /// <summary>
 /// Todo 存在性 : 前置Todo是否存在
 /// </summary>
@@ -48,8 +41,8 @@ public sealed class AddTodoDependencyPlanLegalityValidator(AqLife.Application.Ab
     private protected override string ErrorMessage { init; get; } = "创建的依赖关系中存在不属于当前计划的任务";
     private protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
     {
-        TodoEntity successor = await db.Todo.SingleOrDefaultAsync(e => e.UID == command.SuccessorId) ?? throw new RequestCheckException("非预期异常,无法执行");
-        TodoEntity predecessor = await db.Todo.SingleOrDefaultAsync(e => e.UID == command.PredecessorId) ?? throw new RequestCheckException("非预期异常,无法执行");
+        TodoEntity successor = await db.Todo.SingleOrDefaultAsync(e => e.UID == command.SuccessorId    ,ct ) ?? throw new RequestCheckException("非预期异常,无法执行");
+        TodoEntity predecessor = await db.Todo.SingleOrDefaultAsync(e => e.UID == command.PredecessorId,ct) ?? throw new RequestCheckException("非预期异常,无法执行");
         return successor.PlanId == predecessor.PlanId && successor.PlanId == command.PlanId;
     }
     private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);

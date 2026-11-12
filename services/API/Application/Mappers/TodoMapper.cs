@@ -12,7 +12,8 @@ namespace AqLife.Application.Mappers
         IViewMapper<TodoEntity, TodoDto>,
         ICreateMapper<TodoEntity, CreateTodoCommand>,
         ICreateMapper<TodoDependencyEntity, AddTodoDependencyCommand>, IViewMapper<TodoDependencyEntity, TodoDependencyDto>,
-        ICreateMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>,IViewMapper<RoadmapNodeLayoutEntity, RoadmapNodeLayoutDto>,IViewMapper<DevelopmentPlanEntity, TodoRoadmapDto>
+        IBaseEntityMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>,IViewMapper<RoadmapNodeLayoutEntity, RoadmapNodeLayoutDto>,
+        IViewMapper<DevelopmentPlanEntity, TodoRoadmapDto>
     {
         [MapProperty(nameof(TodoEntity.Status), nameof(TodoDto.Status))]
         [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.PredecessorIds), Use = nameof(MapToPredecessorIds))]
@@ -75,7 +76,7 @@ namespace AqLife.Application.Mappers
         [MapperIgnoreTarget(nameof(RoadmapNodeLayoutEntity.UpdatedAt))]
         public partial RoadmapNodeLayoutEntity ToEntity(SaveRoadmapNodeLayoutCommand command);
 
-        [MapProperty(nameof(RoadmapNodeLayoutEntity.UID), nameof(RoadmapNodeLayoutDto.TodoId)]
+        [MapProperty(nameof(RoadmapNodeLayoutEntity.UID), nameof(RoadmapNodeLayoutDto.TodoId))]
         [MapperIgnoreSource(nameof(RoadmapNodeLayoutEntity.PlanId))]
         public partial RoadmapNodeLayoutDto ToDto(RoadmapNodeLayoutEntity source);
 

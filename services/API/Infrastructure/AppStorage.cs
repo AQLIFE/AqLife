@@ -37,21 +37,21 @@ namespace AqLife.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FavoriteMediaEntity>().HasKey(x => x.UID);
-            modelBuilder.Entity<FavoriteMediaEntity>()
-                .HasIndex(x => new { x.FavoriteId, x.FileId })
-                .IsUnique();
+            modelBuilder.Entity<FavoriteMediaEntity>().HasKey(x =>new { x.FavoriteId,x.FileId});
+            //modelBuilder.Entity<FavoriteMediaEntity>()
+            //    .HasIndex(x => new { x.FavoriteId, x.FileId })
+            //    .IsUnique();
             modelBuilder.Entity<FavoriteTagEntity>().HasKey(x => new { x.FavoriteId, x.TagId });
 
             modelBuilder.Entity<FavoriteItemEntity>()
-                .HasMany(x => x.Media).WithOne(x => x.Favorite)
+                .HasMany(x => x.Media).WithOne()
                 .HasForeignKey(x => x.FavoriteId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<FavoriteItemEntity>()
                 .HasOne(x => x.Category).WithMany()
                 .HasForeignKey(x => x.CategoryUID)
                 .OnDelete(DeleteBehavior.SetNull);
             modelBuilder.Entity<FavoriteItemEntity>()
-                .HasMany(x => x.Tags).WithOne(x => x.Favorite)
+                .HasMany(x => x.Tags).WithOne()
                 .HasForeignKey(x => x.FavoriteId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<FavoriteMediaEntity>()
                 .HasOne<FileMetaEntity>().WithMany()
@@ -122,12 +122,12 @@ namespace AqLife.Infrastructure
                 .HasForeignKey(x => x.PlanId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Parent-child is an organizational relationship, not a cascade-delete tree.
+            
             //modelBuilder.Entity<TodoEntity>()
-            //    .HasMany(x => x.Children)
+            //    .HasOne(x => x.LayoutEntity)
             //    .WithOne()
-            //    .HasForeignKey(x => x.FTID)
-            //    .OnDelete(DeleteBehavior.Restrict);
+            //    .HasForeignKey<RoadmapNodeLayoutEntity>(x => x.UID)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<TodoDependencyEntity>()
                 .HasOne<DevelopmentPlanEntity>()
@@ -151,9 +151,11 @@ namespace AqLife.Infrastructure
                 .HasForeignKey(x => x.PlanId)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<RoadmapNodeLayoutEntity>()
+                .HasKey(e => e.UID);
+            modelBuilder.Entity<RoadmapNodeLayoutEntity>()
                 .HasOne<TodoEntity>()
                 .WithMany()
-                .HasForeignKey(x => x.TodoId)
+                .HasForeignKey(x => x.UID)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

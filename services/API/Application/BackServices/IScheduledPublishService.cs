@@ -6,5 +6,7 @@
         Task<int> PublishAsync(IEnumerable<Guid> guids, CancellationToken ct = default);
 
         Task<Guid> Agreement(Guid guid, DateTimeOffset agreementTime, CancellationToken ct = default);
+
+        Task<Guid> Handle(Guid fileId, DateTimeOffset? dateTimeOffset = null, CancellationToken ct = default);
     }
 }

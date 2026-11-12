@@ -1,5 +1,6 @@
 ﻿using AqLife.CoreTest.TestData;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -23,11 +24,11 @@ namespace AqLife.CoreTest.IntegrationTest.File
             using var stream = CreateMaxSizeStream();
             FormFile file = new(stream, 0, stream.Length, "testfile", "testfile" + allowedExtension);
 
-            CreateFileCommand create = new(false, [file]);
-            IEnumerable<Guid> result = await base.ExecuteAsync(create, CancellationToken.None);
-            Guid guid = result.FirstOrDefault();
-            Assert.NotEqual(Guid.Empty, guid);
-            var uploadedFile = await FindFileAsync(guid);
+            CreateFileCommand create = new(file,CategoryEntity.DefaultCategoryId);
+            Guid result = await base.ExecuteAsync(create, CancellationToken.None);
+            //Guid guid = result.FirstOrDefault();
+            Assert.NotEqual(Guid.Empty, result);
+            var uploadedFile = await FindFileAsync(result,CancellationToken.None);
             Assert.NotNull(uploadedFile);
             Assert.Equal(file.FileName, uploadedFile.FileName + uploadedFile.Extension);
             Assert.Equal(file.Length, (long)uploadedFile.FileSize);
@@ -45,10 +46,10 @@ namespace AqLife.CoreTest.IntegrationTest.File
             using var stream = CreateMaxSizeStream();
             FormFile file = new(stream, 0, legalSize, "testfile", "testfile.md");
 
-            CreateFileCommand create = new(false, [file]);
-            IEnumerable<Guid> result = await base.ExecuteAsync(create, CancellationToken.None);
+            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId);
+            Guid result = await base.ExecuteAsync(create, CancellationToken.None);
 
-            var uploadedFile = await FindFileAsync(result.FirstOrDefault(), CancellationToken.None);
+            var uploadedFile = await FindFileAsync(result, CancellationToken.None);
             Assert.NotNull(uploadedFile);
             Assert.Equal(file.Length, (long)uploadedFile.FileSize);
         }
@@ -62,9 +63,9 @@ namespace AqLife.CoreTest.IntegrationTest.File
         {
             using var stream = CreateMaxSizeStream();
             FormFile file = new(stream, 0, stream.Length, "testfile", fileName: "testfile" + ".md");
-            CreateFileCommand create = new(true, [file]);
-            IEnumerable<Guid> result = await ExecuteAsync(create, CancellationToken.None);
-            var uploadedFile = await FindFileAsync(result.FirstOrDefault(), CancellationToken.None);
+            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId,IsTemplate:true);
+            Guid result = await ExecuteAsync(create, CancellationToken.None);
+            var uploadedFile = await FindFileAsync(result, CancellationToken.None);
             Assert.NotNull(uploadedFile);
             Assert.Equal(file.FileName, uploadedFile.FileName + uploadedFile.Extension);
             Assert.True(uploadedFile.IsTemplate);
@@ -81,7 +82,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
         {
             FormFile file = new(new MemoryStream(new byte[Math.Max(oversizedLength, 0)]), 0, oversizedLength, "testfile", "testfile.md");
 
-            CreateFileCommand create = new(false, [file]);
+            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId);
             var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(create, CancellationToken.None));
             Assert.Contains("文件大小超出对应类型的上传限制", exception.Message);
         }
@@ -97,7 +98,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
             using var stream = CreateMaxSizeStream();
             FormFile file = new(stream, 0, stream.Length, "testfile", fileName: "testfile" + imageExtension);
 
-            CreateFileCommand create = new(true, [file]);
+            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId);
 
             var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(create, CancellationToken.None));
             Assert.Equal("非 md 文件,禁止标记为模板文件", exception.Message);
@@ -123,7 +124,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
         [Fact, ResetDatabase]
         public async Task UploadFile_EmptyFileList_ShouldReject()
         {
-            CreateFileCommand command = new(false, []);
+            UploadFilesCommand command = new(CategoryEntity.DefaultCategoryId, []);
             var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command, CancellationToken.None));
             Assert.Equal("禁止空上传", exception.Message);
         }
@@ -136,7 +137,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
         {
             using var stream = CreateMaxSizeStream();
 
-            CreateFileCommand command = new(false, [
+            UploadFilesCommand command = new(CategoryEntity.DefaultCategoryId, [
                 new FormFile(stream,0,stream.Length,"TETS","TEST.md"),
                 new FormFile(stream,0,stream.Length,"TETS","TEST.md")
                 ]);
@@ -155,7 +156,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
             using var stream = CreateMaxSizeStream();
             FormFile file = new(stream, 0, stream.Length, "testfile", "testfile" + disallowedExtension);
 
-            CreateFileCommand create = new(false, [file]);
+            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId);
             var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(create, CancellationToken.None));
             Assert.Equal("不允许上传的文件类型", exception.Message);
         }

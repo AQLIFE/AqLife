@@ -163,8 +163,12 @@ namespace AqLife.Web.Controllers
             return File(result.FileStream, result.ContentType, result.FileName, enableRangeProcessing: true);
         }
 
-        [HttpPost("Upload"), ServiceFilter(typeof(FileUploadFilter)), RequestFormLimits(ValueLengthLimit = 100 << 10)]
-        public async Task<IEnumerable<Guid>> UploadFile([FromForm] CreateFileCommand command, CancellationToken ct)
+        [HttpPost("upload"), ServiceFilter(typeof(FileUploadFilter)), RequestFormLimits(ValueLengthLimit = 100 << 10)]
+        public async Task<Guid> UploadFile([FromForm] CreateFileCommand command, CancellationToken ct=default)
+            => await mediator.Send(command, ct);
+
+        [HttpPost("upload/multiple"), ServiceFilter(typeof(FileUploadFilter)), RequestFormLimits(ValueLengthLimit = 100 << 10)]
+        public async Task<IEnumerable<Guid>> UploadFiles([FromForm] UploadFilesCommand command, CancellationToken ct = default)
             => await mediator.Send(command, ct);
 
         [HttpPatch, ServiceFilter(typeof(FileUploadFilter)), RequestSizeLimit(100 << 10)]
@@ -192,7 +196,7 @@ namespace AqLife.Web.Controllers
 
         /// <summary>校验所有分片并合并，之后交由现有文件管线完成哈希、去重、元数据和存储。</summary>
         [HttpPost("uploads/{uploadId:guid}/complete"), ServiceFilter(typeof(FileUploadFilter))]
-        public async Task<IEnumerable<Guid>> CompleteVideoUpload(Guid uploadId, CancellationToken ct)
+        public async Task<Guid> CompleteVideoUpload(Guid uploadId, CancellationToken ct)
             => await mediator.Send(new CompleteVideoUploadCommand(uploadId), ct);
 
         /// <summary>根据 SHA-256 哈希检查文件是否已经存在。</summary>

@@ -19,10 +19,11 @@ namespace AqLife.CoreTest.UnitTest.Domain
             Assert.True(plan.IsArchived);
             Assert.Throws<DomainLegalityException>(() => plan.Rename("Renamed"));
 
-            var defaultPlan = new DevelopmentPlanEntity(
-                DevelopmentPlanEntity.DefaultPlanId,
-                "默认开发计划");
-
+            var defaultPlan = new DevelopmentPlanEntity()
+            {
+                UID = DevelopmentPlanEntity.DefaultPlanId
+            };
+            defaultPlan.Rename("默认开发计划");
             Assert.Throws<DomainLegalityException>(() => defaultPlan.Archive());
         }
 
@@ -35,7 +36,7 @@ namespace AqLife.CoreTest.UnitTest.Domain
 
             Assert.True(todo.IsArchived);
             Assert.Equal(5, todo.SortOrder);
-            Assert.Throws<DomainLegalityException>(() => todo.UpdateDetails("Changed","desc", 5));
+            Assert.Throws<DomainLegalityException>(() => todo.UpdateDetails("Changed", "desc", 5));
 
             todo.Restore();
 

@@ -13,23 +13,11 @@ namespace AqLife.Application.Business.Favorite.Handler
         {
             var entity = mapper.ToEntity(command);
 
-            var mediaItems = (command.Media ?? [])
-                .Where(x => x.FileId != Guid.Empty)
-                .GroupBy(x => x.FileId)
-                .Select(group => group.First());
+            IEnumerable<FavoriteMediaEntity>? medias = command.Media?.Distinct().Select(e => new FavoriteMediaEntity(favoriteId: entity.UID, fileId: e));
+            IEnumerable<FavoriteTagEntity>? tags = command.TagIds?.Distinct().Select(e => new FavoriteTagEntity(favoriteId: entity.UID, tagId: e));
 
-            foreach (var item in mediaItems)
-            {
-                var role = item.Role is "Cover" or "Image" or "Attachment" ? item.Role : "Image";
-                entity.Media.Add(new FavoriteMediaEntity(entity.UID, item.FileId, role, item.SortOrder));
-            }
-
-            var tagIds = (command.TagIds ?? [])
-                .Where(id => id != Guid.Empty)
-                .Distinct();
-
-            foreach (var tagId in tagIds)
-                entity.Tags.Add(new FavoriteTagEntity(entity.UID, tagId));
+            if(medias is not null) foreach (FavoriteMediaEntity file in medias) entity.Media.Add(file);
+            if (tags is not null) foreach (FavoriteTagEntity tag in tags) entity.Tags.Add(tag);
 
             await dbContext.FavoriteItems.AddAsync(entity, ct);
             return entity.UID;

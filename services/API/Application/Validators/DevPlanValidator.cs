@@ -17,7 +17,7 @@ namespace AqLife.Application.Validators
     {
         private protected override string ErrorMessage { init; get; } = "已归档的开发计划不允许修改";
         private protected override async Task<bool> IsValidAsync(TRequest query, CancellationToken ct)
-            => await storage.DevelopmentPlans.AnyAsync(e => e.UID  == query.PlanId && !e.IsArchived);
+            => await storage.DevelopmentPlans.AnyAsync(e => e.UID  == query.PlanId && !e.IsArchived, ct);
 
         private protected override Exception CreateException(string message)
         => new DomainLegalityException(message);
@@ -31,9 +31,9 @@ namespace AqLife.Application.Validators
     public class DevPlanUpdateValidator<TRequest>(IApplicationDbContext storage) : AbstractValidator<TRequest>
        where TRequest : IRequireDevPlan,IRequireValidEntity<TodoEntity>,ICommand
     {
-        private protected override string ErrorMessage { init; get; } = "请求的任务不属于该计划";
+        private protected override string ErrorMessage { init; get; } = "请求的任务不属于该计划或该任务已存档";
         private protected override async Task<bool> IsValidAsync(TRequest query, CancellationToken ct)
-            => await storage.Todo.AnyAsync(x=>x.UID == query.UID && x.PlanId == query.PlanId,ct);
+            => await storage.Todo.AnyAsync(x=>x.UID == query.UID && x.PlanId == query.PlanId && !x.IsArchived,ct);
 
         private protected override Exception CreateException(string message)
         => new DomainLegalityException(message);

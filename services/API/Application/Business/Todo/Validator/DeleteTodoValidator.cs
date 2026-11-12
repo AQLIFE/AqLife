@@ -4,18 +4,18 @@ using AqLife.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Todo.Validator;
 
-[Obsolete("使用专属验证器处理 DevPlanValidator")]
-public sealed class DeleteTodoPlanActiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
-{
-    private protected override string ErrorMessage { init; get; } = "已归档的开发计划不允许修改";
-    private protected override async Task<bool> IsValidAsync(DeleteTodoCommand command, CancellationToken ct)
-    {
-        var planId = await db.Todo.Where(x => x.UID == command.UID).Select(x => (Guid?)x.PlanId).FirstOrDefaultAsync(ct);
-        return !planId.HasValue || !await db.DevelopmentPlans.AnyAsync(x => x.UID == planId.Value && x.IsArchived, ct);
-    }
-    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
+//[Obsolete("使用专属验证器处理 DevPlanUpdateValidator")]
+//public sealed class DeleteTodoPlanActiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
+//{
+//    private protected override string ErrorMessage { init; get; } = "已归档的开发计划不允许修改";
+//    private protected override async Task<bool> IsValidAsync(DeleteTodoCommand command, CancellationToken ct)
+//    {
+//        var planId = await db.Todo.Where(x => x.UID == command.UID).Select(x => (Guid?)x.PlanId).FirstOrDefaultAsync(ct);
+//        return !planId.HasValue || !await db.DevelopmentPlans.AnyAsync(x => x.UID == planId.Value && x.IsArchived, ct);
+//    }
+//    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
 
-}
+//}
 
 public sealed class DeleteTodoNotCompletedValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
 {

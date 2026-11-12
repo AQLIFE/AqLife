@@ -33,7 +33,6 @@ namespace AqLife.Application.Business.Favorite.Validator
         private protected override async Task<bool> IsValidAsync(CreateFavoriteCommand command, CancellationToken ct)
         {
             var fileIds = (command.Media ?? [])
-                .Select(media => media.FileId)
                 .Where(id => id != Guid.Empty)
                 .Distinct()
                 .ToArray();

@@ -40,19 +40,19 @@ public class FavoriteItemEntity : IEntity
     public FavoriteItemEntity() { }
 
     [MapperConstructor]
-    public FavoriteItemEntity(string title, string description, string? sourceUrl, int sortOrder, Guid? categoryUID)
+    public FavoriteItemEntity(string title, string description, Guid categoryUID, string? sourceUrl=null, int sortOrder = 0)
     {
         Update(title, description, sourceUrl, sortOrder, categoryUID);
     }
 
-    public void Update(string title, string description, string? sourceUrl, int sortOrder, Guid? categoryUID)
+    public void Update(string title, string? description, string? sourceUrl, int sortOrder, Guid? categoryUID)
     {
         Title = title.Trim();
-        Description = description ?? string.Empty;
-        SourceUrl = string.IsNullOrWhiteSpace(sourceUrl) ? null : sourceUrl.Trim();
+        Description = description ?? this.Description;
+        SourceUrl = (string.IsNullOrWhiteSpace(sourceUrl)  || sourceUrl is null)? null : sourceUrl.Trim();
         SortOrder = sortOrder;
+        CategoryUID = categoryUID ?? this.CategoryUID;
         UpdatedAt = DateTimeOffset.UtcNow;
-        CategoryUID = categoryUID;
     }
 
     public void SetPublished(bool published)
@@ -63,11 +63,8 @@ public class FavoriteItemEntity : IEntity
 }
 
 [Table("FavoriteMedia")]
-public class FavoriteMediaEntity : IEntity
+public class FavoriteMediaEntity : IRelationship
 {
-    [Key]
-    public Guid UID { get; init; } = Guid.NewGuid();
-
     public Guid FavoriteId { get; private set; }
     public Guid FileId { get; private set; }
 
@@ -76,12 +73,12 @@ public class FavoriteMediaEntity : IEntity
 
     public int SortOrder { get; private set; }
 
-    public FavoriteItemEntity? Favorite { get; private set; }
+    //public FavoriteItemEntity? Favorite { get; private set; }
 
     public FavoriteMediaEntity() { }
 
     [MapperConstructor]
-    public FavoriteMediaEntity(Guid favoriteId, Guid fileId, string role, int sortOrder)
+    public FavoriteMediaEntity( Guid fileId , Guid favoriteId, string role = "Image", int sortOrder = 0)
     {
         FavoriteId = favoriteId;
         FileId = fileId;
@@ -91,11 +88,11 @@ public class FavoriteMediaEntity : IEntity
 }
 
 [Table("FavoriteTags")]
-public class FavoriteTagEntity
+public class FavoriteTagEntity : IRelationship
 {
     public Guid FavoriteId { get; private set; }
     public Guid TagId { get; private set; }
-    public FavoriteItemEntity? Favorite { get; private set; }
+    //public FavoriteItemEntity? Favorite { get; private set; }
 
     private FavoriteTagEntity() { }
 

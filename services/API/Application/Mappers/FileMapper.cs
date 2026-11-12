@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;
@@ -13,7 +14,9 @@ namespace AqLife.Application.Business.File
         IViewMapper<TagEntity, TagDto> tagMapper,
         IViewMapper<CategoryEntity, CategoryDto> categoryMapper)
         : IViewMapper<FileMetaEntity, FileDto>,
-        ICreateMapper<FileMetaEntity, IFormFile>
+        ICreateMapper<FileMetaEntity, CreateFileCommand>,
+        IBaseListEntityMapper<FileMetaEntity, UploadFilesCommand>
+
     {
         [MapperIgnoreSource(nameof(FileMetaEntity.StorageKey))]
         [MapperIgnoreSource(nameof(FileMetaEntity.CategoryUID))]
@@ -31,56 +34,26 @@ namespace AqLife.Application.Business.File
         public TagDto Convert(FileTagEntity tagEntity) => tagMapper.ToDto(tagEntity.Tag);
         public CategoryDto? Convert(CategoryEntity? categoryEntity) => categoryEntity is not null ? categoryMapper.ToDto(categoryEntity) : null;
 
+        //[MapProperty(nameof(CreateFileCommand.ScheduledTime),nameof(FileMetaEntity.))]
         /// <summary>
         /// Creates a new FileMetaEntity from an IFormFile.
         /// </summary>
-        public partial FileMetaEntity ToEntity(IFormFile file);
-    }
+        [MapperIgnoreTarget(nameof(FileMetaEntity.UID))]
+        [MapperIgnoreTarget(nameof(FileMetaEntity.InteractionMeta))]
+        [MapperIgnoreTarget(nameof(FileMetaEntity.Category))]
+        [MapperIgnoreTarget(nameof(FileMetaEntity.FileTags))]
+        [MapperIgnoreTarget(nameof(FileMetaEntity.PublishMeta))]
+        [MapperIgnoreSource(nameof(CreateFileCommand.Tags))]
+        [MapperIgnoreSource(nameof(CreateFileCommand.ScheduledTime))]
+        public partial FileMetaEntity ToEntity(CreateFileCommand command);
 
-    /// <summary>
-    /// 封装后的 FileMapper，用于完成基于身份和会话上下文的数据转换。
-    /// </summary>
-    [Obsolete("设计取代:现在使用对应业务Search类进行全查询时会自动完成脱敏")]
-    public partial class FileMappingService(
-        IHttpContextAccessor httpContext,
-        FileMapper fileMapper,
-        UploadContext uploadContext)
-        : IViewMapper<FileMetaEntity, FileDto>,
-        ICreateMapper<FileMetaEntity, IFormFile>
-    {
-        public FileDto ToDto(FileMetaEntity source)
-            => httpContext.HttpContext?.User.Identity?.IsAuthenticated == true
-            ? fileMapper.ToDto(source)
-            : source.Desensitize(
-                source.FileTags.Select(fileMapper.Convert),
-                fileMapper.Convert(source.UploadTime),
-                fileMapper.Convert(source.Category));
-
-        public FileMetaEntity ToEntity(IFormFile file)
-            => fileMapper.ToEntity(file).UpdateHash(uploadContext.FileHashes[file]);
-    }
-    [Obsolete("设计取代:现在在 FileMetaEntity 中已原生实现预期的脱敏效果")]
-    internal static class SafeDesensitization
-    {
-        internal static FileDto Desensitize(
-            this FileMetaEntity source,
-            IEnumerable<TagDto> tagsDto,
-            string dateTime,
-            CategoryDto? categoryDto)
-            => new(
-                UID: source.UID,
-                FileName: source.FileName,
-                Tags: tagsDto,
-                PublishAt: null,
-                PublishStatus: null,
-                FileSize: source.FileSize,
-                FileHash: source.FileHash,
-                UploadTime: dateTime,
-                FileType: source.Extension,
-                FileIntroduction: source.FileIntroduction,
-                ViewCount: source.InteractionMeta.ViewCount,
-                Version: source.Version,
-                IsTemplate: source.IsTemplate,
-                Category: categoryDto);
+        //[MapperIgnoreTarget(nameof(FileMetaEntity.UID))]
+        //[MapperIgnoreTarget(nameof(FileMetaEntity.InteractionMeta))]
+        //[MapperIgnoreTarget(nameof(FileMetaEntity.Category))]
+        //[MapperIgnoreTarget(nameof(FileMetaEntity.FileTags))]
+        //[MapperIgnoreTarget(nameof(FileMetaEntity.PublishMeta))]
+        //[MapperIgnoreSource(nameof(CreateFileCommand.categoryId))]
+        public IEnumerable<FileMetaEntity> ToEntity(UploadFilesCommand command)
+            => command.Files.Select(e => new FileMetaEntity(e, command.categoryId));
     }
 }

@@ -1,4 +1,5 @@
-﻿using AqLife.Domain.Entities.File;
+﻿using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.File;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 
@@ -25,7 +26,7 @@ namespace AqLife.CoreTest.UnitTest.Domain
             const string hash = "test-hash";
 
             // Act
-            var entity = new FileMetaEntity(file, hash);
+            var entity = new FileMetaEntity(file,CategoryEntity.DefaultCategoryId ,hash);
 
             // Assert
             Assert.Equal("hello", entity.FileName);
@@ -41,7 +42,7 @@ namespace AqLife.CoreTest.UnitTest.Domain
         {
             var content = new MemoryStream(Encoding.UTF8.GetBytes("template"));
             IFormFile file = new FormFile(content, 0, content.Length, "file", "template.md");
-            var entity = new FileMetaEntity(file, "template-hash");
+            var entity = new FileMetaEntity(file, CategoryEntity.DefaultCategoryId, "template-hash");
 
             entity.SetTemplate();
             entity.IncrementVersion();

@@ -1,5 +1,6 @@
 ﻿using AqLife.Shared.Contracts;
 using Microsoft.AspNetCore.Http;
+using Riok.Mapperly.Abstractions;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -26,10 +27,10 @@ namespace AqLife.Domain.Entities.File
 
         [Column, ConcurrencyCheck]
         public int Version { get; private set; } = 1;
-
-
         [Column]
         public bool IsTemplate { get; private set; } = false;
+
+
 
 
         [NotMapped]
@@ -39,42 +40,30 @@ namespace AqLife.Domain.Entities.File
 
         public virtual ICollection<FileTagEntity> FileTags { get; set; } = [];
 
-        public virtual required InteractionMetaEntity InteractionMeta { get; set; }
-        public virtual required PublishMetaEntity PublishMeta { get; set; }
+        public virtual required InteractionMetaEntity InteractionMeta { get; set; } = null!;
+        public virtual required PublishMetaEntity PublishMeta { get; set; } = null!;
 
         [Column]
         public Guid? CategoryUID { get; private set; }
 
         [ForeignKey(nameof(CategoryUID))]
 
-        public virtual CategoryEntity? Category { get; private set; }
+        public virtual CategoryEntity? Category { get; set; } = null;
+        [SetsRequiredMembers]
+        public FileMetaEntity() { }
 
         [SetsRequiredMembers]
-        public FileMetaEntity()
-        {
-            InteractionMeta = new InteractionMetaEntity(this.UID);
-            PublishMeta = new PublishMetaEntity(this.UID);
-        }
-
-        [SetsRequiredMembers]
-        public FileMetaEntity(IFormFile file) : this()
+        [MapperConstructor]
+        public FileMetaEntity(IFormFile file, Guid categoryId, string? hash = null) : this()
         {
             FileName = Path.GetFileNameWithoutExtension(file.FileName) ?? string.Empty;
             Extension = Path.GetExtension(file.FileName).ToLowerInvariant() ?? string.Empty;
             FileSize = (ulong)file.Length;
+            InteractionMeta = new(this.UID);
+            PublishMeta = new(this.UID);
+            SetCategory(categoryId);
+            FileHash = hash ?? string.Empty;
         }
-
-        /// <summary>
-        /// 构造草稿文件
-        /// </summary>
-        /// <param name="file">源文件</param>
-        /// <param name="hash">文件哈希</param>
-        [SetsRequiredMembers]
-        public FileMetaEntity(IFormFile file, string hash) : this(file)
-        {
-            FileHash = hash;
-        }
-
 
         public FileMetaEntity SetTemplate(bool isTemplate = true)
         {
@@ -82,18 +71,19 @@ namespace AqLife.Domain.Entities.File
             return this;
         }
 
-        public void SetCategory(Guid? categoryUID)
+        public FileMetaEntity SetCategory(Guid? categoryUID)
         {
             CategoryUID = categoryUID;
+            return this;
         }
 
-        public FileMetaEntity IncrementVersion()
+        public void IncrementVersion()
         {
             checked
             {
                 Version++;
             }
-            return this;
+            //return this;
         }
 
         public void SetFileIntroduction(string content)
@@ -103,6 +93,7 @@ namespace AqLife.Domain.Entities.File
         public FileMetaEntity UpdateHash(string hash)
         {
             FileHash = hash;
+            IncrementVersion();
             return this;
         }
 

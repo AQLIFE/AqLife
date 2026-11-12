@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.Favorite;
 using AqLife.Shared.Exceptions;
@@ -12,14 +13,14 @@ namespace AqLife.Application.Business.Favorite.Handler
     {
         public async Task<Guid> Handle(UpdateFavoriteCommand command, CancellationToken ct)
         {
-            var entity = await dbContext.FavoriteItems
+
+            FavoriteItemEntity entity = await dbContext.FavoriteItems
                 .Include(x => x.Media)
                 .Include(x => x.Tags)
                 .SingleOrDefaultAsync(x => x.UID == command.UID, ct)
                 ?? throw new ResourceNotFoundException("Favorite 不存在");
 
-            entity.Update(command.Title, command.Description ?? string.Empty,
-                command.SourceUrl, command.SortOrder, command.CID);
+            entity.Update(command.Title, command.Description,command.SourceUrl, command.SortOrder, command.CID);
 
             entity.Media.Clear();
             foreach (var item in (command.Media ?? [])
@@ -27,8 +28,8 @@ namespace AqLife.Application.Business.Favorite.Handler
                 .GroupBy(x => x.FileId)
                 .Select(group => group.First()))
             {
-                var role = item.Role is "Cover" or "Image" or "Attachment" ? item.Role : "Image";
-                entity.Media.Add(new FavoriteMediaEntity(entity.UID, item.FileId, role, item.SortOrder));
+                //var role = item.Role is "Cover" or "Image" or "Attachment" ? item.Role : "Image";
+                entity.Media.Add(new FavoriteMediaEntity(item.FileId,entity.UID,sortOrder:item.SortOrder));
             }
 
             entity.Tags.Clear();
@@ -44,8 +45,7 @@ namespace AqLife.Application.Business.Favorite.Handler
 
         public async Task<Guid> Handle(SetFavoritePublishedCommand command, CancellationToken ct)
         {
-            var entity = await dbContext.FavoriteItems.SingleOrDefaultAsync(e => e.UID == command.UID, ct)
-                ?? throw new ResourceNotFoundException("Favorite 不存在");
+            var entity = await dbContext.FavoriteItems.SingleOrDefaultAsync(e => e.UID == command.UID, ct)?? throw new ResourceNotFoundException("Favorite 不存在");
             entity.SetPublished(command.IsPublished);
             return entity.UID;
         }

@@ -1,6 +1,7 @@
 using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -42,13 +43,13 @@ public sealed class UploadVideoChunkHandler(IResumableFileUploadService uploads)
 }
 
 /// <summary>Assembles all chunks and delegates persistence/deduplication to the existing file pipeline.</summary>
-public sealed record CompleteVideoUploadCommand(Guid UploadId) : IRequest<IEnumerable<Guid>>;
+public sealed record CompleteVideoUploadCommand(Guid UploadId) : IRequest<Guid>;
 
 public sealed class CompleteVideoUploadHandler(
     IResumableFileUploadService uploads,
-    ISender sender) : IRequestHandler<CompleteVideoUploadCommand, IEnumerable<Guid>>
+    ISender sender) : IRequestHandler<CompleteVideoUploadCommand, Guid>
 {
-    public async Task<IEnumerable<Guid>> Handle(CompleteVideoUploadCommand request, CancellationToken ct)
+    public async Task<Guid> Handle(CompleteVideoUploadCommand request, CancellationToken ct)
     {
         var assembled = await uploads.AssembleAsync(request.UploadId, ct);
         try
@@ -61,7 +62,7 @@ public sealed class CompleteVideoUploadHandler(
                     ? "video/webm"
                     : "video/mp4"
             };
-            return await sender.Send(new CreateFileCommand(false, formFile), ct);
+            return await sender.Send(new CreateFileCommand(formFile,CategoryEntity.DefaultCategoryId,null,DateTimeOffset.UtcNow.AddDays(7)), ct);
         }
         finally
         {

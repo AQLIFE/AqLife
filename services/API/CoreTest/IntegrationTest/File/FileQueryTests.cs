@@ -1,5 +1,6 @@
 using AqLife.Application.Business.File.Search;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using AqLife.Infrastructure;
 using AqLife.Shared.Exceptions;
@@ -113,6 +114,6 @@ public class FileQueryTests(IntegrationTestFixture fixture) : IntegrationTestBas
     {
         using var stream = new MemoryStream([1]);
         var file = new FormFile(stream, 0, stream.Length, "file", fileName);
-        return new FileMetaEntity(file, $"hash-{fileName}");
+        return new FileMetaEntity(file, CategoryEntity.DefaultCategoryId);
     }
 }

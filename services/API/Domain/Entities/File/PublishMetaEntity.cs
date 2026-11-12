@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace AqLife.Domain.Entities.File
 {
     //设计上 1:1
-    public class PublishMetaEntity : IEntity
+    public class PublishMetaEntity : IRelationship
     {
         [Key]
         public Guid UID { get; init; } = Guid.Empty;

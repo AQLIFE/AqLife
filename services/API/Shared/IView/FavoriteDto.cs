@@ -1,6 +1,6 @@
 namespace AqLife.Shared.IView;
 
-public record FavoriteMediaDto(Guid UID, Guid FileId, string Role, int SortOrder) : IEntityDto;
+public record FavoriteMediaDto(Guid FavoriteId, Guid FileId, string Role, int SortOrder) : IEntityDto;
 public record FavoriteDto(
     Guid Uid,
     string Title,

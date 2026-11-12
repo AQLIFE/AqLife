@@ -1,10 +1,10 @@
-﻿using AqLife.Domain.Entities.File;
+﻿using AqLife.Shared.Contracts;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AqLife.Domain.Entities
+namespace AqLife.Domain.Entities.File
 {
     [Table("FileTags")]
-    public class FileTagEntity
+    public class FileTagEntity : IRelationship
     {
         [ForeignKey(nameof(FileId))]
         public Guid FileId { get; set; } // 指向 FileMetaEntity.Uuid

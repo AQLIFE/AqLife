@@ -1,4 +1,5 @@
-﻿using AqLife.Shared.Contracts;
+﻿using AqLife.Domain.Entities.File;
+using AqLife.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

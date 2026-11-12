@@ -6,15 +6,6 @@ using MediatR;
 namespace AqLife.Application.Business.File.Handler
 {
     /// <summary>
-    /// 上传并设置发布时间
-    /// </summary>
-    /// <param name="fileWriter"></param>
-    public class PublishFileHandler(FileWriter fileWriter) : IRequestHandler<PublishFileCommand, IEnumerable<Guid>>
-    {
-        public async Task<IEnumerable<Guid>> Handle(PublishFileCommand command, CancellationToken ct)
-        => await fileWriter.WriteAsync(command.GetFiles(), publishAt: command.ScheduledTime, ct: ct);
-    }
-    /// <summary>
     /// 若没有指定发布时间，则立即发布；若指定了发布时间，则设置为定时发布
     /// </summary>
     /// <param name="context"></param>
@@ -22,9 +13,6 @@ namespace AqLife.Application.Business.File.Handler
     public class ScheduledBlogHandler(IFilePublishService publishService) : IRequestHandler<ScheduledFileCommand, Guid>
     {
         public async Task<Guid> Handle(ScheduledFileCommand command, CancellationToken ct)
-        {
-            if (command.ScheduledAt is DateTimeOffset offset) return await publishService.Agreement(command.UID, offset, ct);
-            else return await publishService.PublishAsync(command.UID, ct);
-        }
+        =>await publishService.Handle(command.UID, command.ScheduledAt, ct);
     }
 }

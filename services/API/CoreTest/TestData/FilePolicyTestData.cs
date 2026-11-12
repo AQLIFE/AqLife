@@ -1,4 +1,5 @@
 ﻿using AqLife.Domain.Command;
+using AqLife.Domain.Entities;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -97,10 +98,21 @@ namespace AqLife.CoreTest.TestData
 
 
 
-        public static TheoryData<CreateFileCommand> InvalidTemplateCommand =>
-            [
-                new CreateFileCommand(true,[..GetImageFormFiles()])
-            ];
+        public static TheoryData<CreateFileCommand> InvalidTemplateCommand
+        {
+            get
+            {
+                var data = new TheoryData<CreateFileCommand>();
+
+                data.AddRange(
+                    GetImageFormFiles()
+                        .Select(e => new CreateFileCommand(e, CategoryEntity.DefaultCategoryId))
+                );
+
+                return data;
+            }
+        }
+            
 
         /// <summary>
         /// 返回合法文件大小的 MemoryStream

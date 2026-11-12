@@ -47,21 +47,30 @@ namespace AqLife.Domain.Command
     /// <param name="File"></param>
     public record UpdateFileCommand(Guid UID, IFormFile File) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand, IHasFormFiles
     {
-        public IEnumerable<IFormFile> GetFiles() => [File];
+        public IEnumerable<IFormFile> GetFiles() => [this.File];
     }
     /// <summary>
     /// 更新文件标签,用于批量更新文件的标签信息
-    /// </summary>
+    /// </summary>1
     /// <param name="UID"></param>
     /// <param name="tags"></param>
     public record UpdateFileTagCommand(Guid UID, IEnumerable<Guid> tags) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
     /// <summary>
-    /// 上传文件,并将其设置为草稿,除非手动使用预定,否则永不发布
+    /// 上传文件,并将其设置为草稿,除非手动使用预定,否则永不发布; 默认单文件
     /// </summary>
     /// <param name="File"></param>
-    public record CreateFileCommand(bool IsTemplate = false, params IFormFile[] File) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
+    public record CreateFileCommand(IFormFile File,Guid categoryId, IEnumerable<Guid>? Tags = null, DateTimeOffset? ScheduledTime = null, bool IsTemplate = false) : ICreateCommand, IHasFormFiles
     {
-        public IEnumerable<IFormFile> GetFiles() => File;
+        public IEnumerable<IFormFile> GetFiles() => [this.File];
+    }
+
+    /// <summary>
+    /// 多文件上传
+    /// </summary>
+    /// <param name="Files"></param>
+    public record UploadFilesCommand(Guid categoryId,params IFormFile[] Files) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
+    {
+        public IEnumerable<IFormFile> GetFiles() => Files;
     }
     /// <summary>
     /// 预定时间发布,针对已上传文件,也可用于立即上传,或修改预定时间
@@ -74,16 +83,7 @@ namespace AqLife.Domain.Command
     /// </summary>
     /// <param name="UID"></param>
     public record CancelScheduledFileCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand;
-    /// <summary>
-    /// 备选! 用于上传文件并设置延时发布,如果ScheduledTime为null,则默认为草稿
-    /// </summary>
-    /// <param name="File"></param>
-    /// <param name="ScheduledTime"></param>
-    [Obsolete("Use ScheduledFileCommand instead")]
-    public record PublishFileCommand(IFormFile File, DateTimeOffset? ScheduledTime = null) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
-    {
-        public IEnumerable<IFormFile> GetFiles() => [File];
-    }
+
     /// <summary>
     /// 阅览完成,执行对应事务
     /// </summary>

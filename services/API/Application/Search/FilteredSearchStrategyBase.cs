@@ -14,6 +14,14 @@ namespace AqLife.Application.Search
     {
         public virtual bool IsMatch(TSearchCriteria c)
             => c.UID is not null || !string.IsNullOrWhiteSpace(c.Keyword);
+        /// <summary>
+        /// 仅接受第一个有效的参数 : 子类应沿用该逻辑
+        /// </summary>
+        /// <param name="queryable"></param>
+        /// <param name="c"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        /// <exception cref="RequestFailException"></exception>
         public virtual IQueryable<TEntity> Execute(IQueryable<TEntity> queryable, TSearchCriteria c, CancellationToken ct = default)
         {
             if (c.UID is Guid id)

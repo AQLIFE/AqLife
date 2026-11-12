@@ -12,6 +12,7 @@ public sealed class CreateTodoCommandHandler(
     public async Task<Guid> Handle(CreateTodoCommand q, CancellationToken ct)
     {
         var todo = mapper.ToEntity(q);
+        todo.LayoutEntity = new(todoId:todo.UID,todo.PlanId,0,0);
         await db.Todo.AddAsync(todo, ct);
         return todo.UID;
     }

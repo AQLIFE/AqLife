@@ -78,7 +78,7 @@ public static class ApplicationExtensions
         services.AddSingleton<IViewMapper<TodoEntity, TodoDto>>(sp => sp.GetRequiredService<TodoMapper>());
         services.AddSingleton<ICreateMapper<TodoEntity, CreateTodoCommand>>(sp => sp.GetRequiredService<TodoMapper>());
         services.AddSingleton<ICreateMapper<TodoDependencyEntity, AddTodoDependencyCommand>>(sp => sp.GetRequiredService<TodoMapper>());
-        services.AddSingleton<ICreateMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>>(sp => sp.GetRequiredService<TodoMapper>());
+        services.AddSingleton<IBaseEntityMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>>(sp => sp.GetRequiredService<TodoMapper>());
 
         services.AddSingleton<DevelopmentPlanMapper>();
         services.AddSingleton<IViewMapper<DevelopmentPlanEntity, DevelopmentPlanDto>>(sp => sp.GetRequiredService<DevelopmentPlanMapper>());
@@ -103,7 +103,7 @@ public static class ApplicationExtensions
         services.AddSingleton<FileMapper>();
         //services.AddScoped<FileMappingService>();
         services.AddSingleton<IViewMapper<FileMetaEntity, FileDto>>(sp => sp.GetRequiredService<FileMapper>());
-        services.AddSingleton<ICreateMapper<FileMetaEntity, IFormFile>>(sp => sp.GetRequiredService<FileMapper>());
+        services.AddSingleton<ICreateMapper<FileMetaEntity, CreateFileCommand>>(sp => sp.GetRequiredService<FileMapper>());
 
         services.AddSingleton<CategoryMapper>();
         //services.AddScoped<CategoryMapperServices>();

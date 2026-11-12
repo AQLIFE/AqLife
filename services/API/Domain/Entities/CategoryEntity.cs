@@ -11,6 +11,7 @@ namespace AqLife.Domain.Entities
     [Index(nameof(CategoryName), IsUnique = true)]
     public class CategoryEntity : IEntity
     {
+        public static readonly Guid DefaultCategoryId = new("3B246A0E-ED94-45E0-930D-15643683D50D");
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
         [Required, StringLength(32, ErrorMessage = "分类名称长度必须在0-32个字符之间")]

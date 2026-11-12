@@ -25,7 +25,7 @@ namespace AqLife.Domain.Entities.DevPlan
 
         public RoadmapNodeLayoutEntity() { }
 
-        public RoadmapNodeLayoutEntity(Guid planId, Guid todoId, double x, double y)
+        public RoadmapNodeLayoutEntity(Guid todoId, Guid planId, double x, double y)
         {
             if (planId == Guid.Empty || todoId == Guid.Empty)
                 throw new DomainLegalityException("计划 ID 和任务 ID 不能为 Empty");

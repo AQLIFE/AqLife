@@ -1,5 +1,6 @@
 using AqLife.Shared.Contracts;
 using AqLife.Shared.Exceptions;
+using Riok.Mapperly.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -41,22 +42,9 @@ namespace AqLife.Domain.Entities.DevPlan
         public ICollection<TodoEntity> Todos { get; set; } = [];
 
         public DevelopmentPlanEntity() { }
-
+        [MapperConstructor]
         public DevelopmentPlanEntity(string name, string? description = null)
         {
-            Name = RequireName(name);
-            Description = NormalizeDescription(description);
-        }
-
-        /// <summary>
-        /// Constructor used for deterministic infrastructure seeding.
-        /// </summary>
-        public DevelopmentPlanEntity(Guid uid, string name, string? description = null)
-        {
-            if (uid == Guid.Empty)
-                throw new DomainLegalityException("开发计划 ID 不能为 Empty");
-
-            UID = uid;
             Name = RequireName(name);
             Description = NormalizeDescription(description);
         }
