@@ -67,7 +67,7 @@ public sealed class AddTodoDependencyRepetitivenessValidator(AqLife.Application.
 {
     private protected override string ErrorMessage { init; get; } = "该依赖关系已存在";
     private protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
-    => await db.TodoDependencies.AnyAsync(e => e.PredecessorId == command.PredecessorId && e.SuccessorId == command.SuccessorId, ct);
+    => !await db.TodoDependencies.AnyAsync(e => e.PredecessorId == command.PredecessorId && e.SuccessorId == command.SuccessorId, ct);
     private protected override Exception CreateException(string message) => new DomainLegalityException(message);
 }
 /// <summary>

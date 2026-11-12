@@ -207,19 +207,9 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<Guid>("SuccessorId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("TodoEntityUID")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("TodoEntityUID1")
-                        .HasColumnType("uuid");
-
                     b.HasKey("UID");
 
                     b.HasIndex("SuccessorId");
-
-                    b.HasIndex("TodoEntityUID");
-
-                    b.HasIndex("TodoEntityUID1");
 
                     b.HasIndex("PlanId", "PredecessorId");
 
@@ -250,16 +240,10 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<bool>("IsArchived")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("LayoutEntityUID")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("PlanId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasDefaultValue(new Guid("00000000-0000-0000-0000-000000000001"));
-
-                    b.Property<Guid>("PlanUID")
-                        .HasColumnType("uuid");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
@@ -277,11 +261,7 @@ namespace PostgreSqlMigrations.Migrations
 
                     b.HasKey("UID");
 
-                    b.HasIndex("LayoutEntityUID");
-
                     b.HasIndex("PlanId");
-
-                    b.HasIndex("PlanUID");
 
                     b.ToTable("TodoList");
                 });
@@ -551,8 +531,8 @@ namespace PostgreSqlMigrations.Migrations
                         .IsRequired();
 
                     b.HasOne("AqLife.Domain.Entities.DevPlan.TodoEntity", null)
-                        .WithMany()
-                        .HasForeignKey("UID")
+                        .WithOne("LayoutEntity")
+                        .HasForeignKey("AqLife.Domain.Entities.DevPlan.RoadmapNodeLayoutEntity", "UID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -566,24 +546,16 @@ namespace PostgreSqlMigrations.Migrations
                         .IsRequired();
 
                     b.HasOne("AqLife.Domain.Entities.DevPlan.TodoEntity", "PredecessorTodo")
-                        .WithMany()
+                        .WithMany("OutgoingDependencies")
                         .HasForeignKey("PredecessorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("AqLife.Domain.Entities.DevPlan.TodoEntity", "SuccessorTodo")
-                        .WithMany()
+                        .WithMany("IncomingDependencies")
                         .HasForeignKey("SuccessorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("AqLife.Domain.Entities.DevPlan.TodoEntity", null)
-                        .WithMany("IncomingDependencies")
-                        .HasForeignKey("TodoEntityUID");
-
-                    b.HasOne("AqLife.Domain.Entities.DevPlan.TodoEntity", null)
-                        .WithMany("OutgoingDependencies")
-                        .HasForeignKey("TodoEntityUID1");
 
                     b.Navigation("PredecessorTodo");
 
@@ -592,25 +564,11 @@ namespace PostgreSqlMigrations.Migrations
 
             modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.TodoEntity", b =>
                 {
-                    b.HasOne("AqLife.Domain.Entities.DevPlan.RoadmapNodeLayoutEntity", "LayoutEntity")
-                        .WithMany()
-                        .HasForeignKey("LayoutEntityUID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AqLife.Domain.Entities.DevPlan.DevelopmentPlanEntity", null)
-                        .WithMany()
+                    b.HasOne("AqLife.Domain.Entities.DevPlan.DevelopmentPlanEntity", "Plan")
+                        .WithMany("Todos")
                         .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("AqLife.Domain.Entities.DevPlan.DevelopmentPlanEntity", "Plan")
-                        .WithMany("Todos")
-                        .HasForeignKey("PlanUID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("LayoutEntity");
 
                     b.Navigation("Plan");
                 });
@@ -734,6 +692,9 @@ namespace PostgreSqlMigrations.Migrations
             modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.TodoEntity", b =>
                 {
                     b.Navigation("IncomingDependencies");
+
+                    b.Navigation("LayoutEntity")
+                        .IsRequired();
 
                     b.Navigation("OutgoingDependencies");
                 });

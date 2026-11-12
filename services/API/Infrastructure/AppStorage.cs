@@ -37,7 +37,7 @@ namespace AqLife.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FavoriteMediaEntity>().HasKey(x =>new { x.FavoriteId,x.FileId});
+            modelBuilder.Entity<FavoriteMediaEntity>().HasKey(x => new { x.FavoriteId, x.FileId });
             //modelBuilder.Entity<FavoriteMediaEntity>()
             //    .HasIndex(x => new { x.FavoriteId, x.FileId })
             //    .IsUnique();
@@ -96,9 +96,9 @@ namespace AqLife.Infrastructure
                 .HasForeignKey(ft => ft.TagId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<CategoryEntity>().HasData(new CategoryEntity("默认分类","一个基础分类,不允许删除",null)
+            modelBuilder.Entity<CategoryEntity>().HasData(new CategoryEntity("默认分类", "一个基础分类,不允许删除", null)
             {
-                UID = CategoryEntity.DefaultCategoryId               
+                UID = CategoryEntity.DefaultCategoryId
             });
             // Seed the stable plan that owns rows migrated from the legacy single-plan Todo model.
             modelBuilder.Entity<DevelopmentPlanEntity>().HasData(new
@@ -121,32 +121,33 @@ namespace AqLife.Infrastructure
                 .HasDefaultValue(DevelopmentPlanEntity.DefaultPlanId);
 
             modelBuilder.Entity<TodoEntity>()
+                .HasOne<DevelopmentPlanEntity>(e=>e.Plan)
+                .WithMany(t=>t.Todos)
+                .HasForeignKey(x => x.PlanId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<TodoEntity>()
+                .HasOne(e => e.LayoutEntity)
+                .WithOne()
+                .HasForeignKey<RoadmapNodeLayoutEntity>(e => e.UID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TodoDependencyEntity>()
                 .HasOne<DevelopmentPlanEntity>()
                 .WithMany()
                 .HasForeignKey(x => x.PlanId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            
-            //modelBuilder.Entity<TodoEntity>()
-            //    .HasOne(x => x.LayoutEntity)
-            //    .WithOne()
-            //    .HasForeignKey<RoadmapNodeLayoutEntity>(x => x.UID)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<TodoDependencyEntity>()
+                .HasOne(e => e.PredecessorTodo)
+                .WithMany(e => e.OutgoingDependencies)
+                .HasForeignKey(e => e.PredecessorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<TodoDependencyEntity>()
-                .HasOne<DevelopmentPlanEntity>()
-                .WithMany()
-                .HasForeignKey(x => x.PlanId)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<TodoDependencyEntity>()
-                .HasOne<TodoEntity>(e=>e.PredecessorTodo)
-                .WithMany()
-                .HasForeignKey(x => x.PredecessorId)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<TodoDependencyEntity>()
-                .HasOne<TodoEntity>(e=>e.SuccessorTodo)
-                .WithMany()
-                .HasForeignKey(x => x.SuccessorId)
+                .HasOne(e => e.SuccessorTodo)
+                .WithMany(e => e.IncomingDependencies)
+                .HasForeignKey(e => e.SuccessorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RoadmapNodeLayoutEntity>()
@@ -156,11 +157,11 @@ namespace AqLife.Infrastructure
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<RoadmapNodeLayoutEntity>()
                 .HasKey(e => e.UID);
-            modelBuilder.Entity<RoadmapNodeLayoutEntity>()
-                .HasOne<TodoEntity>()
-                .WithMany()
-                .HasForeignKey(x => x.UID)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<RoadmapNodeLayoutEntity>()
+            //    .HasOne<TodoEntity>()
+            //    .WithMany()
+            //    .HasForeignKey(x => x.UID)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
