@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace PostgreSqlMigrations.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialNewBaseLinePostgreSQLs : Migration
+    public partial class InitialNewBaseLinePostgreSQL : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
