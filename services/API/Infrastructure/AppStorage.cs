@@ -96,6 +96,10 @@ namespace AqLife.Infrastructure
                 .HasForeignKey(ft => ft.TagId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<CategoryEntity>().HasData(new CategoryEntity("默认分类","一个基础分类,不允许删除",null)
+            {
+                UID = CategoryEntity.DefaultCategoryId               
+            });
             // Seed the stable plan that owns rows migrated from the legacy single-plan Todo model.
             modelBuilder.Entity<DevelopmentPlanEntity>().HasData(new
             {
