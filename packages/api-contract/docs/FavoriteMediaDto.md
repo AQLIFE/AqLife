@@ -6,7 +6,7 @@
 
 Name | Type
 ------------ | -------------
-`uid` | string
+`favoriteId` | string
 `fileId` | string
 `role` | string
 `sortOrder` | number
@@ -18,7 +18,7 @@ import type { FavoriteMediaDto } from '@aqlife/api-contract'
 
 // TODO: Update the object below with actual values
 const example = {
-  "uid": null,
+  "favoriteId": null,
   "fileId": null,
   "role": null,
   "sortOrder": null,

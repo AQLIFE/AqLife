@@ -49,8 +49,6 @@ docs/RoadmapNodeLayoutDto.md
 docs/SaveRoadmapNodeLayoutCommand.md
 docs/ScheduledFileCommand.md
 docs/SetFavoritePublishedCommand.md
-docs/SetTodoParentCommand.md
-docs/SetTodoSortOrderCommand.md
 docs/StartVideoUploadCommand.md
 docs/SubscriptionDto.md
 docs/TagApi.md
@@ -61,13 +59,11 @@ docs/TodoDependencyDto.md
 docs/TodoDto.md
 docs/TodoDtoPageResult.md
 docs/TodoRoadmapDto.md
-docs/TodoStatus.md
 docs/UpdateCategoryCommand.md
 docs/UpdateDevelopmentPlanCommand.md
 docs/UpdateFavoriteCommand.md
 docs/UpdateFileTagCommand.md
 docs/UpdateTagCommand.md
-docs/UpdateTodoCommand.md
 package.json
 src/apis/AccountApi.ts
 src/apis/CategoryApi.ts
@@ -121,8 +117,6 @@ src/models/RoadmapNodeLayoutDto.ts
 src/models/SaveRoadmapNodeLayoutCommand.ts
 src/models/ScheduledFileCommand.ts
 src/models/SetFavoritePublishedCommand.ts
-src/models/SetTodoParentCommand.ts
-src/models/SetTodoSortOrderCommand.ts
 src/models/StartVideoUploadCommand.ts
 src/models/SubscriptionDto.ts
 src/models/TagDto.ts
@@ -131,13 +125,11 @@ src/models/TodoDependencyDto.ts
 src/models/TodoDto.ts
 src/models/TodoDtoPageResult.ts
 src/models/TodoRoadmapDto.ts
-src/models/TodoStatus.ts
 src/models/UpdateCategoryCommand.ts
 src/models/UpdateDevelopmentPlanCommand.ts
 src/models/UpdateFavoriteCommand.ts
 src/models/UpdateFileTagCommand.ts
 src/models/UpdateTagCommand.ts
-src/models/UpdateTodoCommand.ts
 src/models/index.ts
 src/runtime.ts
 tsconfig.esm.json

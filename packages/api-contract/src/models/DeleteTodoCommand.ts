@@ -25,6 +25,12 @@ export interface DeleteTodoCommand {
      * @memberof DeleteTodoCommand
      */
     uid?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof DeleteTodoCommand
+     */
+    planId?: string;
 }
 
 /**
@@ -45,6 +51,7 @@ export function DeleteTodoCommandFromJSONTyped(json: any, ignoreDiscriminator: b
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
+        'planId': json['planId'] == null ? undefined : json['planId'],
     };
 }
 
@@ -60,6 +67,7 @@ export function DeleteTodoCommandToJSONTyped(value?: DeleteTodoCommand | null, i
     return {
         
         'uid': value['uid'],
+        'planId': value['planId'],
     };
 }
 

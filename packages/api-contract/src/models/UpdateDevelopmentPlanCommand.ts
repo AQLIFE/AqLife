@@ -37,6 +37,12 @@ export interface UpdateDevelopmentPlanCommand {
      * @memberof UpdateDevelopmentPlanCommand
      */
     description?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateDevelopmentPlanCommand
+     */
+    planId?: string;
 }
 
 /**
@@ -59,6 +65,7 @@ export function UpdateDevelopmentPlanCommandFromJSONTyped(json: any, ignoreDiscr
         'uid': json['uid'] == null ? undefined : json['uid'],
         'name': json['name'] == null ? undefined : json['name'],
         'description': json['description'] == null ? undefined : json['description'],
+        'planId': json['planId'] == null ? undefined : json['planId'],
     };
 }
 
@@ -76,6 +83,7 @@ export function UpdateDevelopmentPlanCommandToJSONTyped(value?: UpdateDevelopmen
         'uid': value['uid'],
         'name': value['name'],
         'description': value['description'],
+        'planId': value['planId'],
     };
 }
 

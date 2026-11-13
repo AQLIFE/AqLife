@@ -7,7 +7,6 @@
 Name | Type
 ------------ | -------------
 `planId` | string
-`planName` | string
 `dependencyVersion` | number
 `nodes` | [Array&lt;TodoDto&gt;](TodoDto.md)
 `dependencies` | [Array&lt;TodoDependencyDto&gt;](TodoDependencyDto.md)
@@ -21,7 +20,6 @@ import type { TodoRoadmapDto } from '@aqlife/api-contract'
 // TODO: Update the object below with actual values
 const example = {
   "planId": null,
-  "planName": null,
   "dependencyVersion": null,
   "nodes": null,
   "dependencies": null,

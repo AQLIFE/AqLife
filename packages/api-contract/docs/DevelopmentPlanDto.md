@@ -12,7 +12,6 @@ Name | Type
 `isArchived` | boolean
 `createdAt` | string
 `updatedAt` | string
-`dependencyVersion` | number
 
 ## Example
 
@@ -27,7 +26,6 @@ const example = {
   "isArchived": null,
   "createdAt": null,
   "updatedAt": null,
-  "dependencyVersion": null,
 } satisfies DevelopmentPlanDto
 
 console.log(example)

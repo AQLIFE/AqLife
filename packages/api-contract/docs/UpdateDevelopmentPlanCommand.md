@@ -9,6 +9,7 @@ Name | Type
 `uid` | string
 `name` | string
 `description` | string
+`planId` | string
 
 ## Example
 
@@ -20,6 +21,7 @@ const example = {
   "uid": null,
   "name": null,
   "description": null,
+  "planId": null,
 } satisfies UpdateDevelopmentPlanCommand
 
 console.log(example)

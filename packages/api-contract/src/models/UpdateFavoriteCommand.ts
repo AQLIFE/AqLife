@@ -44,13 +44,13 @@ export interface UpdateFavoriteCommand {
      * @type {string}
      * @memberof UpdateFavoriteCommand
      */
-    description?: string | null;
+    cid?: string | null;
     /**
      * 
      * @type {string}
      * @memberof UpdateFavoriteCommand
      */
-    cid?: string | null;
+    description?: string | null;
     /**
      * 
      * @type {string}
@@ -96,8 +96,8 @@ export function UpdateFavoriteCommandFromJSONTyped(json: any, ignoreDiscriminato
         
         'uid': json['uid'] == null ? undefined : json['uid'],
         'title': json['title'] == null ? undefined : json['title'],
-        'description': json['description'] == null ? undefined : json['description'],
         'cid': json['cid'] == null ? undefined : json['cid'],
+        'description': json['description'] == null ? undefined : json['description'],
         'sourceUrl': json['sourceUrl'] == null ? undefined : json['sourceUrl'],
         'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
         'media': json['media'] == null ? undefined : ((json['media'] as Array<any>).map(FavoriteMediaInputFromJSON)),
@@ -118,8 +118,8 @@ export function UpdateFavoriteCommandToJSONTyped(value?: UpdateFavoriteCommand |
         
         'uid': value['uid'],
         'title': value['title'],
-        'description': value['description'],
         'cid': value['cid'],
+        'description': value['description'],
         'sourceUrl': value['sourceUrl'],
         'sortOrder': value['sortOrder'],
         'media': value['media'] == null ? undefined : ((value['media'] as Array<any>).map(FavoriteMediaInputToJSON)),

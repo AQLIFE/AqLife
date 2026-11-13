@@ -11,7 +11,7 @@ Name | Type
 `cid` | string
 `sourceUrl` | string
 `sortOrder` | number
-`media` | [Array&lt;FavoriteMediaInput&gt;](FavoriteMediaInput.md)
+`media` | Array&lt;string&gt;
 `tagIds` | Array&lt;string&gt;
 
 ## Example

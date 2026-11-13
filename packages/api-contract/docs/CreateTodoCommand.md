@@ -8,11 +8,7 @@ Name | Type
 ------------ | -------------
 `planId` | string
 `title` | string
-`desc` | string
 `description` | string
-`priority` | number
-`parentId` | string
-`fTID` | string
 `sortOrder` | number
 
 ## Example
@@ -24,11 +20,7 @@ import type { CreateTodoCommand } from '@aqlife/api-contract'
 const example = {
   "planId": null,
   "title": null,
-  "desc": null,
   "description": null,
-  "priority": null,
-  "parentId": null,
-  "fTID": null,
   "sortOrder": null,
 } satisfies CreateTodoCommand
 

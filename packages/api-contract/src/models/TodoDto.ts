@@ -30,13 +30,13 @@ export interface TodoDto {
      * @type {string}
      * @memberof TodoDto
      */
-    ftid?: string | null;
+    planId?: string;
     /**
      * 
      * @type {string}
      * @memberof TodoDto
      */
-    desc?: string | null;
+    title?: string | null;
     /**
      * 
      * @type {string}
@@ -54,49 +54,13 @@ export interface TodoDto {
      * @type {string}
      * @memberof TodoDto
      */
-    completedAt?: string | null;
-    /**
-     * 
-     * @type {number}
-     * @memberof TodoDto
-     */
-    priority?: number;
-    /**
-     * 
-     * @type {Array<TodoDto>}
-     * @memberof TodoDto
-     */
-    todoList?: Array<TodoDto> | null;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof TodoDto
-     */
-    hasChildren?: boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof TodoDto
-     */
-    planId?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof TodoDto
-     */
-    title?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof TodoDto
-     */
-    description?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof TodoDto
-     */
     updatedAt?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TodoDto
+     */
+    completedAt?: string | null;
     /**
      * 
      * @type {number}
@@ -105,16 +69,10 @@ export interface TodoDto {
     sortOrder?: number;
     /**
      * 
-     * @type {boolean}
+     * @type {Array<string>}
      * @memberof TodoDto
      */
-    isArchived?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof TodoDto
-     */
-    isBlocked?: boolean;
+    predecessorIds?: Array<string> | null;
     /**
      * 
      * @type {number}
@@ -123,10 +81,22 @@ export interface TodoDto {
     incompleteDependencyCount?: number;
     /**
      * 
-     * @type {Array<string>}
+     * @type {string}
      * @memberof TodoDto
      */
-    blockingTodoIds?: Array<string> | null;
+    description?: string | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TodoDto
+     */
+    isBlocked?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TodoDto
+     */
+    isArchived?: boolean;
 }
 
 /**
@@ -147,23 +117,18 @@ export function TodoDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): T
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'ftid': json['ftid'] == null ? undefined : json['ftid'],
-        'desc': json['desc'] == null ? undefined : json['desc'],
-        'status': json['status'] == null ? undefined : json['status'],
-        'createdAt': json['createdAt'] == null ? undefined : json['createdAt'],
-        'completedAt': json['completedAt'] == null ? undefined : json['completedAt'],
-        'priority': json['priority'] == null ? undefined : json['priority'],
-        'todoList': json['todoList'] == null ? undefined : ((json['todoList'] as Array<any>).map(TodoDtoFromJSON)),
-        'hasChildren': json['hasChildren'] == null ? undefined : json['hasChildren'],
         'planId': json['planId'] == null ? undefined : json['planId'],
         'title': json['title'] == null ? undefined : json['title'],
-        'description': json['description'] == null ? undefined : json['description'],
+        'status': json['status'] == null ? undefined : json['status'],
+        'createdAt': json['createdAt'] == null ? undefined : json['createdAt'],
         'updatedAt': json['updatedAt'] == null ? undefined : json['updatedAt'],
+        'completedAt': json['completedAt'] == null ? undefined : json['completedAt'],
         'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
-        'isArchived': json['isArchived'] == null ? undefined : json['isArchived'],
-        'isBlocked': json['isBlocked'] == null ? undefined : json['isBlocked'],
+        'predecessorIds': json['predecessorIds'] == null ? undefined : json['predecessorIds'],
         'incompleteDependencyCount': json['incompleteDependencyCount'] == null ? undefined : json['incompleteDependencyCount'],
-        'blockingTodoIds': json['blockingTodoIds'] == null ? undefined : json['blockingTodoIds'],
+        'description': json['description'] == null ? undefined : json['description'],
+        'isBlocked': json['isBlocked'] == null ? undefined : json['isBlocked'],
+        'isArchived': json['isArchived'] == null ? undefined : json['isArchived'],
     };
 }
 
@@ -179,23 +144,18 @@ export function TodoDtoToJSONTyped(value?: TodoDto | null, ignoreDiscriminator: 
     return {
         
         'uid': value['uid'],
-        'ftid': value['ftid'],
-        'desc': value['desc'],
-        'status': value['status'],
-        'createdAt': value['createdAt'],
-        'completedAt': value['completedAt'],
-        'priority': value['priority'],
-        'todoList': value['todoList'] == null ? undefined : ((value['todoList'] as Array<any>).map(TodoDtoToJSON)),
-        'hasChildren': value['hasChildren'],
         'planId': value['planId'],
         'title': value['title'],
-        'description': value['description'],
+        'status': value['status'],
+        'createdAt': value['createdAt'],
         'updatedAt': value['updatedAt'],
+        'completedAt': value['completedAt'],
         'sortOrder': value['sortOrder'],
-        'isArchived': value['isArchived'],
-        'isBlocked': value['isBlocked'],
+        'predecessorIds': value['predecessorIds'],
         'incompleteDependencyCount': value['incompleteDependencyCount'],
-        'blockingTodoIds': value['blockingTodoIds'],
+        'description': value['description'],
+        'isBlocked': value['isBlocked'],
+        'isArchived': value['isArchived'],
     };
 }
 

@@ -8,8 +8,8 @@ Name | Type
 ------------ | -------------
 `uid` | string
 `title` | string
-`description` | string
 `cid` | string
+`description` | string
 `sourceUrl` | string
 `sortOrder` | number
 `media` | [Array&lt;FavoriteMediaInput&gt;](FavoriteMediaInput.md)
@@ -24,8 +24,8 @@ import type { UpdateFavoriteCommand } from '@aqlife/api-contract'
 const example = {
   "uid": null,
   "title": null,
-  "description": null,
   "cid": null,
+  "description": null,
   "sourceUrl": null,
   "sortOrder": null,
   "media": null,

@@ -13,14 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { FavoriteMediaInput } from './FavoriteMediaInput';
-import {
-    FavoriteMediaInputFromJSON,
-    FavoriteMediaInputFromJSONTyped,
-    FavoriteMediaInputToJSON,
-    FavoriteMediaInputToJSONTyped,
-} from './FavoriteMediaInput';
-
 /**
  * 
  * @export
@@ -59,10 +51,10 @@ export interface CreateFavoriteCommand {
     sortOrder?: number;
     /**
      * 
-     * @type {Array<FavoriteMediaInput>}
+     * @type {Array<string>}
      * @memberof CreateFavoriteCommand
      */
-    media?: Array<FavoriteMediaInput> | null;
+    media?: Array<string> | null;
     /**
      * 
      * @type {Array<string>}
@@ -93,7 +85,7 @@ export function CreateFavoriteCommandFromJSONTyped(json: any, ignoreDiscriminato
         'cid': json['cid'] == null ? undefined : json['cid'],
         'sourceUrl': json['sourceUrl'] == null ? undefined : json['sourceUrl'],
         'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
-        'media': json['media'] == null ? undefined : ((json['media'] as Array<any>).map(FavoriteMediaInputFromJSON)),
+        'media': json['media'] == null ? undefined : json['media'],
         'tagIds': json['tagIds'] == null ? undefined : json['tagIds'],
     };
 }
@@ -114,7 +106,7 @@ export function CreateFavoriteCommandToJSONTyped(value?: CreateFavoriteCommand |
         'cid': value['cid'],
         'sourceUrl': value['sourceUrl'],
         'sortOrder': value['sortOrder'],
-        'media': value['media'] == null ? undefined : ((value['media'] as Array<any>).map(FavoriteMediaInputToJSON)),
+        'media': value['media'],
         'tagIds': value['tagIds'],
     };
 }

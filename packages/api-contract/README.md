@@ -68,7 +68,7 @@ All URIs are relative to *http://localhost*
 *DevelopmentPlanApi* | [**apiDevelopmentPlansGet**](docs/DevelopmentPlanApi.md#apidevelopmentplansget) | **GET** /api/development-plans | 
 *DevelopmentPlanApi* | [**apiDevelopmentPlansPatch**](docs/DevelopmentPlanApi.md#apidevelopmentplanspatch) | **PATCH** /api/development-plans | 
 *DevelopmentPlanApi* | [**apiDevelopmentPlansPost**](docs/DevelopmentPlanApi.md#apidevelopmentplanspost) | **POST** /api/development-plans | 
-*DevelopmentPlanApi* | [**apiDevelopmentPlansUidArchivePost**](docs/DevelopmentPlanApi.md#apidevelopmentplansuidarchivepost) | **POST** /api/development-plans/{uid}/archive | 
+*DevelopmentPlanApi* | [**apiDevelopmentPlansUIDArchivePost**](docs/DevelopmentPlanApi.md#apidevelopmentplansuidarchivepost) | **POST** /api/development-plans/{UID}/archive | 
 *FavoriteApi* | [**apiFavoriteDelete**](docs/FavoriteApi.md#apifavoritedelete) | **DELETE** /api/Favorite | 
 *FavoriteApi* | [**apiFavoriteGet**](docs/FavoriteApi.md#apifavoriteget) | **GET** /api/Favorite | 
 *FavoriteApi* | [**apiFavoritePost**](docs/FavoriteApi.md#apifavoritepost) | **POST** /api/Favorite | 
@@ -83,13 +83,14 @@ All URIs are relative to *http://localhost*
 *FileApi* | [**apiFilePatch**](docs/FileApi.md#apifilepatch) | **PATCH** /api/File | 
 *FileApi* | [**apiFilePreviewCompletePatch**](docs/FileApi.md#apifilepreviewcompletepatch) | **PATCH** /api/File/preview/complete | 
 *FileApi* | [**apiFilePreviewGet**](docs/FileApi.md#apifilepreviewget) | **GET** /api/File/preview | 
+*FileApi* | [**apiFileResumableUploadPost**](docs/FileApi.md#apifileresumableuploadpost) | **POST** /api/File/resumable-upload | 
+*FileApi* | [**apiFileResumableUploadUploadIdChunksIndexPut**](docs/FileApi.md#apifileresumableuploaduploadidchunksindexput) | **PUT** /api/File/resumable-upload/{uploadId}/chunks/{index} | 
+*FileApi* | [**apiFileResumableUploadUploadIdCompletePost**](docs/FileApi.md#apifileresumableuploaduploadidcompletepost) | **POST** /api/File/resumable-upload/{uploadId}/complete | 
+*FileApi* | [**apiFileResumableUploadUploadIdGet**](docs/FileApi.md#apifileresumableuploaduploadidget) | **GET** /api/File/resumable-upload/{uploadId} | 
 *FileApi* | [**apiFileSchedulePatch**](docs/FileApi.md#apifileschedulepatch) | **PATCH** /api/File/schedule | 
 *FileApi* | [**apiFileTagPatch**](docs/FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag | 
-*FileApi* | [**apiFileUploadPost**](docs/FileApi.md#apifileuploadpost) | **POST** /api/File/Upload | 
-*FileApi* | [**apiFileUploadsPost**](docs/FileApi.md#apifileuploadspost) | **POST** /api/File/uploads | 
-*FileApi* | [**apiFileUploadsUploadIdChunksIndexPut**](docs/FileApi.md#apifileuploadsuploadidchunksindexput) | **PUT** /api/File/uploads/{uploadId}/chunks/{index} | 
-*FileApi* | [**apiFileUploadsUploadIdCompletePost**](docs/FileApi.md#apifileuploadsuploadidcompletepost) | **POST** /api/File/uploads/{uploadId}/complete | 
-*FileApi* | [**apiFileUploadsUploadIdGet**](docs/FileApi.md#apifileuploadsuploadidget) | **GET** /api/File/uploads/{uploadId} | 
+*FileApi* | [**apiFileUploadMultiplePost**](docs/FileApi.md#apifileuploadmultiplepost) | **POST** /api/File/upload/multiple | 
+*FileApi* | [**apiFileUploadPost**](docs/FileApi.md#apifileuploadpost) | **POST** /api/File/upload | 
 *FileApi* | [**apiFileVideoPreviewTicketPost**](docs/FileApi.md#apifilevideopreviewticketpost) | **POST** /api/File/video-preview-ticket | 
 *FileApi* | [**apiFileVideoStreamGet**](docs/FileApi.md#apifilevideostreamget) | **GET** /api/File/video-stream | 
 *TagApi* | [**apiTagDelete**](docs/TagApi.md#apitagdelete) | **DELETE** /api/Tag | 
@@ -100,14 +101,13 @@ All URIs are relative to *http://localhost*
 *TodoApi* | [**apiTodoDependenciesDelete**](docs/TodoApi.md#apitododependenciesdelete) | **DELETE** /api/Todo/dependencies | 
 *TodoApi* | [**apiTodoDependenciesPost**](docs/TodoApi.md#apitododependenciespost) | **POST** /api/Todo/dependencies | 
 *TodoApi* | [**apiTodoGet**](docs/TodoApi.md#apitodoget) | **GET** /api/Todo | 
-*TodoApi* | [**apiTodoParentPatch**](docs/TodoApi.md#apitodoparentpatch) | **PATCH** /api/Todo/parent | 
-*TodoApi* | [**apiTodoPatch**](docs/TodoApi.md#apitodopatch) | **PATCH** /api/Todo | 
 *TodoApi* | [**apiTodoPost**](docs/TodoApi.md#apitodopost) | **POST** /api/Todo | 
 *TodoApi* | [**apiTodoRoadmapGet**](docs/TodoApi.md#apitodoroadmapget) | **GET** /api/Todo/roadmap | 
 *TodoApi* | [**apiTodoRoadmapLayoutPut**](docs/TodoApi.md#apitodoroadmaplayoutput) | **PUT** /api/Todo/roadmap/layout | 
-*TodoApi* | [**apiTodoSortOrderPatch**](docs/TodoApi.md#apitodosortorderpatch) | **PATCH** /api/Todo/sort-order | 
-*TodoApi* | [**apiTodoUidArchivePost**](docs/TodoApi.md#apitodouidarchivepost) | **POST** /api/Todo/{uid}/archive | 
-*TodoApi* | [**apiTodoUidRestorePost**](docs/TodoApi.md#apitodouidrestorepost) | **POST** /api/Todo/{uid}/restore | 
+*TodoApi* | [**apiTodoUIDArchivePatch**](docs/TodoApi.md#apitodouidarchivepatch) | **PATCH** /api/Todo/{UID}/archive | 
+*TodoApi* | [**apiTodoUIDDetailsPatch**](docs/TodoApi.md#apitodouiddetailspatch) | **PATCH** /api/Todo/{UID}/details | 
+*TodoApi* | [**apiTodoUIDRestorePatch**](docs/TodoApi.md#apitodouidrestorepatch) | **PATCH** /api/Todo/{UID}/restore | 
+*TodoApi* | [**apiTodoUIDStatusPatch**](docs/TodoApi.md#apitodouidstatuspatch) | **PATCH** /api/Todo/{UID}/status | 
 
 
 ### Models
@@ -154,8 +154,6 @@ All URIs are relative to *http://localhost*
 - [SaveRoadmapNodeLayoutCommand](docs/SaveRoadmapNodeLayoutCommand.md)
 - [ScheduledFileCommand](docs/ScheduledFileCommand.md)
 - [SetFavoritePublishedCommand](docs/SetFavoritePublishedCommand.md)
-- [SetTodoParentCommand](docs/SetTodoParentCommand.md)
-- [SetTodoSortOrderCommand](docs/SetTodoSortOrderCommand.md)
 - [StartVideoUploadCommand](docs/StartVideoUploadCommand.md)
 - [SubscriptionDto](docs/SubscriptionDto.md)
 - [TagDto](docs/TagDto.md)
@@ -164,13 +162,11 @@ All URIs are relative to *http://localhost*
 - [TodoDto](docs/TodoDto.md)
 - [TodoDtoPageResult](docs/TodoDtoPageResult.md)
 - [TodoRoadmapDto](docs/TodoRoadmapDto.md)
-- [TodoStatus](docs/TodoStatus.md)
 - [UpdateCategoryCommand](docs/UpdateCategoryCommand.md)
 - [UpdateDevelopmentPlanCommand](docs/UpdateDevelopmentPlanCommand.md)
 - [UpdateFavoriteCommand](docs/UpdateFavoriteCommand.md)
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
 - [UpdateTagCommand](docs/UpdateTagCommand.md)
-- [UpdateTodoCommand](docs/UpdateTodoCommand.md)
 
 ### Authorization
 

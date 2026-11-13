@@ -33,12 +33,6 @@ export interface FavoriteMediaInput {
     fileId?: string;
     /**
      * 
-     * @type {string}
-     * @memberof FavoriteMediaInput
-     */
-    role?: string | null;
-    /**
-     * 
      * @type {number}
      * @memberof FavoriteMediaInput
      */
@@ -64,7 +58,6 @@ export function FavoriteMediaInputFromJSONTyped(json: any, ignoreDiscriminator: 
         
         'favoriteId': json['favoriteId'] == null ? undefined : json['favoriteId'],
         'fileId': json['fileId'] == null ? undefined : json['fileId'],
-        'role': json['role'] == null ? undefined : json['role'],
         'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
     };
 }
@@ -82,7 +75,6 @@ export function FavoriteMediaInputToJSONTyped(value?: FavoriteMediaInput | null,
         
         'favoriteId': value['favoriteId'],
         'fileId': value['fileId'],
-        'role': value['role'],
         'sortOrder': value['sortOrder'],
     };
 }

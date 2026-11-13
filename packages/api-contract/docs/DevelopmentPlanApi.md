@@ -7,13 +7,13 @@ All URIs are relative to *http://localhost*
 | [**apiDevelopmentPlansGet**](DevelopmentPlanApi.md#apidevelopmentplansget) | **GET** /api/development-plans |  |
 | [**apiDevelopmentPlansPatch**](DevelopmentPlanApi.md#apidevelopmentplanspatch) | **PATCH** /api/development-plans |  |
 | [**apiDevelopmentPlansPost**](DevelopmentPlanApi.md#apidevelopmentplanspost) | **POST** /api/development-plans |  |
-| [**apiDevelopmentPlansUidArchivePost**](DevelopmentPlanApi.md#apidevelopmentplansuidarchivepost) | **POST** /api/development-plans/{uid}/archive |  |
+| [**apiDevelopmentPlansUIDArchivePost**](DevelopmentPlanApi.md#apidevelopmentplansuidarchivepost) | **POST** /api/development-plans/{UID}/archive |  |
 
 
 
 ## apiDevelopmentPlansGet
 
-> Array&lt;DevelopmentPlanDto&gt; apiDevelopmentPlansGet(includeArchived)
+> Array&lt;DevelopmentPlanDto&gt; apiDevelopmentPlansGet(uID, title)
 
 
 
@@ -31,8 +31,10 @@ async function example() {
   const api = new DevelopmentPlanApi();
 
   const body = {
-    // boolean (optional)
-    includeArchived: true,
+    // string (optional)
+    uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    title: title_example,
   } satisfies ApiDevelopmentPlansGetRequest;
 
   try {
@@ -52,7 +54,8 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **includeArchived** | `boolean` |  | [Optional] [Defaults to `undefined`] |
+| **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **title** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
@@ -206,9 +209,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## apiDevelopmentPlansUidArchivePost
+## apiDevelopmentPlansUIDArchivePost
 
-> string apiDevelopmentPlansUidArchivePost(uid)
+> string apiDevelopmentPlansUIDArchivePost(uID)
 
 
 
@@ -219,7 +222,7 @@ import {
   Configuration,
   DevelopmentPlanApi,
 } from '@aqlife/api-contract';
-import type { ApiDevelopmentPlansUidArchivePostRequest } from '@aqlife/api-contract';
+import type { ApiDevelopmentPlansUIDArchivePostRequest } from '@aqlife/api-contract';
 
 async function example() {
   console.log("🚀 Testing @aqlife/api-contract SDK...");
@@ -227,11 +230,11 @@ async function example() {
 
   const body = {
     // string
-    uid: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-  } satisfies ApiDevelopmentPlansUidArchivePostRequest;
+    uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+  } satisfies ApiDevelopmentPlansUIDArchivePostRequest;
 
   try {
-    const data = await api.apiDevelopmentPlansUidArchivePost(body);
+    const data = await api.apiDevelopmentPlansUIDArchivePost(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -247,7 +250,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **uid** | `string` |  | [Defaults to `undefined`] |
+| **uID** | `string` |  | [Defaults to `undefined`] |
 
 ### Return type
 

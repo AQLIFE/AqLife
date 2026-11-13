@@ -24,19 +24,13 @@ export interface RemoveTodoDependencyCommand {
      * @type {string}
      * @memberof RemoveTodoDependencyCommand
      */
+    uid?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RemoveTodoDependencyCommand
+     */
     planId?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof RemoveTodoDependencyCommand
-     */
-    predecessorId?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof RemoveTodoDependencyCommand
-     */
-    successorId?: string;
 }
 
 /**
@@ -56,9 +50,8 @@ export function RemoveTodoDependencyCommandFromJSONTyped(json: any, ignoreDiscri
     }
     return {
         
+        'uid': json['uid'] == null ? undefined : json['uid'],
         'planId': json['planId'] == null ? undefined : json['planId'],
-        'predecessorId': json['predecessorId'] == null ? undefined : json['predecessorId'],
-        'successorId': json['successorId'] == null ? undefined : json['successorId'],
     };
 }
 
@@ -73,9 +66,8 @@ export function RemoveTodoDependencyCommandToJSONTyped(value?: RemoveTodoDepende
 
     return {
         
+        'uid': value['uid'],
         'planId': value['planId'],
-        'predecessorId': value['predecessorId'],
-        'successorId': value['successorId'],
     };
 }
 

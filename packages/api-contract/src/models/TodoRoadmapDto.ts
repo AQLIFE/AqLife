@@ -49,12 +49,6 @@ export interface TodoRoadmapDto {
     planId?: string;
     /**
      * 
-     * @type {string}
-     * @memberof TodoRoadmapDto
-     */
-    planName?: string | null;
-    /**
-     * 
      * @type {number}
      * @memberof TodoRoadmapDto
      */
@@ -97,7 +91,6 @@ export function TodoRoadmapDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     return {
         
         'planId': json['planId'] == null ? undefined : json['planId'],
-        'planName': json['planName'] == null ? undefined : json['planName'],
         'dependencyVersion': json['dependencyVersion'] == null ? undefined : json['dependencyVersion'],
         'nodes': json['nodes'] == null ? undefined : ((json['nodes'] as Array<any>).map(TodoDtoFromJSON)),
         'dependencies': json['dependencies'] == null ? undefined : ((json['dependencies'] as Array<any>).map(TodoDependencyDtoFromJSON)),
@@ -117,7 +110,6 @@ export function TodoRoadmapDtoToJSONTyped(value?: TodoRoadmapDto | null, ignoreD
     return {
         
         'planId': value['planId'],
-        'planName': value['planName'],
         'dependencyVersion': value['dependencyVersion'],
         'nodes': value['nodes'] == null ? undefined : ((value['nodes'] as Array<any>).map(TodoDtoToJSON)),
         'dependencies': value['dependencies'] == null ? undefined : ((value['dependencies'] as Array<any>).map(TodoDependencyDtoToJSON)),

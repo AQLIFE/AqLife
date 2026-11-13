@@ -7,23 +7,18 @@
 Name | Type
 ------------ | -------------
 `uid` | string
-`ftid` | string
-`desc` | string
-`status` | string
-`createdAt` | string
-`completedAt` | string
-`priority` | number
-`todoList` | [Array&lt;TodoDto&gt;](TodoDto.md)
-`hasChildren` | boolean
 `planId` | string
 `title` | string
-`description` | string
+`status` | string
+`createdAt` | string
 `updatedAt` | string
+`completedAt` | string
 `sortOrder` | number
-`isArchived` | boolean
-`isBlocked` | boolean
+`predecessorIds` | Array&lt;string&gt;
 `incompleteDependencyCount` | number
-`blockingTodoIds` | Array&lt;string&gt;
+`description` | string
+`isBlocked` | boolean
+`isArchived` | boolean
 
 ## Example
 
@@ -33,23 +28,18 @@ import type { TodoDto } from '@aqlife/api-contract'
 // TODO: Update the object below with actual values
 const example = {
   "uid": null,
-  "ftid": null,
-  "desc": null,
-  "status": null,
-  "createdAt": null,
-  "completedAt": null,
-  "priority": null,
-  "todoList": null,
-  "hasChildren": null,
   "planId": null,
   "title": null,
-  "description": null,
+  "status": null,
+  "createdAt": null,
   "updatedAt": null,
+  "completedAt": null,
   "sortOrder": null,
-  "isArchived": null,
-  "isBlocked": null,
+  "predecessorIds": null,
   "incompleteDependencyCount": null,
-  "blockingTodoIds": null,
+  "description": null,
+  "isBlocked": null,
+  "isArchived": null,
 } satisfies TodoDto
 
 console.log(example)

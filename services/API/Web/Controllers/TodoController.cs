@@ -19,19 +19,19 @@ namespace AqLife.Web.Controllers
         public Task<Guid> CreateAsync(CreateTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch("{uid:guid}/details")]
+        [HttpPatch("{UID:guid}/details")]
         public Task<Guid> UpdateAsync([FromRoute(Name = nameof(UpdateTodoCommand.UID))] UpdateTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch("{uid:guid}/status")]
+        [HttpPatch("{UID:guid}/status")]
         public Task<Guid> SetParentAsync([FromRoute(Name = nameof(UpdateTodoStatusCommand.UID))] UpdateTodoStatusCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch("{uid:guid}/archive")]
+        [HttpPatch("{UID:guid}/archive")]
         public Task<Guid> ArchiveAsync([FromRoute(Name = nameof(ArchiveTodoCommand.UID))] ArchiveTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch("{uid:guid}/restore")]
+        [HttpPatch("{UID:guid}/restore")]
         public Task<Guid> RestoreAsync([FromRoute(Name = nameof(RestoreTodoCommand.UID))]RestoreTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
         [HttpDelete]

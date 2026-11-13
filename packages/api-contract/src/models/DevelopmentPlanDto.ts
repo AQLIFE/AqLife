@@ -55,12 +55,6 @@ export interface DevelopmentPlanDto {
      * @memberof DevelopmentPlanDto
      */
     updatedAt?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof DevelopmentPlanDto
-     */
-    dependencyVersion?: number;
 }
 
 /**
@@ -86,7 +80,6 @@ export function DevelopmentPlanDtoFromJSONTyped(json: any, ignoreDiscriminator: 
         'isArchived': json['isArchived'] == null ? undefined : json['isArchived'],
         'createdAt': json['createdAt'] == null ? undefined : json['createdAt'],
         'updatedAt': json['updatedAt'] == null ? undefined : json['updatedAt'],
-        'dependencyVersion': json['dependencyVersion'] == null ? undefined : json['dependencyVersion'],
     };
 }
 
@@ -107,7 +100,6 @@ export function DevelopmentPlanDtoToJSONTyped(value?: DevelopmentPlanDto | null,
         'isArchived': value['isArchived'],
         'createdAt': value['createdAt'],
         'updatedAt': value['updatedAt'],
-        'dependencyVersion': value['dependencyVersion'],
     };
 }
 

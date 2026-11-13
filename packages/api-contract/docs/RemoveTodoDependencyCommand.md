@@ -6,9 +6,8 @@
 
 Name | Type
 ------------ | -------------
+`uid` | string
 `planId` | string
-`predecessorId` | string
-`successorId` | string
 
 ## Example
 
@@ -17,9 +16,8 @@ import type { RemoveTodoDependencyCommand } from '@aqlife/api-contract'
 
 // TODO: Update the object below with actual values
 const example = {
+  "uid": null,
   "planId": null,
-  "predecessorId": null,
-  "successorId": null,
 } satisfies RemoveTodoDependencyCommand
 
 console.log(example)
