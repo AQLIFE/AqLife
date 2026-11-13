@@ -67,13 +67,13 @@ namespace AqLife.Infrastructure.FileStorage
             return Task.FromResult(new FileStorageRangeReadResult(stream, totalLength, start, end));
         }
 
-        [Obsolete("废弃,若需要读取文件内容,请使用 FileReader.GetContent")]
+        //[Obsolete("废弃,若需要读取文件内容,请使用 FileReader.GetContent")]
 
-        public async Task<string> GetContent(string fileName, CancellationToken ct)
-        {
-            string LocalPath = GetPath(fileName);
-            if (!File.Exists(LocalPath)) throw new FileNotFoundException("文件丢失");
-            return await File.ReadAllTextAsync(LocalPath);
-        }
+        //public async Task<string> GetContent(string fileName, CancellationToken ct)
+        //{
+        //    string LocalPath = GetPath(fileName);
+        //    if (!File.Exists(LocalPath)) throw new FileNotFoundException("文件丢失");
+        //    return await File.ReadAllTextAsync(LocalPath);
+        //}
     }
 }

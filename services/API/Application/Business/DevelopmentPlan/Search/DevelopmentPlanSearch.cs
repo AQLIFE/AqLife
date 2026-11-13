@@ -31,12 +31,16 @@ namespace AqLife.Application.Business.DevelopmentPlan.Search
             _ => throw new RequestFailException("Invalid query type")
         };
 
-        private  IQueryable<DevelopmentPlanEntity> BuildBaseQueryInternal(IQueryable<DevelopmentPlanEntity> queryable, TDevPlanQuery query)
+        private IQueryable<DevelopmentPlanEntity> BuildBaseQueryInternal(IQueryable<DevelopmentPlanEntity> queryable, TDevPlanQuery query)
         {
-            IIncludableQueryable<DevelopmentPlanEntity,IEnumerable<TodoEntity>> includeTodo = IsValid ? queryable.Include(e => e.Todos) : queryable.Include(e => e.Todos.Where(to => !to.IsArchived));
-            queryable = includeTodo.ThenInclude(todo => todo.LayoutEntity);
-            queryable = includeTodo.ThenInclude(todo => todo.IncomingDependencies);
-            queryable = includeTodo.ThenInclude(todo => todo.OutgoingDependencies);
+            queryable = queryable
+               .Include(e => e.Todos.Where(todo => IsValid || !todo.IsArchived))
+                   .ThenInclude(todo => todo.LayoutEntity)
+               .Include(e => e.Todos.Where(todo => IsValid || !todo.IsArchived))
+                   .ThenInclude(todo => todo.IncomingDependencies)
+               .Include(e => e.Todos.Where(todo => IsValid || !todo.IsArchived))
+                   .ThenInclude(todo => todo.OutgoingDependencies);
+
             return queryable.AsSplitQuery();
         }
 
@@ -46,7 +50,7 @@ namespace AqLife.Application.Business.DevelopmentPlan.Search
             return query switch
             {
                 DevelopmentPlanQuery planQuery => queryable,
-                TodoRoadmapQuery roadmapQuery => BuildBaseQueryInternal(queryable,query),
+                TodoRoadmapQuery roadmapQuery => BuildBaseQueryInternal(queryable, query),
                 _ => throw new RequestFailException("Invalid query type")
             };
         }

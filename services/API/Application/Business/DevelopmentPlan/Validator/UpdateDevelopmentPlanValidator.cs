@@ -15,16 +15,16 @@ public sealed class UpdateDevelopmentPlanExistsValidator(AqLife.Application.Abst
 
 }
 
-public sealed class UpdateDevelopmentPlanActiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<UpdateDevelopmentPlanCommand>
-{
-    private protected override string ErrorMessage { init; get; } = "已归档的开发计划不允许修改";
-    private protected override async Task<bool> IsValidAsync(UpdateDevelopmentPlanCommand command, CancellationToken ct)
-    {
-        return !await db.DevelopmentPlans.AnyAsync(x => x.UID == command.UID && x.IsArchived, ct);
-    }
-    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
+//public sealed class UpdateDevelopmentPlanActiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<UpdateDevelopmentPlanCommand>
+//{
+//    private protected override string ErrorMessage { init; get; } = "已归档的开发计划不允许修改";
+//    private protected override async Task<bool> IsValidAsync(UpdateDevelopmentPlanCommand command, CancellationToken ct)
+//    {
+//        return !await db.DevelopmentPlans.AnyAsync(x => x.UID == command.UID && x.IsArchived, ct);
+//    }
+//    private protected override Exception CreateException(string message) => new DomainLegalityException(message);
 
-}
+//}
 
 public sealed class UpdateDevelopmentPlanNameValidator() : AbstractValidator<UpdateDevelopmentPlanCommand>
 {

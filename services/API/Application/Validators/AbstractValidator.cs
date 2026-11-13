@@ -13,7 +13,7 @@ public abstract class AbstractValidator<TResponse> : IValidator<TResponse>
     /// <returns></returns>
     private protected abstract Task<bool> IsValidAsync(TResponse source, CancellationToken ct);
     /// <summary>
-    /// 定义该验证器触发时抛出的异常类型，默认是业务逻辑检查异常 [cite: 55]
+    /// 定义该验证器触发时抛出的异常类型，默认是业务逻辑检查异常
     /// </summary>
     private protected virtual Exception CreateException(string message)
         => new RequestCheckException(message);

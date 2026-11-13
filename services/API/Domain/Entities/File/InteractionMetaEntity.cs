@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AqLife.Domain.Entities.File
 {
+    /// <summary>
+    /// 互动模型 : 互动量
+    /// </summary>
     public class InteractionMetaEntity : IRelationship
     {
         [Key]

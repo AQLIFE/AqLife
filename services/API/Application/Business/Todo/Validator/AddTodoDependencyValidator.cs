@@ -86,7 +86,6 @@ public sealed class AddTodoDependencyArchiveLegalityValidator(AqLife.Application
     private protected override Exception CreateException(string message) => new DomainLegalityException(message);
 }
 
-
 /// <summary>
 /// 图循环检查 :检查即将创建的依赖是否存在循环引用;疑似可以替代 AddTodoDependencyLegalityValidator
 /// </summary>

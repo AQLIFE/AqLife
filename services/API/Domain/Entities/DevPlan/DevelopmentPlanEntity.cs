@@ -41,6 +41,7 @@ namespace AqLife.Domain.Entities.DevPlan
         public long DependencyVersion { get; private set; } = 0;
 
         public ICollection<TodoEntity> Todos { get; set; } = [];
+        //public ICollection<TodoDependencyEntity> TodoDependencies { get; set; } = [];
 
         public DevelopmentPlanEntity() { }
         [MapperConstructor]

@@ -51,12 +51,7 @@ namespace AqLife.Application.Business.Account.Services
 
         public async Task<bool> VoidSystemKey(string systemKey, CancellationToken ct = default)
         {
-            SystemStateEntity? key =
-                await context.SystemStates
-                    .SingleOrDefaultAsync(
-                        e => !e.IsInitialized &&
-                             e.SystemKeyHash == systemKey,
-                        ct);
+            SystemStateEntity? key = await context.SystemStates.SingleOrDefaultAsync(e => !e.IsInitialized && e.SystemKeyHash == systemKey,ct);
 
             if (key is null)
                 return false;

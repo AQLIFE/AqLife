@@ -31,7 +31,7 @@ public interface IRequireDevPlan{
 /// <summary>
 /// 标识接口 , 在事务中会自动更新依赖图版本;同时该接口的集成还包含了 IRequireDevPlan 的检查业务
 /// </summary>
-public interface IRequireDependencyVersionIncrement : IRequireDevPlan, IRequireTransaction { }
+public interface IRequireDependencyVersionIncrement : IRequireDevPlan { }
 
 /// <summary>
 /// 标识接口, 用于在 Search 类中做分支查询处理

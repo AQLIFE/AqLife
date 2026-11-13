@@ -19,20 +19,20 @@ namespace AqLife.Web.Controllers
         public Task<Guid> CreateAsync(CreateTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch("{UID:guid}/details")]
-        public Task<Guid> UpdateAsync([FromRoute(Name = nameof(UpdateTodoCommand.UID))] UpdateTodoCommand command, CancellationToken ct)
+        [HttpPatch("details")]
+        public Task<Guid> UpdateAsync(UpdateTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch("{UID:guid}/status")]
-        public Task<Guid> SetParentAsync([FromRoute(Name = nameof(UpdateTodoStatusCommand.UID))] UpdateTodoStatusCommand command, CancellationToken ct)
+        [HttpPatch("status")]
+        public Task<Guid> SetStatusAsync(UpdateTodoStatusCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch("{UID:guid}/archive")]
-        public Task<Guid> ArchiveAsync([FromRoute(Name = nameof(ArchiveTodoCommand.UID))] ArchiveTodoCommand command, CancellationToken ct)
+        [HttpPatch("archive")]
+        public Task<Guid> ArchiveAsync(ArchiveTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch("{UID:guid}/restore")]
-        public Task<Guid> RestoreAsync([FromRoute(Name = nameof(RestoreTodoCommand.UID))]RestoreTodoCommand command, CancellationToken ct)
+        [HttpPatch("restore")]
+        public Task<Guid> RestoreAsync(RestoreTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
         [HttpDelete]
         public Task DeleteAsync(DeleteTodoCommand command, CancellationToken ct)

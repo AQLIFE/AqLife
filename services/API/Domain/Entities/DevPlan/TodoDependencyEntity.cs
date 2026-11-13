@@ -8,7 +8,6 @@ namespace AqLife.Domain.Entities.DevPlan
 {
     [Table("TodoDependencies")]
     [Index(nameof(PredecessorId), nameof(SuccessorId), IsUnique = true)]
-    [Index(nameof(PlanId),nameof(PredecessorId), nameof(SuccessorId), IsUnique = true)]
     [Index(nameof(PlanId), nameof(PredecessorId))]
     [Index(nameof(PlanId), nameof(SuccessorId))]
     public sealed class TodoDependencyEntity : IEntity

@@ -42,9 +42,7 @@ namespace AqLife.CoreTest.UnitTest.Domain
         {
             var content = new MemoryStream(Encoding.UTF8.GetBytes("template"));
             IFormFile file = new FormFile(content, 0, content.Length, "file", "template.md");
-            var entity = new FileMetaEntity(file, CategoryEntity.DefaultCategoryId, "template-hash");
-
-            entity.SetTemplate();
+            var entity = new FileMetaEntity(file, CategoryEntity.DefaultCategoryId, "template-hash",true);
             entity.IncrementVersion();
 
             Assert.True(entity.IsTemplate);

@@ -22,8 +22,8 @@ namespace AqLife.Web.Controllers
         public Task<Guid> UpdateAsync(UpdateDevelopmentPlanCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPost("{UID:guid}/archive")]
-        public Task<Guid> ArchiveAsync([FromRoute(Name = nameof(ArchiveDevelopmentPlanCommand.UID))]ArchiveDevelopmentPlanCommand command, CancellationToken ct)
+        [HttpPost("archive")]
+        public Task<Guid> ArchiveAsync(ArchiveDevelopmentPlanCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
     }
 }

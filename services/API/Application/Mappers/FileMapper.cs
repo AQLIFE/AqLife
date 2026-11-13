@@ -32,19 +32,21 @@ namespace AqLife.Application.Business.File
         public string Convert(DateTimeOffset dateTime) => dateTime.ToString("yyyy-MM-dd");
 
         public TagDto Convert(FileTagEntity tagEntity) => tagMapper.ToDto(tagEntity.Tag);
-        public CategoryDto? Convert(CategoryEntity? categoryEntity) => categoryEntity is not null ? categoryMapper.ToDto(categoryEntity) : null;
+        public CategoryDto Convert(CategoryEntity categoryEntity) => categoryMapper.ToDto(categoryEntity) ;
 
-        //[MapProperty(nameof(CreateFileCommand.ScheduledTime),nameof(FileMetaEntity.))]
+        
         /// <summary>
         /// Creates a new FileMetaEntity from an IFormFile.
         /// </summary>
-        [MapperIgnoreTarget(nameof(FileMetaEntity.UID))]
-        [MapperIgnoreTarget(nameof(FileMetaEntity.InteractionMeta))]
         [MapperIgnoreTarget(nameof(FileMetaEntity.Category))]
+        [MapperIgnoreTarget(nameof(FileMetaEntity.UID))]
+        [MapperIgnoreTarget(nameof(FileMetaEntity.Extension))]
+        [MapperIgnoreTarget(nameof(FileMetaEntity.InteractionMeta))]
         [MapperIgnoreTarget(nameof(FileMetaEntity.FileTags))]
         [MapperIgnoreTarget(nameof(FileMetaEntity.PublishMeta))]
         [MapperIgnoreSource(nameof(CreateFileCommand.Tags))]
         [MapperIgnoreSource(nameof(CreateFileCommand.ScheduledTime))]
+        [MapperIgnoreTarget(nameof(FileMetaEntity.UploadTime))]
         public partial FileMetaEntity ToEntity(CreateFileCommand command);
 
         //[MapperIgnoreTarget(nameof(FileMetaEntity.UID))]

@@ -17,6 +17,7 @@ using AqLife.Application.Business.File.Validator;
 using AqLife.Application.Business.Tag;
 using AqLife.Application.Business.Tag.Search;
 using AqLife.Application.Business.Todo.Search;
+using AqLife.Application.Business.Todo.Validator;
 using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Application.Validators;
@@ -138,7 +139,8 @@ public static class ApplicationExtensions
         services.AddScoped(typeof(IValidator<>), typeof(FileSizeValidator<>));
         services.AddScoped(typeof(IValidator<>), typeof(FileDuplicateValidator<>));
         services.AddScoped(typeof(IValidator<>), typeof(DevPlanValidator<>));
-        services.AddScoped(typeof(IValidator<>), typeof(DevPlanUpdateValidator<>));
+        services.AddScoped(typeof(IValidator<>), typeof(TodoUpdateValidator<>));
+        services.AddScoped(typeof(IValidator<>), typeof(TodoAttributionValidityValidator<>));
         foreach (var type in validatorTypes)
             foreach (var item in type.GetInterfaces())
                 services.AddScoped(item, type);

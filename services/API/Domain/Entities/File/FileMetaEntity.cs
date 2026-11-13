@@ -1,4 +1,5 @@
 ﻿using AqLife.Shared.Contracts;
+using AqLife.Shared.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Riok.Mapperly.Abstractions;
 using System.ComponentModel;
@@ -16,19 +17,19 @@ namespace AqLife.Domain.Entities.File
         [Column, Description("仅存储文件名,不含后缀"), StringLength(64)]
         public string FileName { get; private set; } = string.Empty;
         [Column]
-        public string Extension { get; private set; } = string.Empty;
+        public string Extension { get; init; } = string.Empty;
         [Column]
         public ulong FileSize { private set; get; } = 0u;
 
         [Column, Required(ErrorMessage = "文件哈希不能为空")]
         public string FileHash { private set; get; } = string.Empty;
         [Column]
-        public DateTimeOffset UploadTime { private set; get; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset UploadTime { get; init; } = DateTimeOffset.UtcNow;
 
         [Column, ConcurrencyCheck]
         public int Version { get; private set; } = 1;
         [Column]
-        public bool IsTemplate { get; private set; } = false;
+        public bool IsTemplate { get; init; } = false;
 
 
 
@@ -44,51 +45,57 @@ namespace AqLife.Domain.Entities.File
         public virtual required PublishMetaEntity PublishMeta { get; set; } = null!;
 
         [Column]
-        public Guid? CategoryUID { get; private set; }
+        public Guid CategoryUID { get; private set; } = Guid.Empty;
 
         [ForeignKey(nameof(CategoryUID))]
 
-        public virtual CategoryEntity? Category { get; set; } = null;
+        public virtual CategoryEntity Category { get; set; } = null!;
         [SetsRequiredMembers]
         public FileMetaEntity() { }
 
         [SetsRequiredMembers]
         [MapperConstructor]
-        public FileMetaEntity(IFormFile file, Guid categoryId, string? hash = null) : this()
+        public FileMetaEntity(IFormFile file, Guid categoryId, string? hash = null,bool isTemplate = false) : this()
         {
-            FileName = Path.GetFileNameWithoutExtension(file.FileName) ?? string.Empty;
-            Extension = Path.GetExtension(file.FileName).ToLowerInvariant() ?? string.Empty;
+            FileName = Path.GetFileNameWithoutExtension(file.FileName) ?? "未命名文件";
+            Extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             FileSize = (ulong)file.Length;
             InteractionMeta = new(this.UID);
             PublishMeta = new(this.UID);
             SetCategory(categoryId);
             FileHash = hash ?? string.Empty;
+            this.IsTemplate = isTemplate;
         }
 
-        public FileMetaEntity SetTemplate(bool isTemplate = true)
+        /// <summary>
+        /// 不设置即使用默认分类
+        /// </summary>
+        /// <param name="categoryUID"></param>
+        /// <returns></returns>
+        public FileMetaEntity SetCategory(Guid? categoryUID = null)
         {
-            IsTemplate = isTemplate;
+            CategoryUID = categoryUID ?? CategoryEntity.DefaultCategoryId;
             return this;
         }
 
-        public FileMetaEntity SetCategory(Guid? categoryUID)
-        {
-            CategoryUID = categoryUID;
-            return this;
-        }
-
+        /// <summary>
+        /// 仅适用于 更新文件,更新后该记录自动增加
+        /// </summary>
         public void IncrementVersion()
         {
             checked
             {
                 Version++;
             }
-            //return this;
         }
-
+        /// <summary>
+        /// 设置 文件速览内容,不允许将文件所有内容纳入其中,若要传输所有内容请使用FileReader
+        /// </summary>
+        /// <param name="content"></param>
         public void SetFileIntroduction(string content)
         {
-            FileIntroduction = content;
+            if (this.Extension == ".md") FileIntroduction = content;// 暂时写死,等待未来优化
+            else throw new DomainLegalityException("不允许非博文类型的写入");
         }
         public FileMetaEntity UpdateHash(string hash)
         {

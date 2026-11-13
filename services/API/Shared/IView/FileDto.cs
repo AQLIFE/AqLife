@@ -7,6 +7,7 @@ namespace AqLife.Shared.IView
     (
         Guid UID,
         string FileName,
+        CategoryDto Category,
         IEnumerable<TagDto>? Tags,
         [property:JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         FileStatus? PublishStatus,
@@ -19,8 +20,7 @@ namespace AqLife.Shared.IView
         string FileIntroduction = "",
         int ViewCount = 0,
         int Version = 1,
-        bool IsTemplate = false,
-        CategoryDto? Category = null
+        bool IsTemplate = false
     ) : IEntityDto;
 
     public record FileDownloadModel(
