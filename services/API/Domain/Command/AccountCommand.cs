@@ -25,7 +25,7 @@ namespace AqLife.Domain.Command
     public record CreateAccountCommand(
         [Required, StringLength(32, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-32之间")]
         string Name,
-        [StringLength(255)]
+        [StringLength(255,ErrorMessage ="个人概述不应超过255个字符")]
         string? Desc,
         string Pwd,
         string ServerKey
@@ -53,10 +53,7 @@ namespace AqLife.Domain.Command
     public record UpdateAccountSubscriptionsCommand(
         Guid UID,
         IEnumerable<SubscriptionDto> Subscriptions
-    ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>
-    {
-        //public IEnumerable<IFormFile> GetFiles() => Subscriptions.GetIEnumerableFiles();
-    }
+    ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>;
 
     /// <summary>
     /// 更新头像
@@ -70,7 +67,6 @@ namespace AqLife.Domain.Command
     {
         public IEnumerable<IFormFile> GetFiles() => [Avatar];
     }
-
 
     public record UpdatePasswordCommand(
         Guid UID,

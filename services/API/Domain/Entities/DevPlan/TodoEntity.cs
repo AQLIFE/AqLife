@@ -23,6 +23,7 @@ namespace AqLife.Domain.Entities.DevPlan
         public TodoStatus Status { get; private set; } = TodoStatus.Initial;
 
         public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+        [ConcurrencyCheck]
         public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset? CompletedAt { get; private set; } = null;
         public bool IsArchived { get; private set; } = false;

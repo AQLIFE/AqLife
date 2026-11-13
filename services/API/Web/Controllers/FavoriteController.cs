@@ -11,10 +11,8 @@ public class FavoriteController(IMediator mediator) : ControllerBase
 {
     [HttpGet, AllowAnonymous]
     public async Task<PageResult<FavoriteDto>> Search([FromQuery] FavoriteQuery query, CancellationToken ct)
-    {
-        return await mediator.Send(query, ct);
-    }
-
+        => await mediator.Send(query, ct);
+    
     [HttpPost, Authorize]
     public async Task<Guid> Create([FromBody] CreateFavoriteCommand command, CancellationToken ct)
         => await mediator.Send(command, ct);

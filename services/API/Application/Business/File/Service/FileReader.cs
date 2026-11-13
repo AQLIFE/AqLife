@@ -18,7 +18,7 @@ namespace AqLife.Application.Business.File.Service
             throw new FileValidationException("您请求的数据存在异常,已被拦截,若有疑问,请联系管理员");
         }
         /// <summary>
-        /// 读取文件流,但可根据isTemplate参数来判断是否是模板文件,若是模板文件,则只允许读取模板文件
+        /// 读取文件流,但可根据 scope 参数来判断 读取范围
         /// </summary>
         /// <param name="id"></param>
         /// <param name="isTemplate"></param>

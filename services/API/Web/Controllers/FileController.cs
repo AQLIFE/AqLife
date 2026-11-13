@@ -52,10 +52,7 @@ namespace AqLife.Web.Controllers
 
         /// <summary>使用短时效凭证播放视频；允许匿名 HTTP 请求，但凭证必须由已鉴权接口签发。</summary>
         [HttpGet("video-stream"), AllowAnonymous]
-        public async Task<IActionResult> StreamVideoPreview(
-            [FromQuery] Guid uid,
-            [FromQuery] string? ticket,
-            CancellationToken ct)
+        public async Task<IActionResult> StreamVideoPreview([FromQuery] Guid uid,[FromQuery] string? ticket,CancellationToken ct)
         {
             if (uid == Guid.Empty)
                 return Unauthorized();
@@ -176,13 +173,12 @@ namespace AqLife.Web.Controllers
             => await mediator.Send(command, ct);
 
         /// <summary>创建视频断点上传任务。</summary>
-        [HttpPost("uploads"), ServiceFilter(typeof(FileUploadFilter))]
-        public async Task<ResumableUploadSession> StartVideoUpload(
-            [FromBody] StartVideoUploadCommand command, CancellationToken ct)
+        [HttpPost("resumable-upload"), ServiceFilter(typeof(FileUploadFilter))]
+        public async Task<ResumableUploadSession> StartVideoUpload([FromBody] StartVideoUploadCommand command, CancellationToken ct)
             => await mediator.Send(command, ct);
 
         /// <summary>上传单个视频分片。分片大小上限为 8 MiB，允许通过任务状态查询已成功的分片。</summary>
-        [HttpPut("uploads/{uploadId:guid}/chunks/{index:int}"), RequestSizeLimit(9 * 1024 * 1024)]
+        [HttpPut("resumable-upload/{uploadId:guid}/chunks/{index:int}"), RequestSizeLimit(9 * 1024 * 1024)]
         [RequestFormLimits(MultipartBodyLengthLimit = 9 * 1024 * 1024)]
         public async Task<IActionResult> UploadVideoChunk(Guid uploadId, int index, IFormFile chunk, CancellationToken ct)
         {
@@ -190,12 +186,12 @@ namespace AqLife.Web.Controllers
             return NoContent();
         }
 
-        [HttpGet("uploads/{uploadId:guid}")]
+        [HttpGet("resumable-upload/{uploadId:guid}")]
         public async Task<ResumableUploadStatus> GetVideoUploadStatus(Guid uploadId, CancellationToken ct)
             => await mediator.Send(new GetVideoUploadStatusQuery(uploadId), ct);
 
         /// <summary>校验所有分片并合并，之后交由现有文件管线完成哈希、去重、元数据和存储。</summary>
-        [HttpPost("uploads/{uploadId:guid}/complete"), ServiceFilter(typeof(FileUploadFilter))]
+        [HttpPost("resumable-upload/{uploadId:guid}/complete"), ServiceFilter(typeof(FileUploadFilter))]
         public async Task<Guid> CompleteVideoUpload(Guid uploadId, CancellationToken ct)
             => await mediator.Send(new CompleteVideoUploadCommand(uploadId), ct);
 

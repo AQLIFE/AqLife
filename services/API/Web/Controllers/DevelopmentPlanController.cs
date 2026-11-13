@@ -12,14 +12,8 @@ namespace AqLife.Web.Controllers
     {
         [HttpGet, AllowAnonymous]
         public Task<IReadOnlyList<DevelopmentPlanDto>> GetAsync([FromQuery] DevelopmentPlanQuery query, CancellationToken ct)
-        {
-            // Anonymous Web visitors can only discover active, public plans.
-            //var effectiveQuery = User.Identity?.IsAuthenticated == true
-            //    ? query
-            //    : query with { IncludeArchived = false };
-            return mediator.Send(query, ct);
-        }
-
+            => mediator.Send(query, ct);
+        
         [HttpPost]
         public Task<Guid> CreateAsync(CreateDevelopmentPlanCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
@@ -29,7 +23,7 @@ namespace AqLife.Web.Controllers
             => mediator.Send(command, ct);
 
         [HttpPost("{uid:guid}/archive")]
-        public Task<Guid> ArchiveAsync(Guid uid, CancellationToken ct)
-            => mediator.Send(new ArchiveDevelopmentPlanCommand(uid), ct);
+        public Task<Guid> ArchiveAsync([FromRoute(Name = nameof(ArchiveDevelopmentPlanCommand.UID))]ArchiveDevelopmentPlanCommand command, CancellationToken ct)
+            => mediator.Send(command, ct);
     }
 }

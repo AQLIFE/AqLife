@@ -37,6 +37,7 @@ namespace AqLife.Domain.Entities.DevPlan
         /// Monotonically increasing version for dependency-graph mutations.
         /// It is a concurrency aid, not a substitute for a transaction/lock.
         /// </summary>
+        [ConcurrencyCheck]
         public long DependencyVersion { get; private set; } = 0;
 
         public ICollection<TodoEntity> Todos { get; set; } = [];

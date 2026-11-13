@@ -5,7 +5,6 @@ using AqLife.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.Todo.Validator;
 
-[Obsolete("使用专属验证器 DevPlanValidator 替代")]
 public sealed class RestoreTodoPlanActiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<RestoreTodoCommand>
 {
     private protected override string ErrorMessage { init; get; } = "已归档的开发计划不允许修改";

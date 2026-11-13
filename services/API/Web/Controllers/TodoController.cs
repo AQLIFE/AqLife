@@ -13,40 +13,29 @@ namespace AqLife.Web.Controllers
         [HttpGet]
         [AllowAnonymous]
         public Task<PageResult<TodoDto>> SearchAsync([FromQuery] TodoQuery query, CancellationToken ct)
-        {
-            //// Archived tasks remain available to authenticated MGS managers only.
-            //var effectiveQuery = User.Identity?.IsAuthenticated == true
-            //    ? query
-            //    : query with { IncludeArchived = false };
-            return mediator.Send(query, ct);
-        }
-
-        [HttpGet("roadmap"), AllowAnonymous]
-        public Task<TodoRoadmapDto> GetRoadmapAsync([FromQuery] TodoRoadmapQuery query, CancellationToken ct)
             => mediator.Send(query, ct);
 
         [HttpPost]
         public Task<Guid> CreateAsync(CreateTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch]
-        public Task<Guid> UpdateAsync(UpdateTodoCommand command, CancellationToken ct)
+        [HttpPatch("{uid:guid}/details")]
+        public Task<Guid> UpdateAsync([FromRoute(Name = nameof(UpdateTodoCommand.UID))] UpdateTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpPatch("{UID:guid}/status")]
-        public Task<Guid> SetParentAsync(UpdateTodoStatusCommand command, CancellationToken ct)
+        [HttpPatch("{uid:guid}/status")]
+        public Task<Guid> SetParentAsync([FromRoute(Name = nameof(UpdateTodoStatusCommand.UID))] UpdateTodoStatusCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
-
-        //[HttpPatch("sort-order")]
-        //public Task<Guid> SetSortOrderAsync(SetTodoSortOrderCommand command, CancellationToken ct)
-        //    => mediator.Send(command, ct);
 
         [HttpPatch("{uid:guid}/archive")]
-        public Task<Guid> ArchiveAsync(ArchiveTodoCommand command, CancellationToken ct)
+        public Task<Guid> ArchiveAsync([FromRoute(Name = nameof(ArchiveTodoCommand.UID))] ArchiveTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
         [HttpPatch("{uid:guid}/restore")]
-        public Task<Guid> RestoreAsync(RestoreTodoCommand command, CancellationToken ct)
+        public Task<Guid> RestoreAsync([FromRoute(Name = nameof(RestoreTodoCommand.UID))]RestoreTodoCommand command, CancellationToken ct)
+            => mediator.Send(command, ct);
+        [HttpDelete]
+        public Task DeleteAsync(DeleteTodoCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
         [HttpPost("dependencies")]
@@ -56,13 +45,14 @@ namespace AqLife.Web.Controllers
         [HttpDelete("dependencies")]
         public Task RemoveDependencyAsync(RemoveTodoDependencyCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
+        
+        [HttpGet("roadmap"), AllowAnonymous]
+        public Task<TodoRoadmapDto> GetRoadmapAsync([FromQuery] TodoRoadmapQuery query, CancellationToken ct)
+            => mediator.Send(query, ct);
 
         [HttpPut("roadmap/layout")]
         public Task<Guid> SaveLayoutAsync(SaveRoadmapNodeLayoutCommand command, CancellationToken ct)
             => mediator.Send(command, ct);
 
-        [HttpDelete]
-        public Task DeleteAsync(DeleteTodoCommand command, CancellationToken ct)
-            => mediator.Send(command, ct);
     }
 }

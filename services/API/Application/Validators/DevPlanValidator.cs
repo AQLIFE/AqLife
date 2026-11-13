@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Domain.Command;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Contracts;
 using AqLife.Shared.Contracts.CommandInterface;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 namespace AqLife.Application.Validators
 {
     public class DevPlanValidator<TRequest>(IApplicationDbContext storage) : AbstractValidator<TRequest>
-       where TRequest : IRequireDevPlan
+       where TRequest : IRequireDevPlan,ICommand
     {
         private protected override string ErrorMessage { init; get; } = "已归档的开发计划不允许修改";
         private protected override async Task<bool> IsValidAsync(TRequest query, CancellationToken ct)
@@ -33,7 +34,7 @@ namespace AqLife.Application.Validators
     {
         private protected override string ErrorMessage { init; get; } = "请求的任务不属于该计划或该任务已存档";
         private protected override async Task<bool> IsValidAsync(TRequest query, CancellationToken ct)
-            => await storage.Todo.AnyAsync(x=>x.UID == query.UID && x.PlanId == query.PlanId && !x.IsArchived,ct);
+            => query is RestoreTodoCommand || await storage.Todo.AnyAsync(x=>x.UID == query.UID && x.PlanId == query.PlanId && !x.IsArchived,ct);
 
         private protected override Exception CreateException(string message)
         => new DomainLegalityException(message);
