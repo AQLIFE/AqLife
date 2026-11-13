@@ -65,10 +65,10 @@ All URIs are relative to *http://localhost*
 *CorpusApi* | [**apiCorpusGet**](docs/CorpusApi.md#apicorpusget) | **GET** /api/Corpus | 
 *CorpusApi* | [**apiCorpusPost**](docs/CorpusApi.md#apicorpuspost) | **POST** /api/Corpus | 
 *CorpusApi* | [**apiCorpusRandomGet**](docs/CorpusApi.md#apicorpusrandomget) | **GET** /api/Corpus/random | 
+*DevelopmentPlanApi* | [**apiDevelopmentPlansArchivePost**](docs/DevelopmentPlanApi.md#apidevelopmentplansarchivepost) | **POST** /api/development-plans/archive | 
 *DevelopmentPlanApi* | [**apiDevelopmentPlansGet**](docs/DevelopmentPlanApi.md#apidevelopmentplansget) | **GET** /api/development-plans | 
 *DevelopmentPlanApi* | [**apiDevelopmentPlansPatch**](docs/DevelopmentPlanApi.md#apidevelopmentplanspatch) | **PATCH** /api/development-plans | 
 *DevelopmentPlanApi* | [**apiDevelopmentPlansPost**](docs/DevelopmentPlanApi.md#apidevelopmentplanspost) | **POST** /api/development-plans | 
-*DevelopmentPlanApi* | [**apiDevelopmentPlansUIDArchivePost**](docs/DevelopmentPlanApi.md#apidevelopmentplansuidarchivepost) | **POST** /api/development-plans/{UID}/archive | 
 *FavoriteApi* | [**apiFavoriteDelete**](docs/FavoriteApi.md#apifavoritedelete) | **DELETE** /api/Favorite | 
 *FavoriteApi* | [**apiFavoriteGet**](docs/FavoriteApi.md#apifavoriteget) | **GET** /api/Favorite | 
 *FavoriteApi* | [**apiFavoritePost**](docs/FavoriteApi.md#apifavoritepost) | **POST** /api/Favorite | 
@@ -97,17 +97,17 @@ All URIs are relative to *http://localhost*
 *TagApi* | [**apiTagGet**](docs/TagApi.md#apitagget) | **GET** /api/Tag | 
 *TagApi* | [**apiTagPatch**](docs/TagApi.md#apitagpatch) | **PATCH** /api/Tag | 
 *TagApi* | [**apiTagPost**](docs/TagApi.md#apitagpost) | **POST** /api/Tag | 
+*TodoApi* | [**apiTodoArchivePatch**](docs/TodoApi.md#apitodoarchivepatch) | **PATCH** /api/Todo/archive | 
 *TodoApi* | [**apiTodoDelete**](docs/TodoApi.md#apitododelete) | **DELETE** /api/Todo | 
 *TodoApi* | [**apiTodoDependenciesDelete**](docs/TodoApi.md#apitododependenciesdelete) | **DELETE** /api/Todo/dependencies | 
 *TodoApi* | [**apiTodoDependenciesPost**](docs/TodoApi.md#apitododependenciespost) | **POST** /api/Todo/dependencies | 
+*TodoApi* | [**apiTodoDetailsPatch**](docs/TodoApi.md#apitododetailspatch) | **PATCH** /api/Todo/details | 
 *TodoApi* | [**apiTodoGet**](docs/TodoApi.md#apitodoget) | **GET** /api/Todo | 
 *TodoApi* | [**apiTodoPost**](docs/TodoApi.md#apitodopost) | **POST** /api/Todo | 
+*TodoApi* | [**apiTodoRestorePatch**](docs/TodoApi.md#apitodorestorepatch) | **PATCH** /api/Todo/restore | 
 *TodoApi* | [**apiTodoRoadmapGet**](docs/TodoApi.md#apitodoroadmapget) | **GET** /api/Todo/roadmap | 
 *TodoApi* | [**apiTodoRoadmapLayoutPut**](docs/TodoApi.md#apitodoroadmaplayoutput) | **PUT** /api/Todo/roadmap/layout | 
-*TodoApi* | [**apiTodoUIDArchivePatch**](docs/TodoApi.md#apitodouidarchivepatch) | **PATCH** /api/Todo/{UID}/archive | 
-*TodoApi* | [**apiTodoUIDDetailsPatch**](docs/TodoApi.md#apitodouiddetailspatch) | **PATCH** /api/Todo/{UID}/details | 
-*TodoApi* | [**apiTodoUIDRestorePatch**](docs/TodoApi.md#apitodouidrestorepatch) | **PATCH** /api/Todo/{UID}/restore | 
-*TodoApi* | [**apiTodoUIDStatusPatch**](docs/TodoApi.md#apitodouidstatuspatch) | **PATCH** /api/Todo/{UID}/status | 
+*TodoApi* | [**apiTodoStatusPatch**](docs/TodoApi.md#apitodostatuspatch) | **PATCH** /api/Todo/status | 
 
 
 ### Models
@@ -115,6 +115,8 @@ All URIs are relative to *http://localhost*
 - [AccountDto](docs/AccountDto.md)
 - [AccountProfile](docs/AccountProfile.md)
 - [AddTodoDependencyCommand](docs/AddTodoDependencyCommand.md)
+- [ArchiveDevelopmentPlanCommand](docs/ArchiveDevelopmentPlanCommand.md)
+- [ArchiveTodoCommand](docs/ArchiveTodoCommand.md)
 - [CancelScheduledFileCommand](docs/CancelScheduledFileCommand.md)
 - [CategoryDto](docs/CategoryDto.md)
 - [CategoryDtoPageResult](docs/CategoryDtoPageResult.md)
@@ -148,6 +150,7 @@ All URIs are relative to *http://localhost*
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
 - [RemoveTodoDependencyCommand](docs/RemoveTodoDependencyCommand.md)
+- [RestoreTodoCommand](docs/RestoreTodoCommand.md)
 - [ResumableUploadSession](docs/ResumableUploadSession.md)
 - [ResumableUploadStatus](docs/ResumableUploadStatus.md)
 - [RoadmapNodeLayoutDto](docs/RoadmapNodeLayoutDto.md)
@@ -162,11 +165,14 @@ All URIs are relative to *http://localhost*
 - [TodoDto](docs/TodoDto.md)
 - [TodoDtoPageResult](docs/TodoDtoPageResult.md)
 - [TodoRoadmapDto](docs/TodoRoadmapDto.md)
+- [TodoStatus](docs/TodoStatus.md)
 - [UpdateCategoryCommand](docs/UpdateCategoryCommand.md)
 - [UpdateDevelopmentPlanCommand](docs/UpdateDevelopmentPlanCommand.md)
 - [UpdateFavoriteCommand](docs/UpdateFavoriteCommand.md)
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
 - [UpdateTagCommand](docs/UpdateTagCommand.md)
+- [UpdateTodoCommand](docs/UpdateTodoCommand.md)
+- [UpdateTodoStatusCommand](docs/UpdateTodoStatusCommand.md)
 
 ### Authorization
 

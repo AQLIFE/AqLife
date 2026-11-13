@@ -8,6 +8,7 @@ Name | Type
 ------------ | -------------
 `uid` | string
 `fileName` | string
+`category` | [CategoryDto](CategoryDto.md)
 `tags` | [Array&lt;TagDto&gt;](TagDto.md)
 `publishStatus` | [FileStatus](FileStatus.md)
 `publishAt` | string
@@ -19,7 +20,6 @@ Name | Type
 `viewCount` | number
 `version` | number
 `isTemplate` | boolean
-`category` | [CategoryDto](CategoryDto.md)
 
 ## Example
 
@@ -30,6 +30,7 @@ import type { FileDto } from '@aqlife/api-contract'
 const example = {
   "uid": null,
   "fileName": null,
+  "category": null,
   "tags": null,
   "publishStatus": null,
   "publishAt": null,
@@ -41,7 +42,6 @@ const example = {
   "viewCount": null,
   "version": null,
   "isTemplate": null,
-  "category": null,
 } satisfies FileDto
 
 console.log(example)

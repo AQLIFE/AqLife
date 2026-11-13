@@ -55,6 +55,12 @@ export interface FileDto {
     fileName?: string | null;
     /**
      * 
+     * @type {CategoryDto}
+     * @memberof FileDto
+     */
+    category?: CategoryDto;
+    /**
+     * 
      * @type {Array<TagDto>}
      * @memberof FileDto
      */
@@ -121,12 +127,6 @@ export interface FileDto {
      * @memberof FileDto
      */
     isTemplate?: boolean;
-    /**
-     * 
-     * @type {CategoryDto}
-     * @memberof FileDto
-     */
-    category?: CategoryDto;
 }
 
 
@@ -150,6 +150,7 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
         
         'uid': json['uid'] == null ? undefined : json['uid'],
         'fileName': json['fileName'] == null ? undefined : json['fileName'],
+        'category': json['category'] == null ? undefined : CategoryDtoFromJSON(json['category']),
         'tags': json['tags'] == null ? undefined : ((json['tags'] as Array<any>).map(TagDtoFromJSON)),
         'publishStatus': json['publishStatus'] == null ? undefined : FileStatusFromJSON(json['publishStatus']),
         'publishAt': json['publishAt'] == null ? undefined : json['publishAt'],
@@ -161,7 +162,6 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
         'viewCount': json['viewCount'] == null ? undefined : json['viewCount'],
         'version': json['version'] == null ? undefined : json['version'],
         'isTemplate': json['isTemplate'] == null ? undefined : json['isTemplate'],
-        'category': json['category'] == null ? undefined : CategoryDtoFromJSON(json['category']),
     };
 }
 
@@ -178,6 +178,7 @@ export function FileDtoToJSONTyped(value?: FileDto | null, ignoreDiscriminator: 
         
         'uid': value['uid'],
         'fileName': value['fileName'],
+        'category': CategoryDtoToJSON(value['category']),
         'tags': value['tags'] == null ? undefined : ((value['tags'] as Array<any>).map(TagDtoToJSON)),
         'publishStatus': FileStatusToJSON(value['publishStatus']),
         'publishAt': value['publishAt'],
@@ -189,7 +190,6 @@ export function FileDtoToJSONTyped(value?: FileDto | null, ignoreDiscriminator: 
         'viewCount': value['viewCount'],
         'version': value['version'],
         'isTemplate': value['isTemplate'],
-        'category': CategoryDtoToJSON(value['category']),
     };
 }
 

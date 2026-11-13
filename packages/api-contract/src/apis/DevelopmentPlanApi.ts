@@ -14,6 +14,11 @@
 
 import * as runtime from '../runtime';
 import {
+    type ArchiveDevelopmentPlanCommand,
+    ArchiveDevelopmentPlanCommandFromJSON,
+    ArchiveDevelopmentPlanCommandToJSON,
+} from '../models/ArchiveDevelopmentPlanCommand';
+import {
     type CreateDevelopmentPlanCommand,
     CreateDevelopmentPlanCommandFromJSON,
     CreateDevelopmentPlanCommandToJSON,
@@ -29,6 +34,10 @@ import {
     UpdateDevelopmentPlanCommandToJSON,
 } from '../models/UpdateDevelopmentPlanCommand';
 
+export interface ApiDevelopmentPlansArchivePostRequest {
+    archiveDevelopmentPlanCommand?: ArchiveDevelopmentPlanCommand;
+}
+
 export interface ApiDevelopmentPlansGetRequest {
     uID?: string;
     title?: string;
@@ -42,10 +51,6 @@ export interface ApiDevelopmentPlansPostRequest {
     createDevelopmentPlanCommand?: CreateDevelopmentPlanCommand;
 }
 
-export interface ApiDevelopmentPlansUIDArchivePostRequest {
-    uID: string;
-}
-
 /**
  * DevelopmentPlanApi - interface
  * 
@@ -53,6 +58,27 @@ export interface ApiDevelopmentPlansUIDArchivePostRequest {
  * @interface DevelopmentPlanApiInterface
  */
 export interface DevelopmentPlanApiInterface {
+    /**
+     * Creates request options for apiDevelopmentPlansArchivePost without sending the request
+     * @param {ArchiveDevelopmentPlanCommand} [archiveDevelopmentPlanCommand] 
+     * @throws {RequiredError}
+     * @memberof DevelopmentPlanApiInterface
+     */
+    apiDevelopmentPlansArchivePostRequestOpts(requestParameters: ApiDevelopmentPlansArchivePostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {ArchiveDevelopmentPlanCommand} [archiveDevelopmentPlanCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DevelopmentPlanApiInterface
+     */
+    apiDevelopmentPlansArchivePostRaw(requestParameters: ApiDevelopmentPlansArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiDevelopmentPlansArchivePost(requestParameters: ApiDevelopmentPlansArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
     /**
      * Creates request options for apiDevelopmentPlansGet without sending the request
      * @param {string} [uID] 
@@ -118,33 +144,54 @@ export interface DevelopmentPlanApiInterface {
      */
     apiDevelopmentPlansPost(requestParameters: ApiDevelopmentPlansPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
-    /**
-     * Creates request options for apiDevelopmentPlansUIDArchivePost without sending the request
-     * @param {string} uID 
-     * @throws {RequiredError}
-     * @memberof DevelopmentPlanApiInterface
-     */
-    apiDevelopmentPlansUIDArchivePostRequestOpts(requestParameters: ApiDevelopmentPlansUIDArchivePostRequest): Promise<runtime.RequestOpts>;
-
-    /**
-     * 
-     * @param {string} uID 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DevelopmentPlanApiInterface
-     */
-    apiDevelopmentPlansUIDArchivePostRaw(requestParameters: ApiDevelopmentPlansUIDArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
-
-    /**
-     */
-    apiDevelopmentPlansUIDArchivePost(requestParameters: ApiDevelopmentPlansUIDArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
-
 }
 
 /**
  * 
  */
 export class DevelopmentPlanApi extends runtime.BaseAPI implements DevelopmentPlanApiInterface {
+
+    /**
+     * Creates request options for apiDevelopmentPlansArchivePost without sending the request
+     */
+    async apiDevelopmentPlansArchivePostRequestOpts(requestParameters: ApiDevelopmentPlansArchivePostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/development-plans/archive`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ArchiveDevelopmentPlanCommandToJSON(requestParameters['archiveDevelopmentPlanCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiDevelopmentPlansArchivePostRaw(requestParameters: ApiDevelopmentPlansArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiDevelopmentPlansArchivePostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiDevelopmentPlansArchivePost(requestParameters: ApiDevelopmentPlansArchivePostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiDevelopmentPlansArchivePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Creates request options for apiDevelopmentPlansGet without sending the request
@@ -270,53 +317,6 @@ export class DevelopmentPlanApi extends runtime.BaseAPI implements DevelopmentPl
      */
     async apiDevelopmentPlansPost(requestParameters: ApiDevelopmentPlansPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiDevelopmentPlansPostRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for apiDevelopmentPlansUIDArchivePost without sending the request
-     */
-    async apiDevelopmentPlansUIDArchivePostRequestOpts(requestParameters: ApiDevelopmentPlansUIDArchivePostRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['uID'] == null) {
-            throw new runtime.RequiredError(
-                'uID',
-                'Required parameter "uID" was null or undefined when calling apiDevelopmentPlansUIDArchivePost().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/api/development-plans/{UID}/archive`;
-        urlPath = urlPath.replace('{UID}', encodeURIComponent(String(requestParameters['uID'])));
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    async apiDevelopmentPlansUIDArchivePostRaw(requestParameters: ApiDevelopmentPlansUIDArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
-        const requestOptions = await this.apiDevelopmentPlansUIDArchivePostRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<string>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
-    }
-
-    /**
-     */
-    async apiDevelopmentPlansUIDArchivePost(requestParameters: ApiDevelopmentPlansUIDArchivePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
-        const response = await this.apiDevelopmentPlansUIDArchivePostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

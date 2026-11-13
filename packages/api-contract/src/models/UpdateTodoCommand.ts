@@ -13,14 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { TodoStatus } from './TodoStatus';
-import {
-    TodoStatusFromJSON,
-    TodoStatusFromJSONTyped,
-    TodoStatusToJSON,
-    TodoStatusToJSONTyped,
-} from './TodoStatus';
-
 /**
  * 
  * @export
@@ -38,13 +30,13 @@ export interface UpdateTodoCommand {
      * @type {string}
      * @memberof UpdateTodoCommand
      */
-    title?: string | null;
+    planId?: string;
     /**
      * 
      * @type {string}
      * @memberof UpdateTodoCommand
      */
-    desc?: string | null;
+    title?: string | null;
     /**
      * 
      * @type {string}
@@ -52,23 +44,12 @@ export interface UpdateTodoCommand {
      */
     description?: string | null;
     /**
-     * - 0 = Initial：初始状态
-     * - 1 = Wait：等待分配
-     * - 2 = Execute：正在执行
-     * - 3 = Completed：执行完成
-     * @type {TodoStatus}
-     * @memberof UpdateTodoCommand
-     */
-    status?: TodoStatus;
-    /**
      * 
      * @type {number}
      * @memberof UpdateTodoCommand
      */
-    priority?: number;
+    sortOrder?: number;
 }
-
-
 
 /**
  * Check if a given object implements the UpdateTodoCommand interface.
@@ -88,11 +69,10 @@ export function UpdateTodoCommandFromJSONTyped(json: any, ignoreDiscriminator: b
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
+        'planId': json['planId'] == null ? undefined : json['planId'],
         'title': json['title'] == null ? undefined : json['title'],
-        'desc': json['Desc'] == null ? undefined : json['Desc'],
         'description': json['description'] == null ? undefined : json['description'],
-        'status': json['status'] == null ? undefined : TodoStatusFromJSON(json['status']),
-        'priority': json['priority'] == null ? undefined : json['priority'],
+        'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
     };
 }
 
@@ -108,11 +88,10 @@ export function UpdateTodoCommandToJSONTyped(value?: UpdateTodoCommand | null, i
     return {
         
         'uid': value['uid'],
+        'planId': value['planId'],
         'title': value['title'],
-        'Desc': value['desc'],
         'description': value['description'],
-        'status': TodoStatusToJSON(value['status']),
-        'priority': value['priority'],
+        'sortOrder': value['sortOrder'],
     };
 }
 

@@ -7,11 +7,10 @@
 Name | Type
 ------------ | -------------
 `uid` | string
+`planId` | string
 `title` | string
-`desc` | string
 `description` | string
-`status` | [TodoStatus](TodoStatus.md)
-`priority` | number
+`sortOrder` | number
 
 ## Example
 
@@ -21,11 +20,10 @@ import type { UpdateTodoCommand } from '@aqlife/api-contract'
 // TODO: Update the object below with actual values
 const example = {
   "uid": null,
+  "planId": null,
   "title": null,
-  "desc": null,
   "description": null,
-  "status": null,
-  "priority": null,
+  "sortOrder": null,
 } satisfies UpdateTodoCommand
 
 console.log(example)

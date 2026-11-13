@@ -5,6 +5,8 @@ docs/AccountApi.md
 docs/AccountDto.md
 docs/AccountProfile.md
 docs/AddTodoDependencyCommand.md
+docs/ArchiveDevelopmentPlanCommand.md
+docs/ArchiveTodoCommand.md
 docs/CancelScheduledFileCommand.md
 docs/CategoryApi.md
 docs/CategoryDto.md
@@ -43,6 +45,7 @@ docs/FileScope.md
 docs/FileStatus.md
 docs/LoginCommand.md
 docs/RemoveTodoDependencyCommand.md
+docs/RestoreTodoCommand.md
 docs/ResumableUploadSession.md
 docs/ResumableUploadStatus.md
 docs/RoadmapNodeLayoutDto.md
@@ -59,11 +62,14 @@ docs/TodoDependencyDto.md
 docs/TodoDto.md
 docs/TodoDtoPageResult.md
 docs/TodoRoadmapDto.md
+docs/TodoStatus.md
 docs/UpdateCategoryCommand.md
 docs/UpdateDevelopmentPlanCommand.md
 docs/UpdateFavoriteCommand.md
 docs/UpdateFileTagCommand.md
 docs/UpdateTagCommand.md
+docs/UpdateTodoCommand.md
+docs/UpdateTodoStatusCommand.md
 package.json
 src/apis/AccountApi.ts
 src/apis/CategoryApi.ts
@@ -78,6 +84,8 @@ src/index.ts
 src/models/AccountDto.ts
 src/models/AccountProfile.ts
 src/models/AddTodoDependencyCommand.ts
+src/models/ArchiveDevelopmentPlanCommand.ts
+src/models/ArchiveTodoCommand.ts
 src/models/CancelScheduledFileCommand.ts
 src/models/CategoryDto.ts
 src/models/CategoryDtoPageResult.ts
@@ -111,6 +119,7 @@ src/models/FileScope.ts
 src/models/FileStatus.ts
 src/models/LoginCommand.ts
 src/models/RemoveTodoDependencyCommand.ts
+src/models/RestoreTodoCommand.ts
 src/models/ResumableUploadSession.ts
 src/models/ResumableUploadStatus.ts
 src/models/RoadmapNodeLayoutDto.ts
@@ -125,11 +134,14 @@ src/models/TodoDependencyDto.ts
 src/models/TodoDto.ts
 src/models/TodoDtoPageResult.ts
 src/models/TodoRoadmapDto.ts
+src/models/TodoStatus.ts
 src/models/UpdateCategoryCommand.ts
 src/models/UpdateDevelopmentPlanCommand.ts
 src/models/UpdateFavoriteCommand.ts
 src/models/UpdateFileTagCommand.ts
 src/models/UpdateTagCommand.ts
+src/models/UpdateTodoCommand.ts
+src/models/UpdateTodoStatusCommand.ts
 src/models/index.ts
 src/runtime.ts
 tsconfig.esm.json
