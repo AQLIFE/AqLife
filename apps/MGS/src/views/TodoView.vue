@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { notify } from '@aqlife/ui-shared'
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import {
   ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElMessageBox,
   ElOption, ElSelect, ElSegmented, ElSwitch, ElTable, ElTableColumn, ElTag,
@@ -66,10 +66,6 @@ async function refresh() {
   catch (e) { notify.error(e instanceof Error ? e.message : '开发计划加载失败') }
 }
 onMounted(refresh)
-watch(showArchived, () => {
-  // 管理端查询会返回归档任务；归档开关只控制本地展示，不改变 API 查询条件。
-})
-
 function createTask() {
   editing.value = null
   Object.assign(task, { title: '', description: '', sortOrder: 0, status: TodoStatus.Initial })
