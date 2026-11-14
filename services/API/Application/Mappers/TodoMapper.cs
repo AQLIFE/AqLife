@@ -12,7 +12,7 @@ namespace AqLife.Application.Mappers
     public sealed partial class TodoMapper :
         IViewMapper<TodoEntity, TodoDto>,
         ICreateMapper<TodoEntity, CreateTodoCommand>,
-        ICreateMapper<TodoDependencyEntity, AddTodoDependencyCommand>, 
+        ICreateMapper<TodoDependencyEntity, AddTodoDependencyCommand>,
         IViewMapper<TodoDependencyEntity, TodoDependencyDto>,
         IBaseEntityMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>,
         IViewMapper<RoadmapNodeLayoutEntity, RoadmapNodeLayoutDto>,
@@ -68,11 +68,10 @@ namespace AqLife.Application.Mappers
         [MapperIgnoreTarget(nameof(TodoEntity.Plan))]
         public partial TodoEntity ToEntity(CreateTodoCommand command);
 
-        [MapperIgnoreTarget(nameof(TodoDependencyEntity.UID))]
-        [MapperIgnoreTarget(nameof(TodoDependencyEntity.CreatedAt))]
-        [MapperIgnoreTarget(nameof(TodoDependencyEntity.PredecessorTodo))]
-        [MapperIgnoreTarget(nameof(TodoDependencyEntity.SuccessorTodo))]
-        public partial TodoDependencyEntity ToEntity(AddTodoDependencyCommand command);
+        // 依赖实体的端点 ID 由领域构造函数写入私有 setter；
+        // 不能依赖 Mapperly 对私有 setter 的映射，否则可能落成 Guid.Empty 并触发外键异常。
+        public TodoDependencyEntity ToEntity(AddTodoDependencyCommand command)
+            => new(command.PlanId, command.PredecessorId, command.SuccessorId);
 
         [MapperIgnoreSource(nameof(TodoDependencyEntity.UID))]
         [MapperIgnoreSource(nameof(TodoDependencyEntity.PlanId))]
