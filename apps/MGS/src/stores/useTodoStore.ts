@@ -23,7 +23,8 @@ export const useTodoStorage = defineStore('todo', () => {
     error.value = null
     await plansLoading.run(async () => {
       try {
-        plans.value = await planApi.apiDevelopmentPlansGet({ includeArchived: showArchived })
+        const allPlans = await planApi.apiDevelopmentPlansGet()
+        plans.value = showArchived ? allPlans : allPlans.filter(plan => !plan.isArchived)
         if (!plans.value.some(x => x.uid === selectedPlanId.value && !x.isArchived)) {
           selectedPlanId.value = plans.value.find(x => !x.isArchived)?.uid ?? ''
         }
@@ -85,7 +86,7 @@ export const useTodoStorage = defineStore('todo', () => {
   }
 
   async function archivePlan(planId: string) {
-    await planApi.apiDevelopmentPlansUidArchivePost({ uid: planId })
+    await planApi.apiDevelopmentPlansArchivePost({ archiveDevelopmentPlanCommand: { uid: planId } })
     await fetchPlans()
   }
 
