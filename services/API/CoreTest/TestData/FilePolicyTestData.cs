@@ -106,7 +106,7 @@ namespace AqLife.CoreTest.TestData
 
                 data.AddRange(
                     GetImageFormFiles()
-                        .Select(e => new CreateFileCommand(e, CategoryEntity.DefaultCategoryId))
+                        .Select(e => new CreateFileCommand(e, CategoryEntity.DefaultCategoryId, IsTemplate: true))
                 );
 
                 return data;
