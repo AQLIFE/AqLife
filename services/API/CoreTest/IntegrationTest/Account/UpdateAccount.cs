@@ -58,7 +58,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
 
             var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await base.ExecuteAsync(updateCommand, CancellationToken.None));
             // 预期更新失败
-            Assert.Equal("资源不存在", exception.Message);
+            Assert.Equal("账户不存在", exception.Message);
             var account = await base.QueryAsync(e => e.UID == updateCommand.UID, CancellationToken.None);
             Assert.Null(account);
 
