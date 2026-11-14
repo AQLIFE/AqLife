@@ -9,7 +9,7 @@ import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import MgsPageState from '@/components/ui/MgsPageState.vue'
 
-import { TodoApi, TodoStatus, type TodoDto, type TodoRoadmapDto } from '@/api'
+import { TodoApi, TodoStatus, type TodoDependencyDto, type TodoDto, type TodoRoadmapDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useTodoStorage } from '@/stores/useTodoStore'
 
@@ -121,6 +121,20 @@ async function addDependency() {
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '添加依赖失败') }
   finally { saving.value = false }
 }
+
+async function removeDependency(edge: TodoDependencyDto) {
+  if (!edge.uid || !selectedPlanId.value) return
+  saving.value = true
+  try {
+    await todoApi.apiTodoDependenciesDelete({ removeTodoDependencyCommand: {
+      uid: edge.uid,
+      planId: selectedPlanId.value,
+    } })
+    await refreshViews()
+    ElMessage.success('前置依赖已移除')
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '移除依赖失败') }
+  finally { saving.value = false }
+}
 function beginDrag(event: PointerEvent, todo: TodoDto) {
   if (!todo.uid || (event.target as HTMLElement).closest('button')) return
   const point = positions.value[todo.uid]
@@ -221,10 +235,16 @@ onBeforeUnmount(() => {
         <div class="dependency-section">
           <div class="section-heading"><strong>前置依赖（{{ incoming.length }}）</strong><ElButton link type="primary" :icon="Plus" @click="dependencyDialog = true" :disabled="!!selectedPlan?.isArchived || !!selected.isArchived">添加前置任务</ElButton></div>
           <div v-if="incoming.length === 0" class="muted">没有前置依赖</div>
-          <div v-for="edge in incoming" :key="edge.predecessorId" class="dependency-item">
+          <div v-for="edge in incoming" :key="edge.uid" class="dependency-item">
             <span>{{ titleOf(nodeById.get(edge.predecessorId ?? '') ?? {}) }}</span>
+            <ElButton
+              link
+              type="danger"
+              :disabled="!!selectedPlan?.isArchived || !!selected.isArchived || saving"
+              @click="removeDependency(edge)"
+            >移除</ElButton>
           </div>
-          <p class="hint">只有全部前置任务完成后，该节点才会解除阻塞。当前接口未提供依赖关系 UID，暂不能从此处移除依赖。</p>
+          <p class="hint">只有全部前置任务完成后，该节点才会解除阻塞。移除前置依赖后，阻塞状态会根据剩余依赖重新计算。</p>
         </div>
       </aside>
       <aside class="detail-panel empty-detail" v-else><Lock /><p>选择一个任务节点查看详情</p></aside>
