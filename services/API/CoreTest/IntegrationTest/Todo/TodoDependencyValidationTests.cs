@@ -81,6 +81,6 @@ public class TodoDependencyValidationTests(IntegrationTestFixture fixture)
         if (plan is not null)
             storage.DevelopmentPlans.Remove(plan);
 
-        await storage.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await storage.SaveChangesAsync(CancellationToken.None);
     }
 }
