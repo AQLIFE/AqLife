@@ -1,6 +1,8 @@
-﻿using AqLife.Application.Business.File.Search;
+﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Business.File.Search;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities.File;
 using AqLife.Shared.Options;
 using Microsoft.Extensions.Options;
 
@@ -29,7 +31,7 @@ public class FileUpdateValidtor(IOptions<FilePolicyOption> options) : AbstractVa
 }
 
 
-public class FileNameConsistencyValidtor(FileSearch search/*,ILogger<FileNameConsistencyValidtor> logger*/) : AbstractValidator<UpdateFileCommand>
+public class FileNameConsistencyValidtor(ISearch<FileQuery, FileMetaEntity> search/*,ILogger<FileNameConsistencyValidtor> logger*/) : AbstractValidator<UpdateFileCommand>
 {
     private protected override string ErrorMessage { init; get; } = "更新文件名必须与原文件一致";
     private protected override async Task<bool> IsValidAsync(UpdateFileCommand command, CancellationToken ct)
@@ -42,7 +44,7 @@ public class FileNameConsistencyValidtor(FileSearch search/*,ILogger<FileNameCon
 
 
 
-public class FilePublishStatusValidtor(FileSearch search) : AbstractValidator<ScheduledFileCommand>
+public class FilePublishStatusValidtor(ISearch<FileQuery, FileMetaEntity> search) : AbstractValidator<ScheduledFileCommand>
 {
     private protected override string ErrorMessage { init; get; } = "预定时间不能小于当前系统时间";
     private protected override async Task<bool> IsValidAsync(ScheduledFileCommand command, CancellationToken ct)

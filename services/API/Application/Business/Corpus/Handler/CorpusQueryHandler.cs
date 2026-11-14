@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Business.Corpus.Search;
+﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Business.Corpus.Search;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
@@ -7,7 +8,7 @@ using MediatR;
 
 namespace AqLife.Application.Business.Corpus.Handler
 {
-    public class CorpusQueryHandler(CorpusSearch search, PageResultMapper<CorpusEntity, CorpusDto> mapper) : IRequestHandler<CorpusQuery, PageResult<CorpusDto>>
+    public class CorpusQueryHandler(ISearch<CorpusQuery, CorpusEntity> search, PageResultMapper<CorpusEntity, CorpusDto> mapper) : IRequestHandler<CorpusQuery, PageResult<CorpusDto>>
     {
         public async Task<PageResult<CorpusDto>> Handle(CorpusQuery query, CancellationToken ct)
         {

@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Business.Corpus.Search;
+﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Business.Corpus.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
@@ -6,7 +7,7 @@ using MediatR;
 
 namespace AqLife.Application.Business.Corpus.Handler
 {
-    public class RandomCorpusQueryHandler(CorpusSearch search) : IRequestHandler<RandomCorpusQuery, string>
+    public class RandomCorpusQueryHandler(ISearch<CorpusQuery, CorpusEntity> search) : IRequestHandler<RandomCorpusQuery, string>
     {
         public async Task<string> Handle(RandomCorpusQuery query, CancellationToken ct)
         {

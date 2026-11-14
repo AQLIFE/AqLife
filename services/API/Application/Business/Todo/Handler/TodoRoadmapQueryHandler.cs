@@ -1,5 +1,6 @@
 using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Business.DevelopmentPlan.Search;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
@@ -11,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Todo.Handler;
 
-public sealed class TodoRoadmapQueryHandler(DevelopmentPlanSearch<TodoRoadmapQuery, TodoRoadmapDto> roadmapSearch,
+public sealed class TodoRoadmapQueryHandler(ISearch<TodoRoadmapQuery, DevelopmentPlanEntity> roadmapSearch,
     IViewMapper<DevelopmentPlanEntity, TodoRoadmapDto> mapper) : IRequestHandler<TodoRoadmapQuery, TodoRoadmapDto>
 {
     public async Task<TodoRoadmapDto> Handle(TodoRoadmapQuery q, CancellationToken ct)

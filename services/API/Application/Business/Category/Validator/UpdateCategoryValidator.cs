@@ -13,29 +13,40 @@ using System.Windows.Input;
 
 namespace AqLife.Application.Business.Category.Validator
 {
+    /// <summary>
+    /// 父分类必须存在或者等于null
+    /// </summary>
+    /// <param name="dbContext"></param>
     public sealed class UpdateCategoryValidator(IApplicationDbContext dbContext)
     : AbstractValidator<UpdateCategoryCommand>
     {
         private protected override string ErrorMessage { init; get; } = "父分类不存在";
 
         private protected override async Task<bool> IsValidAsync(UpdateCategoryCommand command, CancellationToken ct)
-            => await dbContext.Categories.AnyAsync(category => category.UID == command.ParentId, ct);
-    }
+            => command.ParentId == null || await dbContext.Categories.AnyAsync(category => category.UID == command.ParentId, ct);
+    }// 允许父分类为null
 
+    /// <summary>
+    /// 不允许更新 默认分类
+    /// </summary>
     public sealed class UpdateDefaultCategoryValidator : AbstractValidator<UpdateCategoryCommand>
     {
         private protected override string ErrorMessage { init; get; } = "默认分类不允许创建父分类";
 
         private protected override async Task<bool> IsValidAsync(UpdateCategoryCommand command, CancellationToken ct)
-            => command.UID == CategoryEntity.DefaultCategoryId && command.ParentId == null;
+            => command.UID != CategoryEntity.DefaultCategoryId;
     }
 
-    public sealed class UpdateDefaultCategoryDetailsValidator(IApplicationDbContext dbContext) : AbstractValidator<UpdateCategoryCommand>
+    /// <summary>
+    /// 重名校验
+    /// </summary>
+    /// <param name="dbContext"></param>
+    public sealed class UpdateCategoryRepeatNameValidator(IApplicationDbContext dbContext) : AbstractValidator<UpdateCategoryCommand>
     {
-        private protected override string ErrorMessage { init; get; } = "默认分类不允许修改";
+        private protected override string ErrorMessage { init; get; } = "不允许分类重名";
 
         private protected override async Task<bool> IsValidAsync(UpdateCategoryCommand command, CancellationToken ct)
-            => command.UID == CategoryEntity.DefaultCategoryId && await dbContext.Categories.AnyAsync(e => e.CategoryName == command.Name && e.CategoryDescription == command.Desc, ct);
+            => await dbContext.Categories.AllAsync(e => e.CategoryName != command.Name, ct);
     }
 
     /// <summary>

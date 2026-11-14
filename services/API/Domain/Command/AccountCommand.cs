@@ -73,8 +73,9 @@ namespace AqLife.Domain.Command
         //[property:RegularExpression(pattern:@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,32}$",ErrorMessage ="不规范的旧密码")]
         [property:Required(ErrorMessage ="必须提供")]
         string OldPassword,
-        [property:RegularExpression(pattern:@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,32}$",ErrorMessage ="不规范的新密码")]
+        [property:Required(ErrorMessage ="必须提供"),RegularExpression(pattern:@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,32}$",ErrorMessage ="不规范的新密码")]
         string NewPassword
     ) : IRequireValidEntity<AccountEntity>, IUpdateCommand<string>;
 
+    public record UpdatePwdCommand(string OldPassword, string NewPassword);
 }

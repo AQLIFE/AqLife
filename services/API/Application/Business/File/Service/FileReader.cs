@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.FileStorage;
+using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Business.File.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.File;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace AqLife.Application.Business.File.Service
 {
-    public class FileReader(FileExtensionContentTypeProvider extProvider, FileSearch fileSearch, IFileStorage fileStorage)
+    public class FileReader(FileExtensionContentTypeProvider extProvider, ISearch<FileQuery, FileMetaEntity> fileSearch, IFileStorage fileStorage)
     {
         private string GetFileMimeType(string filename)
         {

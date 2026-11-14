@@ -32,6 +32,9 @@ namespace AqLife.Web.Controllers
         [HttpPatch("profile"), EndpointDescription("更新账户信息(包含公开名称,BIO);返回账户ID")]
         public async Task<string> UpdateProfile(AccountProfile info, CancellationToken ct)
             => await mediator.Send(new UpdateAccountProfileCommand( UserId, Name: info.Name, Desc: info.Desc), ct);
+        [HttpPatch("pwd")]
+        public async Task<string> UpdatePassword(UpdatePwdCommand updatePwd, CancellationToken ct)
+            => await mediator.Send(new UpdatePasswordCommand( UserId , updatePwd.OldPassword,updatePwd.NewPassword),ct);
         [HttpPut("subscriptions"), EndpointDescription("更新账户个人主页列表,返回账户ID")]
         public async Task<string> UpdateSubscriptions(IEnumerable<SubscriptionDto> dtos, CancellationToken ct)
             => await mediator.Send(new UpdateAccountSubscriptionsCommand( UserId, dtos), ct);

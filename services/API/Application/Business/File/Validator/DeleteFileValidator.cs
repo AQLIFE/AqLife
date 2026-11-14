@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Business.Account.Search;
+﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Business.Account.Search;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
@@ -10,7 +11,7 @@ namespace AqLife.Application.Business.File.Validator
     /// 不允许删除和账户存在关联的文件
     /// </summary>
     /// <param name="accountSearch"></param>
-    public class FileDeleteValidtor(AccountSearch accountSearch) : AbstractValidator<DeleteFileCommand>
+    public class FileDeleteValidtor(ISearch<AccountQuery, AccountEntity> accountSearch) : AbstractValidator<DeleteFileCommand>
     {
         private protected override string ErrorMessage { init; get; } = "预期删除的文件被其他业务依赖着,不允许删除";
         private protected override async Task<bool> IsValidAsync(DeleteFileCommand command, CancellationToken ct)

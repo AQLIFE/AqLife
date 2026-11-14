@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Business.Account.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
@@ -8,7 +9,7 @@ using MediatR;
 namespace AqLife.Application.Business.Account.Handler
 {
     // 完成 Query 和 Service 业务类的解耦,使用Search业务类完成 Query 的处理,并使用 Mapper 将实体转换为 DTO;进度1
-    public class AccountQueryHandler(AccountSearch search, IViewMapper<AccountEntity, AccountDto> mapper) : IRequestHandler<AccountQuery, AccountDto?>
+    public class AccountQueryHandler(ISearch<AccountQuery, AccountEntity> search, IViewMapper<AccountEntity, AccountDto> mapper) : IRequestHandler<AccountQuery, AccountDto?>
     {
         public async Task<AccountDto?> Handle(AccountQuery query, CancellationToken ct)
         {

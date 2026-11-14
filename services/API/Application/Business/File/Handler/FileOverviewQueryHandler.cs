@@ -20,8 +20,8 @@ namespace AqLife.Application.Business.File.Handler
                     .ThenInclude(fileTag => fileTag.Tag);
 
             IQueryable<FileMetaEntity> draft = filequery.Where(e=>e.PublishMeta.PublishStatus == FileStatus.Draft);
-            IQueryable<FileMetaEntity> scheduled = filequery.Where(e=>e.PublishMeta.PublishStatus == FileStatus.Draft);
-            IQueryable<FileMetaEntity> published = filequery.Where(e => e.PublishMeta.PublishStatus == FileStatus.Draft);
+            IQueryable<FileMetaEntity> scheduled = filequery.Where(e=>e.PublishMeta.PublishStatus == FileStatus.Scheduled);
+            IQueryable<FileMetaEntity> published = filequery.Where(e => e.PublishMeta.PublishStatus == FileStatus.Published);
             var draftCount = await draft.CountAsync(ct);
             var scheduledCount = await scheduled.CountAsync(ct);
             var publishedCount = await published.CountAsync(ct);
