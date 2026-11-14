@@ -45,7 +45,7 @@ function selectNode(uid?: string) {
   selectedId.value = uid ?? ''
   if (window.matchMedia('(max-width: 650px)').matches) mobileDetailOpen.value = true
 }
-function titleOf(todo: Partial<TodoDto>) { return todo.title || todo.desc || '未命名任务' }
+function titleOf(todo: Partial<TodoDto>) { return todo.title || '未命名任务' }
 function statusValue(todo: TodoDto) {
   if (todo.status === 'Completed' || Number(todo.status) === TodoStatus.Completed) return 3
   if (todo.status === 'Execute' || Number(todo.status) === TodoStatus.Execute) return 2
@@ -113,10 +113,10 @@ onMounted(refresh)
             :class="[statusClass(node), { selected: selectedId === node.uid }]"
             :style="{ left: (positions[node.uid!]?.x ?? 0) + 'px', top: (positions[node.uid!]?.y ?? 0) + 'px' }"
             @click="selectNode(node.uid)">
-            <div class="node-top"><span>{{ node.isBlocked ? '等待前置' : statusLabel(node) }}</span><span>优先级 {{ node.priority ?? 1 }}</span></div>
+            <div class="node-top"><span>{{ node.isBlocked ? '等待前置' : statusLabel(node) }}</span><span>排序 {{ node.sortOrder ?? 0 }}</span></div>
             <h3>{{ titleOf(node) }}</h3>
             <p>{{ node.description || '暂无任务说明' }}</p>
-            <div class="node-bottom"><span v-if="node.ftid">子任务</span><span v-if="node.incompleteDependencyCount">{{ node.incompleteDependencyCount }} 项前置未完成</span><span v-if="node.hasChildren">含子任务</span></div>
+            <div class="node-bottom"><span>{{ dependencies.filter(edge => edge.successorId === node.uid).length }} 项前置依赖</span><span v-if="node.incompleteDependencyCount">{{ node.incompleteDependencyCount }} 项未完成</span></div>
           </article>
           <div v-if="!nodes.length" class="empty-canvas">当前没有可公开展示的任务节点。</div>
         </div>
@@ -126,8 +126,7 @@ onMounted(refresh)
         <h2>{{ titleOf(selected) }}</h2>
         <p class="detail-description">{{ selected.description || '暂无任务说明' }}</p>
         <div class="detail-state" :class="statusClass(selected)">{{ selected.isBlocked ? '被前置任务阻塞' : statusLabel(selected) }}</div>
-        <div class="detail-meta"><span>优先级</span><strong>{{ selected.priority ?? 1 }}</strong></div>
-        <div class="detail-meta"><span>父任务</span><strong>{{ selected.ftid ? titleOf(nodeById.get(selected.ftid) ?? {}) : '无' }}</strong></div>
+        <div class="detail-meta"><span>排序</span><strong>{{ selected.sortOrder ?? 0 }}</strong></div>
         <div class="detail-meta"><span>未完成前置</span><strong>{{ selected.incompleteDependencyCount ?? 0 }}</strong></div>
         <div class="dependency-section">
           <div class="section-heading"><strong>前置依赖</strong></div>
