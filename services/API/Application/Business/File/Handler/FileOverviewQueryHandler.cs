@@ -16,7 +16,12 @@ namespace AqLife.Application.Business.File.Handler
     {
         public async Task<FileOverviewDto> Handle(FileOverviewQuery query, CancellationToken ct)
         {
-            IIncludableQueryable<FileMetaEntity,TagEntity> filequery = dbContext.File.AsNoTracking().Where(file => !file.IsTemplate).Include(file => file.PublishMeta).Include(file => file.InteractionMeta).Include(file => file.FileTags)
+            IIncludableQueryable<FileMetaEntity,TagEntity> filequery = dbContext.File.AsNoTracking()
+                .Where(file => !file.IsTemplate)
+                .Include(file => file.Category)
+                .Include(file => file.PublishMeta)
+                .Include(file => file.InteractionMeta)
+                .Include(file => file.FileTags)
                     .ThenInclude(fileTag => fileTag.Tag);
 
             IQueryable<FileMetaEntity> draft = filequery.Where(e=>e.PublishMeta.PublishStatus == FileStatus.Draft);
