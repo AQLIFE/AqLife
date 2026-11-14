@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost*
 | [**apiAccountLoginPost**](AccountApi.md#apiaccountloginpost) | **POST** /api/Account/login |  |
 | [**apiAccountPost**](AccountApi.md#apiaccountpost) | **POST** /api/Account |  |
 | [**apiAccountProfilePatch**](AccountApi.md#apiaccountprofilepatch) | **PATCH** /api/Account/profile |  |
+| [**apiAccountPwdPatch**](AccountApi.md#apiaccountpwdpatch) | **PATCH** /api/Account/pwd |  |
 | [**apiAccountSubscriptionsPut**](AccountApi.md#apiaccountsubscriptionsput) | **PUT** /api/Account/subscriptions |  |
 
 
@@ -377,6 +378,71 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **accountProfile** | [AccountProfile](AccountProfile.md) |  | [Optional] |
+
+### Return type
+
+**string**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## apiAccountPwdPatch
+
+> string apiAccountPwdPatch(updatePwdCommand)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AccountApi,
+} from '@aqlife/api-contract';
+import type { ApiAccountPwdPatchRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new AccountApi();
+
+  const body = {
+    // UpdatePwdCommand (optional)
+    updatePwdCommand: ...,
+  } satisfies ApiAccountPwdPatchRequest;
+
+  try {
+    const data = await api.apiAccountPwdPatch(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **updatePwdCommand** | [UpdatePwdCommand](UpdatePwdCommand.md) |  | [Optional] |
 
 ### Return type
 

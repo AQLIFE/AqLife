@@ -54,6 +54,11 @@ import {
     FileScopeToJSON,
 } from '../models/FileScope';
 import {
+    type PublishStatusSearch,
+    PublishStatusSearchFromJSON,
+    PublishStatusSearchToJSON,
+} from '../models/PublishStatusSearch';
+import {
     type ResumableUploadSession,
     ResumableUploadSessionFromJSON,
     ResumableUploadSessionToJSON,
@@ -106,6 +111,7 @@ export interface ApiFileHashCheckPostRequest {
 }
 
 export interface ApiFileOverviewGetRequest {
+    publishStatus?: PublishStatusSearch;
     recentCount?: number;
 }
 
@@ -297,6 +303,7 @@ export interface FileApiInterface {
 
     /**
      * Creates request options for apiFileOverviewGet without sending the request
+     * @param {PublishStatusSearch} [publishStatus] - 0 &#x3D; Default - 1 &#x3D; Draft - 2 &#x3D; Scheduled - 3 &#x3D; Published
      * @param {number} [recentCount] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -305,6 +312,7 @@ export interface FileApiInterface {
 
     /**
      * 
+     * @param {PublishStatusSearch} [publishStatus] - 0 &#x3D; Default - 1 &#x3D; Draft - 2 &#x3D; Scheduled - 3 &#x3D; Published
      * @param {number} [recentCount] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -840,6 +848,10 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
      */
     async apiFileOverviewGetRequestOpts(requestParameters: ApiFileOverviewGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
+
+        if (requestParameters['publishStatus'] != null) {
+            queryParameters['PublishStatus'] = requestParameters['publishStatus'];
+        }
 
         if (requestParameters['recentCount'] != null) {
             queryParameters['RecentCount'] = requestParameters['recentCount'];

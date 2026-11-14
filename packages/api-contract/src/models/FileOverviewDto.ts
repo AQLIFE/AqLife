@@ -20,6 +20,13 @@ import {
     FileDtoToJSON,
     FileDtoToJSONTyped,
 } from './FileDto';
+import type { PublishStatusSearch } from './PublishStatusSearch';
+import {
+    PublishStatusSearchFromJSON,
+    PublishStatusSearchFromJSONTyped,
+    PublishStatusSearchToJSON,
+    PublishStatusSearchToJSONTyped,
+} from './PublishStatusSearch';
 
 /**
  * 
@@ -27,6 +34,30 @@ import {
  * @interface FileOverviewDto
  */
 export interface FileOverviewDto {
+    /**
+     * 
+     * @type {Array<FileDto>}
+     * @memberof FileOverviewDto
+     */
+    items?: Array<FileDto> | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileOverviewDto
+     */
+    page?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileOverviewDto
+     */
+    pageSize?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileOverviewDto
+     */
+    hasMore?: boolean;
     /**
      * 
      * @type {number}
@@ -51,7 +82,15 @@ export interface FileOverviewDto {
      * @memberof FileOverviewDto
      */
     recentFiles?: Array<FileDto> | null;
+    /**
+     * 
+     * @type {PublishStatusSearch}
+     * @memberof FileOverviewDto
+     */
+    searchStatus?: PublishStatusSearch;
 }
+
+
 
 /**
  * Check if a given object implements the FileOverviewDto interface.
@@ -70,10 +109,15 @@ export function FileOverviewDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
+        'items': json['items'] == null ? undefined : ((json['items'] as Array<any>).map(FileDtoFromJSON)),
+        'page': json['page'] == null ? undefined : json['page'],
+        'pageSize': json['pageSize'] == null ? undefined : json['pageSize'],
+        'hasMore': json['hasMore'] == null ? undefined : json['hasMore'],
         'draftCount': json['draftCount'] == null ? undefined : json['draftCount'],
         'scheduledCount': json['scheduledCount'] == null ? undefined : json['scheduledCount'],
         'publishedCount': json['publishedCount'] == null ? undefined : json['publishedCount'],
         'recentFiles': json['recentFiles'] == null ? undefined : ((json['recentFiles'] as Array<any>).map(FileDtoFromJSON)),
+        'searchStatus': json['searchStatus'] == null ? undefined : PublishStatusSearchFromJSON(json['searchStatus']),
     };
 }
 
@@ -88,10 +132,15 @@ export function FileOverviewDtoToJSONTyped(value?: FileOverviewDto | null, ignor
 
     return {
         
+        'items': value['items'] == null ? undefined : ((value['items'] as Array<any>).map(FileDtoToJSON)),
+        'page': value['page'],
+        'pageSize': value['pageSize'],
+        'hasMore': value['hasMore'],
         'draftCount': value['draftCount'],
         'scheduledCount': value['scheduledCount'],
         'publishedCount': value['publishedCount'],
         'recentFiles': value['recentFiles'] == null ? undefined : ((value['recentFiles'] as Array<any>).map(FileDtoToJSON)),
+        'searchStatus': PublishStatusSearchToJSON(value['searchStatus']),
     };
 }
 

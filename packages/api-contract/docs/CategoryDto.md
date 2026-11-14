@@ -9,9 +9,9 @@ Name | Type
 `uid` | string
 `categoryName` | string
 `categoryDescription` | string
-`fileCount` | number
-`favoriteCount` | number
-`parentName` | string
+`count` | number
+`parentId` | string
+`resultIds` | Array&lt;string&gt;
 
 ## Example
 
@@ -23,9 +23,9 @@ const example = {
   "uid": null,
   "categoryName": null,
   "categoryDescription": null,
-  "fileCount": null,
-  "favoriteCount": null,
-  "parentName": null,
+  "count": null,
+  "parentId": null,
+  "resultIds": null,
 } satisfies CategoryDto
 
 console.log(example)

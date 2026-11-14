@@ -6,10 +6,15 @@
 
 Name | Type
 ------------ | -------------
+`items` | [Array&lt;FileDto&gt;](FileDto.md)
+`page` | number
+`pageSize` | number
+`hasMore` | boolean
 `draftCount` | number
 `scheduledCount` | number
 `publishedCount` | number
 `recentFiles` | [Array&lt;FileDto&gt;](FileDto.md)
+`searchStatus` | [PublishStatusSearch](PublishStatusSearch.md)
 
 ## Example
 
@@ -18,10 +23,15 @@ import type { FileOverviewDto } from '@aqlife/api-contract'
 
 // TODO: Update the object below with actual values
 const example = {
+  "items": null,
+  "page": null,
+  "pageSize": null,
+  "hasMore": null,
   "draftCount": null,
   "scheduledCount": null,
   "publishedCount": null,
   "recentFiles": null,
+  "searchStatus": null,
 } satisfies FileOverviewDto
 
 console.log(example)

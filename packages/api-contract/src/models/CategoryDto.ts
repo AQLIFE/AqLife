@@ -42,19 +42,19 @@ export interface CategoryDto {
      * @type {number}
      * @memberof CategoryDto
      */
-    fileCount?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof CategoryDto
-     */
-    favoriteCount?: number;
+    count?: number;
     /**
      * 
      * @type {string}
      * @memberof CategoryDto
      */
-    parentName?: string | null;
+    parentId?: string | null;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CategoryDto
+     */
+    resultIds?: Array<string> | null;
 }
 
 /**
@@ -77,9 +77,9 @@ export function CategoryDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'uid': json['uid'] == null ? undefined : json['uid'],
         'categoryName': json['categoryName'] == null ? undefined : json['categoryName'],
         'categoryDescription': json['categoryDescription'] == null ? undefined : json['categoryDescription'],
-        'fileCount': json['fileCount'] == null ? undefined : json['fileCount'],
-        'favoriteCount': json['favoriteCount'] == null ? undefined : json['favoriteCount'],
-        'parentName': json['parentName'] == null ? undefined : json['parentName'],
+        'count': json['count'] == null ? undefined : json['count'],
+        'parentId': json['parentId'] == null ? undefined : json['parentId'],
+        'resultIds': json['resultIds'] == null ? undefined : json['resultIds'],
     };
 }
 
@@ -97,9 +97,9 @@ export function CategoryDtoToJSONTyped(value?: CategoryDto | null, ignoreDiscrim
         'uid': value['uid'],
         'categoryName': value['categoryName'],
         'categoryDescription': value['categoryDescription'],
-        'fileCount': value['fileCount'],
-        'favoriteCount': value['favoriteCount'],
-        'parentName': value['parentName'],
+        'count': value['count'],
+        'parentId': value['parentId'],
+        'resultIds': value['resultIds'],
     };
 }
 

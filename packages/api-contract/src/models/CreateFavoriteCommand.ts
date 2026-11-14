@@ -36,7 +36,7 @@ export interface CreateFavoriteCommand {
      * @type {string}
      * @memberof CreateFavoriteCommand
      */
-    cid?: string | null;
+    cid?: string;
     /**
      * 
      * @type {string}

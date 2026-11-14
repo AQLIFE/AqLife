@@ -38,6 +38,11 @@ import {
     SubscriptionDtoFromJSON,
     SubscriptionDtoToJSON,
 } from '../models/SubscriptionDto';
+import {
+    type UpdatePwdCommand,
+    UpdatePwdCommandFromJSON,
+    UpdatePwdCommandToJSON,
+} from '../models/UpdatePwdCommand';
 
 export interface ApiAccountAvatarPatchRequest {
     avatar?: Blob;
@@ -53,6 +58,10 @@ export interface ApiAccountPostRequest {
 
 export interface ApiAccountProfilePatchRequest {
     accountProfile?: AccountProfile;
+}
+
+export interface ApiAccountPwdPatchRequest {
+    updatePwdCommand?: UpdatePwdCommand;
 }
 
 export interface ApiAccountSubscriptionsPutRequest {
@@ -193,6 +202,27 @@ export interface AccountApiInterface {
      * 更新账户信息(包含公开名称,BIO);返回账户ID
      */
     apiAccountProfilePatch(requestParameters: ApiAccountProfilePatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiAccountPwdPatch without sending the request
+     * @param {UpdatePwdCommand} [updatePwdCommand] 
+     * @throws {RequiredError}
+     * @memberof AccountApiInterface
+     */
+    apiAccountPwdPatchRequestOpts(requestParameters: ApiAccountPwdPatchRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {UpdatePwdCommand} [updatePwdCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApiInterface
+     */
+    apiAccountPwdPatchRaw(requestParameters: ApiAccountPwdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiAccountPwdPatch(requestParameters: ApiAccountPwdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
     /**
      * Creates request options for apiAccountSubscriptionsPut without sending the request
@@ -487,6 +517,48 @@ export class AccountApi extends runtime.BaseAPI implements AccountApiInterface {
      */
     async apiAccountProfilePatch(requestParameters: ApiAccountProfilePatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiAccountProfilePatchRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiAccountPwdPatch without sending the request
+     */
+    async apiAccountPwdPatchRequestOpts(requestParameters: ApiAccountPwdPatchRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/Account/pwd`;
+
+        return {
+            path: urlPath,
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdatePwdCommandToJSON(requestParameters['updatePwdCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiAccountPwdPatchRaw(requestParameters: ApiAccountPwdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiAccountPwdPatchRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiAccountPwdPatch(requestParameters: ApiAccountPwdPatchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiAccountPwdPatchRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

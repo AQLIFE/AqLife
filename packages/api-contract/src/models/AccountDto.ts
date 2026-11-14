@@ -44,7 +44,7 @@ export interface AccountDto {
      * @type {string}
      * @memberof AccountDto
      */
-    avatar?: string | null;
+    avatar?: string;
     /**
      * 
      * @type {Array<SubscriptionDto>}

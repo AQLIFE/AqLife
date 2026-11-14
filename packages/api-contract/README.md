@@ -56,6 +56,7 @@ All URIs are relative to *http://localhost*
 *AccountApi* | [**apiAccountLoginPost**](docs/AccountApi.md#apiaccountloginpost) | **POST** /api/Account/login | 
 *AccountApi* | [**apiAccountPost**](docs/AccountApi.md#apiaccountpost) | **POST** /api/Account | 
 *AccountApi* | [**apiAccountProfilePatch**](docs/AccountApi.md#apiaccountprofilepatch) | **PATCH** /api/Account/profile | 
+*AccountApi* | [**apiAccountPwdPatch**](docs/AccountApi.md#apiaccountpwdpatch) | **PATCH** /api/Account/pwd | 
 *AccountApi* | [**apiAccountSubscriptionsPut**](docs/AccountApi.md#apiaccountsubscriptionsput) | **PUT** /api/Account/subscriptions | 
 *CategoryApi* | [**apiCategoryDelete**](docs/CategoryApi.md#apicategorydelete) | **DELETE** /api/Category | 
 *CategoryApi* | [**apiCategoryGet**](docs/CategoryApi.md#apicategoryget) | **GET** /api/Category | 
@@ -149,6 +150,7 @@ All URIs are relative to *http://localhost*
 - [FileScope](docs/FileScope.md)
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
+- [PublishStatusSearch](docs/PublishStatusSearch.md)
 - [RemoveTodoDependencyCommand](docs/RemoveTodoDependencyCommand.md)
 - [RestoreTodoCommand](docs/RestoreTodoCommand.md)
 - [ResumableUploadSession](docs/ResumableUploadSession.md)
@@ -170,6 +172,7 @@ All URIs are relative to *http://localhost*
 - [UpdateDevelopmentPlanCommand](docs/UpdateDevelopmentPlanCommand.md)
 - [UpdateFavoriteCommand](docs/UpdateFavoriteCommand.md)
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
+- [UpdatePwdCommand](docs/UpdatePwdCommand.md)
 - [UpdateTagCommand](docs/UpdateTagCommand.md)
 - [UpdateTodoCommand](docs/UpdateTodoCommand.md)
 - [UpdateTodoStatusCommand](docs/UpdateTodoStatusCommand.md)

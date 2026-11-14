@@ -44,6 +44,7 @@ docs/FileOverviewDto.md
 docs/FileScope.md
 docs/FileStatus.md
 docs/LoginCommand.md
+docs/PublishStatusSearch.md
 docs/RemoveTodoDependencyCommand.md
 docs/RestoreTodoCommand.md
 docs/ResumableUploadSession.md
@@ -67,6 +68,7 @@ docs/UpdateCategoryCommand.md
 docs/UpdateDevelopmentPlanCommand.md
 docs/UpdateFavoriteCommand.md
 docs/UpdateFileTagCommand.md
+docs/UpdatePwdCommand.md
 docs/UpdateTagCommand.md
 docs/UpdateTodoCommand.md
 docs/UpdateTodoStatusCommand.md
@@ -118,6 +120,7 @@ src/models/FileOverviewDto.ts
 src/models/FileScope.ts
 src/models/FileStatus.ts
 src/models/LoginCommand.ts
+src/models/PublishStatusSearch.ts
 src/models/RemoveTodoDependencyCommand.ts
 src/models/RestoreTodoCommand.ts
 src/models/ResumableUploadSession.ts
@@ -139,6 +142,7 @@ src/models/UpdateCategoryCommand.ts
 src/models/UpdateDevelopmentPlanCommand.ts
 src/models/UpdateFavoriteCommand.ts
 src/models/UpdateFileTagCommand.ts
+src/models/UpdatePwdCommand.ts
 src/models/UpdateTagCommand.ts
 src/models/UpdateTodoCommand.ts
 src/models/UpdateTodoStatusCommand.ts

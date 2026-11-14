@@ -371,7 +371,7 @@ No authorization required
 
 ## apiFileOverviewGet
 
-> FileOverviewDto apiFileOverviewGet(recentCount)
+> FileOverviewDto apiFileOverviewGet(publishStatus, recentCount)
 
 
 
@@ -389,6 +389,8 @@ async function example() {
   const api = new FileApi();
 
   const body = {
+    // PublishStatusSearch | - 0 = Default - 1 = Draft - 2 = Scheduled - 3 = Published (optional)
+    publishStatus: ...,
     // number (optional)
     recentCount: 56,
   } satisfies ApiFileOverviewGetRequest;
@@ -410,6 +412,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
+| **publishStatus** | `PublishStatusSearch` | - 0 &#x3D; Default - 1 &#x3D; Draft - 2 &#x3D; Scheduled - 3 &#x3D; Published | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2, 3] |
 | **recentCount** | `number` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
