@@ -1,4 +1,4 @@
-
+ 
 # TodoDependencyDto
 
 
@@ -6,6 +6,7 @@
 
 Name | Type
 ------------ | -------------
+`uid` | string
 `predecessorId` | string
 `successorId` | string
 `createdAt` | string
@@ -17,6 +18,7 @@ import type { TodoDependencyDto } from '@aqlife/api-contract'
 
 // TODO: Update the object below with actual values
 const example = {
+  "uid": null,
   "predecessorId": null,
   "successorId": null,
   "createdAt": null,
