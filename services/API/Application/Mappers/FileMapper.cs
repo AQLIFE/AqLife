@@ -57,16 +57,8 @@ namespace AqLife.Application.Business.File
         /// <summary>
         /// Creates a new FileMetaEntity from an IFormFile.
         /// </summary>
-        [MapperIgnoreTarget(nameof(FileMetaEntity.Category))]
-        [MapperIgnoreTarget(nameof(FileMetaEntity.UID))]
-        [MapperIgnoreTarget(nameof(FileMetaEntity.Extension))]
-        [MapperIgnoreTarget(nameof(FileMetaEntity.InteractionMeta))]
-        [MapperIgnoreTarget(nameof(FileMetaEntity.FileTags))]
-        [MapperIgnoreTarget(nameof(FileMetaEntity.PublishMeta))]
-        [MapperIgnoreSource(nameof(CreateFileCommand.Tags))]
-        [MapperIgnoreSource(nameof(CreateFileCommand.ScheduledTime))]
-        [MapperIgnoreTarget(nameof(FileMetaEntity.UploadTime))]
-        public partial FileMetaEntity ToEntity(CreateFileCommand command);
+        public FileMetaEntity ToEntity(CreateFileCommand command)
+            => new(command.File, command.categoryId, isTemplate: command.IsTemplate);
 
         //[MapperIgnoreTarget(nameof(FileMetaEntity.UID))]
         //[MapperIgnoreTarget(nameof(FileMetaEntity.InteractionMeta))]
