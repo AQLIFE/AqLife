@@ -65,15 +65,15 @@ public class TodoDependencyValidationTests(IntegrationTestFixture fixture)
 
         var dependencies = await storage.TodoDependencies
             .Where(item => item.PlanId == planId)
-            .ToListAsync(TestContext.Current.CancellationToken);
+            .ToListAsync(CancellationToken.None);
         var layouts = await storage.RoadmapNodeLayouts
             .Where(item => item.PlanId == planId)
-            .ToListAsync(TestContext.Current.CancellationToken);
+            .ToListAsync(CancellationToken.None);
         var todos = await storage.Todo
             .Where(item => item.PlanId == planId)
-            .ToListAsync(TestContext.Current.CancellationToken);
+            .ToListAsync(CancellationToken.None);
         var plan = await storage.DevelopmentPlans
-            .SingleOrDefaultAsync(item => item.UID == planId, TestContext.Current.CancellationToken);
+            .SingleOrDefaultAsync(item => item.UID == planId, CancellationToken.None);
 
         storage.RemoveRange(dependencies);
         storage.RemoveRange(layouts);
