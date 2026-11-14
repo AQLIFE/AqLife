@@ -50,7 +50,7 @@ async function handleFilter(tagId: string) {
 
 onBeforeMount(async () => {
     const tagApi = new TagApi(apiConfiguration)
-const categoryApi = new CategoryApi(apiConfiguration)
+    const categoryApi = new CategoryApi(apiConfiguration)
     const tagStore = useTagStore()
 
     if (tagStore.tagList.length === 0) {
@@ -58,7 +58,7 @@ const categoryApi = new CategoryApi(apiConfiguration)
     }
 
     const [categories, allPublishedBlogCount, popular] = await Promise.all([
-        categoryApi.apiCategoryGet({ searchType: CategoryQueryType.Blog }),
+        categoryApi.apiCategoryGet({ searchType: CategoryQueryType.File }),
         loadAllPublishedBlogCount(),
         fileApi.apiFileGet({ scope: FileScope.Blog, order: FileOrder.MostViewed, pageSize: 5 }),
     ])
@@ -94,7 +94,7 @@ watch(
             </h3>
 
             <div v-for="item in BlogCategoryView" :key="item.uid!" class="overview-item">
-                <ElButton type="info" link @click="handleFilter(item.uid??'')">
+                <ElButton type="info" link @click="handleFilter(item.uid ?? '')">
                     {{ item.categoryName }}
                 </ElButton>
 
