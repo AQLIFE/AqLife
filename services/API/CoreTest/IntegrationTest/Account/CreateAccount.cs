@@ -21,7 +21,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         public async Task CreateAccount_ValidSystemKey_ShouldCreateAccount()
         {
             string key = await base.EnsureSystemKeyAsync();
-            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
+            CreateAccountCommand command = new(Name: "测试账户1", Pwd: "pwd123456", ServerKey: key, Desc: "测试账户描述");
 
             var loginName = await ExecuteAsync(command, CancellationToken.None);
 
@@ -49,7 +49,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         {
             string key = await base.EnsureSystemKeyAsync();
             // 符合规则的测试数据
-            CreateAccountCommand command = new(validName, "测试账户描述", "pwd123456", key);
+            CreateAccountCommand command = new(Name: validName, Pwd: "pwd123456", ServerKey: key, Desc: "测试账户描述");
 
             // 执行测试
             var loginName = await ExecuteAsync(command, CancellationToken.None);
@@ -78,7 +78,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
             string key = await base.EnsureSystemKeyAsync();
 
             // 符合规则的测试数据
-            CreateAccountCommand command = new(invalidName, "测试账户描述", "pwd123456", key);
+            CreateAccountCommand command = new(Name: invalidName, Pwd: "pwd123456", ServerKey: key, Desc: "测试账户描述");
 
             // 执行测试
             var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command, CancellationToken.None));
@@ -97,7 +97,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
             string key = await base.EnsureSystemKeyAsync();
             // 符合规则的测试数据
             string longName = new string('a', 33);
-            CreateAccountCommand command = new(longName, "测试账户描述", "pwd123456", key);
+            CreateAccountCommand command = new(Name: longName, Pwd: "pwd123456", ServerKey: key, Desc: "测试账户描述");
 
             // 执行测试
             var exception = await Assert.ThrowsAsync<DbUpdateException>(async () => await ExecuteAsync(command, CancellationToken.None));
@@ -119,7 +119,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         {
             string key = await base.EnsureSystemKeyAsync();
             // 符合规则的测试数据            
-            CreateAccountCommand command = new("测试账户1", overlengthDesc, "pwd123456", key);
+            CreateAccountCommand command = new(Name: "测试账户1", Pwd: "pwd123456", ServerKey: key, Desc: overlengthDesc);
 
             // 执行测试
             // 检查测试结果
@@ -139,7 +139,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         {
             string key = await base.EnsureSystemKeyAsync();
             // 符合规则的测试数据            
-            CreateAccountCommand command = new("测试账户1", validDesc, "pwd123456", key);
+            CreateAccountCommand command = new(Name: "测试账户1", Pwd: "pwd123456", ServerKey: key, Desc: validDesc);
             var loginName = await ExecuteAsync(command, CancellationToken.None);
             var account = await FindByLoginNameAsync(loginName);
             Assert.NotNull(account);
@@ -156,7 +156,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         {
             string key = await base.EnsureSystemKeyAsync();
             // 符合规则的测试数据            
-            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
+            CreateAccountCommand command = new(Name: "测试账户1", Pwd: "pwd123456", ServerKey: key, Desc: "测试账户描述");
 
             // 执行测试
             var loginName = await ExecuteAsync(command, CancellationToken.None);
@@ -180,7 +180,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         public async Task CreateAccount_InvalidSystemKey_ShouldReject(string invalidServerKey)
         {
             // 符合规则的测试数据            
-            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", invalidServerKey);
+            CreateAccountCommand command = new(Name: "测试账户1", Pwd: "pwd123456", ServerKey: invalidServerKey, Desc: "测试账户描述");
 
             // 执行测试
             var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command, CancellationToken.None));
