@@ -157,8 +157,7 @@ onMounted(refresh)
         <h2>{{ titleOf(selected) }}</h2>
         <p class="detail-description">{{ selected.description || '暂无任务说明' }}</p>
         <div class="detail-state" :class="statusClass(selected)">{{ selected.isBlocked ? '被前置任务阻塞' : statusLabel(selected) }}</div>
-        <div class="detail-meta"><span>优先级</span><strong>{{ selected.priority ?? 1 }}</strong></div>
-        <div class="detail-meta"><span>父任务</span><strong>{{ selected.ftid ? titleOf(nodeById.get(selected.ftid) ?? {}) : '无' }}</strong></div>
+        <div class="detail-meta"><span>排序</span><strong>{{ selected.sortOrder ?? 0 }}</strong></div>
         <div class="detail-meta"><span>未完成前置</span><strong>{{ selected.incompleteDependencyCount ?? 0 }}</strong></div>
         <div class="dependency-section">
           <div class="section-heading"><strong>前置依赖</strong></div>
