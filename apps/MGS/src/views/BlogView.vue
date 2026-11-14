@@ -71,7 +71,7 @@ const { uploading: imageUploading, onPaste: onEditorPaste } = useMarkdownClipboa
   getEditor: () => editor,
   isEnabled: () => isEditing.value,
   uploadFiles: async files => {
-    const uids = await fileApi.apiFileUploadPost({ file: files })
+    const uids = await fileApi.apiFileUploadMultiplePost({ files })
     await Promise.all(uids.map(uid =>
       fileApi.apiFileSchedulePatch({ scheduledFileCommand: { uid } }),
     ))
