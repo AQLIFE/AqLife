@@ -62,7 +62,8 @@ public static class ApplicationExtensions
         services.AddScoped<ISearchStrategy<DevelopmentPlanEntity, EntitySearchCriteria>, FilteredDevPlanSearchStrategy>();
 
         services.AddScoped<ISearch<AccountQuery, AccountEntity>, AccountSearch>();
-        services.AddScoped<ISearch<FileQuery, FileMetaEntity>,FileSearch>();
+        services.AddScoped<FileSearch>();
+        services.AddScoped<ISearch<FileQuery, FileMetaEntity>>(sp => sp.GetRequiredService<FileSearch>());
         services.AddScoped<ISearch<CorpusQuery, CorpusEntity>,CorpusSearch>();
         services.AddScoped<ISearch<TagQuery, TagEntity>,TagSearch>();
         services.AddScoped<ISearch<TodoQuery, TodoEntity>,TodoSearch>();
