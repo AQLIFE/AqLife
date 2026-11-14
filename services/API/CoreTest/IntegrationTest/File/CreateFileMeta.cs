@@ -46,7 +46,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
             using var stream = CreateMaxSizeStream();
             FormFile file = new(stream, 0, legalSize, "testfile", "testfile.md");
 
-            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId);
+            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId, IsTemplate: true);
             Guid result = await base.ExecuteAsync(create, CancellationToken.None);
 
             var uploadedFile = await FindFileAsync(result, CancellationToken.None);
@@ -126,7 +126,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
         {
             UploadFilesCommand command = new(CategoryEntity.DefaultCategoryId, []);
             var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(command, CancellationToken.None));
-            Assert.Equal("禁止空上传", exception.Message);
+            Assert.Equal("上传文件不能为空", exception.Message);
         }
         /// <summary>
         /// 上传重复文件报错
