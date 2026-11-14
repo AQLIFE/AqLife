@@ -28,6 +28,7 @@ namespace AqLife.Application.Business.Todo.Search
             .Include(e => e.IncomingDependencies)
                 .ThenInclude(dependency => dependency.PredecessorTodo)
             .Include(e => e.OutgoingDependencies)
+                .ThenInclude(dependency => dependency.SuccessorTodo)
             .Include(e => e.LayoutEntity)
             .Include(e => e.Plan)
             .AsSplitQuery();

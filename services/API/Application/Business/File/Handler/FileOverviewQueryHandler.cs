@@ -34,12 +34,13 @@ namespace AqLife.Application.Business.File.Handler
 
             IQueryable<FileMetaEntity> result = query.PublishStatus switch
             {
-                PublishStatusSearch.Default => filequery.OrderByDescending(file => file.UploadTime),
+                PublishStatusSearch.Default => filequery,
                 PublishStatusSearch.Draft => draft,
                 PublishStatusSearch.Scheduled => scheduled,
                 PublishStatusSearch.Published => published,
                 _ => throw new RequestFailException("不存在的查询条件")
             };
+            result = result.OrderByDescending(file => file.UploadTime).Take(Math.Clamp(query.RecentCount, 1,10));
 
             return new FileOverviewDto(draftCount,scheduledCount,publishedCount,[..result.Select(fileMapper.ToDto)],1,query.RecentCount,query.PublishStatus,false);
         }

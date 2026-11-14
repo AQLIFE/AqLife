@@ -155,7 +155,7 @@ async function loadOverview() {
   loading.value = true
   loadError.value = ''
   try {
-    overview.value = await fileApi.apiFileOverviewGet({ recentCount: 5 })
+    overview.value = await fileApi.apiFileOverviewGet({ recentCount: 10 })
   } catch (error) {
     loadError.value = error instanceof Error ? error.message : '工作区概览加载失败'
   } finally {
