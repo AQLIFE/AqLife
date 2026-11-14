@@ -14,8 +14,6 @@ import { TodoApi, TodoStatus, type TodoDto, type TodoRoadmapDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useTodoStorage } from '@/stores/useTodoStore'
 
-const keyIcon = { unlink: MgsIconName.UnLink }
-
 const store = useTodoStorage()
 const todoApi = new TodoApi(apiConfiguration)
 const plans = computed(() => store.plans)
@@ -64,7 +62,7 @@ const incoming = computed(() => dependencies.value.filter(x => x.successorId ===
 const incomingIds = computed(() => new Set(incoming.value.map(x => x.predecessorId)))
 const availablePredecessors = computed(() => nodes.value.filter(x => x.uid !== selectedId.value && x.uid && !incomingIds.value.has(x.uid)))
 
-function titleOf(todo: Partial<TodoDto>) { return todo.title || todo.desc || '未命名任务' }
+function titleOf(todo: Partial<TodoDto>) { return todo.title || '未命名任务' }
 function statusValue(todo: TodoDto) {
   const value = todo.status
   if (value === 'Completed' || Number(value) === 3) return 3
