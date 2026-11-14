@@ -3,7 +3,6 @@ using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
-using AqLife.Shared.Utils;
 using Riok.Mapperly.Abstractions;
 
 namespace AqLife.Application.Business.Account
@@ -41,21 +40,11 @@ namespace AqLife.Application.Business.Account
         [MapProperty(nameof(AccountEntity.Avatar), nameof(AccountDto.Avatar))]
         public partial AccountDto ToDto(AccountEntity source);
 
-        //[MapperIgnoreSource(nameof(CreateAccountCommand.Pwd))]
-        //[MapperIgnoreTarget(nameof(AccountEntity.LoginPasswordHash))]
-        [MapProperty(nameof(CreateAccountCommand.Pwd), nameof(AccountEntity.LoginPasswordHash)/*,Use =nameof(ConvertHashPwd)*/)]
-        [MapperIgnoreSource(nameof(CreateAccountCommand.ServerKey))]
-        [MapperIgnoreTarget(nameof(AccountEntity.Avatar))]
-        [MapperIgnoreTarget(nameof(AccountEntity.IsValid))]
-        [MapperIgnoreTarget(nameof(AccountEntity.UID))]
-        [MapperIgnoreTarget(nameof(AccountEntity.LoginName))]
-        [MapperIgnoreTarget(nameof(AccountEntity.Subscriptions))]
-        public partial AccountEntity ToEntity(CreateAccountCommand command);
+        // AccountEntity 的 Name/Desc 只有私有 setter，且密码需要由领域构造函数哈希。
+        // 使用构造函数映射，避免 Mapperly 通过无参构造函数创建出空字段实体。
+        public AccountEntity ToEntity(CreateAccountCommand command)
+            => new(command.Name, command.Desc, command.Pwd);
 
         private IEnumerable<SubscriptionDto> Convert(ICollection<SubscriptionEntity> source) => source.Select(subMapper.ToDto);
-
-        //private string ConvertHashPwd(string source) => FastHash.GetSha256Hash(source);
     }
-
-
 }
