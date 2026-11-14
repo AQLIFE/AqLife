@@ -16,7 +16,7 @@ namespace AqLife.Shared.IView
         bool IsArchived = false) : IEntityDto
     { }
 
-    public record TodoDependencyDto(Guid PredecessorId, Guid SuccessorId, DateTimeOffset CreatedAt):IEntityDto;
+    public record TodoDependencyDto(Guid UID, Guid PredecessorId, Guid SuccessorId, DateTimeOffset CreatedAt):IEntityDto;
     public record RoadmapNodeLayoutDto(Guid TodoId, double X, double Y, DateTimeOffset UpdatedAt):IEntityDto;
     /// <summary>
     /// 整个开发计划的路线图 : 由若干个布局节点+todo信息 + 依赖图组合而成
