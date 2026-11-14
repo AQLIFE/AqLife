@@ -18,19 +18,17 @@ namespace AqLife.Application.Business.File.Validator
         private protected override string ErrorMessage { init; get; } = "预期删除的文件被其他业务依赖着,不允许删除";
         private protected override async Task<bool> IsValidAsync(DeleteFileCommand command, CancellationToken ct)
         {
-            var entity = dbContext.Accounts.Where(e => e.IsValid);
-                HashSet<Guid> dependencyIds = new();
-            if (await entity.AnyAsync(ct) && await entity.SingleAsync(ct) is AccountEntity account)
-            {
-                if (account.Avatar != Guid.Empty) dependencyIds.Add(account.Avatar);
-                IQueryable<Guid> subs = account.Subscriptions.Where(e => e.SubscriptionIcon != Guid.Empty).Select(e => e.SubscriptionIcon).AsQueryable();
-                subs.Select(dependencyIds.Add);// 添加进集合,所有订阅依赖的文件ID
-            }
+            bool useByAvatar =await dbContext.Accounts.AnyAsync(e => e.IsValid && e.Avatar == command.UID,ct);            
 
-            var favoriteies = dbContext.FavoriteItems.Include(e => e.Media).SelectMany(e => e.Media.Select(e => e.FileId));// 给出 所有收藏依赖的文件ID
-            if (await favoriteies.AnyAsync(ct))
-                favoriteies.Select(dependencyIds.Add);
-            return !dependencyIds.Contains(command.UID);// 反之不包含即可允许删除
+            bool usedBySubscription = await dbContext.Accounts
+                .Where(e => e.IsValid)
+                .SelectMany(e => e.Subscriptions)
+                .AnyAsync(e => e.SubscriptionIcon == command.UID, ct);
+
+            bool usedByFavorite = await dbContext.FavoriteItems
+                .SelectMany(e => e.Media)
+                .AnyAsync(e => e.FileId == command.UID, ct);
+            return !(useByAvatar || usedBySubscription || usedByFavorite);// 反之不包含即可允许删除
         }
     }
 }

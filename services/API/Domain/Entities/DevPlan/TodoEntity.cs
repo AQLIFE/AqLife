@@ -49,8 +49,8 @@ namespace AqLife.Domain.Entities.DevPlan
                 throw new DomainLegalityException("开发计划 ID 不能为 Empty");
 
             this.PlanId = planId;
-            this.Title = title;
-            this.Description = description;
+            this.Title = title.Trim();
+            this.Description = description?.Trim();
             this.SortOrder = sortOrder;
             this.Touch();
         }

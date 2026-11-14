@@ -257,6 +257,7 @@ namespace PostgreSqlMigrations.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
+                        .IsConcurrencyToken()
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("UID");
@@ -270,9 +271,6 @@ namespace PostgreSqlMigrations.Migrations
                 {
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CategoryEntityUID")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("CategoryUID")
@@ -304,8 +302,6 @@ namespace PostgreSqlMigrations.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("UID");
-
-                    b.HasIndex("CategoryEntityUID");
 
                     b.HasIndex("CategoryUID");
 
@@ -356,7 +352,7 @@ namespace PostgreSqlMigrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CategoryUID")
+                    b.Property<Guid>("CategoryUID")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Extension")
@@ -575,12 +571,8 @@ namespace PostgreSqlMigrations.Migrations
 
             modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", b =>
                 {
-                    b.HasOne("AqLife.Domain.Entities.CategoryEntity", null)
-                        .WithMany("Favorites")
-                        .HasForeignKey("CategoryEntityUID");
-
                     b.HasOne("AqLife.Domain.Entities.CategoryEntity", "Category")
-                        .WithMany()
+                        .WithMany("Favorites")
                         .HasForeignKey("CategoryUID")
                         .OnDelete(DeleteBehavior.SetNull);
 
@@ -621,7 +613,9 @@ namespace PostgreSqlMigrations.Migrations
                 {
                     b.HasOne("AqLife.Domain.Entities.CategoryEntity", "Category")
                         .WithMany("Files")
-                        .HasForeignKey("CategoryUID");
+                        .HasForeignKey("CategoryUID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
                 });
