@@ -83,7 +83,7 @@ public class FavoriteMediaEntity : IRelationship
     {
         FavoriteId = favoriteId;
         FileId = fileId;
-        Role = role;
+        Role = role.Trim();
         SortOrder = sortOrder;
     }
 }

@@ -24,8 +24,8 @@ namespace AqLife.Domain.Entities
         [MapperConstructor]
         public TagEntity(string name, string? aliasName = null)
         {
-            this.Name = name;
-            this.AliasName = aliasName ?? name;
+            this.Name = name.Trim();
+            this.AliasName = aliasName?.Trim() ?? this.Name;
         }
         public void Update(string name, string? aliasName = null)
         {

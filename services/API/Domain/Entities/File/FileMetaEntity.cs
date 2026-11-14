@@ -57,7 +57,7 @@ namespace AqLife.Domain.Entities.File
         [MapperConstructor]
         public FileMetaEntity(IFormFile file, Guid categoryId, string? hash = null,bool isTemplate = false) : this()
         {
-            FileName = Path.GetFileNameWithoutExtension(file.FileName) ?? "未命名文件";
+            FileName = (Path.GetFileNameWithoutExtension(file.FileName) ?? "未命名文件").Trim();
             Extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             FileSize = (ulong)file.Length;
             InteractionMeta = new(this.UID);

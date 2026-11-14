@@ -20,7 +20,7 @@ namespace AqLife.CoreTest.UnitTest.Domain
                 0,
                 content.Length,
                 "file",
-                "hello.md"
+                "  hello  .md  "
             );
 
             const string hash = "test-hash";

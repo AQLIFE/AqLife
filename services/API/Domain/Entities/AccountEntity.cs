@@ -25,9 +25,9 @@ namespace AqLife.Domain.Entities
         public SubscriptionEntity(Guid aid, string slink, string sPlatform, string sName, Guid icon)
         {
             AID = aid;
-            AliasName = sName;
-            SubscriptionLink = slink;
-            SubscriptionPlatform = sPlatform;
+            AliasName = sName.Trim();
+            SubscriptionLink = slink.Trim();
+            SubscriptionPlatform = sPlatform.Trim();
             SubscriptionIcon = icon;
         }
 
@@ -67,11 +67,11 @@ namespace AqLife.Domain.Entities
         [MapperConstructor]
         public AccountEntity(string name, string? desc, string pwd) : this(name, pwd)
         {
-            if (desc is not null) Desc = desc;
+            Desc = desc?.Trim() ?? string.Empty;
         }
         public AccountEntity(string name, string pwd)
         {
-            Name = name;
+            Name = name.Trim();
             LoginPasswordHash = FastHash.GetSha256Hash(pwd);
         }
 

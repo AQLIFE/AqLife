@@ -31,13 +31,13 @@ namespace AqLife.Domain.Entities
         public CategoryEntity() { }
         public CategoryEntity(string categoryName)
         {
-            CategoryName = categoryName;
+            CategoryName = categoryName.Trim();
         }
 
         [MapperConstructor]
         public CategoryEntity(string categoryName, string categoryDescription, Guid? parentId = null):this(categoryName)
         {
-            CategoryDescription = categoryDescription;
+            CategoryDescription = categoryDescription.Trim();
             ParentId = parentId;
         }
 
