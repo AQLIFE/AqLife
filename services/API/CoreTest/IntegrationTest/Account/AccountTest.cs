@@ -14,7 +14,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
         {
             string key = await EnsureSystemKeyAsync();
 
-            CreateAccountCommand command = new("测试账户1", "测试账户描述", "pwd123456", key);
+            CreateAccountCommand command = new(Name: "测试账户1", Pwd: "pwd123456", ServerKey: key, Desc: "测试账户描述");
 
             var loginName = await ExecuteAsync(command, CancellationToken.None);
 
