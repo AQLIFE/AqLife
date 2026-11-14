@@ -46,7 +46,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
             using var stream = CreateMaxSizeStream();
             FormFile file = new(stream, 0, legalSize, "testfile", "testfile.md");
 
-            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId, IsTemplate: true);
+            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId);
             Guid result = await base.ExecuteAsync(create, CancellationToken.None);
 
             var uploadedFile = await FindFileAsync(result, CancellationToken.None);
@@ -98,7 +98,7 @@ namespace AqLife.CoreTest.IntegrationTest.File
             using var stream = CreateMaxSizeStream();
             FormFile file = new(stream, 0, stream.Length, "testfile", fileName: "testfile" + imageExtension);
 
-            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId);
+            CreateFileCommand create = new(file, CategoryEntity.DefaultCategoryId, IsTemplate: true);
 
             var exception = await Assert.ThrowsAsync<RequestCheckException>(async () => await ExecuteAsync(create, CancellationToken.None));
             Assert.Equal("非 md 文件,禁止标记为模板文件", exception.Message);
