@@ -4,7 +4,6 @@ import {
   ElButton, ElDialog, ElMessage, ElOption, ElSelect,
 } from 'element-plus'
 import { Plus, Refresh, Lock } from '@element-plus/icons-vue'
-import { mgsIconRegistry, MgsIconName } from '@aqlife/icons'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsToolbar from '@/components/ui/MgsToolbar.vue'
 import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
@@ -122,15 +121,6 @@ async function addDependency() {
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '添加依赖失败') }
   finally { saving.value = false }
 }
-async function removeDependency(predecessorId?: string, successorId?: string) {
-  if (!predecessorId || !successorId) return
-  try {
-    await todoApi.apiTodoDependenciesDelete({ removeTodoDependencyCommand: {
-      planId: selectedPlanId.value, predecessorId, successorId,
-    } })
-    await refreshViews()
-  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '移除依赖失败') }
-}
 function beginDrag(event: PointerEvent, todo: TodoDto) {
   if (!todo.uid || (event.target as HTMLElement).closest('button')) return
   const point = positions.value[todo.uid]
@@ -213,10 +203,10 @@ onBeforeUnmount(() => {
           :class="[statusClass(node), { selected: selectedId === node.uid }]"
           :style="{ left: (positions[node.uid!]?.x ?? 0) + 'px', top: (positions[node.uid!]?.y ?? 0) + 'px' }"
           @pointerdown="beginDrag($event, node)" @click="selectedId = node.uid ?? ''">
-          <div class="node-top"><span>{{ node.isBlocked ? '等待前置' : statusLabel(node) }}</span><span>优先级 {{ node.priority ?? 1 }}</span></div>
+          <div class="node-top"><span>{{ node.isBlocked ? '等待前置' : statusLabel(node) }}</span><span>排序 {{ node.sortOrder ?? 0 }}</span></div>
           <h3>{{ titleOf(node) }}</h3>
           <p>{{ node.description || '暂无任务说明' }}</p>
-          <div class="node-bottom"><span v-if="node.ftid">子任务</span><span>{{ dependencies.filter(edge => edge.successorId === node.uid).length }} 项前置</span><span v-if="node.incompleteDependencyCount">{{ node.incompleteDependencyCount }} 项未解锁</span><span v-if="node.hasChildren">含子任务</span></div>
+          <div class="node-bottom"><span>{{ dependencies.filter(edge => edge.successorId === node.uid).length }} 项前置</span><span v-if="node.incompleteDependencyCount">{{ node.incompleteDependencyCount }} 项未完成</span></div>
         </article>
         <div v-if="!nodes.length" class="empty-canvas"><MgsPageState state="empty" description="当前计划还没有任务节点，请先在 Todo 管理页创建任务。" compact /></div>
         </div>
@@ -226,17 +216,15 @@ onBeforeUnmount(() => {
         <h2>{{ titleOf(selected) }}</h2>
         <p class="detail-description">{{ selected.description || '暂无任务说明' }}</p>
         <div class="detail-state" :class="statusClass(selected)">{{ selected.isBlocked ? '被前置任务阻塞' : statusLabel(selected) }}</div>
-        <div class="detail-meta"><span>优先级</span><strong>{{ selected.priority ?? 1 }}</strong></div>
-        <div class="detail-meta"><span>父任务</span><strong>{{ selected.ftid ? titleOf(nodeById.get(selected.ftid) ?? {}) : '无' }}</strong></div>
+        <div class="detail-meta"><span>排序</span><strong>{{ selected.sortOrder ?? 0 }}</strong></div>
         <div class="detail-meta"><span>未完成前置</span><strong>{{ selected.incompleteDependencyCount ?? 0 }}</strong></div>
         <div class="dependency-section">
           <div class="section-heading"><strong>前置依赖（{{ incoming.length }}）</strong><ElButton link type="primary" :icon="Plus" @click="dependencyDialog = true" :disabled="!!selectedPlan?.isArchived || !!selected.isArchived">添加前置任务</ElButton></div>
           <div v-if="incoming.length === 0" class="muted">没有前置依赖</div>
           <div v-for="edge in incoming" :key="edge.predecessorId" class="dependency-item">
             <span>{{ titleOf(nodeById.get(edge.predecessorId ?? '') ?? {}) }}</span>
-            <ElButton link type="danger" :icon="mgsIconRegistry[keyIcon.unlink]" @click="removeDependency(edge.predecessorId, edge.successorId)" />
           </div>
-          <p class="hint">只有全部前置任务完成后，该节点才会解除阻塞。</p>
+          <p class="hint">只有全部前置任务完成后，该节点才会解除阻塞。当前接口未提供依赖关系 UID，暂不能从此处移除依赖。</p>
         </div>
       </aside>
       <aside class="detail-panel empty-detail" v-else><Lock /><p>选择一个任务节点查看详情</p></aside>
