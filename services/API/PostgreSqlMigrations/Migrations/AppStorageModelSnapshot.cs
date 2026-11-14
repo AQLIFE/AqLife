@@ -273,8 +273,10 @@ namespace PostgreSqlMigrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CategoryUID")
-                        .HasColumnType("uuid");
+                    b.Property<Guid>("CategoryUID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValue(new Guid("3b246a0e-ed94-45e0-930d-15643683d50d"));
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -574,7 +576,8 @@ namespace PostgreSqlMigrations.Migrations
                     b.HasOne("AqLife.Domain.Entities.CategoryEntity", "Category")
                         .WithMany("Favorites")
                         .HasForeignKey("CategoryUID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
 
                     b.Navigation("Category");
                 });

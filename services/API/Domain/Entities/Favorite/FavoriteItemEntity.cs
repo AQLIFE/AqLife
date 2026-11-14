@@ -28,10 +28,11 @@ public class FavoriteItemEntity : IEntity
 
     public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
-    public Guid? CategoryUID { get; private set; }
+    
+    public Guid CategoryUID { get; private set; } = CategoryEntity.DefaultCategoryId;
 
     [ForeignKey(nameof(CategoryUID))]
-    public CategoryEntity? Category { get; private set; }
+    public CategoryEntity Category { get; private set; } = null!;
 
     public ICollection<FavoriteMediaEntity> Media { get; set; } = [];
 
@@ -51,7 +52,7 @@ public class FavoriteItemEntity : IEntity
         Description = description ?? this.Description;
         SourceUrl = (string.IsNullOrWhiteSpace(sourceUrl)  || sourceUrl is null)? null : sourceUrl.Trim();
         SortOrder = sortOrder;
-        CategoryUID = categoryUID ?? this.CategoryUID;
+        if (categoryUID is Guid id) CategoryUID = id ;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 

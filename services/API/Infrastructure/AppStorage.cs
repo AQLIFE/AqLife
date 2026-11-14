@@ -47,6 +47,9 @@ namespace AqLife.Infrastructure
                 .HasMany(x => x.Media).WithOne()
                 .HasForeignKey(x => x.FavoriteId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<FavoriteItemEntity>()
+                .Property(x => x.CategoryUID)
+                .HasDefaultValue(CategoryEntity.DefaultCategoryId);
+            modelBuilder.Entity<FavoriteItemEntity>()
                 .HasOne(x => x.Category).WithMany(e=>e.Favorites)
                 .HasForeignKey(x => x.CategoryUID)
                 .OnDelete(DeleteBehavior.SetNull);
