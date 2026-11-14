@@ -100,7 +100,7 @@ public class FileQueryTests(IntegrationTestFixture fixture) : IntegrationTestBas
         var draftImage = CreateFile("draft.png");// 未发布图像*1
         var publishedBlog = CreateFile("published.md");
         publishedBlog.PublishMeta.Publish();//发布博文*1
-        var template = CreateFile("template.md");//模板*1
+        var template = CreateFile("template.md", isTemplate: true);// 模板*1
         var unsupportedFile = CreateFile("unsupported.exe");// 不允许的扩展名文件*1
 
         using var scope = CreateScope();
@@ -111,10 +111,14 @@ public class FileQueryTests(IntegrationTestFixture fixture) : IntegrationTestBas
         return (publishedImage.UID, draftImage.UID, publishedBlog.UID, template.UID);
     }
 
-    private static FileMetaEntity CreateFile(string fileName,bool isTemplate = false)
+    private static FileMetaEntity CreateFile(string fileName, bool isTemplate = false)
     {
         using var stream = new MemoryStream([1]);
         var file = new FormFile(stream, 0, stream.Length, "file", fileName);
-        return new FileMetaEntity(file, CategoryEntity.DefaultCategoryId,IdentityGenerator.GenerateSecureHash());
+        return new FileMetaEntity(
+            file,
+            CategoryEntity.DefaultCategoryId,
+            IdentityGenerator.GenerateSecureHash(),
+            isTemplate);
     }
 }
