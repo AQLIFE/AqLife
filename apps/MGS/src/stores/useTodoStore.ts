@@ -14,7 +14,6 @@ export const useTodoStorage = defineStore('todo', () => {
   const todosLoading = useLoadingTask('mgs:todo:todos')
   const loadingPlans = plansLoading.isLoading
   const loadingTodos = todosLoading.isLoading
-  const includeArchived = ref(false)
   const error = ref<unknown>(null)
   const todoApi = new TodoApi(apiConfiguration)
   const planApi = new DevelopmentPlanApi(apiConfiguration)
@@ -55,7 +54,6 @@ export const useTodoStorage = defineStore('todo', () => {
             pageSize: PAGE_SIZE,
             isTree: true,
             includeCompleted: true,
-            includeArchived: includeArchived.value,
           })
           result.push(...(response.items ?? []))
           if (!response.hasMore) break
@@ -95,7 +93,7 @@ export const useTodoStorage = defineStore('todo', () => {
 
   return {
     plans, selectedPlanId, selectedPlan, todoList, loadingPlans, loadingTodos,
-    includeArchived, error, fetchPlans, fetchTodos, selectPlan,
+    error, fetchPlans, fetchTodos, selectPlan,
     createPlan, updatePlan, archivePlan,
   }
 })
