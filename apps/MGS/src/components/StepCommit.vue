@@ -42,7 +42,7 @@ async function commit(){
   const loginToken = await accountApi.apiAccountLoginPost({loginCommand:{accountName:randomName,secretKey:registerStore.profile.pwd}})
   accountStore.setToken(loginToken)
   await accountApi.apiAccountAvatarPatch({avatar:registerStore.avatar as Blob})
-  const gids = await fileApi.apiFileUploadPost({file:registerStore.fileList})
+  const gids = await fileApi.apiFileUploadMultiplePost({ files: registerStore.fileList })
   registerStore.subscriptions.forEach((element,index) => {
     element.subscriptionIcon = gids[index]
   });
