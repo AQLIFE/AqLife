@@ -1,6 +1,8 @@
+using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities.DevPlan;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +10,7 @@ namespace AqLife.Application.Business.Todo.Handler;
 
 public sealed class AddTodoDependencyCommandHandler(
     IApplicationDbContext db,
-    TodoMapper mapper) : IRequestHandler<AddTodoDependencyCommand, Guid>
+    ICreateMapper<TodoDependencyEntity, AddTodoDependencyCommand> mapper) : IRequestHandler<AddTodoDependencyCommand, Guid>
 {
     public async Task<Guid> Handle(AddTodoDependencyCommand q, CancellationToken ct)
     {

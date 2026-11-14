@@ -1,6 +1,7 @@
 ﻿using AqLife.Domain.Entities.File;
 using AqLife.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
+using Riok.Mapperly.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,6 +21,7 @@ namespace AqLife.Domain.Entities
         public ICollection<FileTagEntity> FileTags { get; set; } = [];
 
         public TagEntity() { }
+        [MapperConstructor]
         public TagEntity(string name, string? aliasName = null)
         {
             this.Name = name;

@@ -1,3 +1,4 @@
+using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
@@ -6,7 +7,7 @@ using MediatR;
 
 namespace AqLife.Application.Business.Favorite.Handler
 {
-    public class CreateFavoriteHandler(IApplicationDbContext dbContext, FavoriteMapper mapper)
+    public class CreateFavoriteHandler(IApplicationDbContext dbContext, ICreateMapper<FavoriteItemEntity, CreateFavoriteCommand> mapper)
         : IRequestHandler<CreateFavoriteCommand, Guid>
     {
         public async Task<Guid> Handle(CreateFavoriteCommand command, CancellationToken ct)

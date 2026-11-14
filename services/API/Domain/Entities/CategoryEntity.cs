@@ -2,6 +2,7 @@
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
+using Riok.Mapperly.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -33,12 +34,11 @@ namespace AqLife.Domain.Entities
             CategoryName = categoryName;
         }
 
-        public CategoryEntity(string categoryName, string categoryDescription, CategoryEntity? parentCategory = null)
+        [MapperConstructor]
+        public CategoryEntity(string categoryName, string categoryDescription, Guid? parentId = null):this(categoryName)
         {
-            CategoryName = categoryName;
             CategoryDescription = categoryDescription;
-            ParentCategory = parentCategory;
-            ParentId = parentCategory?.UID;
+            ParentId = parentId;
         }
 
         public void SetParentCategory(CategoryEntity? parentCategory)

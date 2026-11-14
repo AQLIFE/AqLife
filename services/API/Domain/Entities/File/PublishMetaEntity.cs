@@ -60,7 +60,8 @@ namespace AqLife.Domain.Entities.File
         /// </summary>
         public void Desensitize()
         {
-            this.PublishAt = null;
+            this.PublishAt = this.PublishAt is not DateTimeOffset source ? null : new(source.Date, source.Offset);
         }
+        /// 取代旧有脱敏逻辑,不再将其设置为 null ,相反 最大程度上保留日期
     }
 }

@@ -1,4 +1,0 @@
-﻿namespace AqLife.Shared.Tools
-{
-
-}

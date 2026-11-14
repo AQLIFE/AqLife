@@ -1,6 +1,7 @@
 ﻿using AqLife.Shared.Contracts;
 using AqLife.Shared.Utils;
 using Microsoft.EntityFrameworkCore;
+using Riok.Mapperly.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -62,11 +63,11 @@ namespace AqLife.Domain.Entities
         public ICollection<SubscriptionEntity> Subscriptions { get; set; } = [];
 
         public AccountEntity() { }
-        public AccountEntity(string name, string? desc, string pwd)
+
+        [MapperConstructor]
+        public AccountEntity(string name, string? desc, string pwd) : this(name, pwd)
         {
-            Name = name;
             if (desc is not null) Desc = desc;
-            LoginPasswordHash = FastHash.GetSha256Hash(pwd);
         }
         public AccountEntity(string name, string pwd)
         {

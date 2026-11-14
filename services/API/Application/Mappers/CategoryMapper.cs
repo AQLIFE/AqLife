@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Mapper;
+using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.Favorite;
 using AqLife.Domain.Entities.File;
@@ -11,13 +12,26 @@ using Riok.Mapperly.Abstractions;
 namespace AqLife.Application.Mappers;
 
 [Mapper]
-public partial class CategoryMapper : IViewMapper<CategoryEntity, CategoryDto>
+public partial class CategoryMapper : IViewMapper<CategoryEntity, CategoryDto>,ICreateMapper<CategoryEntity,CreateCategoryCommand>
 {
-    [MapperIgnoreSource(nameof(CategoryEntity.ParentId))]
-    [MapProperty(nameof(CategoryEntity.Files.Count), nameof(CategoryDto.FileCount))]
-    [MapProperty(nameof(CategoryEntity.Favorites.Count), nameof(CategoryDto.FavoriteCount))]
-    [MapProperty(nameof(CategoryEntity.ParentCategory.CategoryName), nameof(CategoryDto.ParentName))]
+    [MapperIgnoreSource(nameof(CategoryEntity.ParentCategory))]
+    [MapperIgnoreSource(nameof(CategoryEntity.Files))]
+    [MapperIgnoreSource(nameof(CategoryEntity.Favorites))]
+    [MapperIgnoreTarget(nameof(CategoryDto.Count))]
+    [MapperIgnoreTarget(nameof(CategoryDto.ResultIds))]
+    [MapProperty(nameof(CategoryEntity.UID), nameof(CategoryDto.Uid))]
+    [MapProperty(nameof(CategoryEntity.CategoryDescription), nameof(CategoryDto.CategoryDescription))]
+    [MapProperty(nameof(CategoryEntity.CategoryName), nameof(CategoryDto.CategoryName))]
     public partial CategoryDto ToDto(CategoryEntity source);
+
+
+    [MapperIgnoreTarget(nameof(CategoryEntity.UID))]
+    [MapperIgnoreTarget(nameof(CategoryEntity.Files))]
+    [MapperIgnoreTarget(nameof(CategoryEntity.Files))]
+    [MapperIgnoreTarget(nameof(CategoryEntity.Favorites))]
+    [MapProperty(nameof(CreateCategoryCommand.Desc),nameof(CategoryEntity.CategoryDescription))]
+    [MapProperty(nameof(CreateCategoryCommand.Name), nameof(CategoryEntity.CategoryName))]
+    public partial CategoryEntity ToEntity(CreateCategoryCommand source);
 }
 
 //[Obsolete("设计取代:和File 业务相同的原因,转换功能交给底层Mapper,业务脱敏实现交由对应的 Search 类实现 ")]

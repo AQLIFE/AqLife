@@ -1,11 +1,12 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using MediatR;
 
 namespace AqLife.Application.Business.Corpus.Handler
 {
-    public class CreateCorpusCommandHandler(CorpusMapper mapper, IApplicationDbContext storage) : IRequestHandler<CreateCorpusCommand, Guid>
+    public class CreateCorpusCommandHandler(ICreateMapper<CorpusEntity, CreateCorpusCommand> mapper, IApplicationDbContext storage) : IRequestHandler<CreateCorpusCommand, Guid>
     {
         public async Task<Guid> Handle(CreateCorpusCommand command, CancellationToken ct)
         {

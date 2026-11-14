@@ -1,3 +1,4 @@
+using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Business.DevelopmentPlan.Search;
 using AqLife.Application.Mappers;
@@ -9,9 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.DevelopmentPlan.Handler;
 
-public sealed class DevelopmentPlanQueryHandler(
-    IApplicationDbContext db,DevelopmentPlanSearch<DevelopmentPlanQuery> searcher,
-    DevelopmentPlanMapper mapper) : IRequestHandler<DevelopmentPlanQuery, IReadOnlyList<DevelopmentPlanDto>>
+public sealed class DevelopmentPlanQueryHandler(DevelopmentPlanSearch<DevelopmentPlanQuery> searcher,
+    IViewMapper<DevelopmentPlanEntity, DevelopmentPlanDto> mapper) : IRequestHandler<DevelopmentPlanQuery, IReadOnlyList<DevelopmentPlanDto>>
 {
     public async Task<IReadOnlyList<DevelopmentPlanDto>> Handle(DevelopmentPlanQuery q, CancellationToken ct)
     {

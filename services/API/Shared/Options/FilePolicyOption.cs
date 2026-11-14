@@ -28,6 +28,7 @@ namespace AqLife.Shared.Options
     }
 
     public enum FileStatus { Draft, Scheduled, Published }
+    public enum PublishStatusSearch { Default,Draft, Scheduled, Published }
     public enum FileOrder
     {
         Latest,

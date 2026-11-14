@@ -10,10 +10,10 @@ using Riok.Mapperly.Abstractions;
 namespace AqLife.Application.Mappers
 {
     [Mapper]
-    public partial class QueryMapper :
+    public partial class PageQueryMapper :
           ISearchMapper<TodoQuery, TodoSearchCriteria>,
           ISearchMapper<TagQuery, EntitySearchCriteria>,
-          //ISearchMapper<AccountQuery, EntitySearchCriteria>,
+          //ISearchMapper<AccountQuery, EntitySearchCriteria>, //  AccountQuery 没有IPageQuery 实现
           ISearchMapper<FileQuery, FileSearchCriteria>,
           ISearchMapper<CorpusQuery, EntitySearchCriteria>,
           ISearchMapper<FavoriteQuery, FavoriteSearchCriteria>,

@@ -2,6 +2,7 @@
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
+using AqLife.Shared.Utils;
 using Riok.Mapperly.Abstractions;
 
 namespace AqLife.Application.Business.Account
@@ -20,19 +21,35 @@ namespace AqLife.Application.Business.Account
         public partial SubscriptionEntity ToEntity(ISubscription source);
     }
 
-    [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)] // 添加这一行
+    [Mapper]
     public partial class AccountMapper(IViewMapper<SubscriptionEntity, SubscriptionDto> subMapper)
         : IViewMapper<AccountEntity, AccountDto>, ICreateMapper<AccountEntity, CreateAccountCommand>
     {
         [MapperIgnoreSource(nameof(AccountEntity.UID))]
         [MapperIgnoreSource(nameof(AccountEntity.IsValid))]
+        [MapperIgnoreSource(nameof(AccountEntity.LoginPasswordHash))]
+        [MapperIgnoreSource(nameof(AccountEntity.LoginName))]
+        [MapperIgnoreSource(nameof(AccountEntity.IsValid))]
+        [MapProperty(nameof(AccountEntity.Subscriptions),nameof(AccountDto.Subscriptions))]
+        [MapProperty(nameof(AccountEntity.Name), nameof(AccountDto.Name))]
+        [MapProperty(nameof(AccountEntity.Desc), nameof(AccountDto.Desc))]
+        [MapProperty(nameof(AccountEntity.Avatar), nameof(AccountDto.Avatar))]
         public partial AccountDto ToDto(AccountEntity source);
 
+        //[MapperIgnoreSource(nameof(CreateAccountCommand.Pwd))]
+        //[MapperIgnoreTarget(nameof(AccountEntity.LoginPasswordHash))]
+        [MapProperty(nameof(CreateAccountCommand.Pwd), nameof(AccountEntity.LoginPasswordHash)/*,Use =nameof(ConvertHashPwd)*/)]
         [MapperIgnoreSource(nameof(CreateAccountCommand.ServerKey))]
-        public AccountEntity ToEntity(CreateAccountCommand command) => new(command.Name, command.Desc, command.Pwd);
+        [MapperIgnoreTarget(nameof(AccountEntity.Avatar))]
+        [MapperIgnoreTarget(nameof(AccountEntity.IsValid))]
+        [MapperIgnoreTarget(nameof(AccountEntity.UID))]
+        [MapperIgnoreTarget(nameof(AccountEntity.LoginName))]
+        [MapperIgnoreTarget(nameof(AccountEntity.Subscriptions))]
+        public partial AccountEntity ToEntity(CreateAccountCommand command);
 
-        private SubscriptionDto Convert(SubscriptionEntity entity) => subMapper.ToDto(entity);
+        private IEnumerable<SubscriptionDto> Convert(ICollection<SubscriptionEntity> source) => source.Select(subMapper.ToDto);
 
+        //private string ConvertHashPwd(string source) => FastHash.GetSha256Hash(source);
     }
 
 

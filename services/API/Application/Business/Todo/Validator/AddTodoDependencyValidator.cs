@@ -51,7 +51,7 @@ public sealed class AddTodoDependencyPlanLegalityValidator(AqLife.Application.Ab
 /// 自身依赖
 /// </summary>
 /// <param name="db"></param>
-public sealed class AddTodoDependencyLegalityValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
+public sealed class AddTodoDependencyLegalityValidator : AbstractValidator<AddTodoDependencyCommand>
 {
     private protected override string ErrorMessage { init; get; } = "目标任务不能是自身的依赖";
     private protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)

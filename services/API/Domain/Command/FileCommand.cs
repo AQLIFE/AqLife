@@ -13,7 +13,7 @@ namespace AqLife.Domain.Command
     /// <param name="ScheduledTime"></param>
     public record BlogUnpublishQuery(DateTimeOffset ScheduledTime) : IQuery<IEnumerable<FileDto>>;
 
-    public record FileOverviewQuery(int RecentCount = 10) : IQuery<FileOverviewDto>;
+    public record FileOverviewQuery(PublishStatusSearch PublishStatus= PublishStatusSearch.Default,int RecentCount = 10) : IQuery<FileOverviewDto>;
     /// <summary>
     /// 通用的文件查询,可用于获取文件列表,支持分页和排序
     /// </summary>

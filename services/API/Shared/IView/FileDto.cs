@@ -12,7 +12,7 @@ namespace AqLife.Shared.IView
         [property:JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         FileStatus? PublishStatus,
         [property:JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        DateTimeOffset? PublishAt,
+        DateTimeOffset? PublishAt,// 是否应该提供精确日期和时间? 矛盾在于 web 项目不应该得到详细时间 ,但 mgs项目需要,所以应该在Search 上解决; 嗯 应该如此
         ulong FileSize = 0u,
         string FileHash = "",
         string UploadTime = "",
@@ -38,6 +38,10 @@ namespace AqLife.Shared.IView
         int DraftCount,
         int ScheduledCount,
         int PublishedCount,
-        IEnumerable<FileDto> RecentFiles
-    );
+        List<FileDto> RecentFiles,
+        int Page,
+        int PageSize,
+        PublishStatusSearch SearchStatus = PublishStatusSearch.Default,
+        bool HasMore = false
+    ):PageResult<FileDto>(RecentFiles,Page,PageSize,HasMore);
 }

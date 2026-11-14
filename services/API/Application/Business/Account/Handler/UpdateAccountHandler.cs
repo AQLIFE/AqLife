@@ -1,9 +1,11 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.BackServices;
 using AqLife.Application.Business.File.Service;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
+using AqLife.Shared.IView;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,7 +45,7 @@ namespace AqLife.Application.Business.Account.Handler
     /// </summary>
     /// <param name="storage"></param>
     /// <param name="subscriptionMapper"></param>
-    public class UpdateAccountSubscriptionsHandler(IApplicationDbContext storage, SubscriptionMapper subscriptionMapper, IFilePublishService filePublishService) : IRequestHandler<UpdateAccountSubscriptionsCommand, string>
+    public class UpdateAccountSubscriptionsHandler(IApplicationDbContext storage, ICreateMapper<SubscriptionEntity, ISubscription> subscriptionMapper, IFilePublishService filePublishService) : IRequestHandler<UpdateAccountSubscriptionsCommand, string>
     {
         public async Task<string> Handle(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         {

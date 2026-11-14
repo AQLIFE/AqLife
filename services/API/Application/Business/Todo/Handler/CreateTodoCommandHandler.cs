@@ -1,13 +1,15 @@
+using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities.DevPlan;
 using MediatR;
 
 namespace AqLife.Application.Business.Todo.Handler;
 
 public sealed class CreateTodoCommandHandler(
     IApplicationDbContext db,
-    TodoMapper mapper) : IRequestHandler<CreateTodoCommand, Guid>
+    ICreateMapper<TodoEntity, CreateTodoCommand> mapper) : IRequestHandler<CreateTodoCommand, Guid>
 {
     public async Task<Guid> Handle(CreateTodoCommand q, CancellationToken ct)
     {

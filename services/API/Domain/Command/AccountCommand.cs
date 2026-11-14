@@ -25,10 +25,10 @@ namespace AqLife.Domain.Command
     public record CreateAccountCommand(
         [Required, StringLength(32, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-32之间")]
         string Name,
-        [StringLength(255,ErrorMessage ="个人概述不应超过255个字符")]
-        string? Desc,
         string Pwd,
-        string ServerKey
+        string ServerKey,
+        [StringLength(255,ErrorMessage ="个人概述不应超过255个字符")]
+        string Desc
     ) : ICreateCommand<string>, ISimpleAccountInfo;
 
 

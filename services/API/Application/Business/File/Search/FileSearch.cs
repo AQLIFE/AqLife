@@ -40,7 +40,7 @@ public sealed class FileSearch(
         {
 
             Shared.Options.FileOrder.MostViewed => queryble.Include(i => i.InteractionMeta).OrderByDescending(e => e.InteractionMeta.ViewCount),
-            Shared.Options.FileOrder.Latest => queryble.Include(t => t.PublishMeta).OrderBy(e => e.PublishMeta.PublishAt),
+            Shared.Options.FileOrder.Latest => queryble.Include(t => t.PublishMeta).OrderByDescending(e => e.PublishMeta.PublishAt),
             _ => queryble.Include(t => t.PublishMeta).OrderByDescending(e => e.UploadTime)
         };
 

@@ -1,6 +1,8 @@
+using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
+using AqLife.Domain.Entities.DevPlan;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +10,7 @@ namespace AqLife.Application.Business.Todo.Handler;
 
 public sealed class SaveRoadmapNodeLayoutCommandHandler(
     IApplicationDbContext db,
-    TodoMapper mapper) : IRequestHandler<SaveRoadmapNodeLayoutCommand, Guid>
+    IBaseEntityMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand> mapper) : IRequestHandler<SaveRoadmapNodeLayoutCommand, Guid>
 {
     public async Task<Guid> Handle(SaveRoadmapNodeLayoutCommand q, CancellationToken ct)
     {

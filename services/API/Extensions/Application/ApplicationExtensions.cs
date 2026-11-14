@@ -77,6 +77,9 @@ public static class ApplicationExtensions
 
         services.AddSingleton<TodoMapper>();
         services.AddSingleton<IViewMapper<TodoEntity, TodoDto>>(sp => sp.GetRequiredService<TodoMapper>());
+        services.AddSingleton<IViewMapper<RoadmapNodeLayoutEntity, RoadmapNodeLayoutDto>>(sp => sp.GetRequiredService<TodoMapper>());
+        services.AddSingleton<IViewMapper<DevelopmentPlanEntity, TodoRoadmapDto>>(sp => sp.GetRequiredService<TodoMapper>());
+        services.AddSingleton<IViewMapper<TodoDependencyEntity, TodoDependencyDto>>(sp => sp.GetRequiredService<TodoMapper>());
         services.AddSingleton<ICreateMapper<TodoEntity, CreateTodoCommand>>(sp => sp.GetRequiredService<TodoMapper>());
         services.AddSingleton<ICreateMapper<TodoDependencyEntity, AddTodoDependencyCommand>>(sp => sp.GetRequiredService<TodoMapper>());
         services.AddSingleton<IBaseEntityMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>>(sp => sp.GetRequiredService<TodoMapper>());
@@ -102,18 +105,19 @@ public static class ApplicationExtensions
         services.AddSingleton<ICreateMapper<CorpusEntity, CreateCorpusCommand>>(sp => sp.GetRequiredService<CorpusMapper>());
 
         services.AddSingleton<FileMapper>();
-        //services.AddScoped<FileMappingService>();
         services.AddSingleton<IViewMapper<FileMetaEntity, FileDto>>(sp => sp.GetRequiredService<FileMapper>());
         services.AddSingleton<ICreateMapper<FileMetaEntity, CreateFileCommand>>(sp => sp.GetRequiredService<FileMapper>());
+        services.AddSingleton<IBaseListEntityMapper<FileMetaEntity, UploadFilesCommand>>(sp => sp.GetRequiredService<FileMapper>());
 
         services.AddSingleton<CategoryMapper>();
-        //services.AddScoped<CategoryMapperServices>();
         services.AddSingleton<IViewMapper<CategoryEntity, CategoryDto>>(sp => sp.GetRequiredService<CategoryMapper>());
+        services.AddSingleton<ICreateMapper<CategoryEntity, CreateCategoryCommand>> (sp => sp.GetRequiredService<CategoryMapper>());
 
         services.AddSingleton<FavoriteMediaMapper>();
         services.AddSingleton<FavoriteMapper>();
         services.AddSingleton<IViewMapper<FavoriteItemEntity, FavoriteDto>>(sp => sp.GetRequiredService<FavoriteMapper>());
         services.AddSingleton<ICreateMapper<FavoriteItemEntity, CreateFavoriteCommand>>(sp => sp.GetRequiredService<FavoriteMapper>());
+        
 
         services.AddSingleton<QueryMapper>();
         services.AddScoped(typeof(PageResultMapper<,>));

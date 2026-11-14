@@ -1,3 +1,4 @@
+using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
@@ -6,19 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Category.Handler;
 
-public sealed class CreateCategoryHandler(IApplicationDbContext dbContext)
+public sealed class CreateCategoryHandler(IApplicationDbContext dbContext,ICreateMapper<CategoryEntity,CreateCategoryCommand> createMapper)
     : IRequestHandler<CreateCategoryCommand, Guid>
 {
     public async Task<Guid> Handle(CreateCategoryCommand command, CancellationToken ct)
     {
-        CategoryEntity? parent = command.ParentId is Guid parentId
-            ? await dbContext.Categories.SingleOrDefaultAsync(category => category.UID == parentId, ct)
-            : null;
-
-        var entity = new CategoryEntity(
-            command.Name.Trim(),
-            command.Desc?.Trim() ?? string.Empty,
-            parent);
+        var entity = createMapper.ToEntity(command);
 
         await dbContext.Categories.AddAsync(entity, ct);
         return entity.UID;
