@@ -25,8 +25,8 @@ const editing = ref<CategoryDto | null>(null)
 const keyword = ref('')
 const form = ref({ name: '', desc: '', parentId: '' })
 
-const categoryByName = computed(() => new Map(
-  categories.value.map(category => [category.categoryName ?? '', category]),
+const categoryById = computed(() => new Map(
+  categories.value.filter(category => category.uid).map(category => [category.uid!, category]),
 ))
 
 function buildTree(source: CategoryDto[]): CategoryNode[] {
@@ -37,8 +37,7 @@ function buildTree(source: CategoryDto[]): CategoryNode[] {
 
   const roots: CategoryNode[] = []
   for (const node of nodes.values()) {
-    const parent = node.parentName ? categoryByName.value.get(node.parentName) : undefined
-    const parentNode = parent?.uid ? nodes.get(parent.uid) : undefined
+    const parentNode = node.parentId ? nodes.get(node.parentId) : undefined
     if (parentNode && parentNode.uid !== node.uid) parentNode.children!.push(node)
     else roots.push(node)
   }
@@ -49,7 +48,7 @@ function filterTree(nodes: CategoryNode[], query: string): CategoryNode[] {
   if (!query) return nodes
   return nodes.flatMap(node => {
     const children = filterTree(node.children ?? [], query)
-    const ownText = [node.categoryName, node.categoryDescription, node.parentName, node.uid]
+    const ownText = [node.categoryName, node.categoryDescription, node.parentId, node.uid]
       .some(value => value?.toLocaleLowerCase().includes(query))
     return ownText || children.length ? [{ ...node, children }] : []
   })
@@ -59,15 +58,14 @@ const tableData = computed(() => filterTree(buildTree(categories.value), keyword
 
 const availableParents = computed(() => {
   if (!editing.value?.uid) return categories.value
-  const editingName = editing.value.categoryName
   return categories.value.filter(candidate => {
     if (candidate.uid === editing.value?.uid) return false
     let current: CategoryDto | undefined = candidate
     const visited = new Set<string>()
-    while (current?.parentName && !visited.has(current.parentName)) {
-      if (current.parentName === editingName) return false
-      visited.add(current.parentName)
-      current = categoryByName.value.get(current.parentName)
+    while (current?.parentId && !visited.has(current.parentId)) {
+      if (current.parentId === editing.value?.uid) return false
+      visited.add(current.parentId)
+      current = categoryById.value.get(current.parentId)
     }
     return true
   })
@@ -76,7 +74,7 @@ const availableParents = computed(() => {
 async function loadCategories() {
   loading.value = true
   try {
-    const result = await categoryApi.apiCategoryGet({ searchType: CategoryQueryType.Blog })
+    const result = await categoryApi.apiCategoryGet({ searchType: CategoryQueryType.File })
     categories.value = result.items ?? []
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '分类数据加载失败')
@@ -93,11 +91,10 @@ function openCreate() {
 
 function openEdit(category: CategoryDto) {
   editing.value = category
-  const parent = category.parentName ? categoryByName.value.get(category.parentName) : undefined
   form.value = {
     name: category.categoryName ?? '',
     desc: category.categoryDescription ?? '',
-    parentId: parent?.uid ?? '',
+    parentId: category.parentId ?? '',
   }
   dialogVisible.value = true
 }
@@ -197,7 +194,7 @@ onBeforeMount(loadCategories)
           <template #default="{ row }">{{ row.categoryDescription || '—' }}</template>
         </ElTableColumn>
         <ElTableColumn label="业务数量" width="110" align="center">
-          <template #default="{ row }"><ElTag type="info">{{ row.categoryCount ?? 0 }}</ElTag></template>
+          <template #default="{ row }"><ElTag type="info">{{ row.count ?? 0 }}</ElTag></template>
         </ElTableColumn>
         <ElTableColumn prop="uid" label="UID" min-width="220" show-overflow-tooltip />
         <ElTableColumn label="操作" width="150" fixed="right">
