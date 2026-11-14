@@ -576,7 +576,7 @@ namespace PostgreSqlMigrations.Migrations
                     b.HasOne("AqLife.Domain.Entities.CategoryEntity", "Category")
                         .WithMany("Favorites")
                         .HasForeignKey("CategoryUID")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Category");
