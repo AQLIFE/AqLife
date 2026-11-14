@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import type { TodoDto } from '@/api'
-import { computed, ref } from 'vue'
-import { ElButton, ElTag } from 'element-plus'
-import { ArrowRight } from '@element-plus/icons-vue'
+import { computed } from 'vue'
+import { ElTag } from 'element-plus'
+import { useTodoStore } from '@/stores/todoStore'
 
-defineOptions({ name: 'DevPlanTodoItem' })
-const props = withDefaults(defineProps<{ item: TodoDto; index: number; level?: number }>(), { level: 0 })
-const expanded = ref(true)
-const children = computed(() => props.item.todoList ?? [])
-const hasChildren = computed(() => props.item.hasChildren === true || children.value.length > 0)
-const title = computed(() => props.item.title || props.item.desc || '（未命名任务）')
+const props = defineProps<{ item: TodoDto; index: number }>()
+const store = useTodoStore()
+const predecessorTitles = computed(() => (props.item.predecessorIds ?? []).map(id =>
+  store.todoList.find(todo => todo.uid === id)?.title || '未知任务',
+))
+
 function statusLabel(status?: string | null) {
   if (status === 'Completed' || Number(status) === 3) return '已完成'
   if (status === 'Execute' || Number(status) === 2) return '进行中'
@@ -19,11 +19,11 @@ function statusLabel(status?: string | null) {
 </script>
 
 <template>
-  <div class="todo-node" :style="{ paddingLeft: (12 + level * 18) + 'px' }">
+  <article class="todo-node">
     <div class="content-item">
       <span class="serial">{{ index + 1 }}</span>
       <div class="description">
-        <strong>{{ title }}</strong>
+        <strong>{{ item.title || '（未命名任务）' }}</strong>
         <small v-if="item.description">{{ item.description }}</small>
       </div>
       <div class="node-state">
@@ -31,15 +31,12 @@ function statusLabel(status?: string | null) {
         <ElTag v-else-if="statusLabel(item.status) === '已完成'" type="success" size="small">已完成</ElTag>
         <ElTag v-else size="small">{{ statusLabel(item.status) }}</ElTag>
       </div>
-      <ElButton v-if="hasChildren" :icon="ArrowRight" link :class="{ expanded }"
-        :aria-label="expanded ? '折叠子任务' : '展开子任务'"
-        :aria-expanded="expanded" @click="expanded = !expanded" />
     </div>
-    <div v-if="hasChildren && expanded" class="children">
-      <DevPlanTodoItem v-for="(child, childIndex) in children" :key="child.uid ?? childIndex"
-        :item="child" :index="childIndex" :level="level + 1" />
+    <div v-if="predecessorTitles.length" class="predecessors">
+      前置依赖：{{ predecessorTitles.join('、') }}
+      <span v-if="item.incompleteDependencyCount">（{{ item.incompleteDependencyCount }} 项尚未完成）</span>
     </div>
-  </div>
+  </article>
 </template>
 
 <style scoped>
@@ -50,7 +47,5 @@ function statusLabel(status?: string | null) {
 .description strong { font-weight:600; }
 .description small { color:var(--el-text-color-secondary); white-space:normal; }
 .node-state { flex:none; }
-.children { width:100%; }
-.content-item :deep(.el-button) { transition:transform .15s ease; }
-.content-item :deep(.el-button.expanded) { transform:rotate(90deg); }
+.predecessors { padding:6px 16px 8px 52px; color:var(--el-text-color-secondary); font-size:12px; background:var(--back_color_lv1); }
 </style>
