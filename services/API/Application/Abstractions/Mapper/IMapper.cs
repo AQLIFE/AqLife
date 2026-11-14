@@ -39,8 +39,9 @@ namespace AqLife.Application.Abstractions.Mapper
         TView ToDto(T source);
     }
 
-    public interface ISearchMapper<TQuery, TCriteria> : IBaseMapper<TQuery, TCriteria>
-        where TQuery : IPageQuery where TCriteria : ISearchCriteria
+    public interface ISearchMapper<TQuery,TResource, TCriteria> : IBaseMapper<TQuery, TCriteria>
+        where TQuery : IQuery<TResource> where TCriteria : ISearchCriteria
+        where TResource :class
     {
         TCriteria ToCriteria(TQuery query);
     }

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.DevelopmentPlan.Handler;
 
-public sealed class DevelopmentPlanQueryHandler(DevelopmentPlanSearch<DevelopmentPlanQuery> searcher,
+public sealed class DevelopmentPlanQueryHandler(DevelopmentPlanSearch<DevelopmentPlanQuery, IReadOnlyList<DevelopmentPlanDto>> searcher,
     IViewMapper<DevelopmentPlanEntity, DevelopmentPlanDto> mapper) : IRequestHandler<DevelopmentPlanQuery, IReadOnlyList<DevelopmentPlanDto>>
 {
     public async Task<IReadOnlyList<DevelopmentPlanDto>> Handle(DevelopmentPlanQuery q, CancellationToken ct)

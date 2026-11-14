@@ -12,8 +12,8 @@ namespace AqLife.Application.Business.Account.Handler
     {
         public async Task<string> Handle(CreateAccountCommand command, CancellationToken ct)
         {
-            string key = await initializationService.GetSystemKey(ct) ?? throw new RequestCheckException("Invalid system key");            
-                
+            //    string key = await initializationService.GetSystemKey(ct) ?? throw new RequestCheckException("Invalid system key");            
+
             AccountEntity entity = mapper.ToEntity(command);
             await storage.Accounts.AddAsync(entity, ct);
             await initializationService.VoidSystemKey(command.ServerKey, ct);

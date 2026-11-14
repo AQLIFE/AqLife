@@ -17,7 +17,7 @@ namespace AqLife.Domain.Command
         /// </summary>
         public Guid UID { get; init; } = PlanId;// 不需要手动填写
     }
-    public record DevelopmentPlanQuery(Guid? UID,string? Title) : IQuery<IReadOnlyList<DevelopmentPlanDto>>,IReadDevPlan;
+    public record DevelopmentPlanQuery(Guid? UID=null,string? Title=null) : IQuery<IReadOnlyList<DevelopmentPlanDto>>,IReadDevPlan;
     public record CreateDevelopmentPlanCommand(
         [Required, StringLength(128, MinimumLength = 1)] string Name,
         [StringLength(2000)] string? Description = null) : ICreateCommand;

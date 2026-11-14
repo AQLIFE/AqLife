@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
 using AqLife.Application.Search;
@@ -12,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Todo.Search
 {
-    public sealed class TodoSearch(QueryMapper queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
+    public sealed class TodoSearch(ISearchMapper<TodoQuery, PageResult<TodoDto>, TodoSearchCriteria> queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
         IEnumerable<ISearchStrategy<TodoEntity, TodoSearchCriteria>> searchStrategies
         ) : BaseSearch<TodoQuery, TodoEntity, TodoSearchCriteria>(storage, httpContext, searchStrategies)
     {

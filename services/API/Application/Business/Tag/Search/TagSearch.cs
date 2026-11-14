@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
 using AqLife.Application.Search;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Tag.Search
 {
-    public sealed class TagSearch(QueryMapper queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
+    public sealed class TagSearch(ISearchMapper<TagQuery, PageResult<TagDto>, EntitySearchCriteria> queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
      IEnumerable<ISearchStrategy<TagEntity, EntitySearchCriteria>> searchStrategies
     ) : BaseSearch<TagQuery, TagEntity, EntitySearchCriteria>(storage, httpContext, searchStrategies)
     {

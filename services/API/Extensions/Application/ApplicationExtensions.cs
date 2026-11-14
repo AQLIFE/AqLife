@@ -61,15 +61,15 @@ public static class ApplicationExtensions
         services.AddScoped<ISearchStrategy<CategoryEntity, EntitySearchCriteria>, FilteredCategorySearchStrategy>();
         services.AddScoped<ISearchStrategy<DevelopmentPlanEntity, EntitySearchCriteria>, FilteredDevPlanSearchStrategy>();
 
-        services.AddScoped<AccountSearch>();
-        services.AddScoped<FileSearch>();
-        services.AddScoped<CorpusSearch>();
-        services.AddScoped<TagSearch>();
-        services.AddScoped<TodoSearch>();
-        services.AddScoped<FavoriteSearch>();
-        services.AddScoped<CategorySearch>();
-        services.AddScoped<DevelopmentPlanSearch<DevelopmentPlanQuery>>();
-        services.AddScoped<DevelopmentPlanSearch<TodoRoadmapQuery>>();
+        services.AddScoped<ISearch<AccountQuery, AccountEntity>, AccountSearch>();
+        services.AddScoped<ISearch<FileQuery, FileMetaEntity>,FileSearch>();
+        services.AddScoped<ISearch<CorpusQuery, CorpusEntity>,CorpusSearch>();
+        services.AddScoped<ISearch<TagQuery, TagEntity>,TagSearch>();
+        services.AddScoped<ISearch<TodoQuery, TodoEntity>,TodoSearch>();
+        services.AddScoped<ISearch<FavoriteQuery, FavoriteItemEntity>,FavoriteSearch>();
+        services.AddScoped<ISearch<CategoryQuery, CategoryEntity>,CategorySearch>();
+        services.AddScoped<ISearch<DevelopmentPlanQuery, DevelopmentPlanEntity>,DevelopmentPlanSearch<DevelopmentPlanQuery, IReadOnlyList<DevelopmentPlanDto>>>();
+        services.AddScoped<ISearch<TodoRoadmapQuery, DevelopmentPlanEntity>,DevelopmentPlanSearch<TodoRoadmapQuery, TodoRoadmapDto>>();
 
         services.AddScoped<FileReader>();
         services.AddScoped<FileWriter>();
@@ -83,14 +83,18 @@ public static class ApplicationExtensions
         services.AddSingleton<ICreateMapper<TodoEntity, CreateTodoCommand>>(sp => sp.GetRequiredService<TodoMapper>());
         services.AddSingleton<ICreateMapper<TodoDependencyEntity, AddTodoDependencyCommand>>(sp => sp.GetRequiredService<TodoMapper>());
         services.AddSingleton<IBaseEntityMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>>(sp => sp.GetRequiredService<TodoMapper>());
+        services.AddSingleton<ISearchMapper<TodoQuery, PageResult<TodoDto>, TodoSearchCriteria>>(sp => sp.GetRequiredService<TodoMapper>());
 
         services.AddSingleton<DevelopmentPlanMapper>();
         services.AddSingleton<IViewMapper<DevelopmentPlanEntity, DevelopmentPlanDto>>(sp => sp.GetRequiredService<DevelopmentPlanMapper>());
         services.AddSingleton<ICreateMapper<DevelopmentPlanEntity, CreateDevelopmentPlanCommand>>(sp => sp.GetRequiredService<DevelopmentPlanMapper>());
+        services.AddSingleton<ISearchMapper<DevelopmentPlanQuery, IReadOnlyList<DevelopmentPlanDto>, EntitySearchCriteria>>(sp => sp.GetRequiredService<DevelopmentPlanMapper>());
+        services.AddSingleton<ISearchMapper<TodoRoadmapQuery, TodoRoadmapDto, EntitySearchCriteria>>(sp => sp.GetRequiredService<DevelopmentPlanMapper>());
 
         services.AddSingleton<TagMapper>();
         services.AddSingleton<IViewMapper<TagEntity, TagDto>>(sp => sp.GetRequiredService<TagMapper>());
         services.AddSingleton<ICreateMapper<TagEntity, CreateTagCommand>>(sp => sp.GetRequiredService<TagMapper>());
+        services.AddSingleton<ISearchMapper<TagQuery, PageResult<TagDto>, EntitySearchCriteria>>(sp => sp.GetRequiredService<TagMapper>());
 
         services.AddSingleton<SubscriptionMapper>();
         services.AddSingleton<IViewMapper<SubscriptionEntity, SubscriptionDto>>(sp => sp.GetRequiredService<SubscriptionMapper>());
@@ -99,27 +103,32 @@ public static class ApplicationExtensions
         services.AddSingleton<AccountMapper>();
         services.AddSingleton<IViewMapper<AccountEntity, AccountDto>>(sp => sp.GetRequiredService<AccountMapper>());
         services.AddSingleton<ICreateMapper<AccountEntity, CreateAccountCommand>>(sp => sp.GetRequiredService<AccountMapper>());
+        services.AddSingleton<ISearchMapper<AccountQuery, AccountDto, EntitySearchCriteria>>(sp => sp.GetRequiredService<AccountMapper>());
 
         services.AddSingleton<CorpusMapper>();
         services.AddSingleton<IViewMapper<CorpusEntity, CorpusDto>>(sp => sp.GetRequiredService<CorpusMapper>());
         services.AddSingleton<ICreateMapper<CorpusEntity, CreateCorpusCommand>>(sp => sp.GetRequiredService<CorpusMapper>());
+        services.AddSingleton<ISearchMapper<CorpusQuery, PageResult<CorpusDto>, EntitySearchCriteria>>(sp => sp.GetRequiredService<CorpusMapper>());
 
         services.AddSingleton<FileMapper>();
         services.AddSingleton<IViewMapper<FileMetaEntity, FileDto>>(sp => sp.GetRequiredService<FileMapper>());
         services.AddSingleton<ICreateMapper<FileMetaEntity, CreateFileCommand>>(sp => sp.GetRequiredService<FileMapper>());
         services.AddSingleton<IBaseListEntityMapper<FileMetaEntity, UploadFilesCommand>>(sp => sp.GetRequiredService<FileMapper>());
+        services.AddSingleton<ISearchMapper<FileQuery, PageResult<FileDto>, FileSearchCriteria>>(sp => sp.GetRequiredService<FileMapper>());
 
         services.AddSingleton<CategoryMapper>();
         services.AddSingleton<IViewMapper<CategoryEntity, CategoryDto>>(sp => sp.GetRequiredService<CategoryMapper>());
         services.AddSingleton<ICreateMapper<CategoryEntity, CreateCategoryCommand>> (sp => sp.GetRequiredService<CategoryMapper>());
+        services.AddSingleton<ISearchMapper<CategoryQuery, PageResult<CategoryDto>, EntitySearchCriteria>>(sp => sp.GetRequiredService<CategoryMapper>());
 
         services.AddSingleton<FavoriteMediaMapper>();
         services.AddSingleton<FavoriteMapper>();
         services.AddSingleton<IViewMapper<FavoriteItemEntity, FavoriteDto>>(sp => sp.GetRequiredService<FavoriteMapper>());
         services.AddSingleton<ICreateMapper<FavoriteItemEntity, CreateFavoriteCommand>>(sp => sp.GetRequiredService<FavoriteMapper>());
-        
+        services.AddSingleton<ISearchMapper<FavoriteQuery, PageResult<FavoriteDto>, FavoriteSearchCriteria>>(sp => sp.GetRequiredService<FavoriteMapper>());
 
-        services.AddSingleton<QueryMapper>();
+
+        //services.AddSingleton<QueryMapper>();
         services.AddScoped(typeof(PageResultMapper<,>));
 
         services.AddScoped<SystemInitializationService>();

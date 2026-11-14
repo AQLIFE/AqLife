@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
 using AqLife.Application.Search;
@@ -10,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Favorite.Search
 {
-    public sealed class FavoriteSearch(IApplicationDbContext dbContext, QueryMapper queryMapper, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>> searchStrategies)
+    public sealed class FavoriteSearch(IApplicationDbContext dbContext, ISearchMapper<FavoriteQuery, PageResult<FavoriteDto>, FavoriteSearchCriteria> queryMapper, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>> searchStrategies)
         : BaseSearch<FavoriteQuery, FavoriteItemEntity, FavoriteSearchCriteria>(dbContext, httpContext, searchStrategies)
     {
         protected private override FavoriteSearchCriteria MapToCriteria(FavoriteQuery query)

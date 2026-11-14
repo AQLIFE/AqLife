@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.Favorite;
@@ -12,8 +13,15 @@ using Riok.Mapperly.Abstractions;
 namespace AqLife.Application.Mappers;
 
 [Mapper]
-public partial class CategoryMapper : IViewMapper<CategoryEntity, CategoryDto>,ICreateMapper<CategoryEntity,CreateCategoryCommand>
+public partial class CategoryMapper : IViewMapper<CategoryEntity, CategoryDto>,ICreateMapper<CategoryEntity,CreateCategoryCommand>,
+    ISearchMapper<CategoryQuery, PageResult<CategoryDto>, EntitySearchCriteria>
 {
+    [MapperIgnoreSource(nameof(CategoryQuery.Page))]
+    [MapperIgnoreSource(nameof(CategoryQuery.PageSize))]
+    [MapperIgnoreSource(nameof(CategoryQuery.SearchType))]
+    [MapperIgnoreTarget(nameof(EntitySearchCriteria.Keyword))]
+    public partial EntitySearchCriteria ToCriteria(CategoryQuery query);
+
     [MapperIgnoreSource(nameof(CategoryEntity.ParentCategory))]
     [MapperIgnoreSource(nameof(CategoryEntity.Files))]
     [MapperIgnoreSource(nameof(CategoryEntity.Favorites))]

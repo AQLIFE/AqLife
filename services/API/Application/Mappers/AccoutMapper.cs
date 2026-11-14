@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
@@ -23,8 +24,12 @@ namespace AqLife.Application.Business.Account
 
     [Mapper]
     public partial class AccountMapper(IViewMapper<SubscriptionEntity, SubscriptionDto> subMapper)
-        : IViewMapper<AccountEntity, AccountDto>, ICreateMapper<AccountEntity, CreateAccountCommand>
+        : IViewMapper<AccountEntity, AccountDto>, ICreateMapper<AccountEntity, CreateAccountCommand>,
+        ISearchMapper<AccountQuery, AccountDto, EntitySearchCriteria>
     {
+        [MapperIgnoreTarget(nameof(EntitySearchCriteria.Keyword))]
+        public partial EntitySearchCriteria ToCriteria(AccountQuery query);// 特殊实现,该Query 仅用于查询当前用户,不需要 Keyword, 但仍然使用 EntitySearchCriteria 作为通用查询参数
+
         [MapperIgnoreSource(nameof(AccountEntity.UID))]
         [MapperIgnoreSource(nameof(AccountEntity.IsValid))]
         [MapperIgnoreSource(nameof(AccountEntity.LoginPasswordHash))]

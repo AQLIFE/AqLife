@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
 using AqLife.Application.Search;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Corpus.Search
 {
-    public sealed class CorpusSearch(QueryMapper queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<CorpusEntity, EntitySearchCriteria>> searchStrategies)
+    public sealed class CorpusSearch(ISearchMapper<CorpusQuery, PageResult<CorpusDto>, EntitySearchCriteria> queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<CorpusEntity, EntitySearchCriteria>> searchStrategies)
         : BaseSearch<CorpusQuery, CorpusEntity, EntitySearchCriteria>(storage, httpContext, searchStrategies)
     {
         protected private override IQueryable<CorpusEntity> BuildBaseQuery(IQueryable<CorpusEntity> queryable, CorpusQuery query)

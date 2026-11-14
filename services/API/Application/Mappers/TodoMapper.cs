@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.IView;
@@ -15,8 +16,14 @@ namespace AqLife.Application.Mappers
         IViewMapper<TodoDependencyEntity, TodoDependencyDto>,
         IBaseEntityMapper<RoadmapNodeLayoutEntity, SaveRoadmapNodeLayoutCommand>,
         IViewMapper<RoadmapNodeLayoutEntity, RoadmapNodeLayoutDto>,
-        IViewMapper<DevelopmentPlanEntity, TodoRoadmapDto>
+        IViewMapper<DevelopmentPlanEntity, TodoRoadmapDto>,
+        ISearchMapper<TodoQuery, PageResult<TodoDto>, TodoSearchCriteria>
     {
+        [MapperIgnoreSource(nameof(TodoQuery.Page))]
+        [MapperIgnoreSource(nameof(TodoQuery.PageSize))]
+        [MapProperty(nameof(TodoQuery.Title), nameof(TodoSearchCriteria.Keyword))]
+        public partial TodoSearchCriteria ToCriteria(TodoQuery query);
+
         [MapProperty(nameof(TodoEntity.Status), nameof(TodoDto.Status))]
         [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.PredecessorIds), Use = nameof(MapToPredecessorIds))]
         [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.IsBlocked))]

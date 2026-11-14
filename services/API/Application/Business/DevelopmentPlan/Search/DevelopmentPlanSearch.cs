@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
 using AqLife.Application.Search;
@@ -18,20 +19,23 @@ using System.Threading.Tasks;
 
 namespace AqLife.Application.Business.DevelopmentPlan.Search
 {
-    public sealed class DevelopmentPlanSearch<TDevPlanQuery>(IApplicationDbContext storage, IHttpContextAccessor httpContext, QueryMapper queryMapper,
-            IEnumerable<ISearchStrategy<DevelopmentPlanEntity, EntitySearchCriteria>> searchStrategies)
+    public sealed class DevelopmentPlanSearch<TDevPlanQuery,TResource>(IApplicationDbContext storage, IHttpContextAccessor httpContext, 
+        ISearchMapper<TDevPlanQuery,TResource, EntitySearchCriteria> queryMapper, 
+        IEnumerable<ISearchStrategy<DevelopmentPlanEntity, EntitySearchCriteria>> searchStrategies)
         : BaseSearch<TDevPlanQuery, DevelopmentPlanEntity, EntitySearchCriteria>(storage, httpContext, searchStrategies)
-        where TDevPlanQuery : class, IReadDevPlan
+        where TDevPlanQuery : class, IReadDevPlan,IQuery<TResource>
+        where TResource : class
     {
         protected private override EntitySearchCriteria MapToCriteria(TDevPlanQuery query)
-        => query switch
+        => queryMapper.ToCriteria(query);
+            /* query switch
         {
             DevelopmentPlanQuery planQuery => queryMapper.ToCriteria(planQuery),
             TodoRoadmapQuery roadmapQuery => queryMapper.ToCriteria(roadmapQuery),
             _ => throw new RequestFailException("Invalid query type")
-        };
+        };*/
 
-        private IQueryable<DevelopmentPlanEntity> BuildBaseQueryInternal(IQueryable<DevelopmentPlanEntity> queryable, TDevPlanQuery query)
+        private IQueryable<DevelopmentPlanEntity> BuildBaseQueryInternal(IQueryable<DevelopmentPlanEntity> queryable)
         {
             queryable = queryable
                .Include(e => e.Todos.Where(todo => IsValid || !todo.IsArchived))
@@ -50,7 +54,7 @@ namespace AqLife.Application.Business.DevelopmentPlan.Search
             return query switch
             {
                 DevelopmentPlanQuery planQuery => queryable,
-                TodoRoadmapQuery roadmapQuery => BuildBaseQueryInternal(queryable, query),
+                TodoRoadmapQuery roadmapQuery => BuildBaseQueryInternal(queryable),
                 _ => throw new RequestFailException("Invalid query type")
             };
         }

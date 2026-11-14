@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.Todo.Handler;
 
-public sealed class TodoRoadmapQueryHandler(DevelopmentPlanSearch<TodoRoadmapQuery> roadmapSearch,
+public sealed class TodoRoadmapQueryHandler(DevelopmentPlanSearch<TodoRoadmapQuery, TodoRoadmapDto> roadmapSearch,
     IViewMapper<DevelopmentPlanEntity, TodoRoadmapDto> mapper) : IRequestHandler<TodoRoadmapQuery, TodoRoadmapDto>
 {
     public async Task<TodoRoadmapDto> Handle(TodoRoadmapQuery q, CancellationToken ct)

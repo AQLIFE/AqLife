@@ -1,3 +1,4 @@
+using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
@@ -18,7 +19,7 @@ namespace AqLife.Application.Business.File.Search;
 
 public sealed class FileSearch(
     IOptions<FilePolicyOption> options,
-    QueryMapper queryMapper,
+    ISearchMapper<FileQuery, PageResult<FileDto>, FileSearchCriteria> queryMapper,
     IApplicationDbContext storage, IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
     : BaseSearch<FileQuery, FileMetaEntity, FileSearchCriteria>(storage, httpContext, searchStrategies)

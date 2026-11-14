@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.Favorite;
 using AqLife.Shared.IView;
@@ -9,8 +10,13 @@ namespace AqLife.Application.Mappers
     [Mapper]
     public partial class FavoriteMapper(FavoriteMediaMapper mediaMapper)
         : ICreateMapper<FavoriteItemEntity, CreateFavoriteCommand>,
-        IViewMapper<FavoriteItemEntity, FavoriteDto>
+        IViewMapper<FavoriteItemEntity, FavoriteDto>,
+        ISearchMapper<FavoriteQuery, PageResult<FavoriteDto>, FavoriteSearchCriteria>
     {
+        [MapperIgnoreSource(nameof(FavoriteQuery.Page))]
+        [MapperIgnoreSource(nameof(FavoriteQuery.PageSize))]
+        [MapProperty(nameof(FavoriteQuery.CName), nameof(FavoriteSearchCriteria.Keyword))]
+        public partial FavoriteSearchCriteria ToCriteria(FavoriteQuery query);
 
         [MapperIgnoreSource(nameof(CreateFavoriteCommand.TagIds))]
         [MapperIgnoreSource(nameof(CreateFavoriteCommand.Media))]

@@ -1,3 +1,4 @@
+using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
@@ -17,7 +18,7 @@ namespace AqLife.Application.Business.Category.Search;
 //public readonly record struct EntitySearchCriteria(Guid? UID, string? Keyword = null) : ISearchCriteria;
 
 public sealed class CategorySearch(
-    IApplicationDbContext dbContext, QueryMapper queryMapper, IHttpContextAccessor httpContext, IOptions<FilePolicyOption> options,
+    IApplicationDbContext dbContext, ISearchMapper<CategoryQuery, PageResult<CategoryDto>, EntitySearchCriteria> queryMapper, IHttpContextAccessor httpContext, IOptions<FilePolicyOption> options,
     IEnumerable<ISearchStrategy<CategoryEntity, EntitySearchCriteria>> strategies) :
     BaseSearch<CategoryQuery, CategoryEntity, EntitySearchCriteria>(dbContext, httpContext, strategies)
 {

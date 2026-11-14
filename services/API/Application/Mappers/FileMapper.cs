@@ -1,5 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Mappers;
+using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
@@ -13,9 +14,17 @@ namespace AqLife.Application.Business.File
     public partial class FileMapper(IViewMapper<TagEntity, TagDto> tagMapper,IViewMapper<CategoryEntity, CategoryDto> categoryMapper)
         : IViewMapper<FileMetaEntity, FileDto>,
         ICreateMapper<FileMetaEntity, CreateFileCommand>,
-        IBaseListEntityMapper<FileMetaEntity, UploadFilesCommand>
+        IBaseListEntityMapper<FileMetaEntity, UploadFilesCommand>,
+        ISearchMapper<FileQuery, PageResult<FileDto>, FileSearchCriteria>
 
     {
+        [MapperIgnoreSource(nameof(FileQuery.Page))]
+        [MapperIgnoreSource(nameof(FileQuery.PageSize))]
+        [MapperIgnoreSource(nameof(FileQuery.Order))]
+        [MapperIgnoreSource(nameof(FileQuery.Scope))]
+        [MapProperty(nameof(FileQuery.Title), nameof(FileSearchCriteria.Keyword))]
+        public partial FileSearchCriteria ToCriteria(FileQuery query);
+
         [MapperIgnoreSource(nameof(FileMetaEntity.StorageKey))]
         [MapperIgnoreSource(nameof(FileMetaEntity.CategoryUID))]
         [MapProperty(nameof(FileMetaEntity.Extension), nameof(FileDto.FileType))]
