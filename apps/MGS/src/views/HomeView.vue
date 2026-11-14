@@ -67,7 +67,7 @@
 import { ElButton } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { onBeforeMount, computed, ref } from 'vue'
-import { FileStatus, OverviewApi } from '@/api'
+import { FileApi, FileStatus, type FileOverviewDto } from '@/api'
 import { isImageType } from '@aqlife/domain'
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
@@ -75,8 +75,8 @@ import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import MgsPageState from '@/components/ui/MgsPageState.vue'
 
 const router = useRouter()
-const overviewApi = new OverviewApi(apiConfiguration)
-const overview = ref<Awaited<ReturnType<OverviewApi['apiOverviewGet']>> | null>(null)
+const fileApi = new FileApi(apiConfiguration)
+const overview = ref<FileOverviewDto | null>(null)
 const loading = ref(true)
 const loadError = ref('')
 
@@ -155,7 +155,7 @@ async function loadOverview() {
   loading.value = true
   loadError.value = ''
   try {
-    overview.value = await overviewApi.apiOverviewGet({ recentCount: 5 })
+    overview.value = await fileApi.apiFileOverviewGet({ recentCount: 5 })
   } catch (error) {
     loadError.value = error instanceof Error ? error.message : '工作区概览加载失败'
   } finally {
