@@ -29,11 +29,11 @@ namespace AqLife.Application.Business.Account.Handler
         {
             AccountEntity account = await storage.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
 
-            List<Guid> newIds = await fileWriter.WriteAsync(new CreateFileCommand(command.Avatar,CategoryEntity.DefaultCategoryId), ct); // 先创建 对应文件,这样即使后面失败了也没有太大影响; 使用立即发布策略
+            Guid newIds = await fileWriter.WriteAsync(new CreateFileCommand(command.Avatar,CategoryEntity.DefaultCategoryId), ct); // 先创建 对应文件,这样即使后面失败了也没有太大影响; 使用立即发布策略
             Guid oldId = account.Avatar;
 
             _ = await filePublishService.PublishAsync(newIds, ct);// 先发布
-            account.ChangeAvatar(newIds.FirstOrDefault());      // 再更新
+            account.ChangeAvatar(newIds);      // 再更新
 
             await fileDeleter.DeleteAsync([oldId], ct);// 删除旧有头像,避免无效文件留存;
             return account.LoginName;
