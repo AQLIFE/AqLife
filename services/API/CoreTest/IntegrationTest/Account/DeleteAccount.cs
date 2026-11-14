@@ -40,7 +40,7 @@ namespace AqLife.CoreTest.IntegrationTest.Account
 
             // 删除成功后,再次删除,触发异常
             var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await base.ExecuteAsync(command, CancellationToken.None));
-            Assert.Equal("资源不存在", exception.Message);
+            Assert.Equal("账户不存在", exception.Message);
         }
         ///// <summary>
         ///// 验证需求: 删除功能不受账户禁用状体影响
