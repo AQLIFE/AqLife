@@ -52,7 +52,7 @@ namespace AqLife.Infrastructure
             modelBuilder.Entity<FavoriteItemEntity>()
                 .HasOne(x => x.Category).WithMany(e=>e.Favorites)
                 .HasForeignKey(x => x.CategoryUID)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<FavoriteItemEntity>()
                 .HasMany(x => x.Tags).WithOne()
                 .HasForeignKey(x => x.FavoriteId).OnDelete(DeleteBehavior.Cascade);
