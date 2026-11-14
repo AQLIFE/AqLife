@@ -414,7 +414,7 @@ async function commit() {
   }
   uploading.value = true
   try {
-    const tempGuidGroup = await fileApi.apiFileUploadPost({ file: blobs })
+    const tempGuidGroup = await fileApi.apiFileUploadMultiplePost({ files: blobs })
     const innerTags = tags.value.map(tag => tag.uid).filter((uid): uid is string => uid != null)
     const updateTasks = tempGuidGroup.map(async uid => {
       const finalUid = innerTags.length
