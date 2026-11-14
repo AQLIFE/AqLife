@@ -26,7 +26,6 @@ onBeforeMount(() => {
         :key="item.uid ?? index"
         :item="item"
         :index="index"
-        :level="0"
       />
     </ElRow>
   </ElCol>
