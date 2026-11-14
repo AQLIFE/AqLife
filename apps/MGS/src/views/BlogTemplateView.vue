@@ -188,7 +188,7 @@ const router = useRouter()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
 const videoInput = ref<HTMLInputElement>()
-const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => markdownEditor, fileApi, apiConfiguration.basePath)
+const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => markdownEditor, fileApi)
 const newArticleDraftKey = 'aqlife:new-blog-draft'
 const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000
 const articleBaselineContent = ref('')
@@ -252,7 +252,7 @@ const { uploading: imageUploading, onPaste: onMarkdownPaste } = useMarkdownClipb
   getEditor: () => markdownEditor,
   isEnabled: () => markdownEditable.value,
   uploadFiles: async files => {
-    const uids = await fileApi.apiFileUploadPost({ file: files })
+    const uids = await fileApi.apiFileUploadMultiplePost({ files })
     await Promise.all(uids.map(uid =>
       fileApi.apiFileSchedulePatch({ scheduledFileCommand: { uid } }),
     ))
@@ -408,12 +408,10 @@ async function saveNewTemplate() {
   try {
     const resolvedContent = draft.content
     const contentFile = new File([resolvedContent], name, { type: 'text/markdown' })
-    const uids = await fileApi.apiFileUploadPost({
+    const uid = await fileApi.apiFileUploadPost({
       isTemplate: true,
-      file: [contentFile],
+      file: contentFile,
     })
-
-    const uid = uids[0]
     if (!uid) throw new Error('模板创建失败')
 
     const tagUids = templateTags.value
@@ -619,12 +617,10 @@ async function createArticle() {
     await waitForVideoUploads()
     if (draft.content.includes('pending-video:')) throw new Error('草稿中仍有未完成的视频占位符，请重新插入视频后再保存。')
     const resolvedContent = draft.content.replaceAll('{{title}}', title)
-    const uids = await fileApi.apiFileUploadPost({
+    const uid = await fileApi.apiFileUploadPost({
       isTemplate: false,
-      file: [new File([resolvedContent], fileName, { type: 'text/markdown' })],
+      file: new File([resolvedContent], fileName, { type: 'text/markdown' }),
     })
-
-    const uid = uids[0]
     if (!uid) throw new Error('博文创建失败')
 
     let article = (await fileApi.apiFileGet({ uID: uid })).items?.[0]
