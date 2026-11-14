@@ -65,7 +65,7 @@ onBeforeMount(async () => {
 
     BlogCategoryView.value = [
         ...(categories.items ?? []),
-        { uid: '', categoryName: 'ALL', categoryCount: allPublishedBlogCount },
+        { uid: '', categoryName: 'ALL', count: allPublishedBlogCount },
     ]
     hotList.value = popular.items ?? []
 })
@@ -99,7 +99,7 @@ watch(
                 </ElButton>
 
                 <span>
-                    {{ item.categoryCount }}
+                    {{ item.count }}
                 </span>
             </div>
         </section>
