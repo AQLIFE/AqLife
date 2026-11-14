@@ -143,7 +143,7 @@ async function save() {
   saving.value = true
   try {
     const media: FavoriteMediaInput[] = selectedFileIds.value.map((fileId, index) => ({
-      fileId, role: index === 0 ? 'Cover' : 'Image', sortOrder: index,
+      fileId, sortOrder: index,
     }))
     const payload = {
       title: form.value.title.trim(),
@@ -158,7 +158,7 @@ async function save() {
       await favoriteApi.apiFavoritePut({ updateFavoriteCommand: { uid: editing.value.uid, ...payload } })
       ElMessage.success('Favorite 已更新')
     } else {
-      await favoriteApi.apiFavoritePost({ createFavoriteCommand: payload })
+      await favoriteApi.apiFavoritePost({ createFavoriteCommand: { ...payload, media: selectedFileIds.value } })
       ElMessage.success('Favorite 已创建')
     }
     dialogVisible.value = false
@@ -220,8 +220,7 @@ async function handleQuickUpload(uploadFile: UploadFile) {
 
   quickUploading.value = true
   try {
-    const uploadedIds = await fileApi.apiFileUploadPost({ file: [raw] })
-    const uid = uploadedIds[0]
+    const uid = await fileApi.apiFileUploadPost({ file: raw })
     if (!uid) throw new Error('上传成功，但服务端未返回文件标识')
     const result = await fileApi.apiFileGet({ uID: uid })
     const uploaded = result.items?.[0]
