@@ -52,8 +52,6 @@ export const useTodoStorage = defineStore('todo', () => {
             planId: selectedPlanId.value,
             page,
             pageSize: PAGE_SIZE,
-            isTree: true,
-            includeCompleted: true,
           })
           result.push(...(response.items ?? []))
           if (!response.hasMore) break
