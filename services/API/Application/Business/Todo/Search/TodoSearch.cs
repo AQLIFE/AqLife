@@ -24,7 +24,13 @@ namespace AqLife.Application.Business.Todo.Search
         => queryble.OrderBy(e => e.SortOrder);
 
         protected private override IQueryable<TodoEntity> BuildBaseQuery(IQueryable<TodoEntity> queryable, TodoQuery query)
-        => queryable.Include(e =>e.IncomingDependencies).Include(e => e.OutgoingDependencies).Include(e=>e.LayoutEntity).Include(e=>e.Plan).AsSplitQuery();
+        => queryable
+            .Include(e => e.IncomingDependencies)
+                .ThenInclude(dependency => dependency.PredecessorTodo)
+            .Include(e => e.OutgoingDependencies)
+            .Include(e => e.LayoutEntity)
+            .Include(e => e.Plan)
+            .AsSplitQuery();
 
         private protected override IQueryable<TodoEntity> ApplyResultPolicy(IQueryable<TodoEntity> queryable, TodoQuery query)
         => IsValid ? queryable : queryable.Where(e => !e.IsArchived);
