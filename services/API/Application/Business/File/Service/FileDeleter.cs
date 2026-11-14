@@ -2,9 +2,10 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
+using AqLife.Shared.Tools;
 namespace AqLife.Application.Business.File.Service
 {
-    public class FileDeleter(IApplicationDbContext storage, IFileStorage fileStorage)
+    public class FileDeleter(IApplicationDbContext storage,UploadContext uploadContext)
     {
         public async Task DeleteAsync(IEnumerable<Guid> guids, CancellationToken ct)
         {
@@ -12,8 +13,8 @@ namespace AqLife.Application.Business.File.Service
             {
                 if (id == Guid.Empty) continue;
                 FileMetaEntity file = await storage.File.FindAsync([id], ct) ?? throw new ResourceNotFoundException("文件不存在");
-                await fileStorage.DeleteAsync(file.StorageKey, ct);
                 storage.File.Remove(file);
+                uploadContext.DeletePath.Add(file.StorageKey);//await fileStorage.DeleteAsync(file.StorageKey, ct);
             }
         }
     }

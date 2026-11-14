@@ -46,7 +46,7 @@ namespace AqLife.Application.Business.Category.Validator
         private protected override string ErrorMessage { init; get; } = "不允许分类重名";
 
         private protected override async Task<bool> IsValidAsync(UpdateCategoryCommand command, CancellationToken ct)
-            => await dbContext.Categories.AllAsync(e => e.CategoryName != command.Name, ct);
+            => await dbContext.Categories.AllAsync(e => command.UID == e.UID || e.CategoryName != command.Name.Trim(), ct);
     }
 
     /// <summary>

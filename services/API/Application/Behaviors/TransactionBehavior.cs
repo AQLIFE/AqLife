@@ -1,14 +1,16 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.FileStorage;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.Exceptions;
+using AqLife.Shared.Tools;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Behaviors
 {
     // 事务管道
-    public class TransactionBehavior<TRequest, TResponse>(IApplicationDbContext storage) : IPipelineBehavior<TRequest, TResponse>
+    public class TransactionBehavior<TRequest, TResponse>(IApplicationDbContext storage, IFileStorage fileStorage, UploadContext uploadContext) : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
 
@@ -22,14 +24,15 @@ namespace AqLife.Application.Behaviors
             try
             {
                 var response = await next(cancellationToken); // 执行真正的业务
-                if( request is IRequireDependencyVersionIncrement devPlan)
+                if (request is IRequireDependencyVersionIncrement devPlan)
                 {
                     DevelopmentPlanEntity developmentPlanEntity = await storage.DevelopmentPlans.SingleAsync(e => e.UID == devPlan.PlanId, cancellationToken);
                     developmentPlanEntity.IncrementDependencyVersion();
                 }
-
                 await storage.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken); // 提交 : 隐式事务回滚机制,若在Commit之前触发异常,则会自动回滚
+                foreach (var path in uploadContext.DeletePath)
+                    await fileStorage.DeleteAsync(path, cancellationToken);
                 return response;
             }
             catch (DbUpdateConcurrencyException)
@@ -39,7 +42,10 @@ namespace AqLife.Application.Behaviors
             }
             catch
             {
+                using var cleanupCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 await transaction.RollbackAsync(cancellationToken);
+                foreach (var path in uploadContext.SavePath)
+                    await fileStorage.DeleteAsync(path, cleanupCts.Token);
                 throw;
             }
 

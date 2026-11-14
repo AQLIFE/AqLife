@@ -10,10 +10,7 @@ namespace AqLife.Infrastructure.FileStorage
     {
         private readonly string bucketName = options.Value.BucketName;
 
-        public async Task SaveAsync(
-            Stream content,
-            string key,
-            CancellationToken ct = default)
+        public async Task SaveAsync(Stream content,string key,CancellationToken ct = default)
         {
             await client.PutObjectAsync(
                 new PutObjectRequest
@@ -74,11 +71,6 @@ namespace AqLife.Infrastructure.FileStorage
 
             return new FileStorageRangeReadResult(response.ResponseStream, totalLength, start, end);
         }
-
-        //public async Task<bool> ExitsAsync(string key,CancellationToken ct = default)
-        //{
-        //    var response = await client.e
-        //}
 
         public async Task<Stream> OpenReadAsync(
             string key,
