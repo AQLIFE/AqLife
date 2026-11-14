@@ -73,7 +73,6 @@ namespace AqLife.Application.Mappers
         public TodoDependencyEntity ToEntity(AddTodoDependencyCommand command)
             => new(command.PlanId, command.PredecessorId, command.SuccessorId);
 
-        [MapperIgnoreSource(nameof(TodoDependencyEntity.UID))]
         [MapperIgnoreSource(nameof(TodoDependencyEntity.PlanId))]
         [MapperIgnoreSource(nameof(TodoDependencyEntity.PredecessorTodo))]
         [MapperIgnoreSource(nameof(TodoDependencyEntity.SuccessorTodo))]
