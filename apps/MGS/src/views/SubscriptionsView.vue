@@ -63,12 +63,12 @@ async function update() {
     const uploadTasks = files.value.map(async (item, index) => {
       if (!item) return
 
-      const iconGuids = await fileApi.apiFileUploadPost({ file: [item] })
-      if (!iconGuids?.length || !iconGuids[0]) {
+      const iconGuid = await fileApi.apiFileUploadPost({ file: item })
+      if (!iconGuid) {
         throw new Error('第 ' + (index + 1) + ' 个订阅图标上传失败')
       }
 
-      subscriptDtos.value![index].subscriptionIcon = iconGuids[0]
+      subscriptDtos.value![index].subscriptionIcon = iconGuid
     })
 
     await Promise.all(uploadTasks)
