@@ -7,6 +7,7 @@ using AqLife.Extensions.Logging;
 using AqLife.Infrastructure;
 using Duende.IdentityModel;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -34,6 +35,7 @@ public class IntegrationTestFixture : IDisposable
 
 
         services.AddLogging();
+        services.AddSingleton<FileExtensionContentTypeProvider>();
         services.AddAqLifeSerilog(testEnvironment, configuration);
         services.AddFilePolicy(configuration, testEnvironment.ContentRootPath);
 
