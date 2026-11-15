@@ -15,6 +15,7 @@ import { apiConfiguration } from '@/services/api'
 import { tokenStore } from '@aqlife/api-client'
 import { useFileStore } from '@/stores/useFileStore'
 import TagSelect from '@/components/TagSelect.vue'
+import CategorySelect from '@/components/CategorySelect.vue'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
 import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import { getFileFingerprint } from '@/utils/fileFingerprint'
@@ -28,6 +29,7 @@ const isVideoMode = computed(() => route.query.type === 'video')
 const fileList = ref<UploadUserFile[]>([])
 const videoFileList = ref<UploadUserFile[]>([])
 const tags = ref<TagDto[]>([])
+const categoryId = ref('')
 const uploading = ref(false)
 const paused = ref(false)
 const progress = ref(0)
@@ -50,7 +52,7 @@ let speedWindowStartedAt = 0
 let speedWindowBytes = 0
 
 const acceptType = computed(() => defaultFilePolicy.allowedUpload.join(','))
-const canCommit = computed(() => fileList.value.length > 0 && !uploading.value)
+const canCommit = computed(() => fileList.value.length > 0 && !!categoryId.value && !uploading.value)
 const videoAccept = '.mp4,.webm'
 const fileApiBase = `${apiConfiguration.basePath.replace(/\/+$/, '')}/api/File`
 const videoApiBase = `${fileApiBase}/uploads`
@@ -414,20 +416,16 @@ async function commit() {
   }
   uploading.value = true
   try {
-    const tempGuidGroup = await fileApi.apiFileUploadMultiplePost({ files: blobs })
-    const innerTags = tags.value.map(tag => tag.uid).filter((uid): uid is string => uid != null)
+    const tempGuidGroup = await fileApi.apiFileUploadMultiplePost({ categoryId: categoryId.value, files: blobs })
     const updateTasks = tempGuidGroup.map(async uid => {
-      const finalUid = innerTags.length
-        ? await fileApi.apiFileTagPatch({ updateFileTagCommand: { uid, tags: innerTags } })
-        : uid
-      const fileDtos = await fileApi.apiFileGet({ uID: finalUid })
+      const fileDtos = await fileApi.apiFileGet({ uID: uid })
       return fileDtos.items ?? []
     })
     const uploadedFiles = (await Promise.all(updateTasks)).flat()
     uploadedFiles.forEach((dto: FileDto) => fileStore.upsertFile(dto))
     if (uploadedFiles.length > 0) notify.success(`成功上传 ${uploadedFiles.length} 个文件`)
     fileList.value = []
-    tags.value = []
+    categoryId.value = ''
     router.push('/file/list')
   } catch (error) {
     console.error('Blog upload error:', error)
@@ -446,7 +444,7 @@ watch(isVideoMode, () => {
   <div class="upload-workspace">
     <MgsPageHeader
       :title="isVideoMode ? 'Video Upload' : 'Upload'"
-      :description="isVideoMode ? '断点续传大视频文件，上传中可查看进度、速度和剩余时间' : '上传文章文件，并在上传前统一设置标签'"
+      :description="isVideoMode ? '断点续传大视频文件，上传中可查看进度、速度和剩余时间' : '上传文件，并为本次上传的所有文件指定分类（必选）'"
       :back="true"
     >
       <template #actions>
@@ -538,10 +536,10 @@ watch(isVideoMode, () => {
             <template #tip><div class="upload-tip">允许上传：{{ acceptType }}</div></template>
           </ElUpload>
         </ElCard>
-        <ElCard shadow="never" class="tag-card">
-          <template #header><div class="section-title">标签</div></template>
-          <TagSelect v-model:tag-list="tags" :select-disabled="fileList.length === 0" />
-          <p class="helper-text">标签会应用到本次上传的所有文件。</p>
+        <ElCard shadow="never" class="category-card">
+          <template #header><div class="section-title">分类（必选）</div></template>
+          <CategorySelect v-model:category-id="categoryId" :select-disabled="fileList.length === 0 || uploading" />
+          <p class="helper-text">本次上传的所有文件都会归入所选分类。</p>
         </ElCard>
       </div>
     </template>
@@ -553,7 +551,7 @@ watch(isVideoMode, () => {
  .upload-workspace { min-height: 100%; display: flex; flex-direction: column; }
 .upload-container { flex:1; }
 .upload-content, .video-upload-content { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; }
-.upload-card, .tag-card { min-width: 0; }
+.upload-card, .tag-card, .category-card { min-width: 0; }
 .section-title { font-weight: 600; }
 .upload-icon { font-size: 52px; margin-bottom: 10px; }
 .upload-tip, .helper-text { color: var(--mgs-muted); font-size: 13px; }
