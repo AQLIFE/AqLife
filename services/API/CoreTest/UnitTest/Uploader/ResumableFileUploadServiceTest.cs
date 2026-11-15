@@ -8,6 +8,7 @@ namespace AqLife.CoreTest.UnitTest.Uploader;
 public sealed class ResumableFileUploadServiceTest : IDisposable
 {
     private const int MinChunkSize = 256 * 1024;
+    private static readonly Guid TestCategoryId = Guid.NewGuid();
     private readonly string _root = Path.Combine(Path.GetTempPath(), "AqLife-ResumableUploadTests", Guid.NewGuid().ToString("N"));
     private readonly ResumableFileUploadService _service;
 
@@ -29,7 +30,7 @@ public sealed class ResumableFileUploadServiceTest : IDisposable
     public async Task StartAsync_ShouldRejectNonVideoExtension()
     {
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            _service.StartAsync(new("notes.md", 100, MinChunkSize), CancellationToken.None));
+            _service.StartAsync(new("notes.md", 100, TestCategoryId, MinChunkSize), CancellationToken.None));
     }
 
     [Theory]
@@ -39,7 +40,7 @@ public sealed class ResumableFileUploadServiceTest : IDisposable
     public async Task StartAsync_ShouldRejectInvalidOrOversizedFile(long size)
     {
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
-            _service.StartAsync(new("movie.mp4", size, MinChunkSize), CancellationToken.None));
+            _service.StartAsync(new("movie.mp4", size, TestCategoryId, MinChunkSize), CancellationToken.None));
     }
 
     [Theory]
@@ -48,14 +49,14 @@ public sealed class ResumableFileUploadServiceTest : IDisposable
     public async Task StartAsync_ShouldRejectInvalidChunkSize(int chunkSize)
     {
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
-            _service.StartAsync(new("movie.mp4", 100, chunkSize), CancellationToken.None));
+            _service.StartAsync(new("movie.mp4", 100, TestCategoryId, chunkSize), CancellationToken.None));
     }
 
     [Fact]
     public async Task UploadStatusAndAssemble_ShouldSupportOutOfOrderChunksAndResume()
     {
         var bytes = Enumerable.Range(0, MinChunkSize * 2 + 17).Select(i => (byte)(i % 251)).ToArray();
-        var session = await _service.StartAsync(new("movie.mp4", bytes.Length, MinChunkSize), CancellationToken.None);
+        var session = await _service.StartAsync(new("movie.mp4", bytes.Length, TestCategoryId, MinChunkSize), CancellationToken.None);
 
         await using (var last = new MemoryStream(bytes[(MinChunkSize * 2)..]))
             await _service.WriteChunkAsync(session.UploadId, 2, ToFormFile(last, "last"), CancellationToken.None);
@@ -89,7 +90,7 @@ public sealed class ResumableFileUploadServiceTest : IDisposable
     [Fact]
     public async Task WriteChunkAsync_ShouldRejectWrongLengthAndDuplicateChunk()
     {
-        var session = await _service.StartAsync(new("movie.webm", MinChunkSize, MinChunkSize), CancellationToken.None);
+        var session = await _service.StartAsync(new("movie.webm", MinChunkSize, TestCategoryId, MinChunkSize), CancellationToken.None);
         await using var wrong = new MemoryStream([1, 2, 3]);
         await Assert.ThrowsAsync<ArgumentException>(() =>
             _service.WriteChunkAsync(session.UploadId, 0, ToFormFile(wrong, "wrong"), CancellationToken.None));
