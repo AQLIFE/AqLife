@@ -2,6 +2,7 @@ using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Validators;
 using AqLife.Shared.Exceptions;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using MediatR;
@@ -12,7 +13,7 @@ namespace AqLife.Application.Business.File.Upload;
 
 /// <summary>Starts a resumable video upload session.</summary>
 public sealed record StartVideoUploadCommand(string FileName, long FileSize, Guid CategoryId, int ChunkSize = 4 * 1024 * 1024)
-    : IRequest<ResumableUploadSession>;
+    : IRequest<ResumableUploadSession>, IAppRequest;
 
 public sealed class StartVideoUploadValidator(IApplicationDbContext db)
     : AbstractValidator<StartVideoUploadCommand>
