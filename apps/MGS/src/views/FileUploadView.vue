@@ -71,6 +71,7 @@ interface UploadSession {
 interface UploadStatus {
   uploadId: string
   fileSize: number
+  categoryId: string
   chunkSize: number
   chunkCount: number
   uploadedChunks: number[]
@@ -186,6 +187,9 @@ async function createOrResumeSession(file: File, fingerprint: string): Promise<{
   if (saved?.categoryId && saved.fingerprint === fingerprint && saved.categoryId === categoryId.value) {
     try {
       const status = await apiJson<UploadStatus>(`${videoApiBase}/${saved.uploadId}`)
+      if (status.categoryId !== saved.categoryId) {
+        throw new Error('浏览器上传记录与服务端绑定的分类不一致，请重新选择文件并创建上传任务。')
+      }
       return { session: saved, status }
     } catch {
       localStorage.removeItem(sessionStorageKey)
