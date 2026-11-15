@@ -185,14 +185,17 @@ function saveSession(session: UploadSession, fingerprint: string) {
 async function createOrResumeSession(file: File, fingerprint: string): Promise<{ session: UploadSession; status: UploadStatus }> {
   const saved = getSavedSession(file)
   if (saved?.categoryId && saved.fingerprint === fingerprint && saved.categoryId === categoryId.value) {
+    let status: UploadStatus | null = null
     try {
-      const status = await apiJson<UploadStatus>(`${videoApiBase}/${saved.uploadId}`)
+      status = await apiJson<UploadStatus>(`${videoApiBase}/${saved.uploadId}`)
+    } catch {
+      localStorage.removeItem(sessionStorageKey)
+    }
+    if (status) {
       if (status.categoryId !== saved.categoryId) {
         throw new Error('浏览器上传记录与服务端绑定的分类不一致，请重新选择文件并创建上传任务。')
       }
       return { session: saved, status }
-    } catch {
-      localStorage.removeItem(sessionStorageKey)
     }
   } else if (saved) {
     // Sessions created before category binding cannot be completed safely; start a fresh upload.
