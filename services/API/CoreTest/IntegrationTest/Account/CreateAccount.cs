@@ -118,7 +118,8 @@ namespace AqLife.CoreTest.IntegrationTest.Account
 
             // 执行测试
             // 检查测试结果
-            var exception = await Assert.ThrowsAsync<DbUpdateException>(async () => await ExecuteAsync(command, CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<ResourceConflictException>(async () => await ExecuteAsync(command, CancellationToken.None));
+            Assert.Equal("数据不符合业务规范", exception.Message);
             var account = await FindByNameAsync(command.Name);
             Assert.Null(account); // 这里通过即为PASS        
         }
