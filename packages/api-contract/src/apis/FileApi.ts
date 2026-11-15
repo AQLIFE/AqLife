@@ -1410,7 +1410,7 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
         }
 
         if (requestParameters['categoryId'] != null) {
-            formParams.append('categoryId', requestParameters['categoryId'] as any);
+            formParams.append('CategoryId', requestParameters['categoryId'] as any);
         }
 
         if (requestParameters['tags'] != null) {

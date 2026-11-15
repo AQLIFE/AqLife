@@ -9,6 +9,7 @@ Name | Type
 `uploadId` | string
 `fileName` | string
 `fileSize` | number
+`categoryId` | string
 `chunkSize` | number
 `chunkCount` | number
 `createdAt` | string
@@ -23,6 +24,7 @@ const example = {
   "uploadId": null,
   "fileName": null,
   "fileSize": null,
+  "categoryId": null,
   "chunkSize": null,
   "chunkCount": null,
   "createdAt": null,

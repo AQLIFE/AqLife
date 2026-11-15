@@ -33,6 +33,12 @@ export interface ResumableUploadStatus {
     fileSize?: number;
     /**
      * 
+     * @type {string}
+     * @memberof ResumableUploadStatus
+     */
+    categoryId?: string;
+    /**
+     * 
      * @type {number}
      * @memberof ResumableUploadStatus
      */
@@ -70,6 +76,7 @@ export function ResumableUploadStatusFromJSONTyped(json: any, ignoreDiscriminato
         
         'uploadId': json['uploadId'] == null ? undefined : json['uploadId'],
         'fileSize': json['fileSize'] == null ? undefined : json['fileSize'],
+        'categoryId': json['categoryId'] == null ? undefined : json['categoryId'],
         'chunkSize': json['chunkSize'] == null ? undefined : json['chunkSize'],
         'chunkCount': json['chunkCount'] == null ? undefined : json['chunkCount'],
         'uploadedChunks': json['uploadedChunks'] == null ? undefined : json['uploadedChunks'],
@@ -89,6 +96,7 @@ export function ResumableUploadStatusToJSONTyped(value?: ResumableUploadStatus |
         
         'uploadId': value['uploadId'],
         'fileSize': value['fileSize'],
+        'categoryId': value['categoryId'],
         'chunkSize': value['chunkSize'],
         'chunkCount': value['chunkCount'],
         'uploadedChunks': value['uploadedChunks'],

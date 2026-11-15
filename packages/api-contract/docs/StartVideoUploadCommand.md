@@ -8,6 +8,7 @@ Name | Type
 ------------ | -------------
 `fileName` | string
 `fileSize` | number
+`categoryId` | string
 `chunkSize` | number
 
 ## Example
@@ -19,6 +20,7 @@ import type { StartVideoUploadCommand } from '@aqlife/api-contract'
 const example = {
   "fileName": null,
   "fileSize": null,
+  "categoryId": null,
   "chunkSize": null,
 } satisfies StartVideoUploadCommand
 

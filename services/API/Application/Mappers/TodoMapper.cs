@@ -28,6 +28,7 @@ namespace AqLife.Application.Mappers
         [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.PredecessorIds), Use = nameof(MapToPredecessorIds))]
         [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.IsBlocked))]
         [MapProperty(nameof(TodoEntity.IncomingDependencies.Count), nameof(TodoDto.IncompleteDependencyCount))]
+        [MapProperty(nameof(TodoEntity.IncomingDependencies), nameof(TodoDto.uncompletedDependencyCount),Use = nameof(ConvertToUncompletedDependencyCount))]
         [MapperIgnoreSource(nameof(TodoEntity.LayoutEntity))]
         [MapperIgnoreSource(nameof(TodoEntity.Plan))]
         [MapperIgnoreSource(nameof(TodoEntity.OutgoingDependencies))]
@@ -41,7 +42,10 @@ namespace AqLife.Application.Mappers
         public static bool Convert(ICollection<TodoDependencyEntity> todoDependencies)
             => todoDependencies.Any(IsBlocked); // 未完成即视为阻塞
 
-        public static int ConvertToCount(ICollection<TodoDependencyEntity> todoDependencies)
+        //public static int ConvertToCount(ICollection<TodoDependencyEntity> todoDependencies)
+        //   => todoDependencies.Count(e=>e.p);
+
+        public static int ConvertToUncompletedDependencyCount(ICollection<TodoDependencyEntity> todoDependencies)
            => todoDependencies.Count(IsBlocked);
 
         /// <summary>

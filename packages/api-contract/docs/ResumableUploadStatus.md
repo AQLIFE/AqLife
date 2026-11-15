@@ -8,6 +8,7 @@ Name | Type
 ------------ | -------------
 `uploadId` | string
 `fileSize` | number
+`categoryId` | string
 `chunkSize` | number
 `chunkCount` | number
 `uploadedChunks` | Array&lt;number&gt;
@@ -21,6 +22,7 @@ import type { ResumableUploadStatus } from '@aqlife/api-contract'
 const example = {
   "uploadId": null,
   "fileSize": null,
+  "categoryId": null,
   "chunkSize": null,
   "chunkCount": null,
   "uploadedChunks": null,

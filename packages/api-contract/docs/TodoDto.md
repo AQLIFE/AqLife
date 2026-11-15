@@ -16,6 +16,7 @@ Name | Type
 `sortOrder` | number
 `predecessorIds` | Array&lt;string&gt;
 `incompleteDependencyCount` | number
+`uncompletedDependencyCount` | number
 `description` | string
 `isBlocked` | boolean
 `isArchived` | boolean
@@ -37,6 +38,7 @@ const example = {
   "sortOrder": null,
   "predecessorIds": null,
   "incompleteDependencyCount": null,
+  "uncompletedDependencyCount": null,
   "description": null,
   "isBlocked": null,
   "isArchived": null,

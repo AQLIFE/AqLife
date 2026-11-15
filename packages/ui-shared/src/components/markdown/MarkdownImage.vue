@@ -41,6 +41,15 @@ defineProps<{
   max-width: 35%;
 }
 
+@media (max-width: 768px) {
+  #ImageBlock {
+    max-width: 100%;   /* 铺满宽度 */
+    width: 100%;
+    max-height: 33vh;  /* 高度不超过视觉高度的 33% */
+    height: auto;      /* 保持比例，不强制拉伸 */
+  }
+}
+
 .image {
   width: inherit;
   max-height: 100%;
@@ -48,7 +57,8 @@ defineProps<{
 }
 
 .title {
-  height: 30px;
+  min-height: 30px;
+  max-height: 62px;
   line-height: 30px;
   text-align: center;
   width: inherit;

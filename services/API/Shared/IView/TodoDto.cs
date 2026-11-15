@@ -10,7 +10,8 @@ namespace AqLife.Shared.IView
         DateTimeOffset? CompletedAt,
         int SortOrder,
         IReadOnlyCollection<Guid> PredecessorIds, // 依赖于当前任务的任务 ID 列表
-        int IncompleteDependencyCount = 0,
+        int IncompleteDependencyCount = 0, // 该属性只用于描述前置依赖多少个任务
+        int uncompletedDependencyCount = 0, // 该属性只用于描述前置依赖多少个任务
         string? Description = null,
         bool IsBlocked = true,
         bool IsArchived = false) : IEntityDto
