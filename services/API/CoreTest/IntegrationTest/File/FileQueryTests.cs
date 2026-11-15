@@ -51,7 +51,7 @@ public class FileQueryTests(IntegrationTestFixture fixture) : IntegrationTestBas
                 new FileQuery(Scope: scope, Order: FileOrder.MostViewed),
                 TestContext.Current.CancellationToken));
 
-        Assert.Equal("无权搜索", exception.Message);
+        Assert.Equal("无权搜索模板文件或全部文件", exception.Message);
     }
 
     [Fact, ResetDatabase]
