@@ -1,5 +1,4 @@
 using AqLife.Application.BackServices;
-using AqLife.Application.Business.File.Service;
 using AqLife.Domain.Command;
 using MediatR;
 
@@ -13,6 +12,6 @@ namespace AqLife.Application.Business.File.Handler
     public class ScheduledBlogHandler(IFilePublishService publishService) : IRequestHandler<ScheduledFileCommand, Guid>
     {
         public async Task<Guid> Handle(ScheduledFileCommand command, CancellationToken ct)
-        =>await publishService.Handle(command.UID, command.ScheduledAt, ct);
+        => await publishService.Handle(command.UID, command.ScheduledAt, ct);
     }
 }

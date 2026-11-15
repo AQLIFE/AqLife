@@ -1,11 +1,10 @@
-﻿using AqLife.Application.Abstractions.FileStorage;
-using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Tools;
 namespace AqLife.Application.Business.File.Service
 {
-    public class FileDeleter(IApplicationDbContext storage,UploadContext uploadContext)
+    public class FileDeleter(IApplicationDbContext storage, UploadContext uploadContext)
     {
         public async Task DeleteAsync(IEnumerable<Guid> guids, CancellationToken ct)
         {

@@ -2,13 +2,13 @@
 using AqLife.Shared.Contracts;
 using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.IView;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AqLife.Application.Abstractions.Mapper
 {
-    public interface IBaseMapper<TSource,TTarget> { }
+    public interface IBaseMapper<TSource, TTarget> { }
 
-    public interface IBaseEntityMapper<TSource, TTarget>: IBaseMapper<TSource, TTarget> {
+    public interface IBaseEntityMapper<TSource, TTarget> : IBaseMapper<TSource, TTarget>
+    {
         public TSource ToEntity(TTarget target);
     }
 
@@ -17,7 +17,7 @@ namespace AqLife.Application.Abstractions.Mapper
         public IEnumerable<TSource> ToEntity(TTarget target);
     }
 
-    public interface    ICreateMapper<T, TCreate> : IBaseMapper<T,TCreate>
+    public interface ICreateMapper<T, TCreate> : IBaseMapper<T, TCreate>
         where T : IEntity
         //where TCreate : ICreateCommand
     {
@@ -39,9 +39,9 @@ namespace AqLife.Application.Abstractions.Mapper
         TView ToDto(T source);
     }
 
-    public interface ISearchMapper<TQuery,TResource, TCriteria> : IBaseMapper<TQuery, TCriteria>
+    public interface ISearchMapper<TQuery, TResource, TCriteria> : IBaseMapper<TQuery, TCriteria>
         where TQuery : IQuery<TResource> where TCriteria : ISearchCriteria
-        where TResource :class
+        where TResource : class
     {
         TCriteria ToCriteria(TQuery query);
     }

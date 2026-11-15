@@ -27,16 +27,16 @@ namespace AqLife.Domain.Entities
         public virtual ICollection<FileMetaEntity> Files { get; set; } = [];
         public virtual ICollection<FavoriteItemEntity> Favorites { get; set; } = [];
 
+        [NotMapped]
+        public int CategoryCount => this.Files.Count + Favorites.Count;
+
 
         public CategoryEntity() { }
-        public CategoryEntity(string categoryName)
+        
+        [MapperConstructor]
+        public CategoryEntity(string categoryName, string categoryDescription, Guid? parentId = null)
         {
             CategoryName = categoryName.Trim();
-        }
-
-        [MapperConstructor]
-        public CategoryEntity(string categoryName, string categoryDescription, Guid? parentId = null):this(categoryName)
-        {
             CategoryDescription = categoryDescription.Trim();
             ParentId = parentId;
         }

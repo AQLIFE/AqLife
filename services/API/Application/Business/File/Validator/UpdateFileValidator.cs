@@ -1,5 +1,4 @@
 ﻿using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Business.File.Search;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.File;

@@ -1,13 +1,10 @@
 ﻿using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
-using AqLife.Application.BackServices;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Tools;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using static System.Net.WebRequestMethods;
 namespace AqLife.Application.Business.File.Service
 {
     /// <summary>

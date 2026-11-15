@@ -1,4 +1,3 @@
-using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Search;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Exceptions;
@@ -17,7 +16,7 @@ namespace AqLife.Application.Business.Todo.Search
             { UID: { } uid } => queryable.Where(e => e.UID == uid),
             { PlanId: { } planId } => queryable.Where(e => e.PlanId == planId),
             { Keyword: { } keyword } => ApplyKeywordFilter(queryable, keyword),
-            _=>throw new RequestFailException("不合规的操作，该请求不应被处理")
+            _ => throw new RequestFailException("不合规的操作，该请求不应被处理")
         };
     }
 }

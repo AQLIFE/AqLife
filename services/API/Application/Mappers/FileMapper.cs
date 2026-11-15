@@ -1,17 +1,15 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
-using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;
-using Microsoft.AspNetCore.Http;
 using Riok.Mapperly.Abstractions;
 
 namespace AqLife.Application.Business.File
 {
     [Mapper]
-    public partial class FileMapper(IViewMapper<TagEntity, TagDto> tagMapper,IViewMapper<CategoryEntity, CategoryDto> categoryMapper)
+    public partial class FileMapper(IViewMapper<TagEntity, TagDto> tagMapper, IViewMapper<CategoryEntity, CategoryDto> categoryMapper)
         : IViewMapper<FileMetaEntity, FileDto>,
         ICreateMapper<FileMetaEntity, CreateFileCommand>,
         IBaseListEntityMapper<FileMetaEntity, UploadFilesCommand>,
@@ -50,7 +48,7 @@ namespace AqLife.Application.Business.File
         //    => original is not DateTimeOffset source ? null : new(source.Date, source.Offset);
 
         public TagDto Convert(FileTagEntity tagEntity) => tagMapper.ToDto(tagEntity.Tag);
-        public CategoryDto Convert(CategoryEntity categoryEntity) => categoryMapper.ToDto(categoryEntity) ;
+        public CategoryDto Convert(CategoryEntity categoryEntity) => categoryMapper.ToDto(categoryEntity);
         //public static DateTimeOffset? Acquiescence(this DateTimeOffset? source) => source;
 
 

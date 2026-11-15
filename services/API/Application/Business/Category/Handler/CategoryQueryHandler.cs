@@ -1,5 +1,4 @@
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Business.Category.Search;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;

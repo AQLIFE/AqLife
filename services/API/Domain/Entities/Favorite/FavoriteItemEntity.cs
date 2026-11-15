@@ -38,13 +38,13 @@ public class FavoriteItemEntity : IEntity
 
     public ICollection<FavoriteTagEntity> Tags { get; set; } = [];
 
-    public FavoriteItemEntity() { }
 
     [MapperConstructor]
     public FavoriteItemEntity(string title, string description, Guid categoryUID, string? sourceUrl=null, int sortOrder = 0)
     {
         Update(title, description, sourceUrl, sortOrder, categoryUID);
     }
+    //public FavoriteItemEntity() { }
 
     public void Update(string title, string? description, string? sourceUrl, int sortOrder, Guid? categoryUID)
     {

@@ -2,14 +2,7 @@
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
-using AqLife.Shared.Contracts.CommandInterface;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace AqLife.Application.Business.Category.Validator
 {

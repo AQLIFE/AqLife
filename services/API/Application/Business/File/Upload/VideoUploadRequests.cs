@@ -62,7 +62,7 @@ public sealed class CompleteVideoUploadHandler(
                     ? "video/webm"
                     : "video/mp4"
             };
-            return await sender.Send(new CreateFileCommand(formFile,CategoryEntity.DefaultCategoryId,null,DateTimeOffset.UtcNow.AddDays(7)), ct);
+            return await sender.Send(new CreateFileCommand(formFile, CategoryEntity.DefaultCategoryId, null, DateTimeOffset.UtcNow.AddDays(7)), ct);
         }
         finally
         {

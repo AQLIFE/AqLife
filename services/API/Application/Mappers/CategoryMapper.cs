@@ -2,18 +2,13 @@ using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
-using AqLife.Domain.Entities.Favorite;
-using AqLife.Domain.Entities.File;
 using AqLife.Shared.IView;
-using AqLife.Shared.Options;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using Riok.Mapperly.Abstractions;
 
 namespace AqLife.Application.Mappers;
 
 [Mapper]
-public partial class CategoryMapper : IViewMapper<CategoryEntity, CategoryDto>,ICreateMapper<CategoryEntity,CreateCategoryCommand>,
+public partial class CategoryMapper : IViewMapper<CategoryEntity, CategoryDto>, ICreateMapper<CategoryEntity, CreateCategoryCommand>,
     ISearchMapper<CategoryQuery, PageResult<CategoryDto>, EntitySearchCriteria>
 {
     [MapperIgnoreSource(nameof(CategoryQuery.Page))]
@@ -25,21 +20,28 @@ public partial class CategoryMapper : IViewMapper<CategoryEntity, CategoryDto>,I
     [MapperIgnoreSource(nameof(CategoryEntity.ParentCategory))]
     [MapperIgnoreSource(nameof(CategoryEntity.Files))]
     [MapperIgnoreSource(nameof(CategoryEntity.Favorites))]
-    [MapperIgnoreTarget(nameof(CategoryDto.Count))]
     [MapperIgnoreTarget(nameof(CategoryDto.ResultIds))]
     [MapProperty(nameof(CategoryEntity.UID), nameof(CategoryDto.Uid))]
     [MapProperty(nameof(CategoryEntity.CategoryDescription), nameof(CategoryDto.CategoryDescription))]
     [MapProperty(nameof(CategoryEntity.CategoryName), nameof(CategoryDto.CategoryName))]
+    [MapProperty(nameof(CategoryEntity.CategoryCount), nameof(CategoryDto.Count))]
     public partial CategoryDto ToDto(CategoryEntity source);
 
 
+
+    //[MapperIgnoreTarget(nameof(CategoryEntity.CategoryDescription))]
+    //[MapperIgnoreTarget(nameof(CategoryEntity.CategoryName))]
+    //[MapProperty(nameof(CreateCategoryCommand.Name), "CategoryName")]
+    //[MapProperty(nameof(CreateCategoryCommand.Desc), "CategoryDescription")]
+    [MapProperty(nameof(CreateCategoryCommand.Desc), nameof(CategoryEntity.CategoryDescription))]
+    [MapProperty(nameof(CreateCategoryCommand.Name), nameof(CategoryEntity.CategoryName))]
     [MapperIgnoreTarget(nameof(CategoryEntity.UID))]
     [MapperIgnoreTarget(nameof(CategoryEntity.Files))]
-    [MapperIgnoreTarget(nameof(CategoryEntity.Files))]
     [MapperIgnoreTarget(nameof(CategoryEntity.Favorites))]
-    [MapProperty(nameof(CreateCategoryCommand.Desc),nameof(CategoryEntity.CategoryDescription))]
-    [MapProperty(nameof(CreateCategoryCommand.Name), nameof(CategoryEntity.CategoryName))]
+    [MapperIgnoreTarget(nameof(CategoryEntity.CategoryCount))]
+    [MapperIgnoreTarget(nameof(CategoryEntity.ParentCategory))]
     public partial CategoryEntity ToEntity(CreateCategoryCommand source);
+        //=> new(source.Name, source.Desc, source.ParentId);// mapperly 永远无法实现
 }
 
 //[Obsolete("设计取代:和File 业务相同的原因,转换功能交给底层Mapper,业务脱敏实现交由对应的 Search 类实现 ")]

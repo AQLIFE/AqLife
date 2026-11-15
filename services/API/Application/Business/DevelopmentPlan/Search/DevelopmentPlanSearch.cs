@@ -1,39 +1,31 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.Exceptions;
-using AqLife.Shared.IView;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AqLife.Application.Business.DevelopmentPlan.Search
 {
-    public sealed class DevelopmentPlanSearch<TDevPlanQuery,TResource>(IApplicationDbContext storage, IHttpContextAccessor httpContext, 
-        ISearchMapper<TDevPlanQuery,TResource, EntitySearchCriteria> queryMapper, 
+    public sealed class DevelopmentPlanSearch<TDevPlanQuery, TResource>(IApplicationDbContext storage, IHttpContextAccessor httpContext,
+        ISearchMapper<TDevPlanQuery, TResource, EntitySearchCriteria> queryMapper,
         IEnumerable<ISearchStrategy<DevelopmentPlanEntity, EntitySearchCriteria>> searchStrategies)
         : BaseSearch<TDevPlanQuery, DevelopmentPlanEntity, EntitySearchCriteria>(storage, httpContext, searchStrategies)
-        where TDevPlanQuery : class, IReadDevPlan,IQuery<TResource>
+        where TDevPlanQuery : class, IReadDevPlan, IQuery<TResource>
         where TResource : class
     {
         protected private override EntitySearchCriteria MapToCriteria(TDevPlanQuery query)
         => queryMapper.ToCriteria(query);
-            /* query switch
-        {
-            DevelopmentPlanQuery planQuery => queryMapper.ToCriteria(planQuery),
-            TodoRoadmapQuery roadmapQuery => queryMapper.ToCriteria(roadmapQuery),
-            _ => throw new RequestFailException("Invalid query type")
-        };*/
+        /* query switch
+    {
+        DevelopmentPlanQuery planQuery => queryMapper.ToCriteria(planQuery),
+        TodoRoadmapQuery roadmapQuery => queryMapper.ToCriteria(roadmapQuery),
+        _ => throw new RequestFailException("Invalid query type")
+    };*/
 
         private IQueryable<DevelopmentPlanEntity> BuildBaseQueryInternal(IQueryable<DevelopmentPlanEntity> queryable)
         {
@@ -42,8 +34,10 @@ namespace AqLife.Application.Business.DevelopmentPlan.Search
                    .ThenInclude(todo => todo.LayoutEntity)
                .Include(e => e.Todos.Where(todo => IsValid || !todo.IsArchived))
                    .ThenInclude(todo => todo.IncomingDependencies)
+                        .ThenInclude(dependency => dependency.PredecessorTodo)
                .Include(e => e.Todos.Where(todo => IsValid || !todo.IsArchived))
-                   .ThenInclude(todo => todo.OutgoingDependencies);
+                   .ThenInclude(todo => todo.OutgoingDependencies)
+                         .ThenInclude(dependency => dependency.SuccessorTodo);
 
             return queryable.AsSplitQuery();
         }
@@ -59,7 +53,7 @@ namespace AqLife.Application.Business.DevelopmentPlan.Search
             };
         }
         protected private override IQueryable<DevelopmentPlanEntity> ApplyDefaultOrder(IQueryable<DevelopmentPlanEntity> queryable, TDevPlanQuery query)
-        => queryable.OrderBy(e => e.Name);// 对于继承了IReadDevPlan的任何 Query 这点都不重要
+        => queryable.OrderBy(e => e.CreatedAt);// 按创建时间查找,这样适应人类操作直觉
 
         //private protected override IQueryable<DevelopmentPlanEntity> ApplyResultPolicy(IQueryable<DevelopmentPlanEntity> queryable, TDevPlanQuery query)
         //=> IsValid ? queryable : queryable.Where(e => !e.IsArchived);

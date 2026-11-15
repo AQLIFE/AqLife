@@ -1,11 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
-using AqLife.Application.Business.Favorite.Search;
-using AqLife.Application.Business.File.Search;
-using AqLife.Application.Search;
-using AqLife.Domain.Command;
 using AqLife.Shared.Contracts;
 using AqLife.Shared.IView;
-using Riok.Mapperly.Abstractions;
 
 namespace AqLife.Application.Mappers
 {

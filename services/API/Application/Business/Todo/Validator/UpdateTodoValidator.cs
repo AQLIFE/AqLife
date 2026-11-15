@@ -14,7 +14,7 @@ public sealed class UpdateTodoDependencyCompletionValidator(AqLife.Application.A
     private protected override string ErrorMessage { init; get; } = "仍有未完成的前置任务，当前任务不能完成";
     private protected override async Task<bool> IsValidAsync(UpdateTodoStatusCommand command, CancellationToken ct)
         => command.Status == TodoStatus.Completed && await db.Todo.AnyAsync(e => e.UID == command.UID && e.IncomingDependencies.All(de => de.PredecessorTodo.Status == TodoStatus.Completed), ct);
-    
+
     private protected override Exception CreateException(string message) => new DomainLegalityException(message);
 }
 

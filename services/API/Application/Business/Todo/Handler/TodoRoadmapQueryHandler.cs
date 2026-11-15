@@ -1,8 +1,5 @@
 using AqLife.Application.Abstractions.Mapper;
-using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Business.DevelopmentPlan.Search;
-using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.IView;

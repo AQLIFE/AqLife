@@ -3,7 +3,6 @@ using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Business.Account.Services;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
-using AqLife.Shared.Exceptions;
 using MediatR;
 
 namespace AqLife.Application.Business.Account.Handler

@@ -1,5 +1,4 @@
 ﻿using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Business.Corpus.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;

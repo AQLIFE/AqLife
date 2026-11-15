@@ -6,7 +6,6 @@ using AqLife.Shared.Exceptions;
 using AqLife.Shared.Tools;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace AqLife.Application.Behaviors
 {

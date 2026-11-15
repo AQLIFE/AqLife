@@ -21,7 +21,7 @@ namespace AqLife.Application.Search
     IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<TEntity, TSearchCriteria>> searchStrategies
 ) : ISearch<TQuery, TEntity>
-    where TQuery :class
+    where TQuery : class
     where TEntity : class, IEntity
     where TSearchCriteria : ISearchCriteria
     {

@@ -19,14 +19,15 @@ namespace AqLife.Domain.Entities
 
         // 导航属性：关联的中间表
         public ICollection<FileTagEntity> FileTags { get; set; } = [];
-
-        public TagEntity() { }
+        
         [MapperConstructor]
         public TagEntity(string name, string? aliasName = null)
         {
             this.Name = name.Trim();
             this.AliasName = aliasName?.Trim() ?? this.Name;
         }
+        public TagEntity() { }
+
         public void Update(string name, string? aliasName = null)
         {
             this.Name = name;

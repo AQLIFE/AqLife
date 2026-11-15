@@ -1,9 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
-using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Business.Account.Search;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.File.Validator
@@ -18,7 +15,7 @@ namespace AqLife.Application.Business.File.Validator
         private protected override string ErrorMessage { init; get; } = "预期删除的文件被其他业务依赖着,不允许删除";
         private protected override async Task<bool> IsValidAsync(DeleteFileCommand command, CancellationToken ct)
         {
-            bool useByAvatar =await dbContext.Accounts.AnyAsync(e => e.IsValid && e.Avatar == command.UID,ct);            
+            bool useByAvatar = await dbContext.Accounts.AnyAsync(e => e.IsValid && e.Avatar == command.UID, ct);
 
             bool usedBySubscription = await dbContext.Accounts
                 .Where(e => e.IsValid)

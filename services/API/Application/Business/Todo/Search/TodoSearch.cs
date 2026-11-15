@@ -1,12 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Mapper;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Mappers;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.IView;
-using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 

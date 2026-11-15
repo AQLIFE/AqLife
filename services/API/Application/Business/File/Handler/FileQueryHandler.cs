@@ -1,5 +1,4 @@
 ﻿using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Business.File.Search;
 using AqLife.Application.Business.File.Service;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
@@ -11,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace AqLife.Application.Business.File.Handler
 {
-    public class FileQueryHandler(ISearch<FileQuery, FileMetaEntity> search, IOptions<FilePolicyOption> options,FileReader fileReader, PageResultMapper<FileMetaEntity, FileDto> mapper) : IRequestHandler<FileQuery, PageResult<FileDto>>
+    public class FileQueryHandler(ISearch<FileQuery, FileMetaEntity> search, IOptions<FilePolicyOption> options, FileReader fileReader, PageResultMapper<FileMetaEntity, FileDto> mapper) : IRequestHandler<FileQuery, PageResult<FileDto>>
     {
         public async Task<PageResult<FileDto>> Handle(FileQuery query, CancellationToken ct)
         {

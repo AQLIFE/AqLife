@@ -34,7 +34,7 @@ namespace AqLife.Application.Business.Account
         [MapperIgnoreSource(nameof(AccountEntity.LoginPasswordHash))]
         [MapperIgnoreSource(nameof(AccountEntity.LoginName))]
         [MapperIgnoreSource(nameof(AccountEntity.IsValid))]
-        [MapProperty(nameof(AccountEntity.Subscriptions),nameof(AccountDto.Subscriptions))]
+        [MapProperty(nameof(AccountEntity.Subscriptions), nameof(AccountDto.Subscriptions))]
         [MapProperty(nameof(AccountEntity.Name), nameof(AccountDto.Name))]
         [MapProperty(nameof(AccountEntity.Desc), nameof(AccountDto.Desc))]
         [MapProperty(nameof(AccountEntity.Avatar), nameof(AccountDto.Avatar))]

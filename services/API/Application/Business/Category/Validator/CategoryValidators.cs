@@ -23,6 +23,6 @@ public sealed class CreateCategoryDefaultValidator(IApplicationDbContext dbConte
     private protected override string ErrorMessage { init; get; } = "不允许同名的分类";
 
     private protected override async Task<bool> IsValidAsync(CreateCategoryCommand command, CancellationToken ct)
-    =>await dbContext.Categories.AnyAsync(category => category.CategoryName != command.Name, ct);
-    
+    => await dbContext.Categories.AnyAsync(category => category.CategoryName != command.Name, ct);
+
 }

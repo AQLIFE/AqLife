@@ -1,7 +1,6 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

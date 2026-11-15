@@ -1,6 +1,5 @@
 ﻿using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Business.File.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;

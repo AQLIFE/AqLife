@@ -16,7 +16,7 @@ namespace AqLife.Application.Business.File.Handler
     {
         public async Task<FileOverviewDto> Handle(FileOverviewQuery query, CancellationToken ct)
         {
-            IIncludableQueryable<FileMetaEntity,TagEntity> filequery = dbContext.File.AsNoTracking()
+            IIncludableQueryable<FileMetaEntity, TagEntity> filequery = dbContext.File.AsNoTracking()
                 .Where(file => !file.IsTemplate)
                 .Include(file => file.Category)
                 .Include(file => file.PublishMeta)
@@ -24,8 +24,8 @@ namespace AqLife.Application.Business.File.Handler
                 .Include(file => file.FileTags)
                     .ThenInclude(fileTag => fileTag.Tag);
 
-            IQueryable<FileMetaEntity> draft = filequery.Where(e=>e.PublishMeta.PublishStatus == FileStatus.Draft);
-            IQueryable<FileMetaEntity> scheduled = filequery.Where(e=>e.PublishMeta.PublishStatus == FileStatus.Scheduled);
+            IQueryable<FileMetaEntity> draft = filequery.Where(e => e.PublishMeta.PublishStatus == FileStatus.Draft);
+            IQueryable<FileMetaEntity> scheduled = filequery.Where(e => e.PublishMeta.PublishStatus == FileStatus.Scheduled);
             IQueryable<FileMetaEntity> published = filequery.Where(e => e.PublishMeta.PublishStatus == FileStatus.Published);
             var draftCount = await draft.CountAsync(ct);
             var scheduledCount = await scheduled.CountAsync(ct);
@@ -40,9 +40,9 @@ namespace AqLife.Application.Business.File.Handler
                 PublishStatusSearch.Published => published,
                 _ => throw new RequestFailException("不存在的查询条件")
             };
-            result = result.OrderByDescending(file => file.UploadTime).Take(Math.Clamp(query.RecentCount, 1,10));
+            result = result.OrderByDescending(file => file.UploadTime).Take(Math.Clamp(query.RecentCount, 1, 10));
 
-            return new FileOverviewDto(draftCount,scheduledCount,publishedCount,[..result.Select(fileMapper.ToDto)],1,query.RecentCount,query.PublishStatus,false);
+            return new FileOverviewDto(draftCount, scheduledCount, publishedCount, [.. result.Select(fileMapper.ToDto)], 1, query.RecentCount, query.PublishStatus, false);
         }
     }
 }

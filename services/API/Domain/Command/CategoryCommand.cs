@@ -7,6 +7,7 @@ namespace AqLife.Domain.Command
 {
     public enum CategoryQueryType
     {
+        Default,
         File,
         Favorite
     }
@@ -18,14 +19,14 @@ namespace AqLife.Domain.Command
         : IQuery<PageResult<CategoryDto>>, IPageQuery;
 
     public record CreateCategoryCommand(
-        [property: Required, StringLength(32)] string Name,
-        [property: StringLength(256)] string Desc,
-        Guid? ParentId) : ICreateCommand;
+        [Required, StringLength(32,ErrorMessage = "分类名称不允许超过32")] string Name,
+        [StringLength(256,ErrorMessage = "分类描述不允许超过256")] string Desc,
+        Guid? ParentId=null) : ICreateCommand;
 
     public record UpdateCategoryCommand(
         Guid UID,
-        [property: Required, StringLength(32)] string Name,
-        [property: StringLength(256)] string Desc,
+        [Required, StringLength(32)] string Name,
+        [StringLength(256)] string Desc,
         Guid? ParentId) : IUpdateCommand, IRequireValidEntity<CategoryEntity>;
 
     public record DeleteCategoryCommand(Guid UID)

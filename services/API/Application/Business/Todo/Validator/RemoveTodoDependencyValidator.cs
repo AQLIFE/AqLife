@@ -9,7 +9,7 @@ public sealed class RemoveTodoDependencyLegalityValidator(AqLife.Application.Abs
 {
     private protected override string ErrorMessage { init; get; } = "不存在该任务依赖";
     private protected override async Task<bool> IsValidAsync(RemoveTodoDependencyCommand command, CancellationToken ct)
-        => await db.DevelopmentPlans.AnyAsync(x => x.UID == command.PlanId && x.Todos.Any(e=>e.IncomingDependencies.Any(d=>d.UID == command.UID) || e.OutgoingDependencies.Any(p=>p.UID == command.UID)), ct);
-    
+        => await db.DevelopmentPlans.AnyAsync(x => x.UID == command.PlanId && x.Todos.Any(e => e.IncomingDependencies.Any(d => d.UID == command.UID) || e.OutgoingDependencies.Any(p => p.UID == command.UID)), ct);
+
     private protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
 }

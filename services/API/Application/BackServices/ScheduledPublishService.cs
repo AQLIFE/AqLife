@@ -3,7 +3,6 @@ using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace AqLife.Application.BackServices
 {

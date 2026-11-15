@@ -21,6 +21,9 @@ namespace AqLife.Application.Business.Tag
 
         [MapperIgnoreTarget(nameof(TagEntity.UID))]
         [MapperIgnoreTarget(nameof(TagEntity.FileTags))]
+        [MapProperty(nameof(CreateTagCommand.Name), nameof(TagEntity.Name))]
+        [MapProperty(nameof(CreateTagCommand.AliasName), nameof(TagEntity.AliasName))]
         public partial TagEntity ToEntity(CreateTagCommand command);
+            //=> new(command.Name,command.AliasName);//相同原因导致
     }
 }
