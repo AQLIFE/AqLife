@@ -74,7 +74,7 @@ const availableParents = computed(() => {
 async function loadCategories() {
   loading.value = true
   try {
-    const result = await categoryApi.apiCategoryGet({ searchType: CategoryQueryType.File })
+    const result = await categoryApi.apiCategoryGet({ searchType: CategoryQueryType.Default })
     categories.value = result.items ?? []
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '分类数据加载失败')

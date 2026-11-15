@@ -24,7 +24,7 @@ export interface CreateCategoryCommand {
      * @type {string}
      * @memberof CreateCategoryCommand
      */
-    name: string;
+    name?: string | null;
     /**
      * 
      * @type {string}
@@ -43,7 +43,6 @@ export interface CreateCategoryCommand {
  * Check if a given object implements the CreateCategoryCommand interface.
  */
 export function instanceOfCreateCategoryCommand(value: object): value is CreateCategoryCommand {
-    if (!('name' in value) || value['name'] === undefined) return false;
     return true;
 }
 
@@ -57,7 +56,7 @@ export function CreateCategoryCommandFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
         
-        'name': json['name'],
+        'name': json['name'] == null ? undefined : json['name'],
         'desc': json['desc'] == null ? undefined : json['desc'],
         'parentId': json['parentId'] == null ? undefined : json['parentId'],
     };

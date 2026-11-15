@@ -98,7 +98,7 @@ async function example() {
   const body = {
     // string (optional)
     uID: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-    // CategoryQueryType | - 0 = File - 1 = Favorite (optional)
+    // CategoryQueryType | - 0 = Default - 1 = File - 2 = Favorite (optional)
     searchType: ...,
     // number (optional)
     page: 56,
@@ -124,7 +124,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **uID** | `string` |  | [Optional] [Defaults to `undefined`] |
-| **searchType** | `CategoryQueryType` | - 0 &#x3D; File - 1 &#x3D; Favorite | [Optional] [Defaults to `undefined`] [Enum: 0, 1] |
+| **searchType** | `CategoryQueryType` | - 0 &#x3D; Default - 1 &#x3D; File - 2 &#x3D; Favorite | [Optional] [Defaults to `undefined`] [Enum: 0, 1, 2] |
 | **page** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **pageSize** | `number` |  | [Optional] [Defaults to `undefined`] |
 

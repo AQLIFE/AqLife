@@ -84,7 +84,7 @@ export interface CategoryApiInterface {
     /**
      * Creates request options for apiCategoryGet without sending the request
      * @param {string} [uID] 
-     * @param {CategoryQueryType} [searchType] - 0 &#x3D; File - 1 &#x3D; Favorite
+     * @param {CategoryQueryType} [searchType] - 0 &#x3D; Default - 1 &#x3D; File - 2 &#x3D; Favorite
      * @param {number} [page] 
      * @param {number} [pageSize] 
      * @throws {RequiredError}
@@ -95,7 +95,7 @@ export interface CategoryApiInterface {
     /**
      * 
      * @param {string} [uID] 
-     * @param {CategoryQueryType} [searchType] - 0 &#x3D; File - 1 &#x3D; Favorite
+     * @param {CategoryQueryType} [searchType] - 0 &#x3D; Default - 1 &#x3D; File - 2 &#x3D; Favorite
      * @param {number} [page] 
      * @param {number} [pageSize] 
      * @param {*} [options] Override http request option.

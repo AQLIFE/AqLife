@@ -14,19 +14,24 @@
 
 
 /**
- * - 0 = File
- * - 1 = Favorite
+ * - 0 = Default
+ * - 1 = File
+ * - 2 = Favorite
  * @export
  */
 export const CategoryQueryType = {
     /**
     * 
     */
-    File: 0,
+    Default: 0,
     /**
     * 
     */
-    Favorite: 1
+    File: 1,
+    /**
+    * 
+    */
+    Favorite: 2
 } as const;
 export type CategoryQueryType = typeof CategoryQueryType[keyof typeof CategoryQueryType];
 

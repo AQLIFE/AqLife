@@ -30,7 +30,7 @@ export interface UpdateCategoryCommand {
      * @type {string}
      * @memberof UpdateCategoryCommand
      */
-    name: string;
+    name?: string | null;
     /**
      * 
      * @type {string}
@@ -49,7 +49,6 @@ export interface UpdateCategoryCommand {
  * Check if a given object implements the UpdateCategoryCommand interface.
  */
 export function instanceOfUpdateCategoryCommand(value: object): value is UpdateCategoryCommand {
-    if (!('name' in value) || value['name'] === undefined) return false;
     return true;
 }
 
@@ -64,7 +63,7 @@ export function UpdateCategoryCommandFromJSONTyped(json: any, ignoreDiscriminato
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'name': json['name'],
+        'name': json['name'] == null ? undefined : json['name'],
         'desc': json['desc'] == null ? undefined : json['desc'],
         'parentId': json['parentId'] == null ? undefined : json['parentId'],
     };

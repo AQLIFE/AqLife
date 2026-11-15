@@ -1,7 +1,7 @@
 
 # CategoryQueryType
 
-- 0 = File - 1 = Favorite
+- 0 = Default - 1 = File - 2 = Favorite
 
 ## Properties
 
