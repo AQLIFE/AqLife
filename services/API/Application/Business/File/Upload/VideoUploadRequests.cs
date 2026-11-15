@@ -1,5 +1,7 @@
 using AqLife.Application.Abstractions.FileStorage;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Validators;
+using AqLife.Shared.Exceptions;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using MediatR;
@@ -9,14 +11,24 @@ using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Business.File.Upload;
 
 /// <summary>Starts a resumable video upload session.</summary>
-public sealed record StartVideoUploadCommand(string FileName, long FileSize, int ChunkSize = 4 * 1024 * 1024)
+public sealed record StartVideoUploadCommand(string FileName, long FileSize, Guid CategoryId, int ChunkSize = 4 * 1024 * 1024)
     : IRequest<ResumableUploadSession>;
+
+public sealed class StartVideoUploadValidator(IApplicationDbContext db)
+    : AbstractValidator<StartVideoUploadCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "必须选择一个有效的文件分类";
+
+    private protected override async Task<bool> IsValidAsync(StartVideoUploadCommand command, CancellationToken ct)
+        => command.CategoryId != Guid.Empty
+            && await db.Categories.AnyAsync(category => category.UID == command.CategoryId, ct);
+}
 
 public sealed class StartVideoUploadHandler(IResumableFileUploadService uploads)
     : IRequestHandler<StartVideoUploadCommand, ResumableUploadSession>
 {
     public Task<ResumableUploadSession> Handle(StartVideoUploadCommand request, CancellationToken ct)
-        => uploads.StartAsync(new StartVideoUploadRequest(request.FileName, request.FileSize, request.ChunkSize), ct);
+        => uploads.StartAsync(new StartVideoUploadRequest(request.FileName, request.FileSize, request.CategoryId, request.ChunkSize), ct);
 }
 
 /// <summary>Reads the uploaded chunk list without mutating the upload session.</summary>
@@ -47,6 +59,7 @@ public sealed record CompleteVideoUploadCommand(Guid UploadId) : IRequest<Guid>;
 
 public sealed class CompleteVideoUploadHandler(
     IResumableFileUploadService uploads,
+    IApplicationDbContext db,
     ISender sender) : IRequestHandler<CompleteVideoUploadCommand, Guid>
 {
     public async Task<Guid> Handle(CompleteVideoUploadCommand request, CancellationToken ct)
@@ -54,6 +67,11 @@ public sealed class CompleteVideoUploadHandler(
         var assembled = await uploads.AssembleAsync(request.UploadId, ct);
         try
         {
+            if (assembled.CategoryId == Guid.Empty)
+                throw new RequestCheckException("该上传任务没有有效分类信息，请重新选择分类并上传。");
+            if (!await db.Categories.AnyAsync(category => category.UID == assembled.CategoryId, ct))
+                throw new RequestCheckException("上传期间所选分类已不存在，请重新选择分类并上传。");
+
             await using var stream = new FileStream(assembled.TempFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             var formFile = new FormFile(stream, 0, assembled.FileSize, "File", assembled.FileName)
             {
@@ -62,7 +80,7 @@ public sealed class CompleteVideoUploadHandler(
                     ? "video/webm"
                     : "video/mp4"
             };
-            return await sender.Send(new CreateFileCommand(formFile, CategoryEntity.DefaultCategoryId, null, DateTimeOffset.UtcNow.AddDays(7)), ct);
+            return await sender.Send(new CreateFileCommand(formFile, assembled.CategoryId, null, DateTimeOffset.UtcNow.AddDays(7)), ct);
         }
         finally
         {
