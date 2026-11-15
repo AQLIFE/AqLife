@@ -13,10 +13,6 @@ namespace AqLife.Web.Controllers
         [HttpGet, AllowAnonymous]
         public async Task<PageResult<TagDto>?> Search([FromQuery] TagQuery query, CancellationToken ct)
         => await mediator.Send(query, ct);
-        
-        [HttpGet("overview"), AllowAnonymous]
-        public async Task<IEnumerable<BlogCategoryStatistics>?> Search([FromQuery] CategoryQuery query, CancellationToken ct)
-        => await mediator.Send(query, ct);
 
         [HttpPost]
         public async Task<Guid> AddTag(CreateTagCommand command, CancellationToken ct)

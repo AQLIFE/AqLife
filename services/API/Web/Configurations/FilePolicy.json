@@ -1,18 +1,23 @@
 {
   "FilePolicy": {
-    "MaxFileSize": 100,
+    "MaxFileSize": 500,
+    "VideoMaxFileSize": 1048576,
     "StoragePath": "Cache",
-    "StorageUnit": 1,
+    "StorageUnit": 10,
 
     "AllowedUpload": [
       ".jpeg",
       ".jpg",
       ".png",
       ".svg",
-      ".md"
+      ".md",
+      ".mp4",
+      ".webm"
     ],
     "AllowedDownload": [
-      ".md"
+      ".md",
+      ".mp4",
+      ".webm"
     ],
     "AllowedImageExtensions": [
       ".jpeg",
@@ -21,7 +26,11 @@
       ".svg"
     ],
     "AllowedBlogExtensions": [
-      "md"
+      ".md"
+    ],
+    "AllowedVideoExtensions": [
+      ".mp4",
+      ".webm"
     ]
   }
 }

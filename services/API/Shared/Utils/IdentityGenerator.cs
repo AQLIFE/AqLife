@@ -45,5 +45,40 @@ namespace AqLife.Shared.Utils
 
             return new string(array);
         }
+
+        /// <summary>
+        /// 生成随机的伪hash,仅用于测试
+        /// </summary>
+        /// <returns></returns>
+        public static string GenerateSecureHash()
+        {
+            int length = RandomNumberGenerator.GetInt32(32, 64);
+
+            var res = new StringBuilder();
+
+            // 2. 核心契约：确保每种字符类型至少出现一次 [cite: 22]
+            res.Append(LowerCase[RandomNumberGenerator.GetInt32(LowerCase.Length)]);
+            res.Append(UpperCase[RandomNumberGenerator.GetInt32(UpperCase.Length)]);
+            res.Append(Digits[RandomNumberGenerator.GetInt32(Digits.Length)]);
+            //res.Append(Special[RandomNumberGenerator.GetInt32(Special.Length)]);
+
+            // 3. 填充剩余长度
+            string allChars = LowerCase + UpperCase + Digits;
+            while (res.Length < length)
+            {
+                res.Append(allChars[RandomNumberGenerator.GetInt32(allChars.Length)]);
+            }
+
+            // 4. 打乱顺序 (Fisher-Yates Shuffle) 增强不可预测性 [cite: 34]
+            char[] array = res.ToString().ToCharArray();
+            int n = array.Length;
+            while (n > 1)
+            {
+                int k = RandomNumberGenerator.GetInt32(n--);
+                (array[n], array[k]) = (array[k], array[n]);
+            }
+
+            return new string(array);
+        }
     }
 }

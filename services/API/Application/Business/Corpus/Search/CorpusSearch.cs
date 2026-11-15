@@ -1,22 +1,24 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
-using AqLife.Application.Mappers;
+using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Corpus.Search
 {
-    public class CorpusSearch(QueryMapper queryMapper, IApplicationDbContext storage, IEnumerable<ISearchStrategy<CorpusEntity, EntitySearchCriteria>> searchStrategies) : BaseSearch<CorpusQuery, CorpusEntity, CorpusDto, EntitySearchCriteria>(storage, searchStrategies)
+    public sealed class CorpusSearch(ISearchMapper<CorpusQuery, PageResult<CorpusDto>, EntitySearchCriteria> queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<CorpusEntity, EntitySearchCriteria>> searchStrategies)
+        : BaseSearch<CorpusQuery, CorpusEntity, EntitySearchCriteria>(storage, httpContext, searchStrategies)
     {
-        protected override async Task<IQueryable<CorpusEntity>> BuildBaseQueryAsync(IQueryable<CorpusEntity> queryable, CorpusQuery query)
+        protected private override IQueryable<CorpusEntity> BuildBaseQuery(IQueryable<CorpusEntity> queryable, CorpusQuery query)
         => queryable;
 
-        protected override EntitySearchCriteria MapToCriteria(CorpusQuery query)
+        protected private override EntitySearchCriteria MapToCriteria(CorpusQuery query)
         => queryMapper.ToCriteria(query);
 
-        protected override IQueryable<CorpusEntity> ApplyDefaultOrder(IQueryable<CorpusEntity> queryble,CorpusQuery query)
+        protected private override IQueryable<CorpusEntity> ApplyDefaultOrder(IQueryable<CorpusEntity> queryble, CorpusQuery query)
         => queryble.OrderBy(e => e.CreateDate);
     }
 }

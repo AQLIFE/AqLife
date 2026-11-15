@@ -10,7 +10,7 @@ namespace AqLife.Application.Business.Tag.Handler
         public async Task<Guid> Handle(UpdateTagCommand command, CancellationToken ct)
         {
             TagEntity entity = await storage.Tags.FindAsync(command.UID, ct) ?? throw new ResourceNotFoundException("不存在 Tag");
-            entity.Update(command.TagName, command.IsCategory, command.AliasName);
+            entity.Update(command.TagName, command.AliasName);
             return command.UID;
         }
     }

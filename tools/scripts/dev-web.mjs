@@ -4,5 +4,5 @@ import { npmRun } from './lib/exec.mjs'
 npmRun('dev', {
   workspace: workspaces.web,
   cwd: paths.root,
-  label: 'dev @aqlife/web',
+  label: `vite web (${process.env.APP_ENV ?? 'dev'})`,
 })

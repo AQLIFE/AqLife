@@ -30,12 +30,6 @@ export interface CreateAccountCommand {
      * @type {string}
      * @memberof CreateAccountCommand
      */
-    desc?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateAccountCommand
-     */
     pwd?: string | null;
     /**
      * 
@@ -43,6 +37,12 @@ export interface CreateAccountCommand {
      * @memberof CreateAccountCommand
      */
     serverKey?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateAccountCommand
+     */
+    desc?: string | null;
 }
 
 /**
@@ -63,9 +63,9 @@ export function CreateAccountCommandFromJSONTyped(json: any, ignoreDiscriminator
     return {
         
         'name': json['name'] == null ? undefined : json['name'],
-        'desc': json['desc'] == null ? undefined : json['desc'],
         'pwd': json['pwd'] == null ? undefined : json['pwd'],
         'serverKey': json['serverKey'] == null ? undefined : json['serverKey'],
+        'desc': json['desc'] == null ? undefined : json['desc'],
     };
 }
 
@@ -81,9 +81,9 @@ export function CreateAccountCommandToJSONTyped(value?: CreateAccountCommand | n
     return {
         
         'name': value['name'],
-        'desc': value['desc'],
         'pwd': value['pwd'],
         'serverKey': value['serverKey'],
+        'desc': value['desc'],
     };
 }
 

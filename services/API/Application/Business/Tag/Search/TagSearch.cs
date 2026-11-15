@@ -1,24 +1,25 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.IView;
-using AqLife.Application.Mappers;
+using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Tag.Search
 {
-    public class TagSearch(QueryMapper queryMapper, IApplicationDbContext storage
-    , IEnumerable<ISearchStrategy<TagEntity, EntitySearchCriteria>> searchStrategies
-    ) : BaseSearch<TagQuery, TagEntity, TagDto, EntitySearchCriteria>(storage, searchStrategies)
+    public sealed class TagSearch(ISearchMapper<TagQuery, PageResult<TagDto>, EntitySearchCriteria> queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
+     IEnumerable<ISearchStrategy<TagEntity, EntitySearchCriteria>> searchStrategies
+    ) : BaseSearch<TagQuery, TagEntity, EntitySearchCriteria>(storage, httpContext, searchStrategies)
     {
-        protected override EntitySearchCriteria MapToCriteria(TagQuery query)
+        protected private override EntitySearchCriteria MapToCriteria(TagQuery query)
         => queryMapper.ToCriteria(query);
 
-        protected override async Task<IQueryable<TagEntity>> BuildBaseQueryAsync(IQueryable<TagEntity> queryable, TagQuery query)
+        protected private override IQueryable<TagEntity> BuildBaseQuery(IQueryable<TagEntity> queryable, TagQuery query)
        => queryable;
 
-        protected override IQueryable<TagEntity> ApplyDefaultOrder(IQueryable<TagEntity> queryble,TagQuery query)
+        protected private override IQueryable<TagEntity> ApplyDefaultOrder(IQueryable<TagEntity> queryble, TagQuery query)
         => queryble.OrderBy(e => e.Name);
     }
 }

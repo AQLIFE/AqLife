@@ -6,7 +6,6 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 | [**apiTagDelete**](TagApi.md#apitagdelete) | **DELETE** /api/Tag |  |
 | [**apiTagGet**](TagApi.md#apitagget) | **GET** /api/Tag |  |
-| [**apiTagOverviewGet**](TagApi.md#apitagoverviewget) | **GET** /api/Tag/overview |  |
 | [**apiTagPatch**](TagApi.md#apitagpatch) | **PATCH** /api/Tag |  |
 | [**apiTagPost**](TagApi.md#apitagpost) | **POST** /api/Tag |  |
 
@@ -132,71 +131,6 @@ example().catch(console.error);
 ### Return type
 
 [**TagDtoPageResult**](TagDtoPageResult.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: `text/plain`, `application/json`, `text/json`
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **200** | OK |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
-
-
-## apiTagOverviewGet
-
-> Array&lt;BlogCategoryStatistics&gt; apiTagOverviewGet(isAll)
-
-
-
-### Example
-
-```ts
-import {
-  Configuration,
-  TagApi,
-} from '@aqlife/api-contract';
-import type { ApiTagOverviewGetRequest } from '@aqlife/api-contract';
-
-async function example() {
-  console.log("🚀 Testing @aqlife/api-contract SDK...");
-  const api = new TagApi();
-
-  const body = {
-    // boolean (optional)
-    isAll: true,
-  } satisfies ApiTagOverviewGetRequest;
-
-  try {
-    const data = await api.apiTagOverviewGet(body);
-    console.log(data);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// Run the test
-example().catch(console.error);
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **isAll** | `boolean` |  | [Optional] [Defaults to `undefined`] |
-
-### Return type
-
-[**Array&lt;BlogCategoryStatistics&gt;**](BlogCategoryStatistics.md)
 
 ### Authorization
 

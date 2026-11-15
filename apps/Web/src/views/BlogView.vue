@@ -3,11 +3,11 @@
     <header class="blog-page-header">
       <div>
         <div class="blog-page-eyebrow">
-          ARTICLES
+          LATEST ARTICLES
         </div>
 
         <h1 class="blog-page-title">
-          文章
+          最新文章
         </h1>
       </div>
 
@@ -25,44 +25,28 @@
 </template>
 
 <script setup lang="ts">
+import { notify, useLoadingTask } from '@aqlife/ui-shared'
 import { FileApi } from '@/api'
 import BlogCard from '@/components/BlogCard.vue'
 import { apiConfiguration } from '@/services/api'
 import { useBlogStore } from '@/stores/fileStore'
-import { ElMessage, ElScrollbar } from 'element-plus'
-import { onBeforeMount, ref } from 'vue'
+import { ElScrollbar } from 'element-plus'
+import { onBeforeMount } from 'vue'
 
 const blogStore = useBlogStore()
-const isLoading = ref(false)
+const { isLoading, run: withBlogLoading } = useLoadingTask('web:blog:list')
 
 
 async function loadBlogs() {
-  if (isLoading.value || !blogStore.hasMore) {
-    return
-  }
+  if (isLoading.value || !blogStore.hasMore) return
 
-  isLoading.value = true
-
-  try {
+  await withBlogLoading(async () => {
     const fileApi = new FileApi(apiConfiguration)
-
-    const result = await fileApi.apiFileGet({
-      page: blogStore.page,
-      categoryUID: blogStore.categoryUID,
-    })
-
-    const files = [
-      ...blogStore.cacheBlogList,
-      ...(result.items ?? []),
-    ]
-
-    blogStore.setBlogList(files)
-
+    const result = await fileApi.apiFileGet({ page: blogStore.page, categoryUID: blogStore.categoryUID })
+    blogStore.setBlogList([...blogStore.cacheBlogList, ...(result.items ?? [])])
     blogStore.page = (result.page ?? blogStore.page) + 1
     blogStore.hasMore = result.hasMore ?? false
-  } finally {
-    isLoading.value = false
-  }
+  })
 }
 
 onBeforeMount(async () => {
@@ -74,7 +58,7 @@ onBeforeMount(async () => {
     await loadBlogs()
   } catch {
     blogStore.clearBlogList()
-    ElMessage.warning('请求数据失败')
+    notify.warning('请求数据失败')
   }
 })
 </script>
@@ -180,5 +164,40 @@ onBeforeMount(async () => {
   padding: 2px;
 
   box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .blog-page {
+    padding: 18px 12px 16px;
+  }
+
+  .blog-page-header {
+    padding: 0 4px;
+    margin-bottom: 14px;
+  }
+
+  .blog-page-title {
+    font-size: 21px;
+  }
+
+  .blog-scrollbar {
+    padding: 0 4px;
+  }
+
+  .blog-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 2px 0 12px;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1200px) {
+  .blog-page {
+    padding: 24px 18px;
+  }
+
+  .blog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 </style>

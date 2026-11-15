@@ -2,10 +2,12 @@
   <div class="template-view">
     <MgsPageHeader title="博文模板" description="选择模板、预览结构，再创建博文" :back="true">
       <template #actions>
+        <ElButton @click="startCreatingArticleWithoutTemplate">直接新建博文</ElButton>
         <ElButton :icon="Plus" @click="startCreatingTemplate">添加模板</ElButton>
       </template>
     </MgsPageHeader>
 
+    <MgsPageContainer class="workspace-container">
     <div class="workspace">
       <aside class="template-panel">
         <div class="panel-title">
@@ -45,12 +47,12 @@
       </aside>
 
       <main class="editor-panel">
-        <div v-if="selectedTemplate || creatingTemplate" class="template-toolbar">
+        <div v-if="selectedTemplate || creatingTemplate || creatingArticle" class="template-toolbar">
           <div>
-            <div class="selected-template-name">{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName }}</div>
+            <div class="selected-template-name">{{ creatingArticle && !articleUsesTemplate ? '新建博文' : creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName }}</div>
             <div class="selected-template-state">
               {{ creatingTemplate ? '正在创建模板' : creatingArticle ? '正在设置博文' : editing ? '正在修改模板' : '只读预览' }}
-              <template v-if="!creatingTemplate"> · Version {{ selectedTemplate?.version ?? 1 }}</template>
+              <template v-if="!creatingTemplate && (!creatingArticle || articleUsesTemplate)"> · Version {{ selectedTemplate?.version ?? 1 }}</template>
             </div>
           </div>
           <div class="template-toolbar-actions">
@@ -59,6 +61,8 @@
               <ElButton type="primary" :disabled="!canSaveNewTemplate || saving" @click="saveNewTemplate">保存模板</ElButton>
             </template>
             <template v-else-if="creatingArticle">
+              <input ref="videoInput" type="file" accept=".mp4,.webm,video/mp4,video/webm" multiple hidden @change="onVideoSelected">
+              <ElButton @click="chooseVideo">插入视频</ElButton>
               <ElButton @click="cancelCreatingArticle">取消</ElButton>
               <ElButton
                 type="primary"
@@ -80,9 +84,12 @@
           </div>
         </div>
 
-        <ElForm v-if="creatingTemplate" :model="templateDraft" label-position="top" class="meta-form">
-          <ElFormItem label="模板名称">
+        <ElForm v-if="creatingTemplate || editing" :model="templateDraft" label-position="top" class="meta-form template-meta-form">
+          <ElFormItem v-if="creatingTemplate" label="模板名称">
             <ElInput v-model="templateDraft.name" size="large" placeholder="例如：技术文章模板" clearable />
+          </ElFormItem>
+          <ElFormItem label="默认标签">
+            <TagSelect v-model:tag-list="templateTags" :select-disabled="saving" />
           </ElFormItem>
         </ElForm>
 
@@ -112,46 +119,44 @@
 
 
 
+        <div v-if="creatingArticle && videoUploads.length" class="video-upload-queue">
+          <div v-for="item in videoUploads" :key="item.id" class="video-upload-item">
+            <span class="video-upload-name">{{ item.name }}</span>
+            <span>{{ item.state === 'queued' ? '排队中' : item.state === 'uploading' ? '上传中 ' + item.progress + '%' : item.state === 'completed' ? '已完成' : '上传失败' }}</span>
+            <span v-if="item.error" class="video-upload-error">{{ item.error }}</span>
+        <ElButton v-if="item.state === 'failed'" text type="primary" @click="retryVideoUpload(item.id)">重试</ElButton>
+          </div>
+        </div>
         <div class="sheet">
           <div class="sheet-toolbar">
-            <div class="sheet-cell row-number">#</div>
             <div class="sheet-cell">正文 / Markdown</div>
             <div class="sheet-cell preview-heading">实时预览</div>
           </div>
 
           <div class="sheet-body">
-            <div class="line-numbers">
-              <div v-for="(_, index) in bodyLines" :key="index">{{ index + 1 }}</div>
-            </div>
-            <div class="markdown-input">
-              <ElInput
-                v-model="draft.content"
-                type="textarea"
-                resize="none"
-                :readonly="!creatingTemplate && !editing && !creatingArticle"
-                :placeholder="creatingTemplate || editing || creatingArticle ? '编辑 Markdown 内容...' : '模板内容加载中...'"
-              />
-            </div>
-            <div class="preview">
-              <MarkdownRender :markdown="draft.content" :baseurl="baseurl" />
+            <div ref="markdownEditorContainer" class="markdown-editor" v-loading="imageUploading" />
+            <div class="render" v-loading="markdownRenderRef?.loading">
+              <MarkdownRender ref="markdownRenderRef" :markdown="draft.content" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
             </div>
           </div>
         </div>
 
         <div class="status-bar">
-          <span>{{ creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName || '未选择模板' }}</span>
+          <span>{{ creatingArticle && !articleUsesTemplate ? '新建博文' : creatingTemplate ? (templateDraft.name || '新建模板') : selectedTemplate?.fileName || '未选择模板' }}</span>
           <span>{{ bodyLines.length }} 行 · {{ draft.content.length }} 字符</span>
           <span :class="creatingTemplate || editing ? 'status-editing' : 'status-ready'">
-            {{ creatingTemplate ? '新模板编辑中' : editing ? '模板编辑中' : '模板只读' }}
+            {{ creatingTemplate ? '新模板编辑中' : creatingArticle ? (articleUsesTemplate ? '基于模板创建' : '空白博文编辑中') : editing ? '模板编辑中' : '模板只读' }}
           </span>
         </div>
       </main>
     </div>
+    </MgsPageContainer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, reactive, ref } from 'vue'
+import { notify } from '@aqlife/ui-shared'
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ElButton,
@@ -159,18 +164,22 @@ import {
   ElFormItem,
   ElIcon,
   ElInput,
-  ElMessage,
   ElMessageBox,
   ElTag,
 } from 'element-plus'
 import { Edit, InfoFilled, Plus } from '@element-plus/icons-vue'
+import * as monaco from 'monaco-editor'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
 import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
+import { tokenStore } from '@aqlife/api-client'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow } from '@/workflow'
 import TagSelect from '@/components/TagSelect.vue'
+import { useMarkdownClipboardImagePaste } from '@/composables/useMarkdownClipboardImagePaste'
+import { useMarkdownVideoUploadQueue } from '@/composables/useMarkdownVideoUploadQueue'
 
 type BlogTemplate = FileDto
 
@@ -178,6 +187,36 @@ const baseurl = import.meta.env.VITE_API
 const router = useRouter()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
+const videoInput = ref<HTMLInputElement>()
+const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => markdownEditor, fileApi)
+const newArticleDraftKey = 'aqlife:new-blog-draft'
+const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000
+const articleBaselineContent = ref('')
+const articleDirty = computed(() => creatingArticle.value && (articleDraft.title.trim().length > 0 || draft.content !== articleBaselineContent.value || videoUploading.value))
+const markdownFileResolver = {
+  async getFile(uid: string): Promise<FileDto | undefined> {
+    const image = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Image })
+    if (image.items?.[0]) return image.items[0]
+    const video = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Video })
+    return video.items?.[0]
+  },
+  async getVideoUrl(uid: string): Promise<string | undefined> {
+    const basePath = apiConfiguration.basePath.replace(/\/+$/, '')
+    const headers = new Headers()
+    const token = tokenStore.get()
+    if (token) headers.set('Authorization', token.startsWith('Bearer ') ? token : `Bearer ${token}`)
+    const response = await fetch(`${basePath}/api/File/video-preview-ticket?uid=${encodeURIComponent(uid)}`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+    })
+    if (!response.ok) return undefined
+    const result = await response.json() as { ticket?: string }
+    if (!result.ticket) return undefined
+    const playbackUrl = new URL(`${basePath}/api/File/video-stream?UID=${encodeURIComponent(uid)}&ticket=${encodeURIComponent(result.ticket)}`, window.location.href)
+    return playbackUrl.toString()
+  },
+}
 
 const templates = ref<BlogTemplate[]>([])
 const selectedTemplate = ref<BlogTemplate>()
@@ -187,10 +226,12 @@ const creatingTemplate = ref(false)
 const templateDraft = reactive({
   name: '',
 })
+const templateTags = ref<TagDto[]>([])
 const saving = ref(false)
 const loading = ref(false)
 const creatingArticle = ref(false)
 const creatingArticleBusy = ref(false)
+const articleUsesTemplate = ref(true)
 
 const articleDraft = reactive<{
   title: string
@@ -204,23 +245,87 @@ const draft = reactive({
   content: '',
 })
 
-const templateDirty = computed(() => draft.content !== selectedTemplateContent.value)
+const markdownEditorContainer = ref<HTMLElement>()
+let markdownEditor: monaco.editor.IStandaloneCodeEditor | undefined
+const markdownEditable = computed(() => creatingTemplate.value || editing.value || creatingArticle.value)
+const { uploading: imageUploading, onPaste: onMarkdownPaste } = useMarkdownClipboardImagePaste({
+  getEditor: () => markdownEditor,
+  isEnabled: () => markdownEditable.value,
+  uploadFiles: async files => {
+    const uids = await fileApi.apiFileUploadMultiplePost({ files })
+    await Promise.all(uids.map(uid =>
+      fileApi.apiFileSchedulePatch({ scheduledFileCommand: { uid } }),
+    ))
+    return uids
+  },
+})
+
+watch([() => draft.content, () => articleDraft.title], () => {
+  if (!articleDirty.value) return
+  try {
+    localStorage.setItem(newArticleDraftKey, JSON.stringify({ title: articleDraft.title, content: draft.content, savedAt: Date.now() }))
+  } catch { /* Storage may be unavailable or full. */ }
+}, { flush: 'sync' })
+
+watch(() => draft.content, content => {
+  if (markdownEditor && markdownEditor.getValue() !== content) {
+    markdownEditor.setValue(content)
+  }
+})
+
+watch(markdownEditable, editable => {
+  markdownEditor?.updateOptions({ readOnly: !editable })
+})
+
+onMounted(() => {
+  window.addEventListener('beforeunload', warnBeforeUnload)
+  if (!markdownEditorContainer.value) return
+
+  markdownEditor = monaco.editor.create(markdownEditorContainer.value, {
+    value: draft.content,
+    language: 'markdown',
+    theme: 'vs',
+    fontFamily: 'Cascadia Code PL',
+    automaticLayout: true,
+    minimap: { enabled: false },
+    wordWrap: 'on',
+    fontSize: 14,
+    readOnly: !markdownEditable.value,
+  })
+
+  markdownEditor.onDidChangeModelContent(() => {
+    const content = markdownEditor?.getValue()
+    if (content !== undefined && draft.content !== content) draft.content = content
+  })
+
+  markdownEditorContainer.value.addEventListener('paste', onMarkdownPaste, true)
+})
+
+onBeforeUnmount(() => {
+  markdownEditorContainer.value?.removeEventListener('paste', onMarkdownPaste, true)
+  window.removeEventListener('beforeunload', warnBeforeUnload)
+  markdownEditor?.dispose()
+})
+const markdownRenderRef = ref<{ loading: boolean } | null>(null)
+
+const templateDirty = computed(() =>
+  draft.content !== selectedTemplateContent.value ||
+  !sameTagSelection(templateTags.value, selectedTemplate.value?.tags ?? []),
+)
 const canSaveNewTemplate = computed(() => Boolean(templateDraft.name.trim() && draft.content.trim()))
 const bodyLines = computed(() => draft.content.split('\n'))
 
 
 async function loadTemplates(selectUid?: string) {
-  const result = await fileApi.apiFileGet({
-    scope: FileScope.NUMBER_3 ,
-    page: 1,
-    pageSize: 100,
-  })
+  fileStore.clearCache()
+  await fileStore.fetchAllFiles(fileApi, FileScope.Template)
 
-  templates.value = (result.items ?? []).filter(item => item.isTemplate)
+  templates.value = fileStore.fileList.filter(item => item.isTemplate)
 
   if (!templates.value.length) {
     selectedTemplate.value = undefined
     selectedTemplateContent.value = ''
+    templateTags.value = []
     draft.content = ''
     return
   }
@@ -249,10 +354,11 @@ async function selectTemplate(uid: string) {
     const content = await response.raw.text()
     selectedTemplate.value = metadata
     selectedTemplateContent.value = content
+    templateTags.value = [...(metadata.tags ?? [])]
     draft.content = content
     editing.value = false
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '模板加载失败')
+    notify.error(error instanceof Error ? error.message : '模板加载失败')
   } finally {
     loading.value = false
   }
@@ -264,6 +370,7 @@ function startCreatingTemplate() {
   editing.value = false
   creatingTemplate.value = true
   templateDraft.name = ''
+  templateTags.value = []
   draft.content = '# {{title}}\n\n'
 
 }
@@ -271,6 +378,7 @@ function startCreatingTemplate() {
 function cancelCreatingTemplate() {
   creatingTemplate.value = false
   templateDraft.name = ''
+  templateTags.value = []
   draft.content = ''
   if (templates.value[0]?.uid) {
     void selectTemplate(templates.value[0].uid)
@@ -298,21 +406,30 @@ async function saveNewTemplate() {
 
   saving.value = true
   try {
-    const contentFile = new File([draft.content], name, { type: 'text/markdown' })
-    const uids = await fileApi.apiFileUploadPost({
+    const resolvedContent = draft.content
+    const contentFile = new File([resolvedContent], name, { type: 'text/markdown' })
+    const uid = await fileApi.apiFileUploadPost({
       isTemplate: true,
-      file: [contentFile],
+      file: contentFile,
     })
-
-    const uid = uids[0]
     if (!uid) throw new Error('模板创建失败')
+
+    const tagUids = templateTags.value
+      .map(tag => tag.uid)
+      .filter((tagUid): tagUid is string => Boolean(tagUid))
+    if (tagUids.length > 0) {
+      await fileApi.apiFileTagPatch({
+        updateFileTagCommand: { uid, tags: tagUids },
+      })
+    }
 
     creatingTemplate.value = false
     templateDraft.name = ''
+    draft.content = resolvedContent
     await loadTemplates(uid)
-    ElMessage.success('模板已创建')
+    notify.success('模板已创建')
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '模板创建失败')
+    notify.error(error instanceof Error ? error.message : '模板创建失败')
   } finally {
     saving.value = false
   }
@@ -324,24 +441,42 @@ async function saveTemplate() {
 
   saving.value = true
   try {
-    const fileName = (current.fileName || 'template') + (current.fileType || '.md')
-    const contentFile = new File([draft.content], fileName, { type: 'text/markdown' })
+    let updated = current
+    let resolvedContent = draft.content
 
-    const updated = await new FileContentUpdateWorkflow(
-      current,
-      contentFile,
-      fileApi,
-      fileStore,
-      true,
-    ).run()
+    if (draft.content !== selectedTemplateContent.value) {
+      resolvedContent = draft.content
+      const fileName = (current.fileName || 'template') + (current.fileType || '.md')
+      const contentFile = new File([resolvedContent], fileName, { type: 'text/markdown' })
+
+      updated = await new FileContentUpdateWorkflow(
+        current,
+        contentFile,
+        fileApi,
+        fileStore,
+        true,
+      ).run()
+    }
+
+    const tagUids = templateTags.value
+      .map(tag => tag.uid)
+      .filter((tagUid): tagUid is string => Boolean(tagUid))
+    if (!sameTagSelection(templateTags.value, current.tags ?? [])) {
+      await fileApi.apiFileTagPatch({
+        updateFileTagCommand: { uid: current.uid, tags: tagUids },
+      })
+      updated = (await fileApi.apiFileGet({ uID: current.uid, scope: FileScope.Template })).items?.[0] ?? updated
+    }
 
     selectedTemplate.value = updated
-    selectedTemplateContent.value = draft.content
+    draft.content = resolvedContent
+    selectedTemplateContent.value = resolvedContent
+      templateTags.value = [...(updated.tags ?? templateTags.value)]
     templates.value = templates.value.map(item => item.uid === updated.uid ? updated : item)
     editing.value = false
-    ElMessage.success('模板已保存')
+    notify.success('模板已保存')
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '模板保存失败')
+    notify.error(error instanceof Error ? error.message : '模板保存失败')
   } finally {
     saving.value = false
   }
@@ -376,13 +511,53 @@ async function deleteTemplate(template: BlogTemplate) {
       }
     }
 
-    ElMessage.success('模板已删除')
+    notify.success('模板已删除')
   } catch (error) {
     if (error === 'cancel' || error === 'close') return
-    ElMessage.error(error instanceof Error ? error.message : '模板删除失败')
+    notify.error(error instanceof Error ? error.message : '模板删除失败')
   } finally {
     loading.value = false
   }
+}
+
+async function restoreNewArticleDraft() {
+  try {
+    const raw = localStorage.getItem(newArticleDraftKey)
+    if (!raw) return
+    const saved = JSON.parse(raw) as { title?: string; content?: string; savedAt?: number }
+    if (!saved.savedAt || Date.now() - saved.savedAt > DRAFT_TTL_MS || !saved.content || (saved.content === articleBaselineContent.value && !saved.title)) {
+      localStorage.removeItem(newArticleDraftKey)
+      return
+    }
+    try {
+      await ElMessageBox.confirm('发现 7 天内保存的本地未提交博文，是否恢复？', '恢复博文草稿', { confirmButtonText: '恢复草稿', cancelButtonText: '不恢复', type: 'info' })
+      articleDraft.title = saved.title ?? ''
+      draft.content = saved.content
+      markdownEditor?.setValue(saved.content)
+      notify.success('已恢复本地博文草稿')
+      if (saved.content.includes('pending-video:')) notify.warning('草稿中有尚未上传的视频占位符；浏览器未保存视频文件，请删除该占位行后重新插入视频。')
+    } catch { localStorage.removeItem(newArticleDraftKey) }
+  } catch { /* Ignore unavailable or malformed local drafts. */ }
+}
+
+function warnBeforeUnload(event: BeforeUnloadEvent) {
+  if (!articleDirty.value) return
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+function chooseVideo() { videoInput.value?.click() }
+function onVideoSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  const files = Array.from(input.files ?? [])
+  input.value = ''
+  try { queueVideos(files) } catch (error) { notify.warning(error instanceof Error ? error.message : '无法添加视频') }
+}
+
+function sameTagSelection(left: TagDto[], right: TagDto[]): boolean {
+  const leftUids = left.map(tag => tag.uid).filter((uid): uid is string => Boolean(uid)).sort()
+  const rightUids = right.map(tag => tag.uid).filter((uid): uid is string => Boolean(uid)).sort()
+  return leftUids.length === rightUids.length && leftUids.every((uid, index) => uid === rightUids[index])
 }
 
 function sanitizeFileName(value: string) {
@@ -398,37 +573,54 @@ function startCreatingArticle() {
   const template = selectedTemplate.value
   if (!template?.uid || !selectedTemplateContent.value) return
 
+  articleUsesTemplate.value = true
   creatingArticle.value = true
   articleDraft.title = ''
   articleDraft.tags = [...(template.tags ?? [])]
+  articleBaselineContent.value = draft.content
+  void restoreNewArticleDraft()
+}
+
+function startCreatingArticleWithoutTemplate() {
+  creatingTemplate.value = false
+  editing.value = false
+  articleUsesTemplate.value = false
+  creatingArticle.value = true
+  articleDraft.title = ''
+  articleDraft.tags = []
+  draft.content = '# {{title}}\n\n'
+  articleBaselineContent.value = draft.content
+  void restoreNewArticleDraft()
 }
 
 function cancelCreatingArticle() {
   creatingArticle.value = false
   creatingArticleBusy.value = false
+  articleUsesTemplate.value = true
   articleDraft.title = ''
   articleDraft.tags = []
+  draft.content = selectedTemplate.value ? selectedTemplateContent.value : ''
 }
 
 async function createArticle() {
-  const template = selectedTemplate.value
+  const template = articleUsesTemplate.value ? selectedTemplate.value : undefined
   const title = articleDraft.title.trim()
 
-  if (!template?.uid || !draft.content || !title || creatingArticleBusy.value) return
+  if ((articleUsesTemplate.value && !template?.uid) || !draft.content || !title || creatingArticleBusy.value) return
 
-  const content = draft.content.replaceAll('{{title}}', title)
   const fileName = sanitizeFileName(title) + '.md'
 
   creatingArticleBusy.value = true
   loading.value = true
 
   try {
-    const uids = await fileApi.apiFileUploadPost({
+    await waitForVideoUploads()
+    if (draft.content.includes('pending-video:')) throw new Error('草稿中仍有未完成的视频占位符，请重新插入视频后再保存。')
+    const resolvedContent = draft.content.replaceAll('{{title}}', title)
+    const uid = await fileApi.apiFileUploadPost({
       isTemplate: false,
-      file: [new File([content], fileName, { type: 'text/markdown' })],
+      file: new File([resolvedContent], fileName, { type: 'text/markdown' }),
     })
-
-    const uid = uids[0]
     if (!uid) throw new Error('博文创建失败')
 
     let article = (await fileApi.apiFileGet({ uID: uid })).items?.[0]
@@ -446,13 +638,13 @@ async function createArticle() {
     })
 
     article = (await fileApi.apiFileGet({ uID: uid })).items?.[0] ?? article
-    fileStore.upsertFile(article)
-
     creatingArticle.value = false
-    ElMessage.success('博文已创建')
-    await router.push('/blog/' + uid)
+    localStorage.removeItem(newArticleDraftKey)
+    draft.content = resolvedContent
+    notify.success('博文已创建')
+    await router.push('/file/' + uid)
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '博文创建失败')
+    notify.error(error instanceof Error ? error.message : '博文创建失败')
   } finally {
     creatingArticleBusy.value = false
     loading.value = false
@@ -464,7 +656,7 @@ onBeforeMount(async () => {
     loading.value = true
     await loadTemplates()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '模板列表加载失败')
+    notify.error(error instanceof Error ? error.message : '模板列表加载失败')
   } finally {
     loading.value = false
   }
@@ -473,7 +665,8 @@ onBeforeMount(async () => {
 
 <style scoped>
 .template-view { min-height: 0; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: var(--mgs-bg); }
-.workspace { min-height: 0; flex: 1; display: grid; grid-template-columns: 280px minmax(0, 1fr); padding: 0 28px 18px; gap: 18px; }
+.workspace-container { flex:1; min-height:0; display:flex; padding-bottom:24px; }
+.workspace { min-height: 0; flex: 1; display: grid; grid-template-columns: 280px minmax(0, 1fr); padding: 0; gap: 18px; }
 .template-panel { min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); overflow: hidden; }
 .panel-title { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--mgs-border); }
 .title { font-size: 15px; font-weight: 650; }
@@ -494,28 +687,28 @@ onBeforeMount(async () => {
 .selected-template-state { margin-top: 4px; color: var(--mgs-muted); font-size: 12px; }
 .template-toolbar-actions { display: flex; align-items: center; gap: 8px; }
 .meta-form { flex: 0 0 auto; }
+.template-meta-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 1fr); gap: 14px; }
+.template-meta-form :deep(.el-form-item) { margin-bottom: 12px; }
 .form-row { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 14px; }
 .article-form .form-row { grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr); }
 .meta-form :deep(.el-form-item) { margin-bottom: 12px; }
+.video-upload-queue { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 0; font-size: 12px; }
+.video-upload-item { display: flex; align-items: center; gap: 8px; min-width: 240px; }
+.video-upload-name { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.video-upload-error { color: var(--el-color-danger); }
 .sheet { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--mgs-border); border-radius: var(--mgs-radius); background: var(--mgs-surface); box-shadow: var(--mgs-shadow); }
-.sheet-toolbar { display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); }
+.sheet-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex: 0 0 34px; border-bottom: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); }
+.sheet-body { min-height: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .sheet-cell { display: flex; align-items: center; padding: 0 10px; border-right: 1px solid var(--mgs-border); color: var(--mgs-muted); font-size: 12px; }
-.row-number { justify-content: center; padding: 0; }
-.preview-heading { border-right: 0; }
-.sheet-body { min-height: 0; flex: 1; display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr); }
-.line-numbers { overflow: hidden; padding-top: 8px; text-align: center; background: var(--mgs-surface-soft); color: var(--mgs-muted); font: 13px/22px monospace; user-select: none; }
-.markdown-input { min-width: 0; border-right: 1px solid var(--mgs-border); }
-.markdown-input :deep(.el-textarea), .markdown-input :deep(.el-textarea__inner) { height: 100%; }
-.markdown-input :deep(.el-textarea__inner) { border: 0; border-radius: 0; padding: 8px 12px; resize: none; box-shadow: none; font: 14px/22px 'Cascadia Code PL', monospace; }
-.markdown-input :deep(.el-textarea__inner[readonly]) { background: var(--mgs-surface); cursor: default; }
-.preview { min-width: 0; overflow: auto; padding: 10px 18px; }
+.markdown-editor { min-width: 0; min-height: 0; overflow: hidden; border-right: 1px solid var(--mgs-border); }
+.render { min-width: 0; min-height: 0; overflow: auto; padding: 18px 24px 32px; background: var(--mgs-surface); }
 .status-bar { height: 30px; flex: 0 0 30px; display: flex; align-items: center; gap: 18px; color: var(--mgs-muted); font-size: 12px; }
 .status-bar span:last-child { margin-left: auto; }
 .status-ready { color: var(--mgs-success); }
 .status-editing { color: var(--mgs-accent); }
 @media (max-width: 900px) {
   .workspace { grid-template-columns: 220px minmax(0, 1fr); padding: 0 16px 16px; }
-  .sheet-toolbar, .sheet-body { grid-template-columns: 36px minmax(0, 1fr); }
-  .preview, .preview-heading { display: none; }
+  .sheet-toolbar, .sheet-body { grid-template-columns: minmax(0, 1fr); }
+  .render, .preview-heading { display: none; }
 }
 </style>

@@ -1,162 +1,219 @@
-# 项目结构
+# AqLife
 
-## 如何运行该项目
+AqLife 是一个基于 **.NET 8、Vue 3 和 PostgreSQL** 的 Monorepo 项目，包含后端 API、公开 Web 前端和管理端 MGS。
 
-项目依赖:
+## 项目组成
 
-- Node v24+
-- NET 8
-- PostgreSQL 18.X
+| 模块 | 技术 | 职责 |
+|---|---|---|
+| API | ASP.NET Core 8、EF Core、MediatR | 业务接口、身份认证、数据访问与文件服务 |
+| Web | Vue 3、TypeScript、Vite | 面向访客的公开网站与只读内容浏览 |
+| MGS | Vue 3、TypeScript、Vite、Element Plus | 管理端，维护内容、账户及开发计划 |
+| Database | PostgreSQL 18 | 持久化业务数据 |
+| Monorepo | npm Workspaces | 管理前端应用、共享包和工程脚本 |
 
-```shell
-## 从0开始
-## 第一步创建一个数据库,并同步创建一个程序账户,完成授权
-CREATE DATABASE aqlife;-- 此时数据库名称对应 NET 数据库连接字符串,也可以修改,参照 appsettings.Development.example.json
+### 当前主要能力
 
-## 第二步 创建你自己的程序配置文件
+- **内容与文件**：文件上传、下载、内容发布及文件分类/标签管理。
+- **账户**：账户注册、认证及账户信息管理。
+- **收藏**：收藏内容及其分类、标签管理。
+- **开发计划**：多计划管理、任务层级、任务状态与归档。
+- **任务依赖与科技树**：维护任务前置依赖，计算阻塞状态，并保存科技树节点布局。
+- **前后端契约**：通过 OpenAPI 生成 TypeScript API 契约和客户端，减少手写接口定义造成的不一致。
+
+MGS 负责管理操作；Web 面向访客提供公开内容和开发计划浏览。具体权限以 API 的认证与授权规则为准，不能仅依赖前端隐藏操作入口。
+
+## 仓库结构
+
+```text
+AqLife/
+├── apps/
+│   ├── Web/                    # 公开端 Vue 应用
+│   └── MGS/                    # 管理端 Vue 应用
+├── services/
+│   └── API/
+│       ├── Web/                # ASP.NET Core 启动项目、Controllers、配置
+│       ├── Application/        # 应用服务、Handlers、查询与业务流程
+│       ├── Domain/             # 领域实体与领域规则
+│       ├── Infrastructure/     # EF Core、文件存储等基础设施
+│       ├── Shared/             # 跨层共享类型
+│       ├── Extensions/         # DI 与框架扩展
+│       ├── PostgreSqlMigrations/ # PostgreSQL EF Core migrations
+│       └── CoreTest/           # 单元测试与集成测试
+├── packages/
+│   ├── api-contract/           # OpenAPI 生成的 API 类型契约
+│   ├── api-client/             # 前端 API 客户端
+│   ├── domain/                 # 前端共享领域类型与逻辑
+│   ├── icons/                  # 共享图标
+│   └── ui-shared/              # 共享 UI 能力
+├── tools/
+│   ├── ci/                     # CI 检查脚本
+│   ├── openapi-generator/      # API 契约生成工具
+│   └── scripts/                # 开发、启动及维护脚本
+├── config/                     # 共享工程配置
+├── package.json
+└── README.md
+```
+
+## 环境要求
+
+- Node.js 24+
+- .NET SDK：仓库 `global.json` 指定 10.0.401；API 项目目标框架为 .NET 8
+- PostgreSQL 18
+- npm
+
+安装前端依赖：
+
+```bash
+npm install
+```
+
+## 本地配置
+
+### 1. 创建 PostgreSQL 数据库
+
+例如：
+
+```sql
+CREATE DATABASE aqlife;
+```
+
+请按实际部署情况创建数据库用户并授予访问权限。
+
+### 2. 配置 API
+
+复制开发配置模板：
+
+```bash
 cp services/API/Web/Configurations/appsettings.Development.example.json services/API/Web/Configurations/appsettings.Development.json
-## ! 请编辑这个文件,添加你的数据库链接字符串,JWT[可选]
+```
 
+编辑本地配置，确保数据库配置使用当前项目支持的 PostgreSQL。核心配置示例：
 
-## 第三步完成 CodeFrist 生成,将数据模型迁移至 PostgreSQL 数据库
-dotnet ef database update --project .\services\API\PostgreSqlMigrations\PostgreSqlMigrations.csproj --startup-project .\services\API\Web\Web.csproj
-## 这里是示例,请根据实际部署路径修改
+```json
+{
+  "ConnectionStrings": {
+    "PostgreSQL": "Host=127.0.0.1;Port=5432;Database=aqlife;Username=YOUR_USER;Password=YOUR_PASSWORD"
+  },
+  "DbOption": {
+    "DbType": "PostgreSQL",
+    "DbVersion": "18",
+    "MigrationAssembly": "PostgreSqlMigrations"
+  }
+}
+```
 
-## 以Dev模式启动
+将该配置合并到 `appsettings.Development.json`，并按需保留模板中的 JWT、CORS 和日志设置。不要提交本地配置、数据库密码、JWT 密钥或生产环境 Secret。
 
-### 启动 API服务器
-dotnet run --project .\services\API\Web\Web.csproj
-## 或者
+> 注意：当前仓库中的 `appsettings.Development.example.json` 仍包含旧的 MYSQL 示例字段。项目当前数据库实现只接受 `DbType=PostgreSQL`，请按上面的配置调整，不要直接使用模板中的 MYSQL 值。
+
+### 3. 更新数据库结构
+
+在仓库根目录执行：
+
+```bash
+dotnet ef database update \
+  --project services/API/PostgreSqlMigrations/PostgreSqlMigrations.csproj \
+  --startup-project services/API/Web/Web.csproj
+```
+
+当前 PostgreSQL 迁移链以 `InitialNewBaseLinePostgreSQL` 为基线。基线之前的旧迁移不属于当前有效迁移链；新迁移应从当前基线继续生成。
+
+已有数据库切换到新基线时，应先核对数据库结构和迁移历史，再按受控流程同步迁移记录，不要直接对已有数据重复执行初始化建表。
+
+## 启动服务
+
+在仓库根目录运行。每个服务都可以独立启动，不要求三个服务同时运行。
+
+### 开发模式（Development + HTTP）
+
+```bash
 npm run dev:api
-### 启动游客端
 npm run dev:web
-### 启动 管理端
 npm run dev:mgs
 ```
 
-> 对于product 模式的,请等待后续 Releases
+也可以直接运行 API：
 
-## 项目概述
-
-```mermaid
----
-title: 宏观需求规划
----
-graph LR
-  AqLife --> API & Web & MGS
-  subgraph API
-    File--派生-->Blog
-    Account--派生-->Subscription
-    Todo
-    Corpus
-    Tag
-    Blog & tag -->BlogTag
-  end
-
-  subgraph Web
-    HomeView
-    BlogView--派生-->BlogPreView
-    ErrorView
-  end
-
-  subgraph MGS
-    LoginView
-    registerView
-    profile & subscription --> account  
-    FileView --> ManoEditor
-    TodoView
-    TagView
-  end
+```bash
+dotnet run --project services/API/Web/Web.csproj
 ```
 
-## 项目特点
+### Production 模式（HTTPS）
 
-API
-
-- 全局异常: 通过定义异常类,配合前置的校验管线实现Fast Fail,并根据异常类型的内部属性确定 HttpStatusCode,并将友好错误返回给前端
-- 模仿 Fluent Vaild 库,以策略模式实现的验证器方案,允许DI注入,使用便捷,易于扩展,和 前置校验管线 有高效的耦合,各个需求(Account/File/Tag/Todo)都有对应的策略模式的Search 方案,同样支持DI注入,易于扩展
-- 廋 Controller : 通过引入 MediatR ,将 Controller 大幅瘦身
-- Env Self-Check : 在Program 启动阶段增加 DbContext / File存储以及配置 的自检,若自检失败不会允许运行并计入日志,提供运维的可维护性
-- 快速上传: 对文件的每次上传都计算其hash,若命中数据库记录,则直接返回对应的数据ID,若没有则上传,通过UploadContext实现
-
-MGS & Web
-
-- 使用 Markdown-It 对后端Md 文件进行转换,将 AST 组件树 通过遍历转为自己实现的组件树,若我没有实现,则使用MARKDOWN-it的组件树进行渲染.
-- 使用 Mano Editor 作为 md 的实时编辑器,VScode 同源方案,快速易用
-- 通过 Element-plus 的 Step 组件实现账户注册功能,流程化引导,简单易用
-- 使用 openapi-generator 对NET  WEB API进行自动生成 FETCH的请求 方法,可随后端更新,并能提供后端数据模型的定义,便于前端使用TS 进行类型检查,提升工程化开发的可靠性
-
-Other
-
-- 提供简单 CI 检查,保障Commit 有效性
-- 引入 单元测试 和集成测试,提供API 可信度
-- Monorepo 单体项目,B/S架构,约束 MGS & WEB 前端项目的TS 规范和语法,并提供统一的Npm包支持,减少单项目的npm 滥用
-
-## 业务流程
-
-```mermaid
-gantt
-    title 用户完整注册流程
-    dateFormat  SSS
-    axisFormat %Sms
-    
-    section 注册基础信息的账户
-    参数校验      :a1, 0, 10s
-    执行服务      :a2, after a1, 15s
-    
-    自动登录: milestone,0s
-
-    section 上传账户配置文件
-    参数校验  :b1 ,after a2, 10s
-    执行服务      :b2, after b1, 15s
-
-    section 更新账户配置
-    参数校验      :c1, after b2, 10s
-    执行服务      :c2, after c1, 15s
-    
-    section 查询
-    查询注册账户信息 :done, merge, after c2, 12s
+```bash
+npm run prod:api
+npm run prod:web
+npm run prod:mgs
 ```
 
-## Monorepo
+启动脚本会明确设置环境，不依赖终端中遗留的 `APP_ENV` 值。当前只支持 `dev` 和 `prod` 两种模式。
 
-```txt
-├── apps/
-│   ├── web/                 # 游客端 Vue
-│   ├── mgs/                 # 管理端 Vue
-├── services/
-│   └── api/                # C# ASP.NET API
-├── packages/
-│   ├── api-contract/       # ⭐ OpenAPI契约（核心）
-│   ├── api-client/         # ⭐ fetch封装 + DTO映射
-│   ├── domain/             # ⭐ 业务模型（前端核心）
-│   ├── ui-kit/             # ⭐ 可选：共享UI组件
-│   ├── icons/              # ⭐ icon registry
-├── tools/
-│   ├── openapi-generator/  # 生成脚本
-│   ├── ci/
-│   ├── scripts/
-├── config/
-│   ├── eslint/
-│   ├── tsconfig/
-│   ├── vite/
+| 服务 | 开发模式 | Production 模式 |
+|---|---|---|
+| API | `http://localhost:5110` | `https://localhost:7110` |
+| Web | `http://localhost:5173` | `https://localhost:5173` |
+| MGS | `http://localhost:5200` | `https://localhost:5200` |
+
+API Swagger 仅在 Development 环境开放：`http://localhost:5110/swagger`。
+
+前端默认根据当前页面的协议和主机名推导 API 地址：HTTP 对应 API 5110，HTTPS 对应 API 7110。需要覆盖默认地址时可设置 `VITE_API`，并确保页面与 API 协议一致。
+
+## HTTPS 与局域网访问
+
+Production 启动脚本使用 HTTPS：
+
+- Web 和 MGS 使用 PEM 证书。
+- API 使用 PFX 证书，默认路径为仓库根目录 `.https/server.pfx`。
+- 可使用 `mkcert` 为本地开发电脑及局域网地址签发证书，再用 OpenSSL 导出 PFX。
+
+示例（在仓库根目录执行，将 IP 替换为实际开发电脑的局域网地址）：
+
+```bash
+mkdir -p .https
+mkcert -install
+mkcert \
+  -cert-file .https/server.pem \
+  -key-file .https/server-key.pem \
+  localhost 127.0.0.1 ::1 192.168.0.100
+
+openssl pkcs12 -export \
+  -out .https/server.pfx \
+  -inkey .https/server-key.pem \
+  -in .https/server.pem
 ```
 
-### Packages
+API 的 PFX 密码可通过 .NET User Secrets 配置：
 
-#### api-client : 封装与拦截
+```bash
+dotnet user-secrets set "Kestrel:Certificates:Default:Path" "$(pwd)/.https/server.pfx" --project services/API/Web
+dotnet user-secrets set "Kestrel:Certificates:Default:Password" "YOUR_PFX_PASSWORD" --project services/API/Web
+```
 
-统一拦截器：在这里处理 JWT Token 的自动注入，以及对 401/403 状态码的统一重定向逻辑 。
-错误映射：将后端抛出的 OperateRequestException（400）或 BusinessException 映射为前端可读的提示 。
+也可使用环境变量 `ASPNETCORE_Kestrel__Certificates__Default__Path` 和 `ASPNETCORE_Kestrel__Certificates__Default__Password`。证书文件和密钥不应提交到仓库；mkcert 的 `rootCA-key.pem` 尤其不能分享。其他局域网设备需要单独信任签发证书的 CA 根证书。
 
-#### api-contract : 契约即真理
+API 的 CORS 来源通过 `Cors:AllowedOrigins` 配置。Development 环境必须配置允许来源。局域网访问时，应将前端实际访问的 IP/域名及端口加入 CORS 配置，并在防火墙中开放对应端口。mkcert 证书仅用于本地或可信局域网测试；公网生产环境应使用可信 CA 证书或由反向代理/托管平台终止 TLS。
 
-后端驱动契约：利用 C# API 项目中已有的 Swagger/OpenAPI 定义，通过工具（如 Swashbuckle.AspNetCore）在编译时生成 swagger.json 。
-共享 DTO 定义：之前在 AqLife.Shared 中定义的 TagDto、AccountDto 等模型，通过 OpenAPI 转换为 TypeScript 接口存放在此处 。这样当在 C# 中修改字段时，前端会快速收到 TS 类型错误的提醒。
+## 常用工程命令
 
-#### domain : 前端的“影子业务层”
+| 命令 | 用途 |
+|---|---|
+| `npm run bootstrap` | 初始化/检查 Monorepo 工程依赖 |
+| `npm run generate:contract` | 生成前端 API 契约 |
+| `npm run ci` | 执行完整 CI 检查 |
+| `npm run ci:frontend` | 执行前端检查 |
+| `npm run ci:api` | 执行 API 检查 |
 
-业务逻辑校验：例如“用户名合法性检查”、“文件后缀匹配”等逻辑。这些逻辑与后端 IUploadCheckStrategy 中的规则保持同步，实现“前端先校验，后端后把关”的双重防线。
-状态转换：将原始 API 返回的数据转换为 UI 需要的格式（View Model）。
+前端也可以在各自 workspace 中执行 `type-check`、`build` 等脚本。具体脚本以对应应用的 `package.json` 为准。
 
-icons : 存储所有的svg图像
+## 架构约定
+
+- **后端分层**：Domain 管理领域模型与规则；Application 编排用例；Infrastructure 实现数据库和文件存储；Web 提供 HTTP API。
+- **数据库迁移**：使用 EF Core 与 PostgreSQL migrations 项目管理数据库结构变更。
+- **前端契约**：后端 OpenAPI 定义作为 API 契约来源；生成结果维护在 `packages/api-contract`，客户端封装在 `packages/api-client`。
+- **共享代码**：前端应用通过 npm Workspaces 使用 `packages/*`，避免重复维护接口类型和通用能力。
+- **质量检查**：`services/API/CoreTest` 包含后端单元测试与集成测试；仓库 CI 脚本负责执行工程检查。
+
+## 贡献与变更
+
+修改 API 契约或 DTO 后，检查并按需重新生成前端契约；修改 EF Core 实体或模型配置后，评估并生成新的数据库迁移。提交前建议运行与改动范围对应的 CI 检查。

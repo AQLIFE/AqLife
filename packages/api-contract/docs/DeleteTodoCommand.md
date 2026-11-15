@@ -7,6 +7,7 @@
 Name | Type
 ------------ | -------------
 `uid` | string
+`planId` | string
 
 ## Example
 
@@ -16,6 +17,7 @@ import type { DeleteTodoCommand } from '@aqlife/api-contract'
 // TODO: Update the object below with actual values
 const example = {
   "uid": null,
+  "planId": null,
 } satisfies DeleteTodoCommand
 
 console.log(example)

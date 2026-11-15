@@ -1,35 +1,88 @@
 <script setup lang="ts">
 import { useTagStore } from '@/stores/tagStore';
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { ElButton } from 'element-plus';
-import { TagApi,FileApi, type BlogCategoryStatistics, type FileDto } from '@/api';
+import { FileOrder, FileScope, TagApi, CategoryApi, FileApi, CategoryQueryType, type CategoryDto, type FileDto } from '@/api';
 import { apiConfiguration } from '@/services/api';
 // import { View, Timer } from '@element-plus/icons-vue';
 import { useBlogStore } from '../stores/fileStore';
 
-const BlogCategoryView = ref<BlogCategoryStatistics[]>([])
+const BlogCategoryView = ref<CategoryDto[]>([])
 
 // const category = computed(() => useTagStore().tagList.filter(e => e.isCategory))
 const hotList = ref<FileDto[]>()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useBlogStore()
-async function handleFilter(tagId:string){
-    // if(tagId!=undefine)return 
+const route = useRoute()
+async function loadAllPublishedBlogCount(): Promise<number> {
+    let page = 1
+    const pageSize = 100
+    let count = 0
+
+    while (true) {
+        const result = await fileApi.apiFileGet({
+            scope: FileScope.Blog,
+            page,
+            pageSize,
+        })
+
+        count += result.items?.length ?? 0
+        if (!result.hasMore) break
+        page = (result.page ?? page) + 1
+    }
+
+    return count
+}
+
+async function handleFilter(tagId: string) {
     fileStore.clearBlogList()
     fileStore.reset(tagId || undefined)
-    const result = await fileApi.apiFileGet({categoryUID:tagId})
+    const result = await fileApi.apiFileGet({
+        scope: FileScope.Blog,
+        categoryUID: tagId || undefined,
+    })
 
-    if(result.items)fileStore.setBlogList(result.items)
+    fileStore.setBlogList(result.items ?? [])
+    fileStore.page = (result.page ?? 1) + 1
+    fileStore.hasMore = result.hasMore ?? false
 }
 
 onBeforeMount(async () => {
     const tagApi = new TagApi(apiConfiguration)
-    if (useTagStore().tagList.length == 0) useTagStore().tagList = await (await tagApi.apiTagGet()).items??[]
-    if(BlogCategoryView.value.length==0) BlogCategoryView.value = await tagApi.apiTagOverviewGet()
-    const list = await fileApi.apiFileGet({order:2,pageSize:5})
-    if( list.items) hotList.value = list.items
-    BlogCategoryView.value.push({uid:'',categoryName:'ALL',categoryCount:fileStore.cacheBlogList.length})// 用于清除 filter的效果
+    const categoryApi = new CategoryApi(apiConfiguration)
+    const tagStore = useTagStore()
+
+    if (tagStore.tagList.length === 0) {
+        tagStore.tagList = (await tagApi.apiTagGet()).items ?? []
+    }
+
+    const [categories, allPublishedBlogCount, popular] = await Promise.all([
+        categoryApi.apiCategoryGet({ searchType: CategoryQueryType.File }),
+        loadAllPublishedBlogCount(),
+        fileApi.apiFileGet({ scope: FileScope.Blog, order: FileOrder.MostViewed, pageSize: 5 }),
+    ])
+
+    BlogCategoryView.value = [
+        ...(categories.items ?? []),
+        { uid: '', categoryName: 'ALL', count: allPublishedBlogCount },
+    ]
+    hotList.value = popular.items ?? []
 })
+
+watch(
+    () => route.path,
+    async (path, previousPath) => {
+        if (previousPath?.startsWith('/preview/') && path === '/blog') {
+            const result = await fileApi.apiFileGet({
+                scope: FileScope.Blog,
+                order: FileOrder.MostViewed,
+                pageSize: 5,
+            })
+            hotList.value = result.items ?? []
+        }
+    },
+)
 </script>
 
 <template>
@@ -41,12 +94,12 @@ onBeforeMount(async () => {
             </h3>
 
             <div v-for="item in BlogCategoryView" :key="item.uid!" class="overview-item">
-                <ElButton type="info" link @click="handleFilter(item.uid??'')">
+                <ElButton type="info" link @click="handleFilter(item.uid ?? '')">
                     {{ item.categoryName }}
                 </ElButton>
 
                 <span>
-                    {{ item.categoryCount }}
+                    {{ item.count }}
                 </span>
             </div>
         </section>

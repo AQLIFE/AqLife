@@ -19,6 +19,11 @@ import {
     CancelScheduledFileCommandToJSON,
 } from '../models/CancelScheduledFileCommand';
 import {
+    type CheckFileHashQuery,
+    CheckFileHashQueryFromJSON,
+    CheckFileHashQueryToJSON,
+} from '../models/CheckFileHashQuery';
+import {
     type DeleteFileCommand,
     DeleteFileCommandFromJSON,
     DeleteFileCommandToJSON,
@@ -29,20 +34,50 @@ import {
     FileDtoPageResultToJSON,
 } from '../models/FileDtoPageResult';
 import {
+    type FileHashCheckResult,
+    FileHashCheckResultFromJSON,
+    FileHashCheckResultToJSON,
+} from '../models/FileHashCheckResult';
+import {
     type FileOrder,
     FileOrderFromJSON,
     FileOrderToJSON,
 } from '../models/FileOrder';
+import {
+    type FileOverviewDto,
+    FileOverviewDtoFromJSON,
+    FileOverviewDtoToJSON,
+} from '../models/FileOverviewDto';
 import {
     type FileScope,
     FileScopeFromJSON,
     FileScopeToJSON,
 } from '../models/FileScope';
 import {
+    type PublishStatusSearch,
+    PublishStatusSearchFromJSON,
+    PublishStatusSearchToJSON,
+} from '../models/PublishStatusSearch';
+import {
+    type ResumableUploadSession,
+    ResumableUploadSessionFromJSON,
+    ResumableUploadSessionToJSON,
+} from '../models/ResumableUploadSession';
+import {
+    type ResumableUploadStatus,
+    ResumableUploadStatusFromJSON,
+    ResumableUploadStatusToJSON,
+} from '../models/ResumableUploadStatus';
+import {
     type ScheduledFileCommand,
     ScheduledFileCommandFromJSON,
     ScheduledFileCommandToJSON,
 } from '../models/ScheduledFileCommand';
+import {
+    type StartVideoUploadCommand,
+    StartVideoUploadCommandFromJSON,
+    StartVideoUploadCommandToJSON,
+} from '../models/StartVideoUploadCommand';
 import {
     type UpdateFileTagCommand,
     UpdateFileTagCommandFromJSON,
@@ -71,6 +106,15 @@ export interface ApiFileGetRequest {
     scope?: FileScope;
 }
 
+export interface ApiFileHashCheckPostRequest {
+    checkFileHashQuery?: CheckFileHashQuery;
+}
+
+export interface ApiFileOverviewGetRequest {
+    publishStatus?: PublishStatusSearch;
+    recentCount?: number;
+}
+
 export interface ApiFilePatchRequest {
     uID?: string;
     file?: Blob;
@@ -85,6 +129,24 @@ export interface ApiFilePreviewGetRequest {
     isTemplate?: boolean;
 }
 
+export interface ApiFileResumableUploadPostRequest {
+    startVideoUploadCommand?: StartVideoUploadCommand;
+}
+
+export interface ApiFileResumableUploadUploadIdChunksIndexPutRequest {
+    uploadId: string;
+    index: number;
+    chunk?: Blob;
+}
+
+export interface ApiFileResumableUploadUploadIdCompletePostRequest {
+    uploadId: string;
+}
+
+export interface ApiFileResumableUploadUploadIdGetRequest {
+    uploadId: string;
+}
+
 export interface ApiFileSchedulePatchRequest {
     scheduledFileCommand?: ScheduledFileCommand;
 }
@@ -93,9 +155,26 @@ export interface ApiFileTagPatchRequest {
     updateFileTagCommand?: UpdateFileTagCommand;
 }
 
+export interface ApiFileUploadMultiplePostRequest {
+    categoryId?: string;
+    files?: Array<Blob>;
+}
+
 export interface ApiFileUploadPostRequest {
+    file?: Blob;
+    categoryId?: string;
+    tags?: Array<string>;
+    scheduledTime?: string;
     isTemplate?: boolean;
-    file?: Array<Blob>;
+}
+
+export interface ApiFileVideoPreviewTicketPostRequest {
+    uid?: string;
+}
+
+export interface ApiFileVideoStreamGetRequest {
+    uid?: string;
+    ticket?: string;
 }
 
 /**
@@ -175,8 +254,8 @@ export interface FileApiInterface {
      * @param {string} [categoryUID] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
-     * @param {FileOrder} [order] 
-     * @param {FileScope} [scope] 
+     * @param {FileOrder} [order] - 0 &#x3D; Latest - 1 &#x3D; Earliest - 2 &#x3D; MostViewed
+     * @param {FileScope} [scope] - 0 &#x3D; Default：默认搜索策略，包含所有公开文件类型 - 1 &#x3D; Image：Image 搜索策略 - 2 &#x3D; Blog：Blog 搜索策略 - 3 &#x3D; Template：模板搜索策略 - 4 &#x3D; All：全集搜索策略 - 5 &#x3D; Video：Video 搜索策略
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -189,8 +268,8 @@ export interface FileApiInterface {
      * @param {string} [categoryUID] 
      * @param {number} [page] 
      * @param {number} [pageSize] 
-     * @param {FileOrder} [order] 
-     * @param {FileScope} [scope] 
+     * @param {FileOrder} [order] - 0 &#x3D; Latest - 1 &#x3D; Earliest - 2 &#x3D; MostViewed
+     * @param {FileScope} [scope] - 0 &#x3D; Default：默认搜索策略，包含所有公开文件类型 - 1 &#x3D; Image：Image 搜索策略 - 2 &#x3D; Blog：Blog 搜索策略 - 3 &#x3D; Template：模板搜索策略 - 4 &#x3D; All：全集搜索策略 - 5 &#x3D; Video：Video 搜索策略
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
@@ -200,6 +279,50 @@ export interface FileApiInterface {
     /**
      */
     apiFileGet(requestParameters: ApiFileGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileDtoPageResult>;
+
+    /**
+     * Creates request options for apiFileHashCheckPost without sending the request
+     * @param {CheckFileHashQuery} [checkFileHashQuery] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileHashCheckPostRequestOpts(requestParameters: ApiFileHashCheckPostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {CheckFileHashQuery} [checkFileHashQuery] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileHashCheckPostRaw(requestParameters: ApiFileHashCheckPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FileHashCheckResult>>;
+
+    /**
+     */
+    apiFileHashCheckPost(requestParameters: ApiFileHashCheckPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileHashCheckResult>;
+
+    /**
+     * Creates request options for apiFileOverviewGet without sending the request
+     * @param {PublishStatusSearch} [publishStatus] - 0 &#x3D; Default - 1 &#x3D; Draft - 2 &#x3D; Scheduled - 3 &#x3D; Published
+     * @param {number} [recentCount] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileOverviewGetRequestOpts(requestParameters: ApiFileOverviewGetRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {PublishStatusSearch} [publishStatus] - 0 &#x3D; Default - 1 &#x3D; Draft - 2 &#x3D; Scheduled - 3 &#x3D; Published
+     * @param {number} [recentCount] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileOverviewGetRaw(requestParameters: ApiFileOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FileOverviewDto>>;
+
+    /**
+     */
+    apiFileOverviewGet(requestParameters: ApiFileOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileOverviewDto>;
 
     /**
      * Creates request options for apiFilePatch without sending the request
@@ -269,6 +392,94 @@ export interface FileApiInterface {
     apiFilePreviewGet(requestParameters: ApiFilePreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
     /**
+     * Creates request options for apiFileResumableUploadPost without sending the request
+     * @param {StartVideoUploadCommand} [startVideoUploadCommand] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileResumableUploadPostRequestOpts(requestParameters: ApiFileResumableUploadPostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {StartVideoUploadCommand} [startVideoUploadCommand] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileResumableUploadPostRaw(requestParameters: ApiFileResumableUploadPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResumableUploadSession>>;
+
+    /**
+     */
+    apiFileResumableUploadPost(requestParameters: ApiFileResumableUploadPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResumableUploadSession>;
+
+    /**
+     * Creates request options for apiFileResumableUploadUploadIdChunksIndexPut without sending the request
+     * @param {string} uploadId 
+     * @param {number} index 
+     * @param {Blob} [chunk] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileResumableUploadUploadIdChunksIndexPutRequestOpts(requestParameters: ApiFileResumableUploadUploadIdChunksIndexPutRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} uploadId 
+     * @param {number} index 
+     * @param {Blob} [chunk] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileResumableUploadUploadIdChunksIndexPutRaw(requestParameters: ApiFileResumableUploadUploadIdChunksIndexPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     */
+    apiFileResumableUploadUploadIdChunksIndexPut(requestParameters: ApiFileResumableUploadUploadIdChunksIndexPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for apiFileResumableUploadUploadIdCompletePost without sending the request
+     * @param {string} uploadId 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileResumableUploadUploadIdCompletePostRequestOpts(requestParameters: ApiFileResumableUploadUploadIdCompletePostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} uploadId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileResumableUploadUploadIdCompletePostRaw(requestParameters: ApiFileResumableUploadUploadIdCompletePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
+
+    /**
+     */
+    apiFileResumableUploadUploadIdCompletePost(requestParameters: ApiFileResumableUploadUploadIdCompletePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiFileResumableUploadUploadIdGet without sending the request
+     * @param {string} uploadId 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileResumableUploadUploadIdGetRequestOpts(requestParameters: ApiFileResumableUploadUploadIdGetRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} uploadId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileResumableUploadUploadIdGetRaw(requestParameters: ApiFileResumableUploadUploadIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResumableUploadStatus>>;
+
+    /**
+     */
+    apiFileResumableUploadUploadIdGet(requestParameters: ApiFileResumableUploadUploadIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResumableUploadStatus>;
+
+    /**
      * Creates request options for apiFileSchedulePatch without sending the request
      * @param {ScheduledFileCommand} [scheduledFileCommand] 
      * @throws {RequiredError}
@@ -311,9 +522,35 @@ export interface FileApiInterface {
     apiFileTagPatch(requestParameters: ApiFileTagPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
 
     /**
+     * Creates request options for apiFileUploadMultiplePost without sending the request
+     * @param {string} [categoryId] 
+     * @param {Array<Blob>} [files] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileUploadMultiplePostRequestOpts(requestParameters: ApiFileUploadMultiplePostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} [categoryId] 
+     * @param {Array<Blob>} [files] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileUploadMultiplePostRaw(requestParameters: ApiFileUploadMultiplePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>>;
+
+    /**
+     */
+    apiFileUploadMultiplePost(requestParameters: ApiFileUploadMultiplePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>>;
+
+    /**
      * Creates request options for apiFileUploadPost without sending the request
+     * @param {Blob} [file] 
+     * @param {string} [categoryId] 
+     * @param {Array<string>} [tags] 
+     * @param {string} [scheduledTime] 
      * @param {boolean} [isTemplate] 
-     * @param {Array<Blob>} [file] 
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
@@ -321,17 +558,64 @@ export interface FileApiInterface {
 
     /**
      * 
+     * @param {Blob} [file] 
+     * @param {string} [categoryId] 
+     * @param {Array<string>} [tags] 
+     * @param {string} [scheduledTime] 
      * @param {boolean} [isTemplate] 
-     * @param {Array<Blob>} [file] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FileApiInterface
      */
-    apiFileUploadPostRaw(requestParameters: ApiFileUploadPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>>;
+    apiFileUploadPostRaw(requestParameters: ApiFileUploadPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>>;
 
     /**
      */
-    apiFileUploadPost(requestParameters: ApiFileUploadPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>>;
+    apiFileUploadPost(requestParameters: ApiFileUploadPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string>;
+
+    /**
+     * Creates request options for apiFileVideoPreviewTicketPost without sending the request
+     * @param {string} [uid] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileVideoPreviewTicketPostRequestOpts(requestParameters: ApiFileVideoPreviewTicketPostRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} [uid] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileVideoPreviewTicketPostRaw(requestParameters: ApiFileVideoPreviewTicketPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     */
+    apiFileVideoPreviewTicketPost(requestParameters: ApiFileVideoPreviewTicketPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for apiFileVideoStreamGet without sending the request
+     * @param {string} [uid] 
+     * @param {string} [ticket] 
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileVideoStreamGetRequestOpts(requestParameters: ApiFileVideoStreamGetRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * 
+     * @param {string} [uid] 
+     * @param {string} [ticket] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileApiInterface
+     */
+    apiFileVideoStreamGetRaw(requestParameters: ApiFileVideoStreamGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     */
+    apiFileVideoStreamGet(requestParameters: ApiFileVideoStreamGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
 }
 
@@ -522,6 +806,87 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
     }
 
     /**
+     * Creates request options for apiFileHashCheckPost without sending the request
+     */
+    async apiFileHashCheckPostRequestOpts(requestParameters: ApiFileHashCheckPostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/File/hash/check`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CheckFileHashQueryToJSON(requestParameters['checkFileHashQuery']),
+        };
+    }
+
+    /**
+     */
+    async apiFileHashCheckPostRaw(requestParameters: ApiFileHashCheckPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FileHashCheckResult>> {
+        const requestOptions = await this.apiFileHashCheckPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => FileHashCheckResultFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async apiFileHashCheckPost(requestParameters: ApiFileHashCheckPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileHashCheckResult> {
+        const response = await this.apiFileHashCheckPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFileOverviewGet without sending the request
+     */
+    async apiFileOverviewGetRequestOpts(requestParameters: ApiFileOverviewGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['publishStatus'] != null) {
+            queryParameters['PublishStatus'] = requestParameters['publishStatus'];
+        }
+
+        if (requestParameters['recentCount'] != null) {
+            queryParameters['RecentCount'] = requestParameters['recentCount'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/File/overview`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiFileOverviewGetRaw(requestParameters: ApiFileOverviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FileOverviewDto>> {
+        const requestOptions = await this.apiFileOverviewGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => FileOverviewDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async apiFileOverviewGet(requestParameters: ApiFileOverviewGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FileOverviewDto> {
+        const response = await this.apiFileOverviewGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for apiFilePatch without sending the request
      */
     async apiFilePatchRequestOpts(requestParameters: ApiFilePatchRequest): Promise<runtime.RequestOpts> {
@@ -672,6 +1037,205 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
     }
 
     /**
+     * Creates request options for apiFileResumableUploadPost without sending the request
+     */
+    async apiFileResumableUploadPostRequestOpts(requestParameters: ApiFileResumableUploadPostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/File/resumable-upload`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: StartVideoUploadCommandToJSON(requestParameters['startVideoUploadCommand']),
+        };
+    }
+
+    /**
+     */
+    async apiFileResumableUploadPostRaw(requestParameters: ApiFileResumableUploadPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResumableUploadSession>> {
+        const requestOptions = await this.apiFileResumableUploadPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResumableUploadSessionFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async apiFileResumableUploadPost(requestParameters: ApiFileResumableUploadPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResumableUploadSession> {
+        const response = await this.apiFileResumableUploadPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFileResumableUploadUploadIdChunksIndexPut without sending the request
+     */
+    async apiFileResumableUploadUploadIdChunksIndexPutRequestOpts(requestParameters: ApiFileResumableUploadUploadIdChunksIndexPutRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uploadId'] == null) {
+            throw new runtime.RequiredError(
+                'uploadId',
+                'Required parameter "uploadId" was null or undefined when calling apiFileResumableUploadUploadIdChunksIndexPut().'
+            );
+        }
+
+        if (requestParameters['index'] == null) {
+            throw new runtime.RequiredError(
+                'index',
+                'Required parameter "index" was null or undefined when calling apiFileResumableUploadUploadIdChunksIndexPut().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['chunk'] != null) {
+            formParams.append('chunk', requestParameters['chunk'] as any);
+        }
+
+
+        let urlPath = `/api/File/resumable-upload/{uploadId}/chunks/{index}`;
+        urlPath = urlPath.replace('{uploadId}', encodeURIComponent(String(requestParameters['uploadId'])));
+        urlPath = urlPath.replace('{index}', encodeURIComponent(String(requestParameters['index'])));
+
+        return {
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: formParams,
+        };
+    }
+
+    /**
+     */
+    async apiFileResumableUploadUploadIdChunksIndexPutRaw(requestParameters: ApiFileResumableUploadUploadIdChunksIndexPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.apiFileResumableUploadUploadIdChunksIndexPutRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async apiFileResumableUploadUploadIdChunksIndexPut(requestParameters: ApiFileResumableUploadUploadIdChunksIndexPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiFileResumableUploadUploadIdChunksIndexPutRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Creates request options for apiFileResumableUploadUploadIdCompletePost without sending the request
+     */
+    async apiFileResumableUploadUploadIdCompletePostRequestOpts(requestParameters: ApiFileResumableUploadUploadIdCompletePostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uploadId'] == null) {
+            throw new runtime.RequiredError(
+                'uploadId',
+                'Required parameter "uploadId" was null or undefined when calling apiFileResumableUploadUploadIdCompletePost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/File/resumable-upload/{uploadId}/complete`;
+        urlPath = urlPath.replace('{uploadId}', encodeURIComponent(String(requestParameters['uploadId'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiFileResumableUploadUploadIdCompletePostRaw(requestParameters: ApiFileResumableUploadUploadIdCompletePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.apiFileResumableUploadUploadIdCompletePostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async apiFileResumableUploadUploadIdCompletePost(requestParameters: ApiFileResumableUploadUploadIdCompletePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.apiFileResumableUploadUploadIdCompletePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFileResumableUploadUploadIdGet without sending the request
+     */
+    async apiFileResumableUploadUploadIdGetRequestOpts(requestParameters: ApiFileResumableUploadUploadIdGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uploadId'] == null) {
+            throw new runtime.RequiredError(
+                'uploadId',
+                'Required parameter "uploadId" was null or undefined when calling apiFileResumableUploadUploadIdGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/File/resumable-upload/{uploadId}`;
+        urlPath = urlPath.replace('{uploadId}', encodeURIComponent(String(requestParameters['uploadId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiFileResumableUploadUploadIdGetRaw(requestParameters: ApiFileResumableUploadUploadIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResumableUploadStatus>> {
+        const requestOptions = await this.apiFileResumableUploadUploadIdGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResumableUploadStatusFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async apiFileResumableUploadUploadIdGet(requestParameters: ApiFileResumableUploadUploadIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResumableUploadStatus> {
+        const response = await this.apiFileResumableUploadUploadIdGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for apiFileSchedulePatch without sending the request
      */
     async apiFileSchedulePatchRequestOpts(requestParameters: ApiFileSchedulePatchRequest): Promise<runtime.RequestOpts> {
@@ -756,6 +1320,68 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
     }
 
     /**
+     * Creates request options for apiFileUploadMultiplePost without sending the request
+     */
+    async apiFileUploadMultiplePostRequestOpts(requestParameters: ApiFileUploadMultiplePostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['categoryId'] != null) {
+            formParams.append('categoryId', requestParameters['categoryId'] as any);
+        }
+
+        if (requestParameters['files'] != null) {
+            requestParameters['files'].forEach((element) => {
+                formParams.append('Files', element as any);
+            })
+        }
+
+
+        let urlPath = `/api/File/upload/multiple`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: formParams,
+        };
+    }
+
+    /**
+     */
+    async apiFileUploadMultiplePostRaw(requestParameters: ApiFileUploadMultiplePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>> {
+        const requestOptions = await this.apiFileUploadMultiplePostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse<any>(response);
+    }
+
+    /**
+     */
+    async apiFileUploadMultiplePost(requestParameters: ApiFileUploadMultiplePostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>> {
+        const response = await this.apiFileUploadMultiplePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for apiFileUploadPost without sending the request
      */
     async apiFileUploadPostRequestOpts(requestParameters: ApiFileUploadPostRequest): Promise<runtime.RequestOpts> {
@@ -779,18 +1405,30 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
             formParams = new URLSearchParams();
         }
 
+        if (requestParameters['file'] != null) {
+            formParams.append('File', requestParameters['file'] as any);
+        }
+
+        if (requestParameters['categoryId'] != null) {
+            formParams.append('categoryId', requestParameters['categoryId'] as any);
+        }
+
+        if (requestParameters['tags'] != null) {
+            requestParameters['tags'].forEach((element) => {
+                formParams.append('Tags', element as any);
+            })
+        }
+
+        if (requestParameters['scheduledTime'] != null) {
+            formParams.append('ScheduledTime', requestParameters['scheduledTime'] as any);
+        }
+
         if (requestParameters['isTemplate'] != null) {
             formParams.append('IsTemplate', requestParameters['isTemplate'] as any);
         }
 
-        if (requestParameters['file'] != null) {
-            requestParameters['file'].forEach((element) => {
-                formParams.append('File', element as any);
-            })
-        }
 
-
-        let urlPath = `/api/File/Upload`;
+        let urlPath = `/api/File/upload`;
 
         return {
             path: urlPath,
@@ -803,18 +1441,102 @@ export class FileApi extends runtime.BaseAPI implements FileApiInterface {
 
     /**
      */
-    async apiFileUploadPostRaw(requestParameters: ApiFileUploadPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>> {
+    async apiFileUploadPostRaw(requestParameters: ApiFileUploadPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
         const requestOptions = await this.apiFileUploadPostRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.JSONApiResponse<any>(response);
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
     }
 
     /**
      */
-    async apiFileUploadPost(requestParameters: ApiFileUploadPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>> {
+    async apiFileUploadPost(requestParameters: ApiFileUploadPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiFileUploadPostRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Creates request options for apiFileVideoPreviewTicketPost without sending the request
+     */
+    async apiFileVideoPreviewTicketPostRequestOpts(requestParameters: ApiFileVideoPreviewTicketPostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['uid'] != null) {
+            queryParameters['uid'] = requestParameters['uid'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/File/video-preview-ticket`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiFileVideoPreviewTicketPostRaw(requestParameters: ApiFileVideoPreviewTicketPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.apiFileVideoPreviewTicketPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async apiFileVideoPreviewTicketPost(requestParameters: ApiFileVideoPreviewTicketPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiFileVideoPreviewTicketPostRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Creates request options for apiFileVideoStreamGet without sending the request
+     */
+    async apiFileVideoStreamGetRequestOpts(requestParameters: ApiFileVideoStreamGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['uid'] != null) {
+            queryParameters['uid'] = requestParameters['uid'];
+        }
+
+        if (requestParameters['ticket'] != null) {
+            queryParameters['ticket'] = requestParameters['ticket'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/File/video-stream`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     */
+    async apiFileVideoStreamGetRaw(requestParameters: ApiFileVideoStreamGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.apiFileVideoStreamGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async apiFileVideoStreamGet(requestParameters: ApiFileVideoStreamGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiFileVideoStreamGetRaw(requestParameters, initOverrides);
     }
 
 }

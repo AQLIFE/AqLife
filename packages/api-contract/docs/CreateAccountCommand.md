@@ -7,9 +7,9 @@
 Name | Type
 ------------ | -------------
 `name` | string
-`desc` | string
 `pwd` | string
 `serverKey` | string
+`desc` | string
 
 ## Example
 
@@ -19,9 +19,9 @@ import type { CreateAccountCommand } from '@aqlife/api-contract'
 // TODO: Update the object below with actual values
 const example = {
   "name": null,
-  "desc": null,
   "pwd": null,
   "serverKey": null,
+  "desc": null,
 } satisfies CreateAccountCommand
 
 console.log(example)

@@ -17,9 +17,10 @@
 </template>
 
 <script lang="ts" setup>
+import { notify } from '@aqlife/ui-shared'
 import { Plus } from '@element-plus/icons-vue'
 import { ref } from 'vue'
-import { ElImage, ElMessage, ElUpload, ElIcon, type UploadFile, type UploadRawFile, genFileId, type UploadInstance, type UploadUserFile } from 'element-plus'
+import { ElImage, ElUpload, ElIcon, type UploadFile, type UploadRawFile, genFileId, type UploadInstance, type UploadUserFile } from 'element-plus'
 const props = defineProps({
   disabled: {
     type: Boolean,
@@ -56,12 +57,8 @@ function handleExceed(files: File[]):void {
 }
 
 function handleChange(uploadFile: UploadFile):void {
-  // if(props.src!='')
-  //   URL.revokeObjectURL(props.src as string)
-
-  // console.log("old=>"+modelValue.value?.name,'\t',"new=>"+uploadFile.name)
   modelValue.value = uploadFile.raw
   emit('change', uploadFile)
-  ElMessage.success(`Selected file: ${uploadFile.name}`)
+  notify.success(`Selected file: ${uploadFile.name}`)
 }
 </script>

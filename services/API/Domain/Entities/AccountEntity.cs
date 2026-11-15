@@ -1,6 +1,7 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Shared.Contracts;
 using AqLife.Shared.Utils;
 using Microsoft.EntityFrameworkCore;
+using Riok.Mapperly.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -24,9 +25,9 @@ namespace AqLife.Domain.Entities
         public SubscriptionEntity(Guid aid, string slink, string sPlatform, string sName, Guid icon)
         {
             AID = aid;
-            AliasName = sName;
-            SubscriptionLink = slink;
-            SubscriptionPlatform = sPlatform;
+            AliasName = sName.Trim();
+            SubscriptionLink = slink.Trim();
+            SubscriptionPlatform = sPlatform.Trim();
             SubscriptionIcon = icon;
         }
 
@@ -51,26 +52,26 @@ namespace AqLife.Domain.Entities
         /// 使用:设计 决定 Filecontroller 必须返回对应头像GUID
         /// </summary>
         public Guid Avatar { get; private set; } = Guid.Empty;
-        
+
         public bool IsValid { get; private set; } = true;
 
-        
+
         public string LoginName { get; init; } = IdentityGenerator.GenerateSecureLoginName();
-        
+
         public string LoginPasswordHash { get; private set; } = string.Empty;
 
         public ICollection<SubscriptionEntity> Subscriptions { get; set; } = [];
 
         public AccountEntity() { }
-        public AccountEntity(string name, string? desc, string pwd)
+
+        [MapperConstructor]
+        public AccountEntity(string name, string? desc, string pwd) : this(name, pwd)
         {
-            Name = name;
-            if (desc is not null) Desc = desc;
-            LoginPasswordHash = FastHash.GetSha256Hash(pwd);
+            Desc = desc?.Trim() ?? string.Empty;
         }
         public AccountEntity(string name, string pwd)
         {
-            Name = name;
+            Name = name.Trim();
             LoginPasswordHash = FastHash.GetSha256Hash(pwd);
         }
 

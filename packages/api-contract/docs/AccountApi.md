@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost*
 | [**apiAccountLoginPost**](AccountApi.md#apiaccountloginpost) | **POST** /api/Account/login |  |
 | [**apiAccountPost**](AccountApi.md#apiaccountpost) | **POST** /api/Account |  |
 | [**apiAccountProfilePatch**](AccountApi.md#apiaccountprofilepatch) | **PATCH** /api/Account/profile |  |
+| [**apiAccountPwdPatch**](AccountApi.md#apiaccountpwdpatch) | **PATCH** /api/Account/pwd |  |
 | [**apiAccountSubscriptionsPut**](AccountApi.md#apiaccountsubscriptionsput) | **PUT** /api/Account/subscriptions |  |
 
 
@@ -19,6 +20,8 @@ All URIs are relative to *http://localhost*
 > string apiAccountAvatarPatch(avatar)
 
 
+
+发送一个图像用以更新账户头像,返回 Guid
 
 ### Example
 
@@ -85,6 +88,8 @@ No authorization required
 
 
 
+删除指定ID的账户,无返回
+
 ### Example
 
 ```ts
@@ -142,6 +147,8 @@ No authorization required
 
 
 
+返回一个有效的账户,可能为 null
+
 ### Example
 
 ```ts
@@ -198,6 +205,8 @@ No authorization required
 > string apiAccountLoginPost(loginCommand)
 
 
+
+登录账户成功后返回 JWT Beearer Token
 
 ### Example
 
@@ -264,6 +273,8 @@ No authorization required
 
 
 
+注册账户成功后返回唯一登录账户名
+
 ### Example
 
 ```ts
@@ -329,6 +340,8 @@ No authorization required
 
 
 
+更新账户信息(包含公开名称,BIO);返回账户ID
+
 ### Example
 
 ```ts
@@ -388,11 +401,78 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
+## apiAccountPwdPatch
+
+> string apiAccountPwdPatch(updatePwdCommand)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AccountApi,
+} from '@aqlife/api-contract';
+import type { ApiAccountPwdPatchRequest } from '@aqlife/api-contract';
+
+async function example() {
+  console.log("🚀 Testing @aqlife/api-contract SDK...");
+  const api = new AccountApi();
+
+  const body = {
+    // UpdatePwdCommand (optional)
+    updatePwdCommand: ...,
+  } satisfies ApiAccountPwdPatchRequest;
+
+  try {
+    const data = await api.apiAccountPwdPatch(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **updatePwdCommand** | [UpdatePwdCommand](UpdatePwdCommand.md) |  | [Optional] |
+
+### Return type
+
+**string**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
 ## apiAccountSubscriptionsPut
 
 > string apiAccountSubscriptionsPut(subscriptionDto)
 
 
+
+更新账户个人主页列表,返回账户ID
 
 ### Example
 

@@ -1,46 +1,207 @@
-﻿using AqLife.Domain.Command;
+using AqLife.Application.Abstractions.FileStorage;
+using AqLife.Application.Business.File.Service;
+using AqLife.Application.Business.File.Upload;
+using AqLife.Domain.Command;
 using AqLife.Shared.IView;
+using AqLife.Shared.Options;
 using AqLife.Web.Middlewares;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
+using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace AqLife.Web.Controllers
 {
-
     [ApiController, Route("[Controller]"), Authorize]
-    public class FileController(IMediator mediator) : ControllerBase
+    public class FileController(IMediator mediator, IDataProtectionProvider dataProtectionProvider, FileReader fileReader) : ControllerBase
     {
+        [HttpGet("overview")]
+        public async Task<FileOverviewDto> GetOverview([FromQuery] FileOverviewQuery query, CancellationToken ct)
+            => await mediator.Send(query, ct);
+
         [HttpGet, AllowAnonymous]
         public async Task<PageResult<FileDto>> SearchFile([FromQuery] FileQuery query, CancellationToken ct)
-        => await mediator.Send(query, ct);// 已实现
+            => await mediator.Send(query, ct);
 
         [HttpGet("preview"), AllowAnonymous]
         [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
         public async Task<IActionResult> PreviewFile([FromQuery] PreviewFileQuery query, CancellationToken ct)
         {
-            var result = await mediator.Send(query, ct);// 已实现
-            return File(result.FileStream, result.ContentType);
+            var result = await mediator.Send(query, ct);
+            return File(result.FileStream, result.ContentType, enableRangeProcessing: true);
+        }
+
+        /// <summary>为视频预览签发短时效播放凭证，供原生 video 发起 Range 请求。</summary>
+        [HttpPost("video-preview-ticket")]
+        public async Task<IActionResult> CreateVideoPreviewTicket([FromQuery] Guid uid, CancellationToken ct)
+        {
+            if (uid == Guid.Empty) return BadRequest("无效的视频 UID");
+
+            // Only issue tickets for an existing video; authenticated FileSearch permits drafts here.
+            await fileReader.EnsureReadableAsync(uid, FileScope.Video, ct);
+
+            var protector = dataProtectionProvider
+                .CreateProtector("AqLife.VideoPreview.v1")
+                .ToTimeLimitedDataProtector();
+            var ticket = protector.Protect(uid.ToString("D"), TimeSpan.FromHours(1));
+            return Ok(new { ticket });
+        }
+
+        /// <summary>使用短时效凭证播放视频；允许匿名 HTTP 请求，但凭证必须由已鉴权接口签发。</summary>
+        [HttpGet("video-stream"), AllowAnonymous]
+        public async Task<IActionResult> StreamVideoPreview([FromQuery] Guid uid,[FromQuery] string? ticket,CancellationToken ct)
+        {
+            if (uid == Guid.Empty)
+                return Unauthorized();
+
+            if (!string.IsNullOrWhiteSpace(ticket))
+            {
+                try
+                {
+                    var protector = dataProtectionProvider
+                        .CreateProtector("AqLife.VideoPreview.v1")
+                        .ToTimeLimitedDataProtector();
+                    var protectedUid = protector.Unprotect(ticket);
+                    if (!Guid.TryParse(protectedUid, out var ticketUid) || ticketUid != uid)
+                        return Unauthorized();
+                }
+                catch (CryptographicException)
+                {
+                    return Unauthorized();
+                }
+            }
+            else
+            {
+                // Public Markdown pages may embed published videos without an authenticated preview ticket.
+                // FileSearch applies the published-only visibility rule to this anonymous lookup.
+                await fileReader.EnsureReadableAsync(uid, FileScope.Video, ct);
+            }
+
+            // FileSearch exposes unpublished files only to authenticated requests.
+            // A validated, file-bound, short-lived ticket is the authorization proof for this media request.
+            var originalUser = HttpContext.User;
+            if (!string.IsNullOrWhiteSpace(ticket))
+            {
+                HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+                    [new Claim(ClaimTypes.NameIdentifier, "video-preview-ticket")],
+                    "VideoPreviewTicket"));
+            }
+            try
+            {
+                // R2's SDK response stream is not seekable, so MVC's FileResult cannot
+                // implement Range requests for it. Ask storage for only the requested bytes.
+                var rangeHeader = Request.Headers["Range"].ToString();
+                if (string.IsNullOrWhiteSpace(rangeHeader))
+                {
+                    var result = await fileReader.ReadAsync(uid, FileScope.Video, ct);
+                    return File(result.FileStream, result.ContentType);
+                }
+
+                if (!rangeHeader.StartsWith("bytes=", StringComparison.OrdinalIgnoreCase)
+                    || rangeHeader.Contains(','))
+                    return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
+
+                var rangeParts = rangeHeader[6..].Split('-', 2);
+                if (rangeParts.Length != 2
+                    || !long.TryParse(rangeParts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var start)
+                    || start < 0)
+                    return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
+
+                long end = long.MaxValue;
+                if (!string.IsNullOrWhiteSpace(rangeParts[1])
+                    && (!long.TryParse(rangeParts[1], NumberStyles.None, CultureInfo.InvariantCulture, out end) || end < start))
+                    return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
+
+                (string ContentType, AqLife.Application.Abstractions.FileStorage.FileStorageRangeReadResult Range) ranged;
+                try
+                {
+                    ranged = await fileReader.ReadRangeAsync(uid, FileScope.Video, start, end, ct);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
+                }
+
+                await using var stream = ranged.Range.Stream;
+                var length = ranged.Range.ContentLength;
+
+                Response.StatusCode = StatusCodes.Status206PartialContent;
+                Response.ContentType = ranged.ContentType;
+                Response.Headers["Accept-Ranges"] = "bytes";
+                Response.Headers["Content-Range"] = $"bytes {ranged.Range.Start}-{ranged.Range.End}/{ranged.Range.TotalLength}";
+                Response.ContentLength = length;
+
+                var buffer = new byte[64 * 1024];
+                var remaining = length;
+                while (remaining > 0)
+                {
+                    var read = await stream.ReadAsync(buffer.AsMemory(0, (int)Math.Min(buffer.Length, remaining)), ct);
+                    if (read == 0) break;
+                    await Response.Body.WriteAsync(buffer.AsMemory(0, read), ct);
+                    remaining -= read;
+                }
+
+                return new EmptyResult();
+            }
+            finally
+            {
+                HttpContext.User = originalUser;
+            }
         }
 
         [HttpGet("download")]
         [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
         public async Task<IActionResult> DownloadFile([FromQuery] DownloadFileQuery query, CancellationToken ct)
         {
-            var result = await mediator.Send(query, ct);// 已实现
-            return File(result.FileStream, result.ContentType, result.FileName);
+            var result = await mediator.Send(query, ct);
+            return File(result.FileStream, result.ContentType, result.FileName, enableRangeProcessing: true);
         }
 
-        [HttpPost("Upload"), ServiceFilter(typeof(FileUploadFilter))]
-        public async Task<IEnumerable<Guid>> UploadFile([FromForm] CreateFileCommand command, CancellationToken ct)
-        => await mediator.Send(command, ct);// 已实现
+        [HttpPost("upload"), ServiceFilter(typeof(FileUploadFilter)), RequestFormLimits(ValueLengthLimit = 100 << 10)]
+        public async Task<Guid> UploadFile([FromForm] CreateFileCommand command, CancellationToken ct=default)
+            => await mediator.Send(command, ct);
 
-        [HttpPatch, ServiceFilter(typeof(FileUploadFilter))]
+        [HttpPost("upload/multiple"), ServiceFilter(typeof(FileUploadFilter)), RequestFormLimits(ValueLengthLimit = 100 << 10)]
+        public async Task<IEnumerable<Guid>> UploadFiles([FromForm] UploadFilesCommand command, CancellationToken ct = default)
+            => await mediator.Send(command, ct);
+
+        [HttpPatch, ServiceFilter(typeof(FileUploadFilter)), RequestSizeLimit(100 << 10)]
         public async Task<Guid> UpdateFile([FromForm] UpdateFileCommand command, CancellationToken ct)
-        => await mediator.Send(command, ct);// 已实现
+            => await mediator.Send(command, ct);
 
-        [HttpPatch("preview/complete"),AllowAnonymous]
-        public async Task<Guid> BlogViewed([FromQuery]BlogPreviewCompleteCommand command, CancellationToken ct)
+        /// <summary>创建视频断点上传任务。</summary>
+        [HttpPost("resumable-upload"), ServiceFilter(typeof(FileUploadFilter))]
+        public async Task<ResumableUploadSession> StartVideoUpload([FromBody] StartVideoUploadCommand command, CancellationToken ct)
+            => await mediator.Send(command, ct);
+
+        /// <summary>上传单个视频分片。分片大小上限为 8 MiB，允许通过任务状态查询已成功的分片。</summary>
+        [HttpPut("resumable-upload/{uploadId:guid}/chunks/{index:int}"), RequestSizeLimit(9 * 1024 * 1024)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 9 * 1024 * 1024)]
+        public async Task<IActionResult> UploadVideoChunk(Guid uploadId, int index, IFormFile chunk, CancellationToken ct)
+        {
+            await mediator.Send(new UploadVideoChunkCommand(uploadId, index, chunk), ct);
+            return NoContent();
+        }
+
+        [HttpGet("resumable-upload/{uploadId:guid}")]
+        public async Task<ResumableUploadStatus> GetVideoUploadStatus(Guid uploadId, CancellationToken ct)
+            => await mediator.Send(new GetVideoUploadStatusQuery(uploadId), ct);
+
+        /// <summary>校验所有分片并合并，之后交由现有文件管线完成哈希、去重、元数据和存储。</summary>
+        [HttpPost("resumable-upload/{uploadId:guid}/complete"), ServiceFilter(typeof(FileUploadFilter))]
+        public async Task<Guid> CompleteVideoUpload(Guid uploadId, CancellationToken ct)
+            => await mediator.Send(new CompleteVideoUploadCommand(uploadId), ct);
+
+        /// <summary>根据 SHA-256 哈希检查文件是否已经存在。</summary>
+        [HttpPost("hash/check")]
+        public async Task<FileHashCheckResult> CheckFileHash([FromBody] CheckFileHashQuery query, CancellationToken ct)
+            => await mediator.Send(query, ct);
+
+        [HttpPatch("preview/complete"), AllowAnonymous]
+        public async Task<Guid> BlogViewed([FromQuery] BlogPreviewCompleteCommand command, CancellationToken ct)
             => await mediator.Send(command, ct);
 
         [HttpPatch("tag")]
@@ -49,24 +210,14 @@ namespace AqLife.Web.Controllers
 
         [HttpDelete]
         public async Task DeleteFile(DeleteFileCommand command, CancellationToken ct)
-            => await mediator.Send(command, ct);// 已实现
+            => await mediator.Send(command, ct);
 
         [HttpPatch("CancelSchedule")]
         public async Task<Guid> CancelSchedule(CancelScheduledFileCommand command, CancellationToken ct)
             => await mediator.Send(command, ct);
-        ///// <summary>
-        ///// 上传文件并设置延时发布
-        ///// </summary>
-        ///// <param name="command"></param>
-        ///// <param name="ct"></param>
-        ///// <returns></returns>
-        //[HttpPost("Publish"), ServiceFilter(typeof(FileUploadFilter))]
-        //public async Task<IEnumerable<Guid>> PublishScheduledFile([FromForm] PublishFileCommand command, CancellationToken ct)
-        //=> await mediator.Send(command, ct);// 已实现
 
         [HttpPatch("schedule")]
         public async Task<Guid> ScheduleFile(ScheduledFileCommand command, CancellationToken ct)
             => await mediator.Send(command, ct);
-
     }
 }

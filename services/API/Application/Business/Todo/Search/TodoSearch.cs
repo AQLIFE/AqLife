@@ -1,26 +1,37 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Search;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.IView;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using AqLife.Application.Mappers;
 
 
 namespace AqLife.Application.Business.Todo.Search
 {
-    public class TodoSearch(QueryMapper queryMapper, IApplicationDbContext storage
-        , IEnumerable<ISearchStrategy<TodoEntity, EntitySearchCriteria>> searchStrategies
-        ) : BaseSearch<TodoQuery, TodoEntity, TodoDto, EntitySearchCriteria>(storage, searchStrategies)
+    public sealed class TodoSearch(ISearchMapper<TodoQuery, PageResult<TodoDto>, TodoSearchCriteria> queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
+        IEnumerable<ISearchStrategy<TodoEntity, TodoSearchCriteria>> searchStrategies
+        ) : BaseSearch<TodoQuery, TodoEntity, TodoSearchCriteria>(storage, httpContext, searchStrategies)
     {
-        protected override EntitySearchCriteria MapToCriteria(TodoQuery query)
+        protected private override TodoSearchCriteria MapToCriteria(TodoQuery query)
         => queryMapper.ToCriteria(query);
 
-        protected override IQueryable<TodoEntity> ApplyDefaultOrder(IQueryable<TodoEntity> queryble,TodoQuery query)
-        => queryble.OrderBy(e => e.CreatedAt);
+        protected private override IQueryable<TodoEntity> ApplyDefaultOrder(IQueryable<TodoEntity> queryble, TodoQuery query)
+        => queryble.OrderBy(e => e.SortOrder);
 
-        protected override async Task<IQueryable<TodoEntity>> BuildBaseQueryAsync(IQueryable<TodoEntity> queryable, TodoQuery query)
-       => query.IsTree ? queryable.Where(t => t.FTID == null).Include(e => e.Children) : queryable;
+        protected private override IQueryable<TodoEntity> BuildBaseQuery(IQueryable<TodoEntity> queryable, TodoQuery query)
+        => queryable
+            .Include(e => e.IncomingDependencies)
+                .ThenInclude(dependency => dependency.PredecessorTodo)
+            .Include(e => e.OutgoingDependencies)
+                .ThenInclude(dependency => dependency.SuccessorTodo)
+            .Include(e => e.LayoutEntity)
+            .Include(e => e.Plan)
+            .AsSplitQuery();
+
+        private protected override IQueryable<TodoEntity> ApplyResultPolicy(IQueryable<TodoEntity> queryable, TodoQuery query)
+        => IsValid ? queryable : queryable.Where(e => !e.IsArchived);
     }
 }

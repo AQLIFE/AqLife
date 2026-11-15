@@ -1,36 +1,86 @@
 <script setup lang="ts">
+import { notify, useLoadingTask } from '@aqlife/ui-shared'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ElButton, ElDatePicker, ElMessage, ElMessageBox, ElSegmented } from 'element-plus'
+import { ElButton, ElDatePicker, ElMessageBox, ElSegmented } from 'element-plus'
 import { Edit, Check, Lock, Delete } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
-import { FileApi, type FileDto, type TagDto } from '@/api'
+import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
+import { tokenStore } from '@aqlife/api-client'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
 import { FileContentUpdateWorkflow, FileDeleteWorkflow, FileDraftWorkflow, FilePublishWorkflow, FileScheduledWorkflow, FileTagUpdateWorkflow } from '@/workflow'
 import { MarkdownRender } from '@aqlife/ui-shared'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
-import { publishStatusOptions, publishStatus } from '@/types/TableFilterOption.ts'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
+import { FileStatus } from "@/api"
 import TagSelect from '@/components/TagSelect.vue'
+import { useMarkdownClipboardImagePaste } from '@/composables/useMarkdownClipboardImagePaste'
+import { useMarkdownVideoUploadQueue } from '@/composables/useMarkdownVideoUploadQueue'
+import { publishStatusOptions } from '@/types/TableFilterOption'
+
 
 const route = useRoute()
 const router = useRouter()
+const props = defineProps<{ id?: string }>()
 const fileApi = new FileApi(apiConfiguration)
 const fileStore = useFileStore()
+const videoInput = ref<HTMLInputElement>()
+const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => editor, fileApi)
+const draftStorageKey = (uid: string) => `aqlife:blog-draft:${uid}`
+const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000
 const baseurl = import.meta.env.VITE_API
+const markdownFileResolver = {
+  async getFile(uid: string): Promise<FileDto | undefined> {
+    const image = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Image })
+    if (image.items?.[0]) return image.items[0]
+    const video = await fileApi.apiFileGet({ uID: uid, scope: FileScope.Video })
+    return video.items?.[0]
+  },
+  async getVideoUrl(uid: string): Promise<string | undefined> {
+    const basePath = apiConfiguration.basePath.replace(/\/+$/, '')
+    const headers = new Headers()
+    const token = tokenStore.get()
+    if (token) headers.set('Authorization', token.startsWith('Bearer ') ? token : `Bearer ${token}`)
+    const response = await fetch(`${basePath}/api/File/video-preview-ticket?uid=${encodeURIComponent(uid)}`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+    })
+    if (!response.ok) return undefined
+    const result = await response.json() as { ticket?: string }
+    if (!result.ticket) return undefined
+    const playbackUrl = new URL(`${basePath}/api/File/video-stream?UID=${encodeURIComponent(uid)}&ticket=${encodeURIComponent(result.ticket)}`, window.location.href)
+    return playbackUrl.toString()
+  },
+}
 
 const container = ref<HTMLElement>()
 const markdown = ref('')
+const markdownRenderRef = ref<{ loading: boolean } | null>(null)
 const originalMarkdown = ref('')
 const file = ref<FileDto>()
-const loading = ref(false)
+const editorLoading = useLoadingTask('mgs:blog:editor')
+const loading = editorLoading.isLoading
 
 let editor: monaco.editor.IStandaloneCodeEditor | undefined
+let articleLoadVersion = 0
 
 const isEditing = computed(() => route.path.endsWith('/edit'))
+const { uploading: imageUploading, onPaste: onEditorPaste } = useMarkdownClipboardImagePaste({
+  getEditor: () => editor,
+  isEnabled: () => isEditing.value,
+  uploadFiles: async files => {
+    const uids = await fileApi.apiFileUploadMultiplePost({ files })
+    await Promise.all(uids.map(uid =>
+      fileApi.apiFileSchedulePatch({ scheduledFileCommand: { uid } }),
+    ))
+    return uids
+  },
+})
 const isDirty = computed(() => markdown.value !== originalMarkdown.value)
 const pageTitle = computed(() => file.value?.fileName || '博文')
-const publishStatusModel = ref<publishStatus>()
+const publishStatusModel = ref<FileStatus>()
 const publishing = ref(false)
 const scheduling = ref(false)
 const deleting = ref(false)
@@ -41,8 +91,8 @@ const segmentedOptions = computed(() =>
   publishStatusOptions.map(item => ({
     ...item,
     disabled:
-      item.value === publishStatus.Scheduled &&
-      file.value?.publishStatus === publishStatus.Published,
+      item.value === FileStatus.Scheduled &&
+      file.value?.publishStatus === FileStatus.Published,
   })),
 )
 
@@ -59,7 +109,8 @@ function parsePublishAt(value: FileDto['publishAt']): Date | null {
 }
 
 async function loadArticle(guid: string) {
-  loading.value = true
+  const version = ++articleLoadVersion
+  const finishLoading = editorLoading.begin()
 
   try {
     const [previewResponse, metadata] = await Promise.all([
@@ -72,6 +123,8 @@ async function loadArticle(guid: string) {
     }
 
     const content = await previewResponse.raw.text()
+    if (version !== articleLoadVersion) return
+
     const dto = metadata.items?.[0]
 
     if (!dto) {
@@ -82,25 +135,65 @@ async function loadArticle(guid: string) {
     fileStore.upsertFile(dto)
     markdown.value = content
     originalMarkdown.value = content
-    editor?.setValue(content)
+    if (isEditing.value) await restoreLocalDraft(guid, content)
+    editor?.setValue(markdown.value)
     publishStatusModel.value = dto.publishStatus
     selectedTags.value = dto.tags ?? []
     scheduledAt.value = parsePublishAt(dto.publishAt)
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '博文加载失败')
+    notify.error(error instanceof Error ? error.message : '博文加载失败')
   } finally {
-    loading.value = false
+    finishLoading()
   }
 }
 
+async function restoreLocalDraft(uid: string, serverContent: string) {
+  try {
+    const raw = localStorage.getItem(draftStorageKey(uid))
+    if (!raw) return
+    const saved = JSON.parse(raw) as { content?: string; savedAt?: number }
+    if (!saved.content || !saved.savedAt || Date.now() - saved.savedAt > DRAFT_TTL_MS) {
+      localStorage.removeItem(draftStorageKey(uid))
+      return
+    }
+    if (saved.content === serverContent) {
+      localStorage.removeItem(draftStorageKey(uid))
+      return
+    }
+    try {
+      await ElMessageBox.confirm('发现 7 天内保存的本地未提交草稿，是否恢复？', '恢复博文草稿', { confirmButtonText: '恢复草稿', cancelButtonText: '使用服务器版本', type: 'info' })
+      markdown.value = saved.content
+      editor?.setValue(saved.content)
+      notify.success('已恢复本地草稿')
+      if (saved.content.includes('pending-video:')) notify.warning('草稿中有尚未上传的视频占位符；浏览器未保存视频文件，请删除该占位行后重新插入视频。')
+    } catch {
+      localStorage.removeItem(draftStorageKey(uid))
+    }
+  } catch { /* Ignore malformed or inaccessible local drafts. */ }
+}
+
+function warnBeforeUnload(event: BeforeUnloadEvent) {
+  if (!isEditing.value || (!isDirty.value && !videoUploading.value)) return
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+function chooseVideo() { videoInput.value?.click() }
+function onVideoSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  const files = Array.from(input.files ?? [])
+  input.value = ''
+  try { queueVideos(files) } catch (error) { notify.warning(error instanceof Error ? error.message : '无法添加视频') }
+}
+
 function enterEditMode() {
-  const guid = typeof route.params.id === 'string' ? route.params.id : ''
-  if (guid) router.push(`/blog/${guid}/edit`)
+  const guid = typeof props.id === 'string' ? props.id : ''
+  if (guid) router.push(`/file/${guid}/edit`)
 }
 
 function leaveEditMode() {
-  const guid = typeof route.params.id === 'string' ? route.params.id : ''
-  if (guid) router.push(`/blog/${guid}`)
+  const guid = typeof props.id === 'string' ? props.id : ''
+  if (guid) router.push(`/file/${guid}`)
 }
 
 async function onTagsChanged(value: FileDto['tags']) {
@@ -110,14 +203,14 @@ async function onTagsChanged(value: FileDto['tags']) {
     const dto = await new FileTagUpdateWorkflow(file.value, value, fileApi, fileStore).run()
     file.value = dto
     selectedTags.value = dto.tags ?? []
-    ElMessage.success('标签已更新')
+    notify.success('标签已更新')
   } catch (error) {
     selectedTags.value = file.value.tags ?? []
-    ElMessage.error(error instanceof Error ? error.message : '标签更新失败')
+    notify.error(error instanceof Error ? error.message : '标签更新失败')
   }
 }
 
-async function onPublishStatusChanged(value: publishStatus) {
+async function onPublishStatusChanged(value: FileStatus) {
   const current = file.value
   if (!current?.uid || current.publishStatus === value) return
 
@@ -127,19 +220,19 @@ async function onPublishStatusChanged(value: publishStatus) {
     let dto: FileDto
 
     switch (value) {
-      case publishStatus.Draft:
+      case FileStatus.Draft:
         dto = await new FileDraftWorkflow(current, fileApi, fileStore).run()
         break
-      case publishStatus.Published:
+      case FileStatus.Published:
         dto = await new FilePublishWorkflow(current, fileApi, fileStore).run()
         break
-      case publishStatus.Scheduled:
-        if (current.publishStatus === publishStatus.Published) {
+      case FileStatus.Scheduled:
+        if (current.publishStatus === FileStatus.Published) {
           throw new Error('禁止从已发布状态修改为预定发布状态')
         }
         if (!current.publishAt) {
           publishStatusModel.value = current.publishStatus
-          ElMessage.warning('请先设置预定发布时间')
+          notify.warning('请先设置预定发布时间')
           return
         }
         dto = await new FileScheduledWorkflow(current, fileApi, fileStore).run()
@@ -151,10 +244,10 @@ async function onPublishStatusChanged(value: publishStatus) {
     file.value = dto
     publishStatusModel.value = dto.publishStatus
     scheduledAt.value = parsePublishAt(dto.publishAt)
-    ElMessage.success('发布状态已更新')
+    notify.success('发布状态已更新')
   } catch (error) {
     publishStatusModel.value = current.publishStatus
-    ElMessage.error(error instanceof Error ? error.message : '发布状态更新失败')
+    notify.error(error instanceof Error ? error.message : '发布状态更新失败')
   } finally {
     publishing.value = false
   }
@@ -171,8 +264,8 @@ async function onScheduledAtChanged(value: Date | null) {
   current.publishAt = nextPublishAt
   scheduledAt.value = value
 
-  if (current.publishStatus === publishStatus.Draft) {
-    ElMessage.success('预定发布时间已设置')
+  if (current.publishStatus === FileStatus.Draft) {
+    notify.success('预定发布时间已设置')
     return
   }
 
@@ -182,11 +275,11 @@ async function onScheduledAtChanged(value: Date | null) {
     file.value = dto
     publishStatusModel.value = dto.publishStatus
     scheduledAt.value = parsePublishAt(dto.publishAt)
-    ElMessage.success('预定发布时间已更新')
+    notify.success('预定发布时间已更新')
   } catch (error) {
     current.publishAt = previousPublishAt
     scheduledAt.value = parsePublishAt(previousPublishAt)
-    ElMessage.error(error instanceof Error ? error.message : '设置预定发布时间失败')
+    notify.error(error instanceof Error ? error.message : '设置预定发布时间失败')
   } finally {
     scheduling.value = false
   }
@@ -209,25 +302,29 @@ async function deleteArticle() {
 
     deleting.value = true
     await new FileDeleteWorkflow(current, fileApi, fileStore).run()
-    ElMessage.success('文章已删除')
-    await router.push('/blog/list')
+    notify.success('文章已删除')
+    await router.push('/file/list')
   } catch (error) {
     if (error === 'cancel' || error === 'close') return
-    ElMessage.error(error instanceof Error ? error.message : '删除文章失败')
+    notify.error(error instanceof Error ? error.message : '删除文章失败')
   } finally {
     deleting.value = false
   }
 }
 
 async function saveVersion() {
-  if (!file.value?.uid || !isDirty.value) return
+  if (!file.value?.uid || (!isDirty.value && !videoUploading.value) || loading.value) return
 
-  loading.value = true
+  const finishLoading = editorLoading.begin()
 
   try {
+    await waitForVideoUploads()
+    if (markdown.value.includes('pending-video:')) throw new Error('草稿中仍有未完成的视频占位符，请重新插入视频后再保存。')
+    const resolvedMarkdown = markdown.value
+
     const fileName = `${file.value.fileName || '未命名'}${file.value.fileType || '.md'}`
     const contentFile = new File(
-      [markdown.value],
+      [resolvedMarkdown],
       fileName,
       { type: 'text/markdown' },
     )
@@ -241,12 +338,14 @@ async function saveVersion() {
 
     const updated = await workflow.run()
     file.value = updated
-    originalMarkdown.value = markdown.value
-    ElMessage.success('已保存为新版本')
+    originalMarkdown.value = resolvedMarkdown
+    if (file.value?.uid) localStorage.removeItem(draftStorageKey(file.value.uid))
+    notify.success('已保存为新版本')
+    leaveEditMode()
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+    notify.error(error instanceof Error ? error.message : '保存失败')
   } finally {
-    loading.value = false
+    finishLoading()
   }
 }
 
@@ -267,25 +366,43 @@ onMounted(async () => {
     markdown.value = editor!.getValue()
   })
 
-  const guid = typeof route.params.id === 'string' ? route.params.id : ''
+  // Capture image pastes before Monaco handles the clipboard event.
+  container.value?.addEventListener('paste', onEditorPaste, true)
+  window.addEventListener('beforeunload', warnBeforeUnload)
+
+  const guid = typeof props.id === 'string' ? props.id : ''
   if (guid) {
     await loadArticle(guid)
   }
 })
 
 watch(
-  () => route.params.id,
-  async value => {
-    const guid = typeof value === 'string' ? value : ''
+  () => props.id,
+  async guid => {
     if (guid) await loadArticle(guid)
   },
 )
 
-watch(isEditing, value => {
+watch(markdown, value => {
+  const uid = file.value?.uid
+  if (!uid || !isEditing.value) return
+  if (value === originalMarkdown.value) {
+    localStorage.removeItem(draftStorageKey(uid))
+    return
+  }
+  try {
+    localStorage.setItem(draftStorageKey(uid), JSON.stringify({ content: value, savedAt: Date.now() }))
+  } catch { /* Storage may be unavailable or full; the editor remains usable. */ }
+}, { flush: 'sync' })
+
+watch(isEditing, async value => {
   editor?.updateOptions({ readOnly: !value })
+  if (value && file.value?.uid) await restoreLocalDraft(file.value.uid, originalMarkdown.value)
 })
 
 onBeforeUnmount(() => {
+  container.value?.removeEventListener('paste', onEditorPaste, true)
+  window.removeEventListener('beforeunload', warnBeforeUnload)
   editor?.dispose()
 })
 </script>
@@ -314,19 +431,22 @@ onBeforeUnmount(() => {
           <ElDatePicker
             v-model="scheduledAt"
             type="datetime"
-            :disabled="publishing || scheduling || file.publishStatus === publishStatus.Published"
+            popper-class="publish-schedule-picker-popper"
+            :disabled="publishing || scheduling || file.publishStatus === FileStatus.Published"
             placeholder="预定发布时间"
             @change="onScheduledAtChanged"
           />
         </div>
         <template v-if="isEditing">
+          <input ref="videoInput" type="file" accept=".mp4,.webm,video/mp4,video/webm" multiple hidden @change="onVideoSelected">
+          <ElButton @click="chooseVideo">插入视频</ElButton>
           <ElButton :icon="Lock" @click="leaveEditMode">
             退出编辑
           </ElButton>
           <ElButton
             type="primary"
             :icon="Check"
-            :disabled="!isDirty"
+            :disabled="(!isDirty && !videoUploading) || loading"
             @click="saveVersion"
           >
             保存版本
@@ -343,23 +463,43 @@ onBeforeUnmount(() => {
       </template>
     </MgsPageHeader>
 
-    <div class="editor-grid">
-      <div ref="container" class="editor" />
-      <div class="render">
-        <MarkdownRender :markdown="markdown" :baseurl="baseurl" />
+    <MgsPageContainer class="editor-container" flush-bottom>
+    <div v-if="isEditing && videoUploads.length" class="video-upload-queue">
+      <div v-for="item in videoUploads" :key="item.id" class="video-upload-item">
+        <span class="video-upload-name">{{ item.name }}</span>
+        <span>{{ item.state === 'queued' ? '排队中' : item.state === 'uploading' ? '上传中 ' + item.progress + '%' : item.state === 'completed' ? '已完成' : '上传失败' }}</span>
+        <span v-if="item.error" class="video-upload-error">{{ item.error }}</span>
+        <ElButton v-if="item.state === 'failed'" text type="primary" @click="retryVideoUpload(item.id)">重试</ElButton>
       </div>
     </div>
+    <div class="editor-grid">
+      <div ref="container" class="editor" v-loading="imageUploading" />
+      <div class="render" v-loading="markdownRenderRef?.loading">
+        <MarkdownRender ref="markdownRenderRef" :markdown="markdown" :baseurl="baseurl" :file-resolver="markdownFileResolver" />
+      </div>
+    </div>
+    </MgsPageContainer>
   </div>
 </template>
 
 <style scoped>
-.markdown-workspace {
+ .markdown-workspace {
   min-height: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
+
+ .editor-container { flex:1; min-height:0; display:flex; flex-direction:column; }
+
+.video-upload-queue {
+  display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 16px;
+  border-top: 1px solid var(--mgs-border); background: var(--mgs-surface-soft); font-size: 12px;
+}
+.video-upload-item { display: flex; align-items: center; gap: 8px; min-width: 240px; }
+.video-upload-name { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.video-upload-error { color: var(--el-color-danger); }
 
 .editor-grid {
   min-height: 0;
@@ -383,6 +523,10 @@ onBeforeUnmount(() => {
   overflow: auto;
   padding: 18px 24px 32px;
   background: var(--mgs-surface);
+}
+
+:global(.publish-schedule-picker-popper) {
+  z-index: 4100 !important;
 }
 
 .publish-control {

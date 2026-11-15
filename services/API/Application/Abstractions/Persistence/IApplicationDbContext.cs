@@ -1,4 +1,6 @@
-﻿using AqLife.Domain.Entities;
+using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.DevPlan;
+using AqLife.Domain.Entities.Favorite;
 using AqLife.Domain.Entities.File;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,23 +8,25 @@ namespace AqLife.Application.Abstractions.Persistence
 {
     public interface IApplicationDbContext
     {
-        public DbSet<FileMetaEntity> File { get; }
-        public DbSet<CorpusEntity> Corpus { get; }
-        public DbSet<AccountEntity> Accounts { get; }
-        public DbSet<SubscriptionEntity> Subscription { get; }
-        public DbSet<TodoEntity> Todo { get; }
-        public DbSet<TagEntity> Tags { get; }
-        public DbSet<FileTagEntity> BlogTags { get; }
-        public DbSet<SystemStateEntity> SystemStates { get; }
+        DbSet<FileMetaEntity> File { get; }
+        DbSet<CorpusEntity> Corpus { get; }
+        DbSet<AccountEntity> Accounts { get; }
+        DbSet<SubscriptionEntity> Subscription { get; }
+        DbSet<TodoEntity> Todo { get; }
+        DbSet<DevelopmentPlanEntity> DevelopmentPlans { get; }
+        DbSet<TodoDependencyEntity> TodoDependencies { get; }
+        DbSet<RoadmapNodeLayoutEntity> RoadmapNodeLayouts { get; }
+        DbSet<TagEntity> Tags { get; }
+        DbSet<FileTagEntity> BlogTags { get; }
+        DbSet<SystemStateEntity> SystemStates { get; }
+        DbSet<FavoriteItemEntity> FavoriteItems { get; }
+        DbSet<FavoriteMediaEntity> FavoriteMedia { get; }
+        DbSet<FavoriteTagEntity> FavoriteTags { get; }
 
+        DbSet<CategoryEntity> Categories { get; }
 
-
-        Task<int> SaveChangesAsync(
-            CancellationToken cancellationToken = default);
-        Task<ITransaction> BeginTransactionAsync(
-        CancellationToken ct);
-
-        DbSet<TEntity> Set<TEntity>()
-        where TEntity : class;
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task<ITransaction> BeginTransactionAsync(CancellationToken ct);
+        DbSet<TEntity> Set<TEntity>() where TEntity : class;
     }
 }

@@ -1,17 +1,25 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
-using AqLife.Shared.Exceptions;
 using MediatR;
-namespace AqLife.Application.Business.Todo.Handler
+using Microsoft.EntityFrameworkCore;
+namespace AqLife.Application.Business.Todo.Handler;
+
+public sealed class UpdateTodoDetailsCommandHandler(IApplicationDbContext db) : IRequestHandler<UpdateTodoCommand, Guid>
 {
-    public class UpdateTodoCommandHandler(IApplicationDbContext storage) : IRequestHandler<UpdateTodoCommand, Guid>
+    public async Task<Guid> Handle(UpdateTodoCommand command, CancellationToken ct)
     {
-        public async Task<Guid> Handle(UpdateTodoCommand command, CancellationToken ct)
-        {
-            TodoEntity entity = await storage.Todo.FindAsync(command.UID, ct) ?? throw new ResourceNotFoundException("不存在 Todo");
-            entity.Update(command.Desc, command.Status, command.Priority);
-            return command.UID;
-        }
+        var t = await db.Todo.FirstAsync(x => x.UID == command.UID, ct);
+        t.UpdateDetails(command.Title, command.Description ?? t.Description, command.SortOrder);
+        return t.UID;
+    }
+}
+
+public sealed class UpdateTodoStatusCommandHandler(IApplicationDbContext db) : IRequestHandler<UpdateTodoStatusCommand, Guid>
+{
+    public async Task<Guid> Handle(UpdateTodoStatusCommand command, CancellationToken ct)
+    {
+        var t = await db.Todo.FirstAsync(x => x.UID == command.UID, ct);
+        t.SetStatus(command.Status);
+        return t.UID;
     }
 }

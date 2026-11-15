@@ -1,9 +1,10 @@
-﻿using AqLife.Domain.CommandInterface;
-using AqLife.Domain.Entities.File;
+﻿using AqLife.Domain.Entities.File;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.IView;
 using AqLife.Shared.Options;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace AqLife.Domain.Command
 {
@@ -12,11 +13,8 @@ namespace AqLife.Domain.Command
     /// </summary>
     /// <param name="ScheduledTime"></param>
     public record BlogUnpublishQuery(DateTimeOffset ScheduledTime) : IQuery<IEnumerable<FileDto>>;
-    /// <summary>
-    /// 阅览完成,执行对应事务
-    /// </summary>
-    /// <param name="UID"></param>
-    public record BlogPreviewCompleteCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand;
+
+    public record FileOverviewQuery(PublishStatusSearch PublishStatus= PublishStatusSearch.Default,int RecentCount = 10) : IQuery<FileOverviewDto>;
     /// <summary>
     /// 通用的文件查询,可用于获取文件列表,支持分页和排序
     /// </summary>
@@ -27,7 +25,7 @@ namespace AqLife.Domain.Command
     /// <param name="PageSize"></param>
     /// <param name="Order"></param>
     /// <param name="Scope">查询文件的类型</param>
-    public record FileQuery(Guid? UID = null, string? Title = null,Guid? CategoryUID=null, int Page=1,int PageSize=10, FileOrder Order= FileOrder.Latest, FileScope Scope = FileScope.All) : IPageQuery, IQuery<PageResult<FileDto>>;
+    public record FileQuery(Guid? UID = null, string? Title = null, Guid? CategoryUID = null, int Page = 1, int PageSize = 10, FileOrder Order = FileOrder.Latest, FileScope Scope = FileScope.Blog) : IPageQuery, IQuery<PageResult<FileDto>>;
     /// <summary>
     /// 下载文件,返回文件流和相关元数据
     /// </summary>
@@ -37,7 +35,7 @@ namespace AqLife.Domain.Command
     /// 预览文件,返回文件流和相关元数据
     /// </summary>
     /// <param name="UID"></param>
-    public record PreviewFileQuery(Guid UID,bool IsTemplate=false) : IRequireValidEntity<FileMetaEntity>, IQuery<FilePreviewModel>;
+    public record PreviewFileQuery(Guid UID, bool IsTemplate = false) : IRequireValidEntity<FileMetaEntity>, IQuery<FilePreviewModel>;
     /// <summary>
     /// 删除文件,同时删除相关的元数据和文件存储
     /// </summary>
@@ -50,43 +48,51 @@ namespace AqLife.Domain.Command
     /// <param name="File"></param>
     public record UpdateFileCommand(Guid UID, IFormFile File) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand, IHasFormFiles
     {
-        public IEnumerable<IFormFile> GetFiles() => [File];
+        public IEnumerable<IFormFile> GetFiles() => [this.File];
     }
     /// <summary>
     /// 更新文件标签,用于批量更新文件的标签信息
-    /// </summary>
+    /// </summary>1
     /// <param name="UID"></param>
     /// <param name="tags"></param>
     public record UpdateFileTagCommand(Guid UID, IEnumerable<Guid> tags) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
+
+    public record UpdateFileCategoryCommand(Guid UID, Guid categoryId) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
     /// <summary>
-    /// 上传文件,并将其设置为草稿,除非手动使用预定,否则永不发布
+    /// 上传文件,并将其设置为草稿,除非手动使用预定,否则永不发布; 默认单文件
     /// </summary>
     /// <param name="File"></param>
-    public record CreateFileCommand(bool IsTemplate = false, params IFormFile[] File) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
+    public record CreateFileCommand(IFormFile File,[Required(ErrorMessage ="必须提供分类参数")]Guid CategoryId, IEnumerable<Guid>? Tags = null, DateTimeOffset? ScheduledTime = null, bool IsTemplate = false) : ICreateCommand, IHasFormFiles
     {
-        public IEnumerable<IFormFile> GetFiles() => File;
+        public IEnumerable<IFormFile> GetFiles() => [this.File];
+    }
+
+    /// <summary>
+    /// 多文件上传
+    /// </summary>
+    /// <param name="Files"></param>
+    public record UploadFilesCommand(Guid categoryId,params IFormFile[] Files) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
+    {
+        public IEnumerable<IFormFile> GetFiles() => Files;
     }
     /// <summary>
     /// 预定时间发布,针对已上传文件,也可用于立即上传,或修改预定时间
     /// </summary>
     /// <param name="UID"></param>
     /// <param name="ScheduledAt"></param>
-    public record ScheduledFileCommand(Guid UID,DateTimeOffset? ScheduledAt) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
+    public record ScheduledFileCommand(Guid UID, DateTimeOffset? ScheduledAt) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
     /// <summary>
     /// 取消发布,用于改变已发布和计划发布的博文
     /// </summary>
     /// <param name="UID"></param>
     public record CancelScheduledFileCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand;
+
     /// <summary>
-    /// 备选! 用于上传文件并设置延时发布,如果ScheduledTime为null,则默认为草稿
+    /// 阅览完成,执行对应事务
     /// </summary>
-    /// <param name="File"></param>
-    /// <param name="ScheduledTime"></param>
-    [Obsolete("Use ScheduledFileCommand instead")]
-    public record PublishFileCommand(IFormFile File, DateTimeOffset? ScheduledTime=null) : ICreateCommand<IEnumerable<Guid>>, IHasFormFiles
-    {
-        public IEnumerable<IFormFile> GetFiles() => [File];
-    }
+    /// <param name="UID"></param>
+    public record BlogPreviewCompleteCommand(Guid UID) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand;
+
     /// <summary>
     /// 处理所有已到期的预约发布,将其发布到指定位置,并返回处理结果:后台任务
     /// </summary>

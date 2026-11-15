@@ -77,7 +77,6 @@
               v-for="tag in item.tags"
               :key="tag.uid!"
               size="small"
-              :type="tag.isCategory ? 'success' : 'info'"
             >
               {{ tag.name }}
             </ElTag>
@@ -183,6 +182,9 @@ function handleSelect(uid: string) {
   if (SearchHistory.value.length > 20) {
     SearchHistory.value.pop()
   }
+
+  // ElSelect 的 Enter 键会选中默认首项；选择后直接打开对应文章。
+  void router.push({ path: `/preview/${uid}` })
 }
 
 

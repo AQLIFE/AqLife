@@ -9,12 +9,25 @@
         node.component === 'MermaidPreview'
       " :info="node.content" :info-type="node.info" />
 
+      <div
+        v-else-if="node.type === 'blockquote'"
+        class="markdown-blockquote"
+        v-html="renderTokenGroup(node.tokens)"
+      />
+
       <MarkdownTable v-else-if="node.type === 'table'" :table-tokens="node.tokens" />
 
-      <img v-else-if="
-        node.type === 'resolved-link' &&
-        node.result.type === 'image'
-      " :src="node.result.src" :alt="node.result.alt" />
+      <MarkdownImage
+        v-else-if="node.type === 'resolved-link' && node.result.type === 'image'"
+        :src="node.result.src"
+        :alt="node.result.alt"
+      />
+
+      <MarkdownVideo
+        v-else-if="node.type === 'resolved-link' && node.result.type === 'video'"
+        :src="node.result.src"
+        :title="node.result.title"
+      />
 
       <RouterLink v-else-if="
         node.type === 'resolved-link' &&
@@ -39,7 +52,6 @@
 import { ref, watch } from 'vue'
 import {
   buildMarkdownRenderNodes,
-  extractFileUid,
   isImageType,
   mdRenderOption,
   type MarkdownLinkContext,
@@ -49,6 +61,8 @@ import type { MarkdownFileResolver } from '../../markdown/type.ts'
 import CodeBlock from './MarkdownCode.vue'
 import MarkdownMermaid from './MarkdownMermaid.vue'
 import MarkdownTable from './MarkdownTable.vue'
+import MarkdownImage from './MarkdownImage.vue'
+import MarkdownVideo from './MarkdownVideo.vue'
 
 interface MarkdownRenderProps {
   markdown: string
@@ -76,13 +90,14 @@ async function renderMarkdown() {
 
   try {
     const parsed = mdRenderOption.parse(props.markdown, {})
-
+    
     rNode.value = await buildMarkdownRenderNodes(
       parsed,
       props.fileResolver
         ? resolveInternalLink
         : undefined,
     )
+    
   } finally {
     loading.value = false
   }
@@ -96,37 +111,19 @@ function renderTokenGroup(tokens: any[]): string {
   )
 }
 
-function isSameOrigin(target: URL): boolean {
-  if (!props.baseurl) {
-    return false
-  }
-
-  try {
-    const base = new URL(props.baseurl)
-    return target.origin === base.origin
-  } catch {
-    return false
-  }
-}
 
 async function resolveInternalLink(
   context: MarkdownLinkContext,
 ): Promise<MarkdownLinkResult | null> {
   const { href, text } = context
 
-  let url: URL
+  let uid: string | undefined
 
-  try {
-    url = new URL(href)
-  } catch {
+  // Resolve direct UID references for Markdown images; legacy preview URLs stay ordinary links.
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(href.trim())) {
     return null
   }
-
-  if (!isSameOrigin(url)) {
-    return null
-  }
-
-  const uid = extractFileUid(url)
+  uid = href.trim()
 
   if (!uid || !props.fileResolver) {
     return null
@@ -146,6 +143,24 @@ async function resolveInternalLink(
     }
   }
 
+  const fileType = (file.fileType ?? '').trim().toLowerCase()
+  const fileName = (file.fileName ?? '').trim().toLowerCase()
+  const isVideo = fileType.startsWith('video/')
+    || fileType.endsWith('.mp4')
+    || fileType.endsWith('.webm')
+    || fileType === 'mp4'
+    || fileType === 'webm'
+    || fileName.endsWith('.mp4')
+    || fileName.endsWith('.webm')
+
+  if (isVideo) {
+    return {
+      type: 'video',
+      src: (await props.fileResolver.getVideoUrl?.(uid)) || buildVideoUrl(uid),
+      title: text,
+    }
+  }
+
   if (file.fileType?.toLowerCase() === '.md') {
     return {
       type: 'markdown',
@@ -157,6 +172,15 @@ async function resolveInternalLink(
     type: 'link',
     href,
   }
+}
+
+function buildVideoUrl(uid: string): string {
+  if (!props.baseurl) return ''
+  const base = new URL(props.baseurl)
+  base.pathname = `${base.pathname.replace(/\/$/, '')}/api/File/video-stream`
+  base.search = ''
+  base.searchParams.set('UID', uid)
+  return base.toString()
 }
 
 function buildPreviewUrl(uid: string): string {
@@ -183,5 +207,17 @@ defineExpose({
 <style scoped>
 #mdRender {
   padding: 0 20px;
+}
+
+.markdown-blockquote {
+  margin: 1rem 0;
+  padding: 0.25rem 1rem;
+  border-left: 4px solid var(--el-border-color);
+  color: var(--el-text-color-secondary);
+  background: var(--el-fill-color-lighter);
+}
+
+.markdown-blockquote :deep(p) {
+  margin: 0.5rem 0;
 }
 </style>

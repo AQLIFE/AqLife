@@ -1,242 +1,154 @@
 <script setup lang="ts">
-import {
-  ElTable,
-  ElSegmented,
-  ElTag,
-  ElForm,
-  ElFormItem,
-  ElSwitch,
-  ElText,
-  ElEmpty,
-  ElTableColumn,
-  ElSelect,
-  ElOption,
-  ElInput,
-  ElButton,
-  ElCol,
-  ElMessage,
-  ElRow,
-} from 'element-plus'
-import { Plus, Search, Upload } from '@element-plus/icons-vue'
-import { onBeforeMount, computed, ref, type Ref } from 'vue'
-import { TagApi, type CreateTagCommand, type TagDto } from '@/api'
+import { notify, useLoadingTask } from '@aqlife/ui-shared'
+import { ElButton, ElCol, ElDialog, ElForm, ElFormItem, ElInput, ElMessageBox, ElOption, ElSegmented, ElSelect, ElTable, ElTableColumn, ElTag, ElText } from 'element-plus'
+import { Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { computed, onBeforeMount, ref } from 'vue'
+import { TagApi, type CreateTagCommand, type TagDto, type UpdateTagCommand } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { useTagStore } from '@/stores/uuseTagStore'
-
-const columnMap: Record<string, string> = {
-  uid: '唯一标识',
-  name: '标签名称',
-  aliasName: '标签别名',
-  isCategory: '分类标识',
-}
-
+import MgsPageHeader from '../components/ui/MgsPageHeader.vue'
+import MgsToolbar from '@/components/ui/MgsToolbar.vue'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
+const columnMap: Record<string, string> = { uid: '唯一标识', name: '标签名称', aliasName: '标签别名' }
 const activeSelect = ref<string>('选择字段')
-const searchQuery = ref<string>('')
-const selectCategory = ref<number>(-1)
-
-const segmentedOptions = [
-  { label: 'Clear', value: -1 },
-  { label: 'normal', value: 0 },
-  { label: 'category', value: 1 },
-]
-
+const searchQuery = ref('')
 const tagStore = useTagStore()
 const proxyTags = ref<TagDto[]>([])
-
-const addTagDto = ref<CreateTagCommand>({
-  name: '',
-  aliasName: '',
-  isCategory: false,
-})
-const isAdd: Ref<boolean> = ref(false)
-
+const { isLoading: isTableLoading, run: withTableLoading } = useLoadingTask('mgs:table:tags')
+const dialogVisible = ref(false)
+const isSaving = ref(false)
+const editingTag = ref<TagDto | null>(null)
+const addTagDto = ref<CreateTagCommand>({ name: '', aliasName: '' })
 const tagApi = new TagApi(apiConfiguration)
 
 onBeforeMount(async () => {
-  await tagStore.fetchAllTags(tagApi)
-  proxyTags.value = [...tagStore.tags]
+  try {
+    await withTableLoading(async () => { await tagStore.fetchAllTags(tagApi); filterData() })
+  } catch (error) {
+    notify.fromError(error, '标签数据加载失败')
+  }
 })
-
-const tableColumns = computed(() =>
-  tagStore.tags.length > 0 ? Object.keys(tagStore.tags[0]) : [],
-)
-
-const tempList = computed(() => {
-  const list = Object.keys(columnMap)
-  list.pop()
-  return list
-})
+// const tableColumns = computed(() => Object.keys(columnMap))
+const tempList = computed(() => Object.keys(columnMap))
 
 function filterData() {
   let result = [...tagStore.tags]
-
-  if (selectCategory.value !== -1) {
-    const targetBool = Boolean(Number(selectCategory.value))
-    result = result.filter(e => e.isCategory === targetBool)
-  }
-
-  if (searchQuery.value.trim() !== '') {
+  const keyword = searchQuery.value.trim().toLowerCase()
+  if (keyword && activeSelect.value !== '选择字段') {
     const field = activeSelect.value as keyof TagDto
-    const keyword = searchQuery.value.trim().toLowerCase()
-
-    result = result.filter(e => {
-      const val = e[field]
-      return val !== undefined && String(val).toLowerCase().includes(keyword)
-    })
+    result = result.filter(tag => String(tag[field] ?? '').toLowerCase().includes(keyword))
   }
-
   proxyTags.value = result
 }
-
-function handleRadioChange() {
-  filterData()
+function openCreate() {
+  editingTag.value = null
+  addTagDto.value = { name: '', aliasName: '' }
+  dialogVisible.value = true
 }
-
-function handleSearch() {
-  filterData()
+function openEdit(tag: TagDto) {
+  editingTag.value = tag
+  addTagDto.value = { name: tag.name ?? '', aliasName: tag.aliasName ?? '' }
+  dialogVisible.value = true
 }
-
-async function addTag() {
-  if (isAdd.value && addTagDto.value.name?.trim()) {
-    try {
-      const tagUid = await tagApi.apiTagPost({
-        createTagCommand: addTagDto.value,
-      })
-      const result = await tagApi.apiTagGet({ uID: tagUid })
-      const newTag = result.items?.[0]
-
-      if (!newTag) {
-        throw new Error('创建 Tag 后未找到对应数据')
-      }
-
-      tagStore.tags.push(newTag)
-      proxyTags.value = [...tagStore.tags]
-      ElMessage.success('上传 Tag 成功')
-
-      addTagDto.value = {
-        name: '',
-        aliasName: '',
-        isCategory: false,
-      }
-    } catch (error) {
-      ElMessage.error('上传 Tag 失败')
-      console.error('Create Tag Error:', error)
+async function saveTag() {
+  const name = addTagDto.value.name?.trim()
+  if (!name) { notify.warning('请填写标签名称'); return }
+  isSaving.value = true
+  try {
+    if (editingTag.value?.uid) {
+      const command: UpdateTagCommand = { uid: editingTag.value.uid, tagName: name, aliasName: addTagDto.value.aliasName?.trim() || null }
+      await tagApi.apiTagPatch({ updateTagCommand: command })
+      const index = tagStore.tags.findIndex(tag => tag.uid === editingTag.value?.uid)
+      if (index >= 0) tagStore.tags[index] = { ...tagStore.tags[index], name, aliasName: command.aliasName }
+      notify.success('标签已更新')
+    } else {
+      const uid = await tagApi.apiTagPost({ createTagCommand: { name, aliasName: addTagDto.value.aliasName?.trim() || null } })
+      const result = await tagApi.apiTagGet({ uID: uid })
+      const created = result.items?.[0]
+      if (!created) throw new Error('创建后未找到对应标签')
+      tagStore.tags.push(created)
+      notify.success('标签已创建')
     }
+    dialogVisible.value = false
+    filterData()
+  } catch (error) { notify.error(error instanceof Error ? error.message : '保存标签失败') }
+  finally { isSaving.value = false }
+}
+async function deleteTag(tag: TagDto) {
+  try {
+    await ElMessageBox.confirm(`确定删除标签「${tag.name || '未命名标签'}」吗？如果该标签仍被博文使用，服务器会拒绝删除。`, '删除标签确认', {
+      type: 'warning', confirmButtonText: '确认删除', cancelButtonText: '取消', distinguishCancelAndClose: true,
+    })
+    await tagApi.apiTagDelete({ deleteTagCommand: { uid: tag.uid ?? undefined } })
+    const index = tagStore.tags.findIndex(item => item.uid === tag.uid)
+    if (index >= 0) tagStore.tags.splice(index, 1)
+    filterData()
+    notify.success('标签已删除')
+  } catch (error) {
+    if (error === 'cancel' || error === 'close') return
+    notify.error(error instanceof Error ? error.message : '删除失败：标签可能仍被博文使用')
   }
-
-  isAdd.value = !isAdd.value
 }
 </script>
 
 <template>
-  <ElRow>
-    <ElCol class="flex">
-      <ElCol :span="6">
-        <ElInput
-          v-model="searchQuery"
-          :disabled="activeSelect === '选择字段'"
-        >
-          <template #prepend>
-            <ElSelect
-              v-model="activeSelect"
-              :placeholder="activeSelect"
-              style="width: 100px"
-            >
-              <ElOption
-                v-for="(item, index) in tempList"
-                :key="index"
-                :label="columnMap[item]"
-                :value="item"
-              />
-            </ElSelect>
-          </template>
-          <template #append>
-            <ElButton
-              :icon="isAdd ? Upload : Search"
-              :disabled="activeSelect === '选择字段'"
-              :type="isAdd ? 'success' : 'info'"
-              @click="handleSearch"
-            />
-          </template>
-        </ElInput>
-      </ElCol>
+  <div class="todo-view-root">
+    <MgsPageHeader title="标签" description="管理普通标签的名称和别名">
+      <template #actions>
+        <ElButton :icon="Refresh" @click="filterData">Refresh</ElButton>
+        <ElButton type="primary" :icon="Plus" @click="openCreate">New Tag</ElButton>
+      </template>
+    </MgsPageHeader>
+    <MgsToolbar>
+      <ElInput v-model="searchQuery" placeholder="输入关键词" clearable @keyup.enter="filterData" @clear="filterData">
+        <template #prepend>
+          <ElSelect v-model="activeSelect" placeholder="搜索字段" style="width:120px">
+            <ElOption v-for="item in tempList" :key="item" :label="columnMap[item]" :value="item" />
+          </ElSelect>
+        </template>
+        <template #append>
+          <ElButton :icon="Search" @click="filterData" />
+        </template>
+      </ElInput>
+    </MgsToolbar>
 
-      <ElSegmented
-        v-model="selectCategory"
-        :options="segmentedOptions"
-        @change="handleRadioChange"
-      />
-      <ElButton
-        :icon="Plus"
-        @click="addTag"
-        :title="isAdd ? '点击一次关闭表单并上传' : '点击一次打开添加表单'"
-      />
-    </ElCol>
-
-    <ElForm v-if="isAdd" inline class="inline-form">
-      <ElFormItem :label="Object.values(columnMap)[1]">
-        <ElInput v-model="addTagDto.name" clearable />
-      </ElFormItem>
-      <ElFormItem :label="Object.values(columnMap)[2]">
-        <ElInput
-          v-model="addTagDto.aliasName"
-          clearable
-          :disabled="!addTagDto.name"
-        />
-      </ElFormItem>
-      <ElFormItem :label="Object.values(columnMap)[3]">
-        <ElSwitch
-          v-model="addTagDto.isCategory"
-          inline-prompt
-          active-text="标识为 分类"
-        />
-      </ElFormItem>
-    </ElForm>
-
-    <ElTable
-      :data="proxyTags"
-      class="fitHeight"
-      highlight-current-row
-      v-if="tagStore.tags.length > 0"
-    >
-      <ElTableColumn
-        v-for="(item, index) in tableColumns"
-        :key="item"
-        :prop="item"
-        :label="columnMap[item] ?? item"
-        :sortable="index !== tableColumns.length - 1"
-      >
-        <template #default="scope">
-          <ElTag v-if="item === 'name' && scope.row.name">
-            {{ scope.row.name }}
-          </ElTag>
-          <ElText v-else>
-            {{ scope.row[item] }}
-          </ElText>
+    <MgsPageContainer>
+    <ElTable :data="proxyTags" v-loading="isTableLoading" element-loading-text="正在加载标签..." empty-text="暂无标签"
+      class="tag-table" row-key="uid" highlight-current-row>
+      <ElTableColumn prop="name" label="标签名称" min-width="180"><template #default="{ row }">
+          <ElTag v-if="row.name">{{ row.name }}</ElTag>
+          <ElText v-else>未命名</ElText>
+        </template>
+      </ElTableColumn>
+      <ElTableColumn prop="aliasName" label="标签别名" min-width="160"><template #default="{ row }">{{ row.aliasName || '—'
+          }}</template></ElTableColumn>
+      <ElTableColumn prop="uid" label="UID" min-width="220" show-overflow-tooltip />
+      <ElTableColumn label="操作" width="150" fixed="right"><template #default="{ row }">
+          <ElButton link type="primary" :icon="Edit" @click="openEdit(row)">编辑</ElButton>
+          <ElButton link type="danger" :icon="Delete" @click="deleteTag(row)">删除</ElButton>
         </template>
       </ElTableColumn>
     </ElTable>
-
-    <ElEmpty v-else description="正在加载标签数据..." />
-  </ElRow>
+    </MgsPageContainer>
+    <ElDialog v-model="dialogVisible" :title="editingTag ? '编辑标签' : '添加标签'" width="min(520px, 92vw)" destroy-on-close>
+      <ElForm label-position="top">
+        <ElFormItem label="标签名称" required>
+          <ElInput v-model="addTagDto.name" maxlength="100" show-word-limit />
+        </ElFormItem>
+        <ElFormItem label="标签别名">
+          <ElInput v-model="addTagDto.aliasName" maxlength="100" />
+        </ElFormItem>
+      </ElForm>
+      <template #footer>
+        <ElButton @click="dialogVisible = false">取消</ElButton>
+        <ElButton type="primary" :loading="isSaving" @click="saveTag">保存</ElButton>
+      </template>
+    </ElDialog>
+  </div>
 </template>
 
-<style lang="css" scoped>
-.flex {
-  display: flex;
-  padding: 20px;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.inline-form {
-  padding: 20px;
+<style scoped>
+.tag-table {
   width: 100%;
-  background-color: #DCDCDC;
-  box-shadow: inset #DCDCDC 0px 3px 3px;
-}
-
-.inline-form > :deep(.el-form-item) {
-  margin-bottom: 0px;
 }
 </style>

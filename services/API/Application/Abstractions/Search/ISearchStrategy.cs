@@ -1,4 +1,4 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Shared.Contracts;
 
 namespace AqLife.Application.Abstractions.Search
 {
@@ -7,7 +7,7 @@ namespace AqLife.Application.Abstractions.Search
     {
         // 判断当前 Query 是否匹配该策略
         bool IsMatch(TSearchCriteria criteria);
-        Task<IQueryable<TEntity>> ExecuteAsync(
+        IQueryable<TEntity> Execute(
             IQueryable<TEntity> queryable,
             TSearchCriteria criteria,
             CancellationToken ct = default);

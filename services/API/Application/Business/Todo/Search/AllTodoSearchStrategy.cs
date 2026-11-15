@@ -1,23 +1,12 @@
-﻿using AqLife.Application.Search;
-using AqLife.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AqLife.Application.Search;
+using AqLife.Domain.Entities.DevPlan;
+using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Business.Todo.Search
 {
-    public sealed class AllTodoSearchStrategy
-    : AllSearchStrategyBase<TodoEntity, EntitySearchCriteria>
+    public sealed class AllTodoSearchStrategy(IHttpContextAccessor httpContext) : AllSearchStrategyBase<TodoEntity, TodoSearchCriteria>(httpContext)
     {
-        public override async Task<IQueryable<TodoEntity>> ExecuteAsync(
-            IQueryable<TodoEntity> queryable,
-            EntitySearchCriteria criteria,
-            CancellationToken ct = default)
-        {
-            return queryable.Where(e => e.Status != TodoStatus.Completed);
-        }
+        public override bool IsMatch(TodoSearchCriteria c)
+            => base.IsMatch(c) && c.PlanId is null;
     }
 }

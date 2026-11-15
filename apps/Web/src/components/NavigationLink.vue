@@ -1,6 +1,6 @@
 <template>
     <RouterLink class="navigation-link" :to="props.route.path">
-        <!-- <ElIcon size="16px"><component :is="props.route.icon"/></ElIcon> -->
+        <component :is="props.route.icon" class="navigation-icon" />
         {{ props.route.title }}
     </RouterLink>
 </template>
@@ -26,5 +26,16 @@ const props = defineProps({
   align-items: center;
   gap: 8px;
   text-decoration-line: none;
+}
+
+.navigation-icon{
+    width:16px;
+    height:16px;
+    font-size: 0px;
+}
+/* 针对性视觉补偿*/
+a:nth-child(2)>svg.navigation-icon{
+    width: 20px;
+    height:20px;
 }
 </style>

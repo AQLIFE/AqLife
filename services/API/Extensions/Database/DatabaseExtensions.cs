@@ -1,11 +1,5 @@
-using AqLife.Application.Abstractions.Authentication;
-using AqLife.Application.Abstractions.FileStorage;
-using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Business.Account.Services;
-using AqLife.Domain.Entities;
 using AqLife.Infrastructure;
-using AqLife.Infrastructure.Authentication;
-using AqLife.Infrastructure.FileStorage;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Serilog;
 
 namespace AqLife.Extensions.Database;
@@ -38,14 +31,6 @@ public static class DatabaseExtensions
         {
             switch (dbConfig.DbType)
             {
-                case "MySQL":
-                    options.UseMySql(
-                        connectionString,
-                        MySqlServerVersion.Parse(dbConfig.DbVersion),
-                        mysql => mysql.MigrationsAssembly(
-                            typeof(AppStorage).Assembly.FullName));
-                    break;
-
                 case "PostgreSQL":
                     options.UseNpgsql(
                         connectionString,

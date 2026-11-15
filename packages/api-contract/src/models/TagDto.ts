@@ -37,12 +37,6 @@ export interface TagDto {
      * @memberof TagDto
      */
     aliasName?: string | null;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof TagDto
-     */
-    isCategory?: boolean;
 }
 
 /**
@@ -65,7 +59,6 @@ export function TagDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): Ta
         'uid': json['uid'] == null ? undefined : json['uid'],
         'name': json['name'] == null ? undefined : json['name'],
         'aliasName': json['aliasName'] == null ? undefined : json['aliasName'],
-        'isCategory': json['isCategory'] == null ? undefined : json['isCategory'],
     };
 }
 
@@ -83,7 +76,6 @@ export function TagDtoToJSONTyped(value?: TagDto | null, ignoreDiscriminator: bo
         'uid': value['uid'],
         'name': value['name'],
         'aliasName': value['aliasName'],
-        'isCategory': value['isCategory'],
     };
 }
 

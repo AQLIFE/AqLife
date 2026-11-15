@@ -9,6 +9,9 @@
     "generate:contract": "node ./generate-contract.mjs",
     "dev:api": "node ./dev-api.mjs",
     "dev:web": "node ./dev-web.mjs",
-    "dev:mgs": "node ./dev-mgs.mjs"
+    "dev:mgs": "node ./dev-mgs.mjs",
+    "prod:web": "node ./prod-web.mjs",
+    "prod:mgs": "node ./prod-mgs.mjs",
+    "prod:api": "node ./prod-api.mjs"
   }
 }

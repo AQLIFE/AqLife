@@ -10,6 +10,8 @@ import IconSkill from '~icons/aqlife/skill-icon'
 import IconWish from '~icons/aqlife/wish-icon'
 import IconKey from '~icons/aqlife/key-icon'
 import IconMarkdown from '~icons/aqlife/markdown-icon'
+import IconUnlink from '~icons/aqlife/unlink-icon'
+import IconArchive from '~icons/aqlife/archive-icon'
 import { WebIconName } from './webIconName'
 
 export const webIconRegistry: Record<WebIconName, Component> = {
@@ -23,5 +25,7 @@ export const webIconRegistry: Record<WebIconName, Component> = {
   [WebIconName.Random]: IconRandom,
   [WebIconName.Skill]: IconSkill,
   [WebIconName.Key]: IconKey,
-  [WebIconName.Markdown]:IconMarkdown
+  [WebIconName.Markdown]:IconMarkdown,
+  [WebIconName.UnLink]: IconUnlink,
+  [WebIconName.Archive]: IconArchive
 }

@@ -2,6 +2,10 @@
   <div class="overview">
     <MgsPageHeader title="Overview" description="Your MGS workspace at a glance" />
 
+    <MgsPageContainer>
+      <MgsPageState v-if="loading" state="loading" description="正在获取工作区概览..." />
+      <MgsPageState v-else-if="loadError" state="error" :description="loadError" retryable @retry="loadOverview" />
+      <template v-else>
     <section class="metrics">
       <article v-for="metric in metrics" :key="metric.label" class="metric">
         <span>{{ metric.label }}</span>
@@ -17,19 +21,20 @@
             <h2>Recent articles</h2>
             <p>Continue where you left off.</p>
           </div>
-          <ElButton text @click="router.push('/blog/list')">View all</ElButton>
+          <ElButton text @click="router.push('/file/list')">View all</ElButton>
         </div>
         <div class="article-list">
+          <MgsPageState v-if="!articles.length" state="empty" description="暂无最近文章" compact />
           <div
           v-for="article in articles"
           :key="article.uid ?? article.title"
           class="article"
-          @click="article.uid && router.push(`/blog/${article.uid}`)"
+          @click="openArticle(article)"
         >
-            <div class="article-icon">MD</div>
+            <div class="article-icon">{{ article.meta }}</div>
             <div class="article-copy">
               <strong>{{ article.title }}</strong>
-              <span>{{ article.meta }}</span>
+              <small v-if="article.uploadedAgo" class="article-upload-time">{{ article.uploadedAgo }}</small>
             </div>
             <span class="status" :class="article.status">{{ article.label }}</span>
           </div>
@@ -43,16 +48,18 @@
             <p>Quick actions</p>
           </div>
         </div>
-        <button class="quick-action" @click="router.push('/blog/new')">
+        <button class="quick-action" @click="router.push('/file/new')">
           <span>+</span>
           <div><strong>New article</strong><small>Start from a template</small></div>
         </button>
-        <button class="quick-action" @click="router.push('/blog/list')">
+        <button class="quick-action" @click="router.push('/file/list')">
           <span>↗</span>
           <div><strong>Manage content</strong><small>Browse and edit articles</small></div>
         </button>
       </article>
     </section>
+      </template>
+    </MgsPageContainer>
   </div>
 </template>
 
@@ -60,14 +67,18 @@
 import { ElButton } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { onBeforeMount, computed, ref } from 'vue'
-import { OverviewApi } from '@/api'
+import { FileApi, FileStatus, type FileOverviewDto } from '@/api'
+import { isImageType } from '@aqlife/domain'
 import { apiConfiguration } from '@/services/api'
 import MgsPageHeader from '@/components/ui/MgsPageHeader.vue'
-import { publishStatus } from '@/types/TableFilterOption.ts'
+import MgsPageContainer from '@/components/ui/MgsPageContainer.vue'
+import MgsPageState from '@/components/ui/MgsPageState.vue'
 
 const router = useRouter()
-const overviewApi = new OverviewApi(apiConfiguration)
-const overview = ref<Awaited<ReturnType<OverviewApi['apiOverviewGet']>> | null>(null)
+const fileApi = new FileApi(apiConfiguration)
+const overview = ref<FileOverviewDto | null>(null)
+const loading = ref(true)
+const loadError = ref('')
 
 const metrics = computed(() => [
   { label: 'Drafts', value: overview.value?.draftCount ?? 0, note: 'Current workspace' },
@@ -75,39 +86,94 @@ const metrics = computed(() => [
   { label: 'Published', value: overview.value?.publishedCount ?? 0, note: 'Published articles' },
 ])
 
+function getArticleTarget(file: { uid?: string | null; fileType?: string | null; fileName?: string | null }): { path: string; query?: Record<string, string> } {
+  const fileType = (file.fileType ?? '').trim().toLowerCase()
+  const fileName = (file.fileName ?? '').trim().toLowerCase()
+  const type = fileType || fileName.slice(fileName.lastIndexOf('.'))
+  if (file.uid && isImageType(file.fileType ?? fileName)) {
+    return { path: '/file/list', query: { type: 'image', preview: file.uid! } }
+  }
+  if (file.uid && (type.startsWith('video/') || ['.mp4', '.webm'].includes(type) || /\.(mp4|webm)$/.test(fileName))) {
+    return { path: '/file/list', query: { type: 'video', preview: file.uid! } }
+  }
+  return { path: `/file/${file.uid}` }
+}
+
+function openArticle(article: { uid?: string | null; target: { path: string; query?: Record<string, string> } }) {
+  if (!article.uid) return
+  router.push(article.target)
+}
+
 const articles = computed(() =>
   (overview.value?.recentFiles ?? []).map(file => ({
     uid: file.uid,
+    target: getArticleTarget(file),
     title: file.fileName || 'Untitled article',
+    uploadedAgo: formatUploadAge(file.uploadTime),
     meta: file.fileType ? file.fileType.replace('.', '').toUpperCase() : 'File',
     status:
-      file.publishStatus === publishStatus.Published
+      file.publishStatus === FileStatus.Published
         ? 'published'
-        : file.publishStatus === publishStatus.Scheduled
+        : file.publishStatus === FileStatus.Scheduled
           ? 'scheduled'
           : 'draft',
     label:
-      file.publishStatus === publishStatus.Published
+      file.publishStatus === FileStatus.Published
         ? 'Published'
-        : file.publishStatus === publishStatus.Scheduled
+        : file.publishStatus === FileStatus.Scheduled
           ? 'Scheduled'
           : 'Draft',
   })),
 )
 
-onBeforeMount(async () => {
-  overview.value = await overviewApi.apiOverviewGet({ recentCount: 5 })
-})
+function formatUploadAge(value?: string | null): string {
+  if (!value) return ''
+
+  const timestamp = new Date(value).getTime()
+  if (Number.isNaN(timestamp)) return ''
+
+  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000))
+  if (elapsedSeconds < 60) return 'Uploaded just now'
+  if (elapsedSeconds < 3600) {
+    const minutes = Math.floor(elapsedSeconds / 60)
+    return `Uploaded ${minutes} minute${minutes === 1 ? '' : 's'} ago`
+  }
+  if (elapsedSeconds < 86400) {
+    const hours = Math.floor(elapsedSeconds / 3600)
+    return `Uploaded ${hours} hour${hours === 1 ? '' : 's'} ago`
+  }
+
+  const days = Math.floor(elapsedSeconds / 86400)
+  if (days < 30) return `Uploaded ${days} day${days === 1 ? '' : 's'} ago`
+  const months = Math.floor(days / 30)
+  if (months < 12) return `Uploaded ${months} month${months === 1 ? '' : 's'} ago`
+  const years = Math.floor(months / 12)
+  return `Uploaded ${years} year${years === 1 ? '' : 's'} ago`
+}
+
+async function loadOverview() {
+  loading.value = true
+  loadError.value = ''
+  try {
+    overview.value = await fileApi.apiFileOverviewGet({ recentCount: 10 })
+  } catch (error) {
+    loadError.value = error instanceof Error ? error.message : '工作区概览加载失败'
+  } finally {
+    loading.value = false
+  }
+}
+
+onBeforeMount(loadOverview)
 </script>
 
 <style scoped>
-.overview { min-height:100%;padding-bottom:32px; }
-.metrics { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 28px 14px; }
+ .overview { min-height:100%; }
+.metrics { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 0 14px; }
 .metric,.panel { background:var(--mgs-surface);border:1px solid var(--mgs-border);border-radius:var(--mgs-radius);box-shadow:var(--mgs-shadow); }
 .metric { padding:18px 20px;display:flex;flex-direction:column;gap:5px; }
 .metric span,.metric small { color:var(--mgs-muted);font-size:11px; }
 .metric strong { font-size:25px;line-height:1.1; }
-.content-grid { display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:12px;padding:0 28px; }
+.content-grid { display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:12px;padding:0; }
 .panel { padding:20px; }
 .panel-head { display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px; }
 .panel h2 { margin:0;font-size:14px; }
@@ -118,6 +184,7 @@ onBeforeMount(async () => {
 .article-copy { min-width:0;flex:1;display:flex;flex-direction:column;gap:3px; }
 .article-copy strong { font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .article-copy span { color:var(--mgs-muted);font-size:10px; }
+.article-upload-time { color:var(--mgs-muted);font-size:10px;font-weight:400; }
 .status { font-size:10px;padding:3px 7px;border-radius:99px; }
 .status.draft { background:#fff5df;color:#a56d13; }
 .status.published { background:#eaf8f0;color:#2f8a59; }

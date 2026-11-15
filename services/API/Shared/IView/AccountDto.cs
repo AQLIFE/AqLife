@@ -9,14 +9,14 @@
     /// <param name="Subscriptions"></param>
     public record AccountDto(
         string Name,
-        string? Desc,
-        Guid? Avatar,
+        string Desc,
+        Guid Avatar,
         IEnumerable<SubscriptionDto> Subscriptions
         ) : IEntityDto, ISimpleAccountInfo;
 
 
     public record AccountProfile(
         string Name,
-        string? Desc
+        string Desc
         ) : ISimpleAccountInfo;
 }

@@ -1,23 +1,82 @@
 <template>
-  <ElImage v-if="isImageType(props.row.fileType!)" class="image" :src="fileStore.previewUrl.get(props.row.uid!)">
-    <template #error>加载中...</template>
-  </ElImage>
-  <ElImage v-else class="image" style="font-size: 5vw;">
-    <template #error>
+  <div class="file-preview-cell">
+    <ElImage
+      v-if="isImageType(props.row.fileType!)"
+      class="image"
+      :src="fileStore.previewUrl.get(props.row.uid!)"
+      @click.stop="emit('preview-image', props.row.uid!)"
+    >
+      <template #error>加载中...</template>
+    </ElImage>
+    <div v-else-if="isVideoType(props.row.fileType ?? '')" class="file-type-placeholder video-placeholder" role="button" tabindex="0" @click.stop="emit('preview-video', props.row.uid!)" @keydown.enter.stop="emit('preview-video', props.row.uid!)">
+      <ElIcon><VideoCamera /></ElIcon>
+    </div>
+    <div v-else class="file-type-placeholder">
       <ElIcon>
         <component :is="mgsIconRegistry[MgsIconName.Markdown]" />
       </ElIcon>
-    </template>
-  </ElImage>
-  <!-- <ElCol>{{ props.row.uid }}</ElCol> -->
+    </div>
+    <span class="file-uid" :title="props.row.uid">{{ props.row.uid }}</span>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { type FileDto } from '@/api'
+import { VideoCamera } from '@element-plus/icons-vue'
 import { MgsIconName, mgsIconRegistry } from '@aqlife/icons';
 import { isImageType } from '@aqlife/domain'
 import { useFileStore } from '@/stores/useFileStore';
-const props = defineProps<{row:FileDto,}>()
+const props = defineProps<{ row: FileDto }>()
+const emit = defineEmits<{ 'preview-image': [uid: string]; 'preview-video': [uid: string] }>()
 
 const fileStore = useFileStore()
+
+const VIDEO_EXTENSIONS = new Set(['.mp4', '.webm'])
+
+function isVideoType(fileType: string): boolean {
+  const normalized = fileType.trim().toLowerCase()
+  if (normalized.startsWith('video/')) return true
+  const extension = normalized.includes('.') ? normalized.slice(normalized.lastIndexOf('.')) : ''
+  return VIDEO_EXTENSIONS.has(extension)
+}
 </script>
+
+<style scoped>
+.file-preview-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+
+.file-uid {
+  width: 100%;
+  overflow: hidden;
+  color: var(--el-text-color-secondary);
+  font-family: var(--el-font-family);
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: text;
+}
+
+.file-type-placeholder {
+  width: 100%;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--el-text-color-secondary);
+  background: var(--el-fill-color-light);
+  border-radius: 4px;
+  font-size: 32px;
+}
+
+.video-placeholder {
+  color: var(--el-color-primary);
+}
+</style>

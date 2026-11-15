@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Plus, Upload } from '@element-plus/icons-vue';
-import { ElCard, ElCol, ElMessage, ElRow } from 'element-plus';
+import { ElCard, ElCol, ElRow } from 'element-plus';
 
 const props = defineProps<{
   plusLabel?: string,

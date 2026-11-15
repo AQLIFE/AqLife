@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { CategoryDto } from './CategoryDto';
+import {
+    CategoryDtoFromJSON,
+    CategoryDtoFromJSONTyped,
+    CategoryDtoToJSON,
+    CategoryDtoToJSONTyped,
+} from './CategoryDto';
 import type { FileStatus } from './FileStatus';
 import {
     FileStatusFromJSON,
@@ -48,12 +55,20 @@ export interface FileDto {
     fileName?: string | null;
     /**
      * 
+     * @type {CategoryDto}
+     * @memberof FileDto
+     */
+    category?: CategoryDto;
+    /**
+     * 
      * @type {Array<TagDto>}
      * @memberof FileDto
      */
     tags?: Array<TagDto> | null;
     /**
-     * 
+     * - 0 = Draft
+     * - 1 = Scheduled
+     * - 2 = Published
      * @type {FileStatus}
      * @memberof FileDto
      */
@@ -135,6 +150,7 @@ export function FileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): F
         
         'uid': json['uid'] == null ? undefined : json['uid'],
         'fileName': json['fileName'] == null ? undefined : json['fileName'],
+        'category': json['category'] == null ? undefined : CategoryDtoFromJSON(json['category']),
         'tags': json['tags'] == null ? undefined : ((json['tags'] as Array<any>).map(TagDtoFromJSON)),
         'publishStatus': json['publishStatus'] == null ? undefined : FileStatusFromJSON(json['publishStatus']),
         'publishAt': json['publishAt'] == null ? undefined : json['publishAt'],
@@ -162,6 +178,7 @@ export function FileDtoToJSONTyped(value?: FileDto | null, ignoreDiscriminator: 
         
         'uid': value['uid'],
         'fileName': value['fileName'],
+        'category': CategoryDtoToJSON(value['category']),
         'tags': value['tags'] == null ? undefined : ((value['tags'] as Array<any>).map(TagDtoToJSON)),
         'publishStatus': FileStatusToJSON(value['publishStatus']),
         'publishAt': value['publishAt'],

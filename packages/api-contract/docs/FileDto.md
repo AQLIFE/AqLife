@@ -8,6 +8,7 @@ Name | Type
 ------------ | -------------
 `uid` | string
 `fileName` | string
+`category` | [CategoryDto](CategoryDto.md)
 `tags` | [Array&lt;TagDto&gt;](TagDto.md)
 `publishStatus` | [FileStatus](FileStatus.md)
 `publishAt` | string
@@ -29,6 +30,7 @@ import type { FileDto } from '@aqlife/api-contract'
 const example = {
   "uid": null,
   "fileName": null,
+  "category": null,
   "tags": null,
   "publishStatus": null,
   "publishAt": null,

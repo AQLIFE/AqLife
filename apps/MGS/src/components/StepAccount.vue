@@ -22,8 +22,9 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from '@aqlife/ui-shared'
 import { ref } from 'vue';
-import { ElForm,ElFormItem,ElInput,ElButton, ElMessage } from 'element-plus';
+import { ElForm,ElFormItem,ElInput,ElButton } from 'element-plus';
 import {ArrowRight} from '@element-plus/icons-vue'
 import { useRegisterStore } from '@/stores/useRegisterStore';
 import { validateAccountProfile } from '@aqlife/domain';
@@ -32,14 +33,14 @@ const emit = defineEmits(['next'])
 const tmpPwd = ref<string>('')
 const registerStore = useRegisterStore()
 function next(){
-  if(registerStore.profile.pwd != tmpPwd.value){ElMessage.error('两次密码不一致');return}
+  if(registerStore.profile.pwd != tmpPwd.value){notify.error('两次密码不一致');return}
   const result = validateAccountProfile(registerStore.profile.name,registerStore.profile.desc,registerStore.profile.serverKey)
   if(result.ok){
     registerStore.steps[0].status = 'finish'
-    ElMessage.success('账户信息验证通过')
+    notify.success('账户信息验证通过')
     emit('next')
   }else{
-    ElMessage.error(result.message)
+    notify.error(result.message)
   }
 }
 </script>

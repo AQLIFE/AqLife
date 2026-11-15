@@ -1,22 +1,16 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Shared.Contracts;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AqLife.Domain.Entities.File
 {
     //设计上 1:1
-    public class PublishMetaEntity: IEntity
+    public class PublishMetaEntity : IRelationship
     {
-        [Key]   
+        [Key]
         public Guid UID { get; init; } = Guid.Empty;
-        
+
         public DateTimeOffset? PublishAt { get; private set; } = null;
 
         public FileStatus PublishStatus { private set; get; } = FileStatus.Draft;
@@ -61,5 +55,13 @@ namespace AqLife.Domain.Entities.File
             PublishAt = null;
             PublishStatus = FileStatus.Draft;
         }
+        /// <summary>
+        /// 脱敏处理方法,不允许在事务中使用,仅可在查询中使用(AsNoTracking 子句)
+        /// </summary>
+        public void Desensitize()
+        {
+            this.PublishAt = this.PublishAt is not DateTimeOffset source ? null : new(source.Date, source.Offset);
+        }
+        /// 取代旧有脱敏逻辑,不再将其设置为 null ,相反 最大程度上保留日期
     }
 }

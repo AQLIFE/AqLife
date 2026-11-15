@@ -1,7 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Search;
-using AqLife.Domain.Contracts;
+using AqLife.Shared.Contracts;
 using AqLife.Shared.Exceptions;
-using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Search
 {
@@ -13,12 +12,17 @@ namespace AqLife.Application.Search
     where TEntity : class, IEntity
     where TSearchCriteria : ISearchCriteria
     {
-        public virtual  bool IsMatch(TSearchCriteria c)
+        public virtual bool IsMatch(TSearchCriteria c)
             => c.UID is not null || !string.IsNullOrWhiteSpace(c.Keyword);
-        public virtual async Task<IQueryable<TEntity>> ExecuteAsync(
-            IQueryable<TEntity> queryable,
-            TSearchCriteria c,
-            CancellationToken ct = default)
+        /// <summary>
+        /// 仅接受第一个有效的参数 : 子类应沿用该逻辑
+        /// </summary>
+        /// <param name="queryable"></param>
+        /// <param name="c"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        /// <exception cref="RequestFailException"></exception>
+        public virtual IQueryable<TEntity> Execute(IQueryable<TEntity> queryable, TSearchCriteria c, CancellationToken ct = default)
         {
             if (c.UID is Guid id)
                 return queryable.Where(e => e.UID == id);
@@ -26,7 +30,7 @@ namespace AqLife.Application.Search
                 return ApplyKeywordFilter(queryable, c.Keyword.Trim());
             else throw new RequestFailException("不合规的操作，该请求不应被处理");
         }
-        protected abstract IQueryable<TEntity> ApplyKeywordFilter(
+        protected private abstract IQueryable<TEntity> ApplyKeywordFilter(
             IQueryable<TEntity> queryable, string keyword);
     }
 }

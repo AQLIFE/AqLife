@@ -13,14 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { TodoStatus } from './TodoStatus';
-import {
-    TodoStatusFromJSON,
-    TodoStatusFromJSONTyped,
-    TodoStatusToJSON,
-    TodoStatusToJSONTyped,
-} from './TodoStatus';
-
 /**
  * 
  * @export
@@ -38,22 +30,26 @@ export interface UpdateTodoCommand {
      * @type {string}
      * @memberof UpdateTodoCommand
      */
-    desc?: string | null;
+    planId?: string;
     /**
      * 
-     * @type {TodoStatus}
+     * @type {string}
      * @memberof UpdateTodoCommand
      */
-    status?: TodoStatus;
+    title?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateTodoCommand
+     */
+    description?: string | null;
     /**
      * 
      * @type {number}
      * @memberof UpdateTodoCommand
      */
-    priority?: number;
+    sortOrder?: number;
 }
-
-
 
 /**
  * Check if a given object implements the UpdateTodoCommand interface.
@@ -73,9 +69,10 @@ export function UpdateTodoCommandFromJSONTyped(json: any, ignoreDiscriminator: b
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'desc': json['desc'] == null ? undefined : json['desc'],
-        'status': json['status'] == null ? undefined : TodoStatusFromJSON(json['status']),
-        'priority': json['priority'] == null ? undefined : json['priority'],
+        'planId': json['planId'] == null ? undefined : json['planId'],
+        'title': json['title'] == null ? undefined : json['title'],
+        'description': json['description'] == null ? undefined : json['description'],
+        'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
     };
 }
 
@@ -91,9 +88,10 @@ export function UpdateTodoCommandToJSONTyped(value?: UpdateTodoCommand | null, i
     return {
         
         'uid': value['uid'],
-        'desc': value['desc'],
-        'status': TodoStatusToJSON(value['status']),
-        'priority': value['priority'],
+        'planId': value['planId'],
+        'title': value['title'],
+        'description': value['description'],
+        'sortOrder': value['sortOrder'],
     };
 }
 

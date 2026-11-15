@@ -31,12 +31,6 @@ export interface CreateTagCommand {
      * @memberof CreateTagCommand
      */
     aliasName?: string | null;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof CreateTagCommand
-     */
-    isCategory?: boolean;
 }
 
 /**
@@ -58,7 +52,6 @@ export function CreateTagCommandFromJSONTyped(json: any, ignoreDiscriminator: bo
         
         'name': json['name'] == null ? undefined : json['name'],
         'aliasName': json['aliasName'] == null ? undefined : json['aliasName'],
-        'isCategory': json['isCategory'] == null ? undefined : json['isCategory'],
     };
 }
 
@@ -75,7 +68,6 @@ export function CreateTagCommandToJSONTyped(value?: CreateTagCommand | null, ign
         
         'name': value['name'],
         'aliasName': value['aliasName'],
-        'isCategory': value['isCategory'],
     };
 }
 

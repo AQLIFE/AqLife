@@ -7,14 +7,18 @@
 Name | Type
 ------------ | -------------
 `uid` | string
-`ftid` | string
-`desc` | string
+`planId` | string
+`title` | string
 `status` | string
 `createdAt` | string
+`updatedAt` | string
 `completedAt` | string
-`priority` | number
-`todoList` | [Array&lt;TodoDto&gt;](TodoDto.md)
-`hasChildren` | boolean
+`sortOrder` | number
+`predecessorIds` | Array&lt;string&gt;
+`incompleteDependencyCount` | number
+`description` | string
+`isBlocked` | boolean
+`isArchived` | boolean
 
 ## Example
 
@@ -24,14 +28,18 @@ import type { TodoDto } from '@aqlife/api-contract'
 // TODO: Update the object below with actual values
 const example = {
   "uid": null,
-  "ftid": null,
-  "desc": null,
+  "planId": null,
+  "title": null,
   "status": null,
   "createdAt": null,
+  "updatedAt": null,
   "completedAt": null,
-  "priority": null,
-  "todoList": null,
-  "hasChildren": null,
+  "sortOrder": null,
+  "predecessorIds": null,
+  "incompleteDependencyCount": null,
+  "description": null,
+  "isBlocked": null,
+  "isArchived": null,
 } satisfies TodoDto
 
 console.log(example)

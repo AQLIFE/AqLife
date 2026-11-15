@@ -4,5 +4,5 @@ import { npmRun } from './lib/exec.mjs'
 npmRun('dev', {
   workspace: workspaces.mgs,
   cwd: paths.root,
-  label: 'dev @aqlife/mgs',
+  label: `vite mgs (${process.env.APP_ENV ?? 'dev'})`,
 })

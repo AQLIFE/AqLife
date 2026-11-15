@@ -44,6 +44,8 @@ import {
   ElIcon,
   ElLink,
 } from 'element-plus'
+import { apiConfiguration } from '@/services/api'
+
 
 import {
   Picture,
@@ -62,8 +64,10 @@ const authorInfoStore = useAuthorInfoStore()
 const { userInfo } =
   storeToRefs(authorInfoStore)
 
-const previewRequest = (guid: string) =>
-  `${import.meta.env.VITE_API}/api/file/preview?title=&uid=${guid}`
+const previewRequest = (guid: string)=>{
+  return `${apiConfiguration.basePath}/api/file/preview?uid=${guid}`
+
+}
 </script>
 
 <style scoped>

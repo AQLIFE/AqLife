@@ -1,6 +1,6 @@
-﻿using AqLife.Domain.CommandInterface;
-using AqLife.Domain.Entities;
+﻿using AqLife.Domain.Entities;
 using AqLife.Shared;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.IView;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
@@ -14,7 +14,7 @@ namespace AqLife.Domain.Command
     [Required(ErrorMessage = "必填项:key")] string SecretKey
 ) : ICommand<string>;
 
-    public record DeleteAccountCommand(Guid UID) : IDeleteCommand, IRequireValidEntity<AccountEntity>;
+    public record DeleteAccountCommand(Guid UID) : IRequireValidEntity<AccountEntity>, IDeleteCommand;
 
     /// <summary>
     /// 创建账户
@@ -25,10 +25,10 @@ namespace AqLife.Domain.Command
     public record CreateAccountCommand(
         [Required, StringLength(32, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-32之间")]
         string Name,
-        [StringLength(255)]
-        string? Desc,
         string Pwd,
-        string ServerKey
+        string ServerKey,
+        [StringLength(255,ErrorMessage ="个人概述不应超过255个字符")]
+        string Desc
     ) : ICreateCommand<string>, ISimpleAccountInfo;
 
 
@@ -43,7 +43,7 @@ namespace AqLife.Domain.Command
     [Required, StringLength(15, MinimumLength = 3,ErrorMessage ="账户名称长度必须介于3-15之间")]
     string Name,
     string? Desc
-    ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>;
+    ) : IRequireValidEntity<AccountEntity>, IUpdateCommand<string>;
 
     /// <summary>
     /// 更新账户订阅列表
@@ -53,10 +53,7 @@ namespace AqLife.Domain.Command
     public record UpdateAccountSubscriptionsCommand(
         Guid UID,
         IEnumerable<SubscriptionDto> Subscriptions
-    ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>
-    {
-        //public IEnumerable<IFormFile> GetFiles() => Subscriptions.GetIEnumerableFiles();
-    }
+    ) : IUpdateCommand<string>, IRequireValidEntity<AccountEntity>;
 
     /// <summary>
     /// 更新头像
@@ -71,14 +68,14 @@ namespace AqLife.Domain.Command
         public IEnumerable<IFormFile> GetFiles() => [Avatar];
     }
 
-
     public record UpdatePasswordCommand(
         Guid UID,
         //[property:RegularExpression(pattern:@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,32}$",ErrorMessage ="不规范的旧密码")]
         [property:Required(ErrorMessage ="必须提供")]
         string OldPassword,
-        [property:RegularExpression(pattern:@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,32}$",ErrorMessage ="不规范的新密码")]
+        [property:Required(ErrorMessage ="必须提供"),RegularExpression(pattern:@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,32}$",ErrorMessage ="不规范的新密码")]
         string NewPassword
     ) : IRequireValidEntity<AccountEntity>, IUpdateCommand<string>;
 
+    public record UpdatePwdCommand(string OldPassword, string NewPassword);
 }

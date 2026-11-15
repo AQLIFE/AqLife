@@ -63,6 +63,43 @@ namespace PostgreSqlMigrations.Migrations
                     b.ToTable("Accounts");
                 });
 
+            modelBuilder.Entity("AqLife.Domain.Entities.CategoryEntity", b =>
+                {
+                    b.Property<Guid>("UID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CategoryDescription")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UID");
+
+                    b.HasIndex("CategoryName")
+                        .IsUnique();
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Category");
+
+                    b.HasData(
+                        new
+                        {
+                            UID = new Guid("3b246a0e-ed94-45e0-930d-15643683d50d"),
+                            CategoryDescription = "一个基础分类,不允许删除",
+                            CategoryName = "默认分类"
+                        });
+                });
+
             modelBuilder.Entity("AqLife.Domain.Entities.CorpusEntity", b =>
                 {
                     b.Property<Guid>("UID")
@@ -84,10 +121,240 @@ namespace PostgreSqlMigrations.Migrations
                     b.ToTable("Corpus");
                 });
 
+            modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.DevelopmentPlanEntity", b =>
+                {
+                    b.Property<Guid>("UID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("DependencyVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UID");
+
+                    b.ToTable("DevelopmentPlans");
+
+                    b.HasData(
+                        new
+                        {
+                            UID = new Guid("00000000-0000-0000-0000-000000000001"),
+                            CreatedAt = new DateTimeOffset(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DependencyVersion = 0L,
+                            IsArchived = false,
+                            Name = "默认开发计划",
+                            UpdatedAt = new DateTimeOffset(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        });
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.RoadmapNodeLayoutEntity", b =>
+                {
+                    b.Property<Guid>("UID")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double>("X")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Y")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("UID");
+
+                    b.HasIndex("PlanId");
+
+                    b.ToTable("RoadmapNodeLayouts");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.TodoDependencyEntity", b =>
+                {
+                    b.Property<Guid>("UID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PredecessorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SuccessorId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UID");
+
+                    b.HasIndex("SuccessorId");
+
+                    b.HasIndex("PlanId", "PredecessorId");
+
+                    b.HasIndex("PlanId", "SuccessorId");
+
+                    b.HasIndex("PredecessorId", "SuccessorId")
+                        .IsUnique();
+
+                    b.ToTable("TodoDependencies");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.TodoEntity", b =>
+                {
+                    b.Property<Guid>("UID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("PlanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValue(new Guid("00000000-0000-0000-0000-000000000001"));
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UID");
+
+                    b.HasIndex("PlanId");
+
+                    b.ToTable("TodoList");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", b =>
+                {
+                    b.Property<Guid>("UID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryUID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValue(new Guid("3b246a0e-ed94-45e0-930d-15643683d50d"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UID");
+
+                    b.HasIndex("CategoryUID");
+
+                    b.ToTable("FavoriteItems");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteMediaEntity", b =>
+                {
+                    b.Property<Guid>("FavoriteId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FavoriteId", "FileId");
+
+                    b.HasIndex("FileId");
+
+                    b.ToTable("FavoriteMedia");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteTagEntity", b =>
+                {
+                    b.Property<Guid>("FavoriteId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("FavoriteId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("FavoriteTags");
+                });
+
             modelBuilder.Entity("AqLife.Domain.Entities.File.FileMetaEntity", b =>
                 {
                     b.Property<Guid>("UID")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryUID")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Extension")
@@ -118,7 +385,24 @@ namespace PostgreSqlMigrations.Migrations
 
                     b.HasKey("UID");
 
+                    b.HasIndex("CategoryUID");
+
                     b.ToTable("FileMeta");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.File.FileTagEntity", b =>
+                {
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("FileId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("FileTags");
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.File.InteractionMetaEntity", b =>
@@ -148,21 +432,6 @@ namespace PostgreSqlMigrations.Migrations
                     b.HasKey("UID");
 
                     b.ToTable("FilePublishMetas");
-                });
-
-            modelBuilder.Entity("AqLife.Domain.Entities.FileTagEntity", b =>
-                {
-                    b.Property<Guid>("FileId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("FileId", "TagId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("FileTags");
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.SubscriptionEntity", b =>
@@ -229,9 +498,6 @@ namespace PostgreSqlMigrations.Migrations
                     b.Property<string>("AliasName")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsCategory")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -245,36 +511,135 @@ namespace PostgreSqlMigrations.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("AqLife.Domain.Entities.TodoEntity", b =>
+            modelBuilder.Entity("AqLife.Domain.Entities.CategoryEntity", b =>
                 {
-                    b.Property<Guid>("UID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.HasOne("AqLife.Domain.Entities.CategoryEntity", "ParentCategory")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
 
-                    b.Property<DateTimeOffset?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Navigation("ParentCategory");
+                });
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+            modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.RoadmapNodeLayoutEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.DevPlan.DevelopmentPlanEntity", null)
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Property<string>("Desc")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.HasOne("AqLife.Domain.Entities.DevPlan.TodoEntity", null)
+                        .WithOne("LayoutEntity")
+                        .HasForeignKey("AqLife.Domain.Entities.DevPlan.RoadmapNodeLayoutEntity", "UID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.Property<Guid?>("FTID")
-                        .HasColumnType("uuid");
+            modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.TodoDependencyEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.DevPlan.DevelopmentPlanEntity", null)
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer");
+                    b.HasOne("AqLife.Domain.Entities.DevPlan.TodoEntity", "PredecessorTodo")
+                        .WithMany("OutgoingDependencies")
+                        .HasForeignKey("PredecessorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.HasOne("AqLife.Domain.Entities.DevPlan.TodoEntity", "SuccessorTodo")
+                        .WithMany("IncomingDependencies")
+                        .HasForeignKey("SuccessorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasKey("UID");
+                    b.Navigation("PredecessorTodo");
 
-                    b.HasIndex("FTID");
+                    b.Navigation("SuccessorTodo");
+                });
 
-                    b.ToTable("TodoList");
+            modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.TodoEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.DevPlan.DevelopmentPlanEntity", "Plan")
+                        .WithMany("Todos")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Plan");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.CategoryEntity", "Category")
+                        .WithMany("Favorites")
+                        .HasForeignKey("CategoryUID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteMediaEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", null)
+                        .WithMany("Media")
+                        .HasForeignKey("FavoriteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AqLife.Domain.Entities.File.FileMetaEntity", null)
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteTagEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", null)
+                        .WithMany("Tags")
+                        .HasForeignKey("FavoriteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AqLife.Domain.Entities.TagEntity", null)
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.File.FileMetaEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.CategoryEntity", "Category")
+                        .WithMany("Files")
+                        .HasForeignKey("CategoryUID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.File.FileTagEntity", b =>
+                {
+                    b.HasOne("AqLife.Domain.Entities.File.FileMetaEntity", "File")
+                        .WithMany("FileTags")
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AqLife.Domain.Entities.TagEntity", "Tag")
+                        .WithMany("FileTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("File");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.File.InteractionMetaEntity", b =>
@@ -295,25 +660,6 @@ namespace PostgreSqlMigrations.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AqLife.Domain.Entities.FileTagEntity", b =>
-                {
-                    b.HasOne("AqLife.Domain.Entities.File.FileMetaEntity", "File")
-                        .WithMany("FileTags")
-                        .HasForeignKey("FileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AqLife.Domain.Entities.TagEntity", "Tag")
-                        .WithMany("FileTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("File");
-
-                    b.Navigation("Tag");
-                });
-
             modelBuilder.Entity("AqLife.Domain.Entities.SubscriptionEntity", b =>
                 {
                     b.HasOne("AqLife.Domain.Entities.AccountEntity", null)
@@ -323,17 +669,38 @@ namespace PostgreSqlMigrations.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AqLife.Domain.Entities.TodoEntity", b =>
-                {
-                    b.HasOne("AqLife.Domain.Entities.TodoEntity", null)
-                        .WithMany("Children")
-                        .HasForeignKey("FTID")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("AqLife.Domain.Entities.AccountEntity", b =>
                 {
                     b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.CategoryEntity", b =>
+                {
+                    b.Navigation("Favorites");
+
+                    b.Navigation("Files");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.DevelopmentPlanEntity", b =>
+                {
+                    b.Navigation("Todos");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.DevPlan.TodoEntity", b =>
+                {
+                    b.Navigation("IncomingDependencies");
+
+                    b.Navigation("LayoutEntity")
+                        .IsRequired();
+
+                    b.Navigation("OutgoingDependencies");
+                });
+
+            modelBuilder.Entity("AqLife.Domain.Entities.Favorite.FavoriteItemEntity", b =>
+                {
+                    b.Navigation("Media");
+
+                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("AqLife.Domain.Entities.File.FileMetaEntity", b =>
@@ -350,11 +717,6 @@ namespace PostgreSqlMigrations.Migrations
             modelBuilder.Entity("AqLife.Domain.Entities.TagEntity", b =>
                 {
                     b.Navigation("FileTags");
-                });
-
-            modelBuilder.Entity("AqLife.Domain.Entities.TodoEntity", b =>
-                {
-                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

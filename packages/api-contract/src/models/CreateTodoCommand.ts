@@ -24,19 +24,25 @@ export interface CreateTodoCommand {
      * @type {string}
      * @memberof CreateTodoCommand
      */
-    desc?: string | null;
-    /**
-     * 
-     * @type {number}
-     * @memberof CreateTodoCommand
-     */
-    priority?: number;
+    planId?: string;
     /**
      * 
      * @type {string}
      * @memberof CreateTodoCommand
      */
-    ftid?: string | null;
+    title?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateTodoCommand
+     */
+    description?: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateTodoCommand
+     */
+    sortOrder?: number;
 }
 
 /**
@@ -56,9 +62,10 @@ export function CreateTodoCommandFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'desc': json['desc'] == null ? undefined : json['desc'],
-        'priority': json['priority'] == null ? undefined : json['priority'],
-        'ftid': json['ftid'] == null ? undefined : json['ftid'],
+        'planId': json['planId'] == null ? undefined : json['planId'],
+        'title': json['title'] == null ? undefined : json['title'],
+        'description': json['description'] == null ? undefined : json['description'],
+        'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
     };
 }
 
@@ -73,9 +80,10 @@ export function CreateTodoCommandToJSONTyped(value?: CreateTodoCommand | null, i
 
     return {
         
-        'desc': value['desc'],
-        'priority': value['priority'],
-        'ftid': value['ftid'],
+        'planId': value['planId'],
+        'title': value['title'],
+        'description': value['description'],
+        'sortOrder': value['sortOrder'],
     };
 }
 

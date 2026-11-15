@@ -40,7 +40,6 @@ const fileModel = defineModel<File | null>('file')
 function preview(guid: string | null | undefined): string {
   if (typeof guid == 'string') {
     let temp = fileStore.previewUrl.get(guid)
-    // console.log(temp)
     if (temp === undefined)
       temp = `${import.meta.env.VITE_API}/api/File/preview?UID=${guid}`
     return temp

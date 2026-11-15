@@ -8,7 +8,6 @@ Name | Type
 ------------ | -------------
 `name` | string
 `aliasName` | string
-`isCategory` | boolean
 
 ## Example
 
@@ -19,7 +18,6 @@ import type { CreateTagCommand } from '@aqlife/api-contract'
 const example = {
   "name": null,
   "aliasName": null,
-  "isCategory": null,
 } satisfies CreateTagCommand
 
 console.log(example)

@@ -18,10 +18,10 @@ public static class FilePolicyExtensions
             BehavioralLevel.OptionType,
             "正在绑定文件存储策略...");
 
-        var filePolicySection = configuration.GetSection("FilePolicy");
-        var r2OptionSection = configuration.GetSection("R2");
+        IConfigurationSection filePolicySection = configuration.GetSection("FilePolicy");
+        IConfigurationSection r2OptionSection = configuration.GetSection("R2");
 
-        var filePolicy = filePolicySection.Get<FilePolicyOption>()
+        FilePolicyOption filePolicy = filePolicySection.Get<FilePolicyOption>()
             ?? throw new ConfigurationNotFoundException(
                 "配置文件中缺失 FilePolicy 节点或 StoragePath 设置");
 

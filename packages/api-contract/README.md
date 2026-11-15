@@ -56,66 +56,126 @@ All URIs are relative to *http://localhost*
 *AccountApi* | [**apiAccountLoginPost**](docs/AccountApi.md#apiaccountloginpost) | **POST** /api/Account/login | 
 *AccountApi* | [**apiAccountPost**](docs/AccountApi.md#apiaccountpost) | **POST** /api/Account | 
 *AccountApi* | [**apiAccountProfilePatch**](docs/AccountApi.md#apiaccountprofilepatch) | **PATCH** /api/Account/profile | 
+*AccountApi* | [**apiAccountPwdPatch**](docs/AccountApi.md#apiaccountpwdpatch) | **PATCH** /api/Account/pwd | 
 *AccountApi* | [**apiAccountSubscriptionsPut**](docs/AccountApi.md#apiaccountsubscriptionsput) | **PUT** /api/Account/subscriptions | 
+*CategoryApi* | [**apiCategoryDelete**](docs/CategoryApi.md#apicategorydelete) | **DELETE** /api/Category | 
+*CategoryApi* | [**apiCategoryGet**](docs/CategoryApi.md#apicategoryget) | **GET** /api/Category | 
+*CategoryApi* | [**apiCategoryPost**](docs/CategoryApi.md#apicategorypost) | **POST** /api/Category | 
+*CategoryApi* | [**apiCategoryPut**](docs/CategoryApi.md#apicategoryput) | **PUT** /api/Category | 
 *CorpusApi* | [**apiCorpusDelete**](docs/CorpusApi.md#apicorpusdelete) | **DELETE** /api/Corpus | 
 *CorpusApi* | [**apiCorpusGet**](docs/CorpusApi.md#apicorpusget) | **GET** /api/Corpus | 
 *CorpusApi* | [**apiCorpusPost**](docs/CorpusApi.md#apicorpuspost) | **POST** /api/Corpus | 
 *CorpusApi* | [**apiCorpusRandomGet**](docs/CorpusApi.md#apicorpusrandomget) | **GET** /api/Corpus/random | 
+*DevelopmentPlanApi* | [**apiDevelopmentPlansArchivePost**](docs/DevelopmentPlanApi.md#apidevelopmentplansarchivepost) | **POST** /api/development-plans/archive | 
+*DevelopmentPlanApi* | [**apiDevelopmentPlansGet**](docs/DevelopmentPlanApi.md#apidevelopmentplansget) | **GET** /api/development-plans | 
+*DevelopmentPlanApi* | [**apiDevelopmentPlansPatch**](docs/DevelopmentPlanApi.md#apidevelopmentplanspatch) | **PATCH** /api/development-plans | 
+*DevelopmentPlanApi* | [**apiDevelopmentPlansPost**](docs/DevelopmentPlanApi.md#apidevelopmentplanspost) | **POST** /api/development-plans | 
+*FavoriteApi* | [**apiFavoriteDelete**](docs/FavoriteApi.md#apifavoritedelete) | **DELETE** /api/Favorite | 
+*FavoriteApi* | [**apiFavoriteGet**](docs/FavoriteApi.md#apifavoriteget) | **GET** /api/Favorite | 
+*FavoriteApi* | [**apiFavoritePost**](docs/FavoriteApi.md#apifavoritepost) | **POST** /api/Favorite | 
+*FavoriteApi* | [**apiFavoritePublishPatch**](docs/FavoriteApi.md#apifavoritepublishpatch) | **PATCH** /api/Favorite/publish | 
+*FavoriteApi* | [**apiFavoritePut**](docs/FavoriteApi.md#apifavoriteput) | **PUT** /api/Favorite | 
 *FileApi* | [**apiFileCancelSchedulePatch**](docs/FileApi.md#apifilecancelschedulepatch) | **PATCH** /api/File/CancelSchedule | 
 *FileApi* | [**apiFileDelete**](docs/FileApi.md#apifiledelete) | **DELETE** /api/File | 
 *FileApi* | [**apiFileDownloadGet**](docs/FileApi.md#apifiledownloadget) | **GET** /api/File/download | 
 *FileApi* | [**apiFileGet**](docs/FileApi.md#apifileget) | **GET** /api/File | 
+*FileApi* | [**apiFileHashCheckPost**](docs/FileApi.md#apifilehashcheckpost) | **POST** /api/File/hash/check | 
+*FileApi* | [**apiFileOverviewGet**](docs/FileApi.md#apifileoverviewget) | **GET** /api/File/overview | 
 *FileApi* | [**apiFilePatch**](docs/FileApi.md#apifilepatch) | **PATCH** /api/File | 
 *FileApi* | [**apiFilePreviewCompletePatch**](docs/FileApi.md#apifilepreviewcompletepatch) | **PATCH** /api/File/preview/complete | 
 *FileApi* | [**apiFilePreviewGet**](docs/FileApi.md#apifilepreviewget) | **GET** /api/File/preview | 
+*FileApi* | [**apiFileResumableUploadPost**](docs/FileApi.md#apifileresumableuploadpost) | **POST** /api/File/resumable-upload | 
+*FileApi* | [**apiFileResumableUploadUploadIdChunksIndexPut**](docs/FileApi.md#apifileresumableuploaduploadidchunksindexput) | **PUT** /api/File/resumable-upload/{uploadId}/chunks/{index} | 
+*FileApi* | [**apiFileResumableUploadUploadIdCompletePost**](docs/FileApi.md#apifileresumableuploaduploadidcompletepost) | **POST** /api/File/resumable-upload/{uploadId}/complete | 
+*FileApi* | [**apiFileResumableUploadUploadIdGet**](docs/FileApi.md#apifileresumableuploaduploadidget) | **GET** /api/File/resumable-upload/{uploadId} | 
 *FileApi* | [**apiFileSchedulePatch**](docs/FileApi.md#apifileschedulepatch) | **PATCH** /api/File/schedule | 
 *FileApi* | [**apiFileTagPatch**](docs/FileApi.md#apifiletagpatch) | **PATCH** /api/File/tag | 
-*FileApi* | [**apiFileUploadPost**](docs/FileApi.md#apifileuploadpost) | **POST** /api/File/Upload | 
-*OverviewApi* | [**apiOverviewGet**](docs/OverviewApi.md#apioverviewget) | **GET** /api/Overview | 
+*FileApi* | [**apiFileUploadMultiplePost**](docs/FileApi.md#apifileuploadmultiplepost) | **POST** /api/File/upload/multiple | 
+*FileApi* | [**apiFileUploadPost**](docs/FileApi.md#apifileuploadpost) | **POST** /api/File/upload | 
+*FileApi* | [**apiFileVideoPreviewTicketPost**](docs/FileApi.md#apifilevideopreviewticketpost) | **POST** /api/File/video-preview-ticket | 
+*FileApi* | [**apiFileVideoStreamGet**](docs/FileApi.md#apifilevideostreamget) | **GET** /api/File/video-stream | 
 *TagApi* | [**apiTagDelete**](docs/TagApi.md#apitagdelete) | **DELETE** /api/Tag | 
 *TagApi* | [**apiTagGet**](docs/TagApi.md#apitagget) | **GET** /api/Tag | 
-*TagApi* | [**apiTagOverviewGet**](docs/TagApi.md#apitagoverviewget) | **GET** /api/Tag/overview | 
 *TagApi* | [**apiTagPatch**](docs/TagApi.md#apitagpatch) | **PATCH** /api/Tag | 
 *TagApi* | [**apiTagPost**](docs/TagApi.md#apitagpost) | **POST** /api/Tag | 
+*TodoApi* | [**apiTodoArchivePatch**](docs/TodoApi.md#apitodoarchivepatch) | **PATCH** /api/Todo/archive | 
 *TodoApi* | [**apiTodoDelete**](docs/TodoApi.md#apitododelete) | **DELETE** /api/Todo | 
+*TodoApi* | [**apiTodoDependenciesDelete**](docs/TodoApi.md#apitododependenciesdelete) | **DELETE** /api/Todo/dependencies | 
+*TodoApi* | [**apiTodoDependenciesPost**](docs/TodoApi.md#apitododependenciespost) | **POST** /api/Todo/dependencies | 
+*TodoApi* | [**apiTodoDetailsPatch**](docs/TodoApi.md#apitododetailspatch) | **PATCH** /api/Todo/details | 
 *TodoApi* | [**apiTodoGet**](docs/TodoApi.md#apitodoget) | **GET** /api/Todo | 
-*TodoApi* | [**apiTodoPatch**](docs/TodoApi.md#apitodopatch) | **PATCH** /api/Todo | 
 *TodoApi* | [**apiTodoPost**](docs/TodoApi.md#apitodopost) | **POST** /api/Todo | 
+*TodoApi* | [**apiTodoRestorePatch**](docs/TodoApi.md#apitodorestorepatch) | **PATCH** /api/Todo/restore | 
+*TodoApi* | [**apiTodoRoadmapGet**](docs/TodoApi.md#apitodoroadmapget) | **GET** /api/Todo/roadmap | 
+*TodoApi* | [**apiTodoRoadmapLayoutPut**](docs/TodoApi.md#apitodoroadmaplayoutput) | **PUT** /api/Todo/roadmap/layout | 
+*TodoApi* | [**apiTodoStatusPatch**](docs/TodoApi.md#apitodostatuspatch) | **PATCH** /api/Todo/status | 
 
 
 ### Models
 
 - [AccountDto](docs/AccountDto.md)
 - [AccountProfile](docs/AccountProfile.md)
-- [BlogCategoryStatistics](docs/BlogCategoryStatistics.md)
+- [AddTodoDependencyCommand](docs/AddTodoDependencyCommand.md)
+- [ArchiveDevelopmentPlanCommand](docs/ArchiveDevelopmentPlanCommand.md)
+- [ArchiveTodoCommand](docs/ArchiveTodoCommand.md)
 - [CancelScheduledFileCommand](docs/CancelScheduledFileCommand.md)
+- [CategoryDto](docs/CategoryDto.md)
+- [CategoryDtoPageResult](docs/CategoryDtoPageResult.md)
+- [CategoryQueryType](docs/CategoryQueryType.md)
+- [CheckFileHashQuery](docs/CheckFileHashQuery.md)
 - [CorpusDto](docs/CorpusDto.md)
 - [CorpusDtoPageResult](docs/CorpusDtoPageResult.md)
 - [CreateAccountCommand](docs/CreateAccountCommand.md)
+- [CreateCategoryCommand](docs/CreateCategoryCommand.md)
 - [CreateCorpusCommand](docs/CreateCorpusCommand.md)
+- [CreateDevelopmentPlanCommand](docs/CreateDevelopmentPlanCommand.md)
+- [CreateFavoriteCommand](docs/CreateFavoriteCommand.md)
 - [CreateTagCommand](docs/CreateTagCommand.md)
 - [CreateTodoCommand](docs/CreateTodoCommand.md)
 - [DeleteCorepusCommand](docs/DeleteCorepusCommand.md)
 - [DeleteFileCommand](docs/DeleteFileCommand.md)
 - [DeleteTagCommand](docs/DeleteTagCommand.md)
 - [DeleteTodoCommand](docs/DeleteTodoCommand.md)
+- [DevelopmentPlanDto](docs/DevelopmentPlanDto.md)
+- [FavoriteDto](docs/FavoriteDto.md)
+- [FavoriteDtoPageResult](docs/FavoriteDtoPageResult.md)
+- [FavoriteMediaDto](docs/FavoriteMediaDto.md)
+- [FavoriteMediaInput](docs/FavoriteMediaInput.md)
 - [FileDto](docs/FileDto.md)
 - [FileDtoPageResult](docs/FileDtoPageResult.md)
+- [FileHashCheckResult](docs/FileHashCheckResult.md)
+- [FileHashMatch](docs/FileHashMatch.md)
 - [FileOrder](docs/FileOrder.md)
+- [FileOverviewDto](docs/FileOverviewDto.md)
 - [FileScope](docs/FileScope.md)
 - [FileStatus](docs/FileStatus.md)
 - [LoginCommand](docs/LoginCommand.md)
-- [OverviewDto](docs/OverviewDto.md)
+- [PublishStatusSearch](docs/PublishStatusSearch.md)
+- [RemoveTodoDependencyCommand](docs/RemoveTodoDependencyCommand.md)
+- [RestoreTodoCommand](docs/RestoreTodoCommand.md)
+- [ResumableUploadSession](docs/ResumableUploadSession.md)
+- [ResumableUploadStatus](docs/ResumableUploadStatus.md)
+- [RoadmapNodeLayoutDto](docs/RoadmapNodeLayoutDto.md)
+- [SaveRoadmapNodeLayoutCommand](docs/SaveRoadmapNodeLayoutCommand.md)
 - [ScheduledFileCommand](docs/ScheduledFileCommand.md)
+- [SetFavoritePublishedCommand](docs/SetFavoritePublishedCommand.md)
+- [StartVideoUploadCommand](docs/StartVideoUploadCommand.md)
 - [SubscriptionDto](docs/SubscriptionDto.md)
 - [TagDto](docs/TagDto.md)
 - [TagDtoPageResult](docs/TagDtoPageResult.md)
+- [TodoDependencyDto](docs/TodoDependencyDto.md)
 - [TodoDto](docs/TodoDto.md)
 - [TodoDtoPageResult](docs/TodoDtoPageResult.md)
+- [TodoRoadmapDto](docs/TodoRoadmapDto.md)
 - [TodoStatus](docs/TodoStatus.md)
+- [UpdateCategoryCommand](docs/UpdateCategoryCommand.md)
+- [UpdateDevelopmentPlanCommand](docs/UpdateDevelopmentPlanCommand.md)
+- [UpdateFavoriteCommand](docs/UpdateFavoriteCommand.md)
 - [UpdateFileTagCommand](docs/UpdateFileTagCommand.md)
+- [UpdatePwdCommand](docs/UpdatePwdCommand.md)
 - [UpdateTagCommand](docs/UpdateTagCommand.md)
 - [UpdateTodoCommand](docs/UpdateTodoCommand.md)
+- [UpdateTodoStatusCommand](docs/UpdateTodoStatusCommand.md)
 
 ### Authorization
 

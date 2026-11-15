@@ -1,5 +1,6 @@
 import '@/assets/styles/main.css'
 import 'element-plus/dist/index.css'
+import '@aqlife/ui-shared/feedback/loading.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

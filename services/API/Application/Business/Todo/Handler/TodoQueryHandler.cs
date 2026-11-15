@@ -1,20 +1,19 @@
-﻿using AqLife.Application.Business.Todo;
-using AqLife.Application.Business.Todo.Search;
+using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Mappers;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.IView;
 using MediatR;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
-namespace AqLife.Application.Business.Todo.Handler
+namespace AqLife.Application.Business.Todo.Handler;
+
+public sealed class TodoQueryHandler(
+    ISearch<TodoQuery, TodoEntity> todoSearch,
+    PageResultMapper<TodoEntity, TodoDto> pageMapper) : IRequestHandler<TodoQuery, PageResult<TodoDto>>
 {
-    public class TodoQueryHandler(TodoSearch search, PageResultMapper<TodoEntity,TodoDto> mapper) : IRequestHandler<TodoQuery, PageResult<TodoDto>>
+    public async Task<PageResult<TodoDto>> Handle(TodoQuery q, CancellationToken ct)
     {
-        public async Task<PageResult<TodoDto>> Handle(TodoQuery query, CancellationToken cancellationToken)
-        {
-            var result = await search.SearchPageAsync(query, cancellationToken);
-            return mapper.ToDto(result);
-        }
+        PageResult<TodoEntity> result = await todoSearch.SearchPageAsync(q, ct);
+        return pageMapper.ToDto(result);
     }
 }

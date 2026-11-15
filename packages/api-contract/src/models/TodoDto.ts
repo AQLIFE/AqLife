@@ -30,13 +30,13 @@ export interface TodoDto {
      * @type {string}
      * @memberof TodoDto
      */
-    ftid?: string | null;
+    planId?: string;
     /**
      * 
      * @type {string}
      * @memberof TodoDto
      */
-    desc?: string | null;
+    title?: string | null;
     /**
      * 
      * @type {string}
@@ -54,25 +54,49 @@ export interface TodoDto {
      * @type {string}
      * @memberof TodoDto
      */
+    updatedAt?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TodoDto
+     */
     completedAt?: string | null;
     /**
      * 
      * @type {number}
      * @memberof TodoDto
      */
-    priority?: number;
+    sortOrder?: number;
     /**
      * 
-     * @type {Array<TodoDto>}
+     * @type {Array<string>}
      * @memberof TodoDto
      */
-    todoList?: Array<TodoDto> | null;
+    predecessorIds?: Array<string> | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof TodoDto
+     */
+    incompleteDependencyCount?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof TodoDto
+     */
+    description?: string | null;
     /**
      * 
      * @type {boolean}
      * @memberof TodoDto
      */
-    hasChildren?: boolean;
+    isBlocked?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TodoDto
+     */
+    isArchived?: boolean;
 }
 
 /**
@@ -93,14 +117,18 @@ export function TodoDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): T
     return {
         
         'uid': json['uid'] == null ? undefined : json['uid'],
-        'ftid': json['ftid'] == null ? undefined : json['ftid'],
-        'desc': json['desc'] == null ? undefined : json['desc'],
+        'planId': json['planId'] == null ? undefined : json['planId'],
+        'title': json['title'] == null ? undefined : json['title'],
         'status': json['status'] == null ? undefined : json['status'],
         'createdAt': json['createdAt'] == null ? undefined : json['createdAt'],
+        'updatedAt': json['updatedAt'] == null ? undefined : json['updatedAt'],
         'completedAt': json['completedAt'] == null ? undefined : json['completedAt'],
-        'priority': json['priority'] == null ? undefined : json['priority'],
-        'todoList': json['todoList'] == null ? undefined : ((json['todoList'] as Array<any>).map(TodoDtoFromJSON)),
-        'hasChildren': json['hasChildren'] == null ? undefined : json['hasChildren'],
+        'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
+        'predecessorIds': json['predecessorIds'] == null ? undefined : json['predecessorIds'],
+        'incompleteDependencyCount': json['incompleteDependencyCount'] == null ? undefined : json['incompleteDependencyCount'],
+        'description': json['description'] == null ? undefined : json['description'],
+        'isBlocked': json['isBlocked'] == null ? undefined : json['isBlocked'],
+        'isArchived': json['isArchived'] == null ? undefined : json['isArchived'],
     };
 }
 
@@ -116,14 +144,18 @@ export function TodoDtoToJSONTyped(value?: TodoDto | null, ignoreDiscriminator: 
     return {
         
         'uid': value['uid'],
-        'ftid': value['ftid'],
-        'desc': value['desc'],
+        'planId': value['planId'],
+        'title': value['title'],
         'status': value['status'],
         'createdAt': value['createdAt'],
+        'updatedAt': value['updatedAt'],
         'completedAt': value['completedAt'],
-        'priority': value['priority'],
-        'todoList': value['todoList'] == null ? undefined : ((value['todoList'] as Array<any>).map(TodoDtoToJSON)),
-        'hasChildren': value['hasChildren'],
+        'sortOrder': value['sortOrder'],
+        'predecessorIds': value['predecessorIds'],
+        'incompleteDependencyCount': value['incompleteDependencyCount'],
+        'description': value['description'],
+        'isBlocked': value['isBlocked'],
+        'isArchived': value['isArchived'],
     };
 }
 

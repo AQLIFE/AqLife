@@ -1,18 +1,20 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Mapper;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Command;
-using AqLife.Domain.Entities;
+using AqLife.Domain.Entities.DevPlan;
 using MediatR;
-using AqLife.Application.Business.Todo;
 
-namespace AqLife.Application.Business.Todo.Handler
+namespace AqLife.Application.Business.Todo.Handler;
+
+public sealed class CreateTodoCommandHandler(
+    IApplicationDbContext db,
+    ICreateMapper<TodoEntity, CreateTodoCommand> mapper) : IRequestHandler<CreateTodoCommand, Guid>
 {
-    public class CreateTodoCommandHandler(IApplicationDbContext storage, TodoMapper mapper) : IRequestHandler<CreateTodoCommand, Guid>
+    public async Task<Guid> Handle(CreateTodoCommand q, CancellationToken ct)
     {
-        public async Task<Guid> Handle(CreateTodoCommand command, CancellationToken ct)
-        {
-            TodoEntity entity = mapper.ToEntity(command);
-            await storage.Todo.AddAsync(entity, ct);
-            return entity.UID;
-        }
+        var todo = mapper.ToEntity(q);
+        todo.LayoutEntity = new(todoId: todo.UID, todo.PlanId, 0, 0);
+        await db.Todo.AddAsync(todo, ct);
+        return todo.UID;
     }
 }

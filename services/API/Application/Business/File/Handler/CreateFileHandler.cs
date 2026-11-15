@@ -4,9 +4,12 @@ using MediatR;
 
 namespace AqLife.Application.Business.File.Handler
 {
-    public class CreateFileHandler(FileWriter fileWriter) : IRequestHandler<CreateFileCommand, IEnumerable<Guid>>
+    public class CreateFileHandler(FileWriter fileWriter) : IRequestHandler<CreateFileCommand, Guid>, IRequestHandler<UploadFilesCommand, IEnumerable<Guid>>
     {
-        public async Task<IEnumerable<Guid>> Handle(CreateFileCommand command, CancellationToken ct)
-        => await fileWriter.WriteAsync(command.GetFiles(), ct, command.IsTemplate);
+        public async Task<Guid> Handle(CreateFileCommand command, CancellationToken ct)
+        => await fileWriter.WriteAsync(command, ct);
+
+        public async Task<IEnumerable<Guid>> Handle(UploadFilesCommand command, CancellationToken ct)
+        => await fileWriter.WriteAsync(command, ct);
     }
 }

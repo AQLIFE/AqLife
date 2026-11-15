@@ -1,23 +1,29 @@
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
+import { notify, useLoadingTask } from '@aqlife/ui-shared'
 import { RouterView, useRoute } from 'vue-router'
 import EntrancePanel from './components/EntrancePanel.vue'
 import { useAccountStore } from '@/stores/useAccountStore'
 import { AccountApi } from '@/api'
 import { apiConfiguration } from './services/api.ts'
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount } from 'vue'
 import MgsSidebar from '@/components/ui/MgsSidebar.vue'
 import MgsTopbar from '@/components/ui/MgsTopbar.vue'
 
 const accountStore = useAccountStore()
 const request = new AccountApi(apiConfiguration)
 const route = useRoute()
-const loading = ref(true)
+const bootstrapLoading = useLoadingTask('mgs:app:bootstrap')
+const finishBootstrap = bootstrapLoading.begin()
+const loading = bootstrapLoading.isLoading
 
 const currentTitle = computed(() => {
   if (route.path.startsWith('/blog')) return 'Blog'
   if (route.path.startsWith('/todo')) return 'Todo'
+  if (route.path.startsWith('/corpus')) return '语录管理'
+  if (route.path.startsWith('/development-plan')) return '开发路线图'
   if (route.path.startsWith('/tag')) return 'Tags'
+  if (route.path.startsWith('/category')) return '分类管理'
+  if (route.path.startsWith('/favorite')) return '收藏管理'
   if (route.path.startsWith('/account')) return 'Account'
   return 'Overview'
 })
@@ -28,10 +34,12 @@ onBeforeMount(async () => {
     if (response.raw.status === 200) {
       accountStore.systemAccount = await response.value()
     } else if (response.raw.status !== 204) {
-      ElMessage.error('未配置账户,请进入注册流程')
+      notify.error('未配置账户,请进入注册流程')
     }
+  } catch (error) {
+    notify.fromError(error, '账户初始化失败')
   } finally {
-    loading.value = false
+    finishBootstrap()
   }
 })
 </script>
@@ -66,7 +74,7 @@ onBeforeMount(async () => {
 .workspace { min-width:0;flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden; }
 .workspace-content { min-height:0;flex:1;overflow:auto; }
 .auth-layout { min-height:100vh; }
-.entrance-layout { min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px; }
+.entrance-layout { min-height:100vh;display:flex;align-items:center;justify-content:center; }
 .mgs-fade-enter-active,.mgs-fade-leave-active { transition:opacity .12s ease,transform .12s ease; }
 .mgs-fade-enter-from,.mgs-fade-leave-to { opacity:0;transform:translateY(3px); }
 </style>

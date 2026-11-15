@@ -1,5 +1,4 @@
-
-import type { FileApi, FileDto } from "@/api"
+import { FileStatus, type FileApi, type FileDto } from "@/api"
 import type { FileStore } from "@/stores/useFileStore"
 
 export class FilePublishWorkflow {
@@ -13,19 +12,24 @@ export class FilePublishWorkflow {
     const uid = this.file.uid
     if (!uid) throw new Error('无效的文件 ID')
 
+    // The endpoint returns the updated file UID. Do not perform a second search
+    // here: a visibility/query mismatch must not turn a successful publish into
+    // a user-visible failure.
     const result = await this.api.apiFileSchedulePatch({
       scheduledFileCommand: { uid },
     })
-    const latest = await this.api.apiFileGet({ uID: result })
-    const cloudFile = latest.items?.[0]
 
-    if (!cloudFile) throw new Error('File 更新失败')
+    if (result.toLowerCase() !== uid.toLowerCase()) {
+      throw new Error('发布接口返回的文件 ID 不匹配')
+    }
 
-    this.commit(cloudFile)
-    return cloudFile
-  }
+    const updatedFile: FileDto = {
+      ...this.file,
+      publishStatus: FileStatus.Published,
+      publishAt: new Date().toISOString(),
+    }
 
-  private commit(file: FileDto) {
-    this.store.replaceFile(file)
+    this.store.upsertFile(updatedFile)
+    return updatedFile
   }
 }

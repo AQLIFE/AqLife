@@ -15,10 +15,7 @@
       </p>
 
       <div v-if="blog.tags?.length" class="blog-card-tags">
-        <ElTag v-for="(tag, index) in blog.tags" :key="index" size="small" effect="plain" :type="tag.isCategory
-          ? 'success'
-          : 'info'
-          ">
+        <ElTag v-for="(tag, index) in blog.tags" :key="index" size="small" effect="plain" :type="'info'">
           {{ tag.name }}
         </ElTag>
       </div>
@@ -139,8 +136,7 @@ function handleClick() {
 }
 
 .blog-card-content {
-  /* min-height: 300px; */
-
+  min-height: 230px;
   display: flex;
   flex-direction: column;
 

@@ -1,4 +1,4 @@
-﻿using AqLife.Domain.Contracts;
+﻿using AqLife.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,9 +10,9 @@ namespace AqLife.Domain.Entities
     {
         [Key]
         public Guid UID { get; init; } = Guid.NewGuid();
-        
+
         public string CorpusContent { get; private set; } = string.Empty;
-        
+
         public DateTimeOffset CreateDate { get; init; } = DateTimeOffset.UtcNow;
 
         public CorpusEntity() { }

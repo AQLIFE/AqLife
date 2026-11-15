@@ -1,10 +1,8 @@
-﻿using AqLife.Application.Abstractions.Persistence;
-using AqLife.Application.Validators;
+﻿using AqLife.Application.Validators;
 using AqLife.Domain.Command;
-using AqLife.Domain.CommandInterface;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.Options;
-using AqLife.Shared.Tools;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AqLife.Application.Business.File.Validator
@@ -21,19 +19,29 @@ namespace AqLife.Application.Business.File.Validator
             => command.GetFiles().All(e => options.Value.AllowedUpload.Contains(Path.GetExtension(e.FileName).ToLowerInvariant()));
     }
     /// <summary>
-    /// 文件上传策略：文件大小检查（使用你的指数幂逻辑）
+    /// 文件上传策略：普通文件和视频使用独立大小上限
     /// </summary>
     /// <param name="options"></param>
-    public class FileSizeValidator<T>(IOptions<FilePolicyOption> options) : AbstractValidator<T> where T : IHasFormFiles
+    public class FileSizeValidator<T>(IOptions<FilePolicyOption> options, ILogger<FileSizeValidator<T>> logger) : AbstractValidator<T> where T : IHasFormFiles
     {
-        private protected override string ErrorMessage { init; get; } = $"文件大小超出限制 (最大允许: {options.Value.MaxFileSize}";
+        private protected override string ErrorMessage { init; get; } = "文件大小超出对应类型的上传限制";
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
         {
-            long limit = (long)options.Value.MaxFileSize << options.Value.StorageUnit;
-            // 等于 2^ StorageUnit * MaxFileSize
-            // dev 配置设置到100 KB=> 100 * 2^10 字节
+            var policy = options.Value;
+            long regularLimit = options.Value.DefaultFileSize;
+            long videoLimit = options.Value.VideoFileSize;
 
-            return command.GetFiles().All(e => e.Length <= limit);
+            var files = command.GetFiles().ToList();
+            logger.LogDebug("Checking file size limits: regular={RegularLimit} bytes, video={VideoLimit} bytes",
+                regularLimit, videoLimit);
+
+            return files.All(file =>
+            {
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                var isVideo = policy.AllowedVideoExtensions.Contains(extension);
+                var limit = isVideo ? videoLimit : regularLimit;
+                return file.Length > 0 && limit > 0 && file.Length <= limit;
+            });
         }
     }
 
@@ -42,39 +50,34 @@ namespace AqLife.Application.Business.File.Validator
     /// </summary>
     /// <param name="storage"></param>
     /// <param name="context"></param>
-    public class FileDuplicateValidator<T>(UploadContext context,IApplicationDbContext dbContext) : AbstractValidator<T> where T : IHasFormFiles
+    public class FileDuplicateValidator<T> : AbstractValidator<T> where T : IHasFormFiles
     {
         private protected override string ErrorMessage { init; get; } = "文件重复";
         private protected override async Task<bool> IsValidAsync(T command, CancellationToken ct)
         {
             var files = command.GetFiles();
-
-            foreach (var file in files)
-            {
-                var tempHash = await CalculateHashAsync(file);
-                context.FileHashes.Add(file, tempHash);
-                var allowTemplateDuplicate =
-                    command is CreateFileCommand createCommand &&
-                    !createCommand.IsTemplate;
-
-                if (dbContext.File.Any(e =>
-                    e.FileHash == tempHash &&
-                    (!allowTemplateDuplicate || !e.IsTemplate)))
-                {
-                    return false;
-                }
-            }
-            return true;
-
-            // 文件不存在[也会存在新HASH] 和 文件存在但哈希不同 都算有效
-            // 对于文件存在但hash不同,属于update,后续业务需要做合并或者更新处理
+            var keys = files.Select(f => (Name: f.FileName.Trim().ToLowerInvariant(), f.Length)).ToList();
+            return keys.Count == keys.Distinct().Count();
         }
-        private static async Task<string> CalculateHashAsync(IFormFile file)
+
+    }
+
+    public class FileTemplateValidator(IOptions<FilePolicyOption> options, ILogger<FileTemplateValidator> logger) : AbstractValidator<CreateFileCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "非 md 文件,禁止标记为模板文件";
+        private protected override async Task<bool> IsValidAsync(CreateFileCommand command, CancellationToken ct)
         {
-            using var stream = file.OpenReadStream();
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-            var hashBytes = await sha256.ComputeHashAsync(stream);
-            return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            logger.LogDebug("Checking file template validation for command: {Command}", command);
+            return command.GetFiles().All(e =>
+                options.Value.AllowedBlogExtensions.Contains(Path.GetExtension(e.FileName).ToLowerInvariant()) || !command.IsTemplate
+            );
         }
+    }
+
+    public class FileListValidator : AbstractValidator<UploadFilesCommand>
+    {
+        private protected override string ErrorMessage { init; get; } = "禁止空上传";
+        private protected override async Task<bool> IsValidAsync(UploadFilesCommand command, CancellationToken ct)
+        => command.GetFiles().Count() > 0;
     }
 }

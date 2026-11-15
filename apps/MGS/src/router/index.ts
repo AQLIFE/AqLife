@@ -1,3 +1,4 @@
+import { notify } from '@aqlife/ui-shared'
 import { createRouter, createWebHistory } from 'vue-router'
 import type { Component } from 'vue'
 import { MgsIconName } from '@aqlife/icons'
@@ -6,7 +7,6 @@ import { routes } from './routes'
 import { useAccountStore } from '@/stores/useAccountStore'
 import { AccountApi } from '@/api'
 import { apiConfiguration } from '@/services/api'
-import { ElMessage } from 'element-plus'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -14,6 +14,7 @@ declare module 'vue-router' {
     navIcon: MgsIconName | Component
     showInNav: boolean
     order?: number
+    navSection?: string
     sidebarType?: SidebarType
   }
 }
@@ -53,22 +54,22 @@ router.beforeEach(async (to) => {
   const isPublic = publicPaths.includes(to.path) || isErrorPage
 
   if (!isPublic && !accountStore.bearerToken) {
-    ElMessage.warning('请登录')
+    notify.warning('请登录')
     return '/home'
   }
 
   if (to.path === '/login' && accountStore.bearerToken) {
-    ElMessage.success('已登录,正在载入后台控制面板')
+    notify.success('已登录,正在载入后台控制面板')
     return '/home'
   }
 
   if (to.path === '/login' && !accountStore.systemAccount) {
-    ElMessage.warning('系统尚未初始化,请先注册')
+    notify.warning('系统尚未初始化,请先注册')
     return '/register'
   }
 
   if (to.path === '/register' && accountStore.systemAccount) {
-    ElMessage.warning('已有账户,请登录')
+    notify.warning('已有账户,请登录')
     return '/login'
   }
 })

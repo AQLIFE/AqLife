@@ -22,8 +22,9 @@ public static class InfrastructureExtensions
         this IServiceCollection services, IHostEnvironment environment)
     {
         services.AddScoped<IApplicationDbContext, AppStorage>();
+        services.AddScoped<IResumableFileUploadService, ResumableFileUploadService>();
 
-        if(!environment.IsTest()) // 非 Test 模式
+        if (!environment.IsTest()) // 非 Test 模式
         {
             services.AddSingleton<IAmazonS3>(sp =>
             {
@@ -56,6 +57,6 @@ public static class InfrastructureExtensions
 
         return services;
     }
-    private static bool IsTest(this IHostEnvironment hostEnvironment)
+    public static bool IsTest(this IHostEnvironment hostEnvironment)
     => hostEnvironment.IsEnvironment("Test");
 }

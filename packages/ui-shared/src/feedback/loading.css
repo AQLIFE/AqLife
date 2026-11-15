@@ -1,0 +1,15 @@
+.el-loading-mask {
+  backdrop-filter: blur(1px);
+}
+
+.el-loading-spinner .el-loading-text {
+  margin-top: 10px;
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.el-loading-spinner .circular {
+  width: 28px;
+  height: 28px;
+}

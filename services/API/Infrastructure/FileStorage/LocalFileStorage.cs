@@ -44,13 +44,36 @@ namespace AqLife.Infrastructure.FileStorage
             return Task.FromResult<Stream>(new FileStream(LocalPath, FileMode.Open, FileAccess.Read));
         }
 
-        [Obsolete("废弃,若需要读取文件内容,请使用 FileReader.GetContent")]
 
-        public async Task<string> GetContent(string fileName, CancellationToken ct)
+        public Task<FileStorageRangeReadResult> OpenReadRangeAsync(
+            string key,
+            long start,
+            long end,
+            CancellationToken ct = default)
         {
-            string LocalPath = GetPath(fileName);
-            if (!File.Exists(LocalPath)) throw new FileNotFoundException("文件丢失");
-            return await File.ReadAllTextAsync(LocalPath);
+            string localPath = GetPath(key);
+            if (!File.Exists(localPath)) throw new FileNotFoundException("文件丢失");
+
+            var stream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            if (stream.Length <= 0 || start < 0 || end < start || start >= stream.Length)
+            {
+                stream.Dispose();
+                throw new ArgumentOutOfRangeException(nameof(start), "请求的文件字节范围无效。");
+            }
+
+            var totalLength = stream.Length;
+            end = Math.Min(end, totalLength - 1);
+            stream.Position = start;
+            return Task.FromResult(new FileStorageRangeReadResult(stream, totalLength, start, end));
         }
+
+        //[Obsolete("废弃,若需要读取文件内容,请使用 FileReader.GetContent")]
+
+        //public async Task<string> GetContent(string fileName, CancellationToken ct)
+        //{
+        //    string LocalPath = GetPath(fileName);
+        //    if (!File.Exists(LocalPath)) throw new FileNotFoundException("文件丢失");
+        //    return await File.ReadAllTextAsync(LocalPath);
+        //}
     }
 }

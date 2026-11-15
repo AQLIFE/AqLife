@@ -1,19 +1,28 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router'
 import NavigationBar from '@/components/NavigationBar.vue'
-import DevPlan from './components/DevPlan.vue'
+// import DevPlan from './components/DevPlan.vue'
 import FAuthorCard from '@/components/skeletons/FAuthorCard.vue'
 import SearchBox from '@/components/SearchBox.vue'
 import { SidebarType } from '@/types/sidebarType'
 import BlogOverview from '@/components/BlogOverview.vue'
-import { computed } from 'vue'
+import { computed, ref,type Component } from 'vue'
+import { ElButton, ElDrawer, ElSkeletonItem } from 'element-plus'
+import { Menu, Search, User } from '@element-plus/icons-vue'
 import TocTree from './components/TocTree.vue'
 import { useArticleStore } from './stores/articleStore.ts'
 
 const articleStore = useArticleStore()
 const route = useRoute()
-const sideManager = computed(() => {
-  console.log(route.meta.sidebarType)
+const isPreviewFullscreen = computed(() => route.path.startsWith('/preview/') && articleStore.isFullscreen)
+const mobileDrawerOpen = ref(false)
+const mobilePanel = ref<'search' | 'sidebar' | 'account'>('search')
+
+function openMobilePanel(panel: 'search' | 'sidebar' | 'account') {
+  mobilePanel.value = panel
+  mobileDrawerOpen.value = true
+}
+const sideManager = computed(():{component:Component,props:object}|null => {
     switch (route.meta.sidebarType) {
         case SidebarType.Preview:
             return {
@@ -24,11 +33,11 @@ const sideManager = computed(() => {
                 },
             }
 
-        case SidebarType.About:
-            return {
-                component: DevPlan,
-                props: {},
-            }
+        // case SidebarType.About:
+        //     return {
+        //         component: DevPlan,
+        //         props: {},
+        //     }
 
         default:
             return null
@@ -38,24 +47,39 @@ const sideManager = computed(() => {
 </script>
 
 <template>
-  <div id="baseLayout">
-    <aside id="tools">
+  <div id="baseLayout" :class="{ 'is-preview-fullscreen': isPreviewFullscreen }">
+    <aside v-if="!isPreviewFullscreen" id="tools">
      <div class="tools-search">
       <SearchBox/>
      </div>
      <div class="tools-content">
-      <component :is="sideManager?.component" v-bind="sideManager?.props"/>
-     </div>
+        <div v-if="route.meta.sidebarType === SidebarType.Preview && articleStore.isLoading" class="toc-skeleton">
+          <ElSkeletonItem variant="text" class="toc-skeleton-title" />
+          <ElSkeletonItem v-for="index in 7" :key="index" variant="text" class="toc-skeleton-item" />
+        </div>
+        <component v-else :is="sideManager?.component" v-bind="sideManager?.props"/>
+      </div>
     </aside>
-    <main id="content">
-      <div id="navigation">
+    <main id="content" :class="{ 'is-preview-fullscreen': isPreviewFullscreen }">
+      <div v-if="!isPreviewFullscreen" class="mobile-toolbar" aria-label="移动端工具栏">
+        <ElButton :icon="Search" text @click="openMobilePanel('search')">
+          搜索
+        </ElButton>
+        <ElButton v-if="sideManager" :icon="Menu" text @click="openMobilePanel('sidebar')">
+          {{ route.meta.sidebarType === SidebarType.Preview ? '目录' : '工具' }}
+        </ElButton>
+        <ElButton :icon="User" text @click="openMobilePanel('account')">
+          个人
+        </ElButton>
+      </div>
+      <div v-if="!isPreviewFullscreen" id="navigation">
         <NavigationBar/>
       </div>
       <div id="mainViewport">
         <RouterView/>
       </div>
     </main>
-    <aside id="account">
+    <aside v-if="!isPreviewFullscreen" id="account">
       <div class="account-author">
         <FAuthorCard/>
       </div>
@@ -63,10 +87,39 @@ const sideManager = computed(() => {
         <BlogOverview/>
       </div>
     </aside>
+
+    <ElDrawer
+      v-if="!isPreviewFullscreen"
+      v-model="mobileDrawerOpen"
+      class="mobile-drawer"
+      :title="mobilePanel === 'search' ? '搜索' : mobilePanel === 'sidebar' ? (route.meta.sidebarType === SidebarType.Preview ? '文章目录' : '工具') : '个人与博文'"
+      :size="mobilePanel === 'account' ? 'min(92vw, 420px)' : 'min(90vw, 360px)'"
+      :append-to-body="true"
+      destroy-on-close
+    >
+      <div v-if="mobilePanel === 'search'" class="mobile-drawer-search">
+        <SearchBox />
+      </div>
+      <div v-else-if="mobilePanel === 'sidebar'" class="mobile-drawer-sidebar">
+        <div v-if="route.meta.sidebarType === SidebarType.Preview && articleStore.isLoading" class="toc-skeleton">
+          <ElSkeletonItem variant="text" class="toc-skeleton-title" />
+          <ElSkeletonItem v-for="index in 7" :key="index" variant="text" class="toc-skeleton-item" />
+        </div>
+        <component v-else :is="sideManager?.component" v-bind="sideManager?.props" />
+      </div>
+      <div v-else class="mobile-drawer-account">
+        <FAuthorCard />
+        <BlogOverview />
+      </div>
+    </ElDrawer>
   </div>
 </template>
 
 <style scoped>
+#baseLayout.is-preview-fullscreen {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 #baseLayout {
   width: 100%;
   height: 100%;
@@ -87,6 +140,10 @@ const sideManager = computed(() => {
   overscroll-behavior: none;
 }
 
+
+.mobile-toolbar {
+  display: none;
+}
 
 /* =========================================================
    左侧
@@ -129,6 +186,10 @@ const sideManager = computed(() => {
 /* =========================================================
    中间
    ========================================================= */
+
+.is-preview-fullscreen {
+  grid-template-rows: minmax(0, 1fr) !important;
+}
 
 #content {
   min-width: 0;
@@ -211,5 +272,101 @@ const sideManager = computed(() => {
   min-height: 0;
 
   overflow: hidden;
+}
+
+.toc-skeleton { padding: 24px 20px; display: flex; flex-direction: column; gap: 16px; }
+.toc-skeleton-title { width: 42%; height: 18px; margin-bottom: 8px; }
+.toc-skeleton-item { width: 82%; height: 13px; }
+.toc-skeleton-item:nth-child(3n) { width: 64%; margin-left: 16px; }
+
+.mobile-drawer-search,
+.mobile-drawer-sidebar,
+.mobile-drawer-account {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.mobile-drawer-search {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-drawer-search :deep(.search-box) {
+  min-height: 100%;
+  overflow: visible;
+}
+
+.mobile-drawer-sidebar {
+  padding-bottom: 16px;
+}
+
+.mobile-drawer-account {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-drawer-account :deep(.author-skeleton) {
+  height: auto;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 1100px) {
+  #baseLayout {
+    grid-template-columns: 240px minmax(0, 1fr) 240px;
+  }
+}
+
+@media (max-width: 900px) {
+  #baseLayout {
+    height: 100dvh;
+    min-height: 100dvh;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  #tools,
+  #account {
+    display: none;
+  }
+
+  #content {
+    grid-template-rows: 44px 52px minmax(0, 1fr);
+  }
+
+  .mobile-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 8px;
+    padding: 0 10px;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+    background: var(--el-bg-color);
+  }
+
+  .mobile-toolbar :deep(.el-button) {
+    min-height: 36px;
+    margin: 0;
+    padding: 8px 12px;
+  }
+
+  #navigation {
+    height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  #content {
+    grid-template-rows: 44px 48px minmax(0, 1fr);
+  }
+
+  #navigation {
+    height: 48px;
+  }
 }
 </style>

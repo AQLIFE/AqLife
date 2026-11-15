@@ -9,5 +9,7 @@ export enum WebIconName {
   Random = 'RandomIcon',
   Skill = 'SkillIcon',
   Key = 'KeyIcon',
-  Markdown = 'MarkdownIcon'
+  Markdown = 'MarkdownIcon',
+  UnLink = 'UnLinkIcon',
+  Archive = 'ArchiveIcon'
 }

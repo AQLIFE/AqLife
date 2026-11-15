@@ -1,5 +1,5 @@
-﻿using AqLife.Domain.CommandInterface;
-using AqLife.Domain.Entities;
+﻿using AqLife.Domain.Entities;
+using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.IView;
 
 namespace AqLife.Domain.Command
