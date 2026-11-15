@@ -220,7 +220,7 @@ onBeforeUnmount(() => {
           <div class="node-top"><span>{{ node.isBlocked ? '等待前置' : statusLabel(node) }}</span><span>排序 {{ node.sortOrder ?? 0 }}</span></div>
           <h3>{{ titleOf(node) }}</h3>
           <p>{{ node.description || '暂无任务说明' }}</p>
-          <div class="node-bottom"><span>{{ dependencies.filter(edge => edge.successorId === node.uid).length }} 项前置</span><span v-if="node.incompleteDependencyCount">{{ node.incompleteDependencyCount }} 项未完成</span></div>
+          <div class="node-bottom"><span>{{ dependencies.filter(edge => edge.successorId === node.uid).length }} 项前置</span><span v-if="node.uncompletedDependencyCount">{{ node.uncompletedDependencyCount }} 项未完成</span></div>
         </article>
         <div v-if="!nodes.length" class="empty-canvas"><MgsPageState state="empty" description="当前计划还没有任务节点，请先在 Todo 管理页创建任务。" compact /></div>
         </div>
