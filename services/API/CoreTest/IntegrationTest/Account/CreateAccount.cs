@@ -3,8 +3,6 @@ using AqLife.Domain.Command;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Utils;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
 
 
 namespace AqLife.CoreTest.IntegrationTest.Account
@@ -100,12 +98,9 @@ namespace AqLife.CoreTest.IntegrationTest.Account
             CreateAccountCommand command = new(Name: longName, Pwd: "pwd123456", ServerKey: key, Desc: "测试账户描述");
 
             // 执行测试
-            var exception = await Assert.ThrowsAsync<DbUpdateException>(async () => await ExecuteAsync(command, CancellationToken.None));
-            // 检查测试结果
-            var postgresException = Assert.IsType<PostgresException>(exception.InnerException);
-
-            Assert.Equal("22001", postgresException.SqlState);
-            Assert.Contains("value too long for type character varying(32)", postgresException.Message);
+            var exception = await Assert.ThrowsAsync<ResourceConflictException>(async () => await ExecuteAsync(command, CancellationToken.None));
+            // 数据库约束异常由 TransactionBehavior 转换为 ResourceConflictException。
+            Assert.Equal("数据不符合业务规范", exception.Message);
             var account = await FindByNameAsync(command.Name);
             Assert.Null(account); // 这里通过即为PASS        
         }
