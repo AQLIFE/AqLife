@@ -34,7 +34,7 @@ public sealed class ResumableFileUploadService(IOptions<FilePolicyOption> option
 
         Directory.CreateDirectory(RootPath);
         var id = Guid.NewGuid();
-        var session = new ResumableUploadSession(id, name, request.FileSize, request.ChunkSize,
+        var session = new ResumableUploadSession(id, name, request.FileSize, request.CategoryId, request.ChunkSize,
             checked((int)((request.FileSize + request.ChunkSize - 1) / request.ChunkSize)), DateTimeOffset.UtcNow);
         Directory.CreateDirectory(SessionPath(id));
         await File.WriteAllTextAsync(MetadataPath(id), JsonSerializer.Serialize(session, JsonOptions), ct);
@@ -104,7 +104,7 @@ public sealed class ResumableFileUploadService(IOptions<FilePolicyOption> option
                 File.Delete(assembledPath);
                 throw new InvalidOperationException("合并后文件大小与声明大小不一致。");
             }
-            return new CompletedResumableUpload(session.FileName, session.FileSize, assembledPath);
+            return new CompletedResumableUpload(session.FileName, session.FileSize, session.CategoryId, assembledPath);
         }
         finally
         {
