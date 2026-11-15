@@ -1,6 +1,7 @@
 using AqLife.Shared.Contracts;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
+using Riok.Mapperly.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -36,13 +37,14 @@ namespace AqLife.Domain.Entities.DevPlan
         public ICollection<TodoDependencyEntity> IncomingDependencies { get; set; } = [];
         public ICollection<TodoDependencyEntity> OutgoingDependencies { get; set; } = [];
 
-        public TodoEntity() { }
+        //public TodoEntity() { }
 
         public TodoEntity(string title) : this(DevelopmentPlanEntity.DefaultPlanId, title) { }
 
         public TodoEntity(string title, int sortOrder)
             : this(DevelopmentPlanEntity.DefaultPlanId, title, description: null, sortOrder: sortOrder) { }
-
+        
+        [MapperConstructor]
         public TodoEntity(Guid planId, string title, string? description = null, int sortOrder = 0)
         {
             if (planId == Guid.Empty)

@@ -220,7 +220,7 @@ onBeforeUnmount(() => {
           <div class="node-top"><span>{{ node.isBlocked ? '等待前置' : statusLabel(node) }}</span><span>排序 {{ node.sortOrder ?? 0 }}</span></div>
           <h3>{{ titleOf(node) }}</h3>
           <p>{{ node.description || '暂无任务说明' }}</p>
-          <div class="node-bottom"><span>{{ dependencies.filter(edge => edge.successorId === node.uid).length }} 项前置</span><span v-if="node.incompleteDependencyCount">{{ node.incompleteDependencyCount }} 项未完成</span></div>
+          <div class="node-bottom"><span>{{ dependencies.filter(edge => edge.successorId === node.uid).length }} 项前置</span><span v-if="node.uncompletedDependencyCount">{{ node.uncompletedDependencyCount }} 项未完成</span></div>
         </article>
         <div v-if="!nodes.length" class="empty-canvas"><MgsPageState state="empty" description="当前计划还没有任务节点，请先在 Todo 管理页创建任务。" compact /></div>
         </div>
@@ -231,7 +231,7 @@ onBeforeUnmount(() => {
         <p class="detail-description">{{ selected.description || '暂无任务说明' }}</p>
         <div class="detail-state" :class="statusClass(selected)">{{ selected.isBlocked ? '被前置任务阻塞' : statusLabel(selected) }}</div>
         <div class="detail-meta"><span>排序</span><strong>{{ selected.sortOrder ?? 0 }}</strong></div>
-        <div class="detail-meta"><span>未完成前置</span><strong>{{ selected.incompleteDependencyCount ?? 0 }}</strong></div>
+        <div class="detail-meta"><span>前置依赖数量</span><strong>{{ selected.incompleteDependencyCount ?? 0 }}</strong></div>
         <div class="dependency-section">
           <div class="section-heading"><strong>前置依赖（{{ incoming.length }}）</strong><ElButton link type="primary" :icon="Plus" @click="dependencyDialog = true" :disabled="!!selectedPlan?.isArchived || !!selected.isArchived">添加前置任务</ElButton></div>
           <div v-if="incoming.length === 0" class="muted">没有前置依赖</div>

@@ -81,6 +81,12 @@ export interface TodoDto {
     incompleteDependencyCount?: number;
     /**
      * 
+     * @type {number}
+     * @memberof TodoDto
+     */
+    uncompletedDependencyCount?: number;
+    /**
+     * 
      * @type {string}
      * @memberof TodoDto
      */
@@ -126,6 +132,7 @@ export function TodoDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): T
         'sortOrder': json['sortOrder'] == null ? undefined : json['sortOrder'],
         'predecessorIds': json['predecessorIds'] == null ? undefined : json['predecessorIds'],
         'incompleteDependencyCount': json['incompleteDependencyCount'] == null ? undefined : json['incompleteDependencyCount'],
+        'uncompletedDependencyCount': json['uncompletedDependencyCount'] == null ? undefined : json['uncompletedDependencyCount'],
         'description': json['description'] == null ? undefined : json['description'],
         'isBlocked': json['isBlocked'] == null ? undefined : json['isBlocked'],
         'isArchived': json['isArchived'] == null ? undefined : json['isArchived'],
@@ -153,6 +160,7 @@ export function TodoDtoToJSONTyped(value?: TodoDto | null, ignoreDiscriminator: 
         'sortOrder': value['sortOrder'],
         'predecessorIds': value['predecessorIds'],
         'incompleteDependencyCount': value['incompleteDependencyCount'],
+        'uncompletedDependencyCount': value['uncompletedDependencyCount'],
         'description': value['description'],
         'isBlocked': value['isBlocked'],
         'isArchived': value['isArchived'],

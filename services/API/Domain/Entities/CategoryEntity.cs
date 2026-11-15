@@ -31,7 +31,7 @@ namespace AqLife.Domain.Entities
         public int CategoryCount => this.Files.Count + Favorites.Count;
 
 
-        public CategoryEntity() { }
+        //public CategoryEntity() { }
         
         [MapperConstructor]
         public CategoryEntity(string categoryName, string categoryDescription, Guid? parentId = null)

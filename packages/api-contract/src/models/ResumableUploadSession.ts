@@ -39,6 +39,12 @@ export interface ResumableUploadSession {
     fileSize?: number;
     /**
      * 
+     * @type {string}
+     * @memberof ResumableUploadSession
+     */
+    categoryId?: string;
+    /**
+     * 
      * @type {number}
      * @memberof ResumableUploadSession
      */
@@ -77,6 +83,7 @@ export function ResumableUploadSessionFromJSONTyped(json: any, ignoreDiscriminat
         'uploadId': json['uploadId'] == null ? undefined : json['uploadId'],
         'fileName': json['fileName'] == null ? undefined : json['fileName'],
         'fileSize': json['fileSize'] == null ? undefined : json['fileSize'],
+        'categoryId': json['categoryId'] == null ? undefined : json['categoryId'],
         'chunkSize': json['chunkSize'] == null ? undefined : json['chunkSize'],
         'chunkCount': json['chunkCount'] == null ? undefined : json['chunkCount'],
         'createdAt': json['createdAt'] == null ? undefined : json['createdAt'],
@@ -97,6 +104,7 @@ export function ResumableUploadSessionToJSONTyped(value?: ResumableUploadSession
         'uploadId': value['uploadId'],
         'fileName': value['fileName'],
         'fileSize': value['fileSize'],
+        'categoryId': value['categoryId'],
         'chunkSize': value['chunkSize'],
         'chunkCount': value['chunkCount'],
         'createdAt': value['createdAt'],

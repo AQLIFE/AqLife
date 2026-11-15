@@ -20,12 +20,6 @@ namespace AqLife.Application.Business.DevelopmentPlan.Search
     {
         protected private override EntitySearchCriteria MapToCriteria(TDevPlanQuery query)
         => queryMapper.ToCriteria(query);
-        /* query switch
-    {
-        DevelopmentPlanQuery planQuery => queryMapper.ToCriteria(planQuery),
-        TodoRoadmapQuery roadmapQuery => queryMapper.ToCriteria(roadmapQuery),
-        _ => throw new RequestFailException("Invalid query type")
-    };*/
 
         private IQueryable<DevelopmentPlanEntity> BuildBaseQueryInternal(IQueryable<DevelopmentPlanEntity> queryable)
         {

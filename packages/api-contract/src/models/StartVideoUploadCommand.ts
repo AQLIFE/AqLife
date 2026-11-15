@@ -33,6 +33,12 @@ export interface StartVideoUploadCommand {
     fileSize?: number;
     /**
      * 
+     * @type {string}
+     * @memberof StartVideoUploadCommand
+     */
+    categoryId?: string;
+    /**
+     * 
      * @type {number}
      * @memberof StartVideoUploadCommand
      */
@@ -58,6 +64,7 @@ export function StartVideoUploadCommandFromJSONTyped(json: any, ignoreDiscrimina
         
         'fileName': json['fileName'] == null ? undefined : json['fileName'],
         'fileSize': json['fileSize'] == null ? undefined : json['fileSize'],
+        'categoryId': json['categoryId'] == null ? undefined : json['categoryId'],
         'chunkSize': json['chunkSize'] == null ? undefined : json['chunkSize'],
     };
 }
@@ -75,6 +82,7 @@ export function StartVideoUploadCommandToJSONTyped(value?: StartVideoUploadComma
         
         'fileName': value['fileName'],
         'fileSize': value['fileSize'],
+        'categoryId': value['categoryId'],
         'chunkSize': value['chunkSize'],
     };
 }

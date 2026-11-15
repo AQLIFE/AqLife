@@ -9,6 +9,6 @@ namespace AqLife.Application.Business.Tag.Validator
     {
         private protected override string ErrorMessage { init; get; } = "重复的 Tag 名称";
         private protected override async Task<bool> IsValidAsync(CreateTagCommand command, CancellationToken ct)
-            => !await storage.Tags.AnyAsync(e => e.Name == command.Name);
+            => await storage.Tags.AllAsync(e => e.Name != command.Name);
     }
 }
