@@ -26,7 +26,7 @@ namespace AqLife.Domain.Entities
             this.Name = name.Trim();
             this.AliasName = aliasName?.Trim() ?? this.Name;
         }
-        public TagEntity() { }
+        //public TagEntity() { }
 
         public void Update(string name, string? aliasName = null)
         {

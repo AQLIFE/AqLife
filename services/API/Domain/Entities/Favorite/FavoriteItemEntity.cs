@@ -76,7 +76,7 @@ public class FavoriteMediaEntity : IRelationship
 
     //public FavoriteItemEntity? Favorite { get; private set; }
 
-    public FavoriteMediaEntity() { }
+    //public FavoriteMediaEntity() { }
 
     [MapperConstructor]
     public FavoriteMediaEntity( Guid fileId , Guid favoriteId, string role = "Image", int sortOrder = 0)

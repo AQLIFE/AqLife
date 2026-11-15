@@ -17,12 +17,11 @@ public sealed class CreateCategoryParentValidator(IApplicationDbContext dbContex
     }
 }
 
-public sealed class CreateCategoryDefaultValidator(IApplicationDbContext dbContext)
-    : AbstractValidator<CreateCategoryCommand>
+public sealed class CreateCategoryDefaultValidator(IApplicationDbContext dbContext): AbstractValidator<CreateCategoryCommand>
 {
     private protected override string ErrorMessage { init; get; } = "不允许同名的分类";
 
     private protected override async Task<bool> IsValidAsync(CreateCategoryCommand command, CancellationToken ct)
-    => await dbContext.Categories.AnyAsync(category => category.CategoryName != command.Name, ct);
+    => await dbContext.Categories.AllAsync(category => category.CategoryName != command.Name, ct);
 
 }

@@ -43,7 +43,7 @@ namespace AqLife.Domain.Entities.DevPlan
         public ICollection<TodoEntity> Todos { get; set; } = [];
         //public ICollection<TodoDependencyEntity> TodoDependencies { get; set; } = [];
 
-        public DevelopmentPlanEntity() { }
+        //public DevelopmentPlanEntity() { }
         [MapperConstructor]
         public DevelopmentPlanEntity(string name, string? description = null)
         {
