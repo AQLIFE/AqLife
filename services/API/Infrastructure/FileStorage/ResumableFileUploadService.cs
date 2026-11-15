@@ -45,7 +45,7 @@ public sealed class ResumableFileUploadService(IOptions<FilePolicyOption> option
     {
         var session = await ReadSessionAsync(id, ct);
         var uploaded = Enumerable.Range(0, session.ChunkCount).Where(i => File.Exists(ChunkPath(id, i))).ToArray();
-        return new ResumableUploadStatus(id, session.FileSize, session.ChunkSize, session.ChunkCount, uploaded);
+        return new ResumableUploadStatus(id, session.FileSize, session.CategoryId, session.ChunkSize, session.ChunkCount, uploaded);
     }
 
     public async Task WriteChunkAsync(Guid id, int index, IFormFile chunk, CancellationToken ct)
