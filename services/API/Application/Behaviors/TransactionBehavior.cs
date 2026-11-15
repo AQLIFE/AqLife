@@ -6,11 +6,12 @@ using AqLife.Shared.Exceptions;
 using AqLife.Shared.Tools;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace AqLife.Application.Behaviors
 {
     // 事务管道
-    public class TransactionBehavior<TRequest, TResponse>(IApplicationDbContext storage, IFileStorage fileStorage, UploadContext uploadContext) : IPipelineBehavior<TRequest, TResponse>
+    public class TransactionBehavior<TRequest, TResponse>(IApplicationDbContext storage, IFileStorage fileStorage, UploadContext uploadContext,ILogger<TransactionBehavior<TRequest,TResponse>> logger) : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
 
@@ -39,6 +40,10 @@ namespace AqLife.Application.Behaviors
             {
                 await transaction.RollbackAsync(cancellationToken);
                 throw new ResourceConflictException("数据已被其他请求修改，请刷新后重试");
+            }catch(DbUpdateException ex)
+            {
+                logger.LogError("保存的数据不符合业务规范: {$0}", ex.InnerException?.Message);
+                throw new ResourceConflictException("数据不符合业务规范");
             }
             catch
             {

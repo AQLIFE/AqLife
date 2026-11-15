@@ -56,7 +56,7 @@ namespace AqLife.Application.Business.File.Service
                 return existingId;
             // 若存在于数据库,则直接将其作为结果返回,不再写入物理文件存储和数据库
 
-            FileMetaEntity meta = fileMapper.ToEntity(command).UpdateHash(uploadContext.FileHashes[command.File]);
+            FileMetaEntity meta = fileMapper.ToEntity(command).UpdateHash(uploadContext.FileHashes[command.File]).SetCategory(command.CategoryId);
 
             if (command.ScheduledTime is DateTimeOffset offset) meta.PublishMeta.Schedule(offset);
             else meta.PublishMeta.Publish();

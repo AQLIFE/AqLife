@@ -4,6 +4,7 @@ using AqLife.Shared.IView;
 using AqLife.Shared.Options;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace AqLife.Domain.Command
 {
@@ -55,11 +56,13 @@ namespace AqLife.Domain.Command
     /// <param name="UID"></param>
     /// <param name="tags"></param>
     public record UpdateFileTagCommand(Guid UID, IEnumerable<Guid> tags) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
+
+    public record UpdateFileCategoryCommand(Guid UID, Guid categoryId) : IRequireValidEntity<FileMetaEntity>, IUpdateCommand { }
     /// <summary>
     /// 上传文件,并将其设置为草稿,除非手动使用预定,否则永不发布; 默认单文件
     /// </summary>
     /// <param name="File"></param>
-    public record CreateFileCommand(IFormFile File,Guid categoryId, IEnumerable<Guid>? Tags = null, DateTimeOffset? ScheduledTime = null, bool IsTemplate = false) : ICreateCommand, IHasFormFiles
+    public record CreateFileCommand(IFormFile File,[Required(ErrorMessage ="必须提供分类参数")]Guid CategoryId, IEnumerable<Guid>? Tags = null, DateTimeOffset? ScheduledTime = null, bool IsTemplate = false) : ICreateCommand, IHasFormFiles
     {
         public IEnumerable<IFormFile> GetFiles() => [this.File];
     }

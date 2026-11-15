@@ -8,22 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Business.File.Validator
 {
-    public class FileQueryValidator(IApplicationDbContext dbContext) : AbstractValidator<FileQuery>
+    public class FileQueryValidator(IHttpContextAccessor httpContext) : AbstractValidator<FileOverviewQuery>
     {
-        private protected override string ErrorMessage { init; get; } = "无效的搜索条件";
-        private protected override async Task<bool> IsValidAsync(FileQuery query, CancellationToken ct)
-        {
-            if (query.CategoryUID is not Guid categoryId)
-                return true;
-
-            return await dbContext.Categories.AnyAsync(e => e.UID == categoryId, ct);
-        }
+        private protected override string ErrorMessage { init; get; } = "无权搜索详细信息";
+        private protected override async Task<bool> IsValidAsync(FileOverviewQuery query, CancellationToken ct)
+        => query.PublishStatus == PublishStatusSearch.Default ||(httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false);
     }
 
     public class FileQueryScopeValidator(IHttpContextAccessor httpContext) : AbstractValidator<FileQuery>
     {
         private bool IsValid { init; get; } = httpContext.HttpContext?.User.Identity?.IsAuthenticated ?? false;
-        private protected override string ErrorMessage { init; get; } = "无权搜索";
+        private protected override string ErrorMessage { init; get; } = "无权搜索模板文件或全部文件";
         private protected override async Task<bool> IsValidAsync(FileQuery query, CancellationToken ct)
         => !((query.Scope == FileScope.Template || query.Scope == FileScope.All) && !IsValid);
 

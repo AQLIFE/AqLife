@@ -7,13 +7,18 @@ namespace AqLife.Domain.Entities.File
     public class FileTagEntity : IRelationship
     {
         [ForeignKey(nameof(FileId))]
-        public Guid FileId { get; set; } // 指向 FileMetaEntity.Uuid
+        public Guid FileId { get;private set; }
 
         [ForeignKey(nameof(TagId))]
-        public Guid TagId { get; set; } // 指向 TagEntity.TagId
-        // 设定策略,每次更新 md 文件时,仅允许一条分类+若干标签
+        public Guid TagId { get;private set; }
 
-        public virtual required FileMetaEntity File { get; set; }
-        public virtual required TagEntity Tag { get; set; }
+        public virtual FileMetaEntity File { get; set; } = null!;
+        public virtual TagEntity Tag { get; set; } = null!;
+
+        public FileTagEntity(Guid fileId, Guid tagId)
+        {
+            FileId = fileId;
+            TagId = tagId;
+        }
     }
 }

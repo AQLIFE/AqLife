@@ -1,13 +1,13 @@
-﻿using AqLife.Application.Abstractions.Search;
+﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Validators;
 using AqLife.Domain.Command;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Options;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace AqLife.Application.Business.File.Validator;
-
-
 
 /// <summary>
 /// 不允许更新非 MD 文件
@@ -29,7 +29,10 @@ public class FileUpdateValidtor(IOptions<FilePolicyOption> options) : AbstractVa
     }
 }
 
-
+/// <summary>
+/// 没有进行过上传的文件不可以用于更新
+/// </summary>
+/// <param name="search"></param>
 public class FileNameConsistencyValidtor(ISearch<FileQuery, FileMetaEntity> search/*,ILogger<FileNameConsistencyValidtor> logger*/) : AbstractValidator<UpdateFileCommand>
 {
     private protected override string ErrorMessage { init; get; } = "更新文件名必须与原文件一致";
@@ -41,8 +44,10 @@ public class FileNameConsistencyValidtor(ISearch<FileQuery, FileMetaEntity> sear
     }
 }
 
-
-
+/// <summary>
+/// 预期发布时间已过期
+/// </summary>
+/// <param name="search"></param>
 public class FilePublishStatusValidtor(ISearch<FileQuery, FileMetaEntity> search) : AbstractValidator<ScheduledFileCommand>
 {
     private protected override string ErrorMessage { init; get; } = "预定时间不能小于当前系统时间";
@@ -53,4 +58,35 @@ public class FilePublishStatusValidtor(ISearch<FileQuery, FileMetaEntity> search
         // 考虑到 command.ScheduledAt 可以为null ,当它等于null时,这个表达式通过
         // 若不等于null,则参与运算,小于当前系统时间则拦截,反之通过
     }
+}
+/// <summary>
+/// 预期标签不存在
+/// </summary>
+/// <param name="context"></param>
+public class UpdateFileTagValidator(IApplicationDbContext context): AbstractValidator<UpdateFileTagCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "一个或多个关联标签不存在";
+
+    private protected override async Task<bool> IsValidAsync(UpdateFileTagCommand command, CancellationToken ct)
+    {
+        if (!command.tags.Any())
+            return true;
+        var tagIds = command.tags.Where(id => id != Guid.Empty).Distinct().ToArray();
+
+
+        var count = await context.Tags.CountAsync(tag => tagIds.Contains(tag.UID), ct);
+        return count == tagIds.Length;
+    }
+}
+
+/// <summary>
+/// 预期分类不存在
+/// </summary>
+/// <param name="context"></param>
+public class UpdateFileCategoryValidator(IApplicationDbContext context) : AbstractValidator<UpdateFileCategoryCommand>
+{
+    private protected override string ErrorMessage { init; get; } = "预期分类不存在";
+
+    private protected override async Task<bool> IsValidAsync(UpdateFileCategoryCommand command, CancellationToken ct)
+    => await context.Categories.AnyAsync(e => e.UID == command.categoryId,ct);
 }
