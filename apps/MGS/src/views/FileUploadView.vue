@@ -55,13 +55,15 @@ const acceptType = computed(() => defaultFilePolicy.allowedUpload.join(','))
 const canCommit = computed(() => fileList.value.length > 0 && !!categoryId.value && !uploading.value)
 const videoAccept = '.mp4,.webm'
 const fileApiBase = `${apiConfiguration.basePath.replace(/\/+$/, '')}/api/File`
-const videoApiBase = `${fileApiBase}/uploads`
+const videoApiBase = `${fileApiBase}/resumable-upload`
 const sessionStorageKey = 'mgs-video-upload-session'
 
 interface UploadSession {
   uploadId: string
   fileName: string
   fileSize: number
+  categoryId: string
+  fingerprint: string
   chunkSize: number
   chunkCount: number
   createdAt?: string
@@ -115,6 +117,13 @@ function onVideoFileChange(uploadFile: UploadFile) {
     return
   }
   videoFile.value = raw
+  categoryId.value = ''
+  sessionId.value = ''
+  const savedSession = getSavedSession(raw)
+  if (savedSession?.categoryId) {
+    categoryId.value = savedSession.categoryId
+    sessionId.value = savedSession.uploadId
+  }
   uploadError.value = ''
   completed.value = false
   hashing.value = false
@@ -166,30 +175,35 @@ function getSavedSession(file: File): UploadSession | null {
   }
 }
 
-function saveSession(session: UploadSession) {
-  sessionId.value = session.uploadId
-  localStorage.setItem(sessionStorageKey, JSON.stringify(session))
+function saveSession(session: UploadSession, fingerprint: string) {
+  const saved = { ...session, fingerprint }
+  sessionId.value = saved.uploadId
+  localStorage.setItem(sessionStorageKey, JSON.stringify(saved))
 }
 
-async function createOrResumeSession(file: File): Promise<{ session: UploadSession; status: UploadStatus }> {
+async function createOrResumeSession(file: File, fingerprint: string): Promise<{ session: UploadSession; status: UploadStatus }> {
   const saved = getSavedSession(file)
-  if (saved) {
+  if (saved?.categoryId && saved.fingerprint === fingerprint && saved.categoryId === categoryId.value) {
     try {
       const status = await apiJson<UploadStatus>(`${videoApiBase}/${saved.uploadId}`)
       return { session: saved, status }
     } catch {
       localStorage.removeItem(sessionStorageKey)
     }
+  } else if (saved) {
+    // Sessions created before category binding cannot be completed safely; start a fresh upload.
+    localStorage.removeItem(sessionStorageKey)
+    sessionId.value = ''
   }
 
   const session = await apiJson<UploadSession>(videoApiBase, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fileName: file.name, fileSize: file.size, chunkSize: 4 * 1024 * 1024 }),
+    body: JSON.stringify({ fileName: file.name, fileSize: file.size, categoryId: categoryId.value, chunkSize: 4 * 1024 * 1024 }),
   })
-  saveSession(session)
+  saveSession(session, fingerprint)
   const status = await apiJson<UploadStatus>(`${videoApiBase}/${session.uploadId}`)
-  return { session, status }
+  return { session: { ...session, fingerprint }, status }
 }
 
 function uploadChunk(url: string, chunk: Blob, onProgress: (loaded: number) => void): Promise<void> {
@@ -253,6 +267,10 @@ async function startVideoUpload() {
     notify.warning('仅支持 MP4 和 WebM 视频文件')
     return
   }
+  if (!categoryId.value) {
+    notify.warning('请先选择视频分类')
+    return
+  }
 
   uploading.value = true
   paused.value = false
@@ -286,8 +304,8 @@ async function startVideoUpload() {
       return
     }
 
-    const { session, status: initialStatus } = await createOrResumeSession(file)
-    saveSession(session)
+    const { session, status: initialStatus } = await createOrResumeSession(file, fingerprint.sha256)
+    saveSession(session, fingerprint.sha256)
     chunkCount.value = session.chunkCount
     const uploaded = new Set(initialStatus.uploadedChunks)
     missingChunks.value = Array.from({ length: session.chunkCount }, (_, index) => index)
@@ -468,7 +486,7 @@ watch(isVideoMode, () => {
             :auto-upload="false"
             :disabled="uploading || completed"
             :on-change="onVideoFileChange"
-            :on-remove="() => { videoFile = null; videoFileList = [] }"
+            :on-remove="() => { videoFile = null; videoFileList = []; categoryId = ''; sessionId = '' }"
           >
             <ElIcon class="upload-icon"><VideoCamera /></ElIcon>
             <div class="el-upload__text">将视频拖到这里，或 <em>点击选择视频</em></div>
@@ -518,7 +536,11 @@ watch(isVideoMode, () => {
         </ElCard>
 
         <ElCard shadow="never" class="tag-card">
-          <template #header><div class="section-title">标签</div></template>
+          <template #header><div class="section-title">上传信息</div></template>
+          <div class="section-title">分类（必选）</div>
+          <CategorySelect v-model:category-id="categoryId" :select-disabled="!videoFile || uploading || completed || !!sessionId" />
+          <p class="helper-text">视频分类在创建上传任务时固定，刷新页面后会从本地上传记录恢复。</p>
+          <div class="section-title tag-title">标签</div>
           <TagSelect v-model:tag-list="tags" :select-disabled="!videoFile || uploading || completed" />
           <p class="helper-text">标签会在视频合并并保存后应用到该文件。</p>
           <div class="upload-tip">上传任务 ID：{{ sessionId || '开始上传后生成' }}</div>
@@ -553,6 +575,7 @@ watch(isVideoMode, () => {
 .upload-content, .video-upload-content { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; }
 .upload-card, .tag-card, .category-card { min-width: 0; }
 .section-title { font-weight: 600; }
+.tag-title { margin-top: 18px; }
 .upload-icon { font-size: 52px; margin-bottom: 10px; }
 .upload-tip, .helper-text { color: var(--mgs-muted); font-size: 13px; }
 .video-file-summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 18px; padding: 12px; border-radius: 8px; background: var(--el-fill-color-light); }
