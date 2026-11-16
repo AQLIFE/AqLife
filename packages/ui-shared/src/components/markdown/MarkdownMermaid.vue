@@ -3,19 +3,51 @@
     <div class="codeHeader">
       <div class="codeType">{{ props.infoType || 'text' }}</div>
       <div class="codeTitle"></div>
-      <ElButton
-        class="copyButton"
-        title="点此全屏预览"
-        :icon="FullScreen"
-        @click="isFullscreen = true"
-      />
+      <div class="viewerActions">
+        <ElButton
+          class="viewerButton"
+          title="缩小"
+          :icon="ZoomOut"
+          :disabled="scale <= MIN_SCALE"
+          @click="zoomOut"
+        />
+        <span class="zoomPercentage">{{ Math.round(scale * 100) }}%</span>
+        <ElButton
+          class="viewerButton"
+          title="放大"
+          :icon="ZoomIn"
+          :disabled="scale >= MAX_SCALE"
+          @click="zoomIn"
+        />
+        <ElButton
+          class="viewerButton"
+          title="重置视图"
+          :icon="Refresh"
+          @click="resetView"
+        />
+        <ElButton
+          class="viewerButton"
+          title="全屏预览"
+          :icon="FullScreen"
+          @click="openFullscreen"
+        />
+      </div>
     </div>
 
     <div class="codeContent">
-      <div class="mermaid-viewer-container">
+      <div
+        class="mermaid-viewport"
+        @wheel.prevent="handleWheel"
+        @pointerdown="startPan"
+        @pointermove="movePan"
+        @pointerup="endPan"
+        @pointercancel="endPan"
+        @dblclick="resetView"
+      >
         <div
           v-if="svgHtml"
           class="mermaid-svg-wrapper"
+          :style="viewportStyle"
           v-html="svgHtml"
         />
 
@@ -28,51 +60,177 @@
         <div v-else class="mermaid-loading">
           <span>正在绘制图表...</span>
         </div>
+      </div>
+    </div>
 
-        <ElDialog
-          v-model="isFullscreen"
-          fullscreen
-          destroy-on-close
-          title="图表详情预览"
-          class="mermaid-fullscreen-dialog"
+    <ElDialog
+      v-model="isFullscreen"
+      fullscreen
+      destroy-on-close
+      title="图表详情预览"
+      class="mermaid-fullscreen-dialog"
+    >
+      <div class="fullscreen-viewer">
+        <div class="fullscreen-toolbar">
+          <ElButton
+            title="缩小"
+            :icon="ZoomOut"
+            :disabled="scale <= MIN_SCALE"
+            @click="zoomOut"
+          />
+          <span class="fullscreen-zoom">{{ Math.round(scale * 100) }}%</span>
+          <ElButton
+            title="放大"
+            :icon="ZoomIn"
+            :disabled="scale >= MAX_SCALE"
+            @click="zoomIn"
+          />
+          <ElButton
+            title="重置视图"
+            :icon="Refresh"
+            @click="resetView"
+          />
+        </div>
+
+        <div
+          class="mermaid-viewport fullscreen-viewport"
+          @wheel.prevent="handleWheel"
+          @pointerdown="startPan"
+          @pointermove="movePan"
+          @pointerup="endPan"
+          @pointercancel="endPan"
+          @dblclick="resetView"
         >
           <div
             v-if="svgHtml"
-            class="fullscreen-content"
+            class="mermaid-svg-wrapper"
+            :style="viewportStyle"
             v-html="svgHtml"
           />
+
           <div v-else-if="hasError" class="mermaid-error-fallback">
             <div class="error-header">
               图表采用落后样式编写,当前不支持渲染
             </div>
           </div>
-        </ElDialog>
+
+          <div v-else class="mermaid-loading">
+            <span>正在绘制图表...</span>
+          </div>
+        </div>
       </div>
-    </div>
+    </ElDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { FullScreen } from '@element-plus/icons-vue'
-import { renderMermaid } from './mermaidRenderer'
-import { ElButton, ElDialog } from 'element-plus'
 import {
-  onBeforeUnmount,
-  ref,
-  watch,
-} from 'vue'
+  FullScreen,
+  Refresh,
+  ZoomIn,
+  ZoomOut,
+} from '@element-plus/icons-vue'
+import { ElButton, ElDialog } from 'element-plus'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { renderMermaid } from './mermaidRenderer'
 
 const props = defineProps<{
   info: string
   infoType: string
 }>()
 
+const MIN_SCALE = 0.2
+const MAX_SCALE = 5
+const ZOOM_STEP = 0.2
+
 const isFullscreen = ref(false)
 const svgHtml = ref('')
 const hasError = ref(false)
+const scale = ref(1)
+const offset = ref({ x: 0, y: 0 })
 
 let renderTimer: ReturnType<typeof setTimeout> | undefined
 let renderVersion = 0
+let panStart: {
+  pointerId: number
+  x: number
+  y: number
+  offsetX: number
+  offsetY: number
+} | null = null
+
+const viewportStyle = computed(() => ({
+  transform: `translate3d(${offset.value.x}px, ${offset.value.y}px, 0) scale(${scale.value})`,
+}))
+
+const clampScale = (value: number) =>
+  Math.min(MAX_SCALE, Math.max(MIN_SCALE, value))
+
+const setScale = (value: number) => {
+  scale.value = clampScale(value)
+}
+
+const zoomIn = () => setScale(scale.value + ZOOM_STEP)
+const zoomOut = () => setScale(scale.value - ZOOM_STEP)
+
+const resetView = () => {
+  scale.value = 1
+  offset.value = { x: 0, y: 0 }
+  panStart = null
+}
+
+const openFullscreen = () => {
+  isFullscreen.value = true
+}
+
+const handleWheel = (event: WheelEvent) => {
+  const direction = event.deltaY < 0 ? 1 : -1
+  setScale(scale.value + direction * ZOOM_STEP)
+}
+
+const startPan = (event: PointerEvent) => {
+  if (event.button !== 0 || !svgHtml.value) {
+    return
+  }
+
+  const target = event.currentTarget
+  if (!(target instanceof HTMLElement)) {
+    return
+  }
+
+  target.setPointerCapture(event.pointerId)
+  panStart = {
+    pointerId: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+    offsetX: offset.value.x,
+    offsetY: offset.value.y,
+  }
+}
+
+const movePan = (event: PointerEvent) => {
+  if (!panStart || panStart.pointerId !== event.pointerId) {
+    return
+  }
+
+  offset.value = {
+    x: panStart.offsetX + event.clientX - panStart.x,
+    y: panStart.offsetY + event.clientY - panStart.y,
+  }
+}
+
+const endPan = (event: PointerEvent) => {
+  if (panStart?.pointerId !== event.pointerId) {
+    return
+  }
+
+  const target = event.currentTarget
+  if (target instanceof HTMLElement && target.hasPointerCapture(event.pointerId)) {
+    target.releasePointerCapture(event.pointerId)
+  }
+
+  panStart = null
+}
 
 const drawDiagram = async () => {
   const codeText = props.info.trim()
@@ -80,6 +238,7 @@ const drawDiagram = async () => {
   if (!codeText) {
     svgHtml.value = ''
     hasError.value = false
+    resetView()
     return
   }
 
@@ -87,6 +246,7 @@ const drawDiagram = async () => {
 
   svgHtml.value = ''
   hasError.value = false
+  resetView()
 
   try {
     // 直接以 Mermaid 的 render API 作为唯一判定入口。
@@ -153,7 +313,8 @@ onBeforeUnmount(() => {
 .codeHeader {
   display: flex;
   flex-direction: row;
-  line-height: 40px;
+  align-items: center;
+  min-height: 40px;
   background-color: var(--back_color_lv5);
   color: rgb(255, 255, 255);
   font-size: 0.9rem;
@@ -168,17 +329,36 @@ onBeforeUnmount(() => {
   flex-grow: 1;
 }
 
-.codeHeader .copyButton {
-  padding: 0 1vw;
-  cursor: pointer;
-  transition: color 0.2s;
-  background-color: rgba(0, 0, 0, 0);
-  border: 0;
-  height: initial;
+.viewerActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: 6px;
 }
 
-.codeHeader .copyButton:hover {
+.viewerButton {
+  padding: 0 8px;
+  cursor: pointer;
+  transition: color 0.2s;
+  background-color: transparent;
+  border: 0;
+  height: 32px;
+}
+
+.viewerButton:hover {
   color: #fff;
+}
+
+.viewerButton:disabled {
+  opacity: 0.4;
+}
+
+.zoomPercentage {
+  min-width: 42px;
+  color: #fff;
+  text-align: center;
+  font-size: 12px;
+  user-select: none;
 }
 
 .codeContent {
@@ -186,28 +366,47 @@ onBeforeUnmount(() => {
   margin: 0;
 }
 
-.mermaid-viewer-container {
+/* 视口高度独立于 SVG 的实际尺寸，避免图表撑开 Markdown 页面。 */
+.mermaid-viewport {
+  position: relative;
   width: 100%;
-  min-width: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
+  height: 360px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  touch-action: none;
+  cursor: grab;
+  background: var(--topColor);
+}
+
+.mermaid-viewport:active {
+  cursor: grabbing;
 }
 
 .mermaid-svg-wrapper {
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
+  height: 100%;
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  will-change: transform;
 }
 
 .mermaid-svg-wrapper :deep(svg) {
   display: block;
-  width: auto !important;
-  height: auto !important;
+  width: 100% !important;
+  height: 100% !important;
   max-width: none !important;
-  margin: 0 auto;
+  max-height: none !important;
 }
 
 .mermaid-error-fallback {
   min-height: 180px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -226,22 +425,54 @@ onBeforeUnmount(() => {
 
 .mermaid-loading {
   min-height: 180px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--back_color_lv5);
 }
 
-.fullscreen-content {
-  width: 100%;
-  height: 100%;
-  overflow: auto;
+.fullscreen-viewer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+  min-height: 0;
 }
 
-.fullscreen-content :deep(svg) {
-  display: block;
-  width: auto !important;
-  height: auto !important;
-  max-width: none !important;
+.fullscreen-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+.fullscreen-zoom {
+  min-width: 48px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.fullscreen-viewport {
+  height: auto;
+  flex: 1;
+  min-height: 0;
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+  .mermaid-viewport {
+    height: 300px;
+  }
+
+  .viewerActions {
+    gap: 0;
+  }
+
+  .viewerButton {
+    padding: 0 5px;
+  }
 }
 </style>
