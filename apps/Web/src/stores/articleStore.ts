@@ -7,7 +7,6 @@ export const useArticleStore = defineStore('article', () => {
   const blogTitle = ref('')
   const toc = ref<TocNode[]>([])
   const activeAnchor = ref('')
-  const isFullscreen = ref(false)
   const isLoading = ref(false)
 
   return {
@@ -15,7 +14,6 @@ export const useArticleStore = defineStore('article', () => {
     blogTitle,
     toc,
     activeAnchor,
-    isFullscreen,
     isLoading,
   }
 })
