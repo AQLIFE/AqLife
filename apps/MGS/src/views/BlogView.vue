@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { notify, useLoadingTask } from '@aqlife/ui-shared'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ElButton, ElDatePicker, ElMessageBox, ElSegmented } from 'element-plus'
+import { ElButton, ElDatePicker, ElMessageBox, ElSegmented, ElSelect, ElOption } from 'element-plus'
 import { Edit, Check, Lock, Delete } from '@element-plus/icons-vue'
 import * as monaco from 'monaco-editor'
 import { useRoute, useRouter } from 'vue-router'
-import { FileApi, FileScope, type FileDto, type TagDto } from '@/api'
+import { CategoryApi, CategoryQueryType, FileApi, FileScope, type CategoryDto, type FileDto, type TagDto } from '@/api'
 import { tokenStore } from '@aqlife/api-client'
 import { apiConfiguration } from '@/services/api'
 import { useFileStore } from '@/stores/useFileStore'
@@ -24,6 +24,10 @@ const route = useRoute()
 const router = useRouter()
 const props = defineProps<{ id?: string }>()
 const fileApi = new FileApi(apiConfiguration)
+const categoryApi = new CategoryApi(apiConfiguration)
+const categories = ref<CategoryDto[]>([])
+const selectedCategory = ref('')
+const categorySaving = ref(false)
 const fileStore = useFileStore()
 const videoInput = ref<HTMLInputElement>()
 const { items: videoUploads, busy: videoUploading, addFiles: queueVideos, retry: retryVideoUpload, waitForAll: waitForVideoUploads } = useMarkdownVideoUploadQueue(() => editor, fileApi)
@@ -139,6 +143,7 @@ async function loadArticle(guid: string) {
     editor?.setValue(markdown.value)
     publishStatusModel.value = dto.publishStatus
     selectedTags.value = dto.tags ?? []
+    selectedCategory.value = dto.category?.uid ?? ''
     scheduledAt.value = parsePublishAt(dto.publishAt)
   } catch (error) {
     notify.error(error instanceof Error ? error.message : '博文加载失败')
@@ -194,6 +199,48 @@ function enterEditMode() {
 function leaveEditMode() {
   const guid = typeof props.id === 'string' ? props.id : ''
   if (guid) router.push(`/file/${guid}`)
+}
+
+async function loadCategories() {
+  try {
+    const result = await categoryApi.apiCategoryGet({ searchType: CategoryQueryType.File, page: 1, pageSize: 200 })
+    categories.value = result.items ?? []
+  } catch (error) {
+    notify.error(error instanceof Error ? error.message : '分类加载失败')
+  }
+}
+
+async function onCategoryChanged(value: string | undefined) {
+  const current = file.value
+  if (!current?.uid || categorySaving.value) return
+
+  const previousCategory = current.category?.uid ?? ''
+  if ((value ?? '') === previousCategory) return
+
+  const tagIds = (current.tags ?? [])
+    .map(tag => tag.uid)
+    .filter((uid): uid is string => !!uid && uid !== previousCategory)
+  if (value) tagIds.push(value)
+
+  try {
+    categorySaving.value = true
+    const uid = await fileApi.apiFileTagPatch({
+      updateFileTagCommand: { uid: current.uid, tags: [...new Set(tagIds)] },
+    })
+    const latest = await fileApi.apiFileGet({ uID: uid })
+    const updated = latest.items?.[0]
+    if (!updated) throw new Error('博文分类更新失败')
+    file.value = updated
+    fileStore.upsertFile(updated)
+    selectedCategory.value = updated.category?.uid ?? ''
+    selectedTags.value = updated.tags ?? []
+    notify.success('博文分类已更新')
+  } catch (error) {
+    selectedCategory.value = previousCategory
+    notify.error(error instanceof Error ? error.message : '博文分类更新失败')
+  } finally {
+    categorySaving.value = false
+  }
 }
 
 async function onTagsChanged(value: FileDto['tags']) {
@@ -350,6 +397,7 @@ async function saveVersion() {
 }
 
 onMounted(async () => {
+  await loadCategories()
   editor = monaco.editor.create(container.value!, {
     value: markdown.value,
     language: 'markdown',
@@ -416,6 +464,22 @@ onBeforeUnmount(() => {
     >
       <template #actions>
         <div v-if="file" class="publish-control">
+          <ElSelect
+            v-model="selectedCategory"
+            clearable
+            filterable
+            placeholder="分类"
+            class="blog-category-select"
+            :disabled="categorySaving || publishing || scheduling"
+            @change="onCategoryChanged"
+          >
+            <ElOption
+              v-for="category in categories"
+              :key="category.uid"
+              :label="category.categoryName ?? '未命名分类'"
+              :value="category.uid ?? ''"
+            />
+          </ElSelect>
           <TagSelect
             class="blog-tag-select"
             v-model:tag-list="selectedTags"
@@ -534,6 +598,11 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 8px;
   min-width: 0;
+}
+
+.publish-control :deep(.blog-category-select) {
+  width: 150px;
+  min-width: 120px;
 }
 
 .publish-control :deep(.blog-tag-select) {
