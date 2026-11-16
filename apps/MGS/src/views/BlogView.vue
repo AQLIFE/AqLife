@@ -75,7 +75,11 @@ const { uploading: imageUploading, onPaste: onEditorPaste } = useMarkdownClipboa
   getEditor: () => editor,
   isEnabled: () => isEditing.value,
   uploadFiles: async files => {
-    const uids = await fileApi.apiFileUploadMultiplePost({ files })
+    // CategoryEntity.DefaultCategoryId（后端默认分类），粘贴图片上传也必须归入一个分类。
+    const uids = await fileApi.apiFileUploadMultiplePost({
+      categoryId: '3B246A0E-ED94-45E0-930D-15643683D50D',
+      files,
+    })
     await Promise.all(uids.map(uid =>
       fileApi.apiFileSchedulePatch({ scheduledFileCommand: { uid } }),
     ))
