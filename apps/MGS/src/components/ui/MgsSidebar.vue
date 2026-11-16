@@ -93,9 +93,10 @@ function updateRemainingTime(endTime: number) {
 function startCountdown() {
   stopCountdown()
 
-  const storedEndTime = Number(sessionStorage.getItem(COUNTDOWN_STORAGE_KEY))
-  const endTime = storedEndTime > Date.now()
-    ? storedEndTime
+  const storedEndTime = sessionStorage.getItem(COUNTDOWN_STORAGE_KEY)
+  const parsedEndTime = storedEndTime === null ? Number.NaN : Number(storedEndTime)
+  const endTime = Number.isFinite(parsedEndTime)
+    ? parsedEndTime
     : Date.now() + SESSION_DURATION_MS
 
   sessionStorage.setItem(COUNTDOWN_STORAGE_KEY, String(endTime))
