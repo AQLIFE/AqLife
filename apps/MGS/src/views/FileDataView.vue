@@ -17,6 +17,12 @@
         </template>
       </ElInput>
 
+      <ElSelect v-model="selectedCategory" clearable filterable placeholder="全部分类" :disabled="filterDisabled"
+        class="toolbar-control">
+        <ElOption v-for="category in categories" :key="category.uid" :label="category.categoryName ?? '未命名分类'"
+          :value="category.uid ?? ''" />
+      </ElSelect>
+
       <ElSelect v-model="selectedTags" multiple collapse-tags filterable placeholder="Tags" :disabled="filterDisabled"
         class="toolbar-control" value-key="uid">
         <ElOption v-for="(tag, index) in tagOptions" :key="tag.uid ?? tag.name ?? index" :label="tag.name ?? ''"
@@ -48,6 +54,7 @@
             :row="row"
             :value="row[column.prop]"
           />
+          <template v-else-if="column.prop === 'category'">{{ row.category?.categoryName || '未分类' }}</template>
           <template v-else>{{ row[column.prop] }}</template>
         </template>
       </ElTableColumn>
@@ -120,7 +127,7 @@ import {
   ElButton,
   ElSegmented
 } from 'element-plus'
-import { FileApi, FileScope, FileStatus, type FileDto, type TagDto } from '@/api'
+import { CategoryApi, CategoryQueryType, FileApi, FileScope, FileStatus, type CategoryDto, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { tokenStore } from '@aqlife/api-client'
 import { onBeforeMount, ref, computed, watch, type Component } from 'vue'
@@ -183,6 +190,12 @@ const tableColumns: FileTableColumn[] = [
     width: 200
   },
   {
+    prop: 'category',
+    label: '分类',
+    width: 150,
+    sortable: true,
+  },
+  {
     prop: 'tags',
     label: '标签',
     renderer: TagsCell,
@@ -224,7 +237,10 @@ const dateRange = ref<string[] | null>(null)
 
 // ---组件属性
 const fileApi = new FileApi(apiConfiguration)
+const categoryApi = new CategoryApi(apiConfiguration)
 const fileStore = useFileStore()
+const categories = ref<CategoryDto[]>([])
+const selectedCategory = ref('')
 const router = useRouter()
 
 const imagePublishOptions = computed(() =>
@@ -511,6 +527,10 @@ function matchesSearch(row: FileDto) {
   return textValue.toLowerCase().includes(searchTerm.value.toLowerCase())
 }
 
+function matchesCategory(row: FileDto) {
+  return !selectedCategory.value || row.category?.uid === selectedCategory.value
+}
+
 function matchesTags(row: FileDto) {
   if (!selectedTags.value.length) return true
   const rowTags = row.tags ?? []
@@ -533,15 +553,27 @@ function matchesDate(row: FileDto) {
 
 const filteredFileList = computed(() =>
   fileStore.fileList?.filter((item: FileDto) =>
-    matchesSearch(item) && matchesTags(item) && matchesDate(item),
+    matchesSearch(item) && matchesCategory(item) && matchesTags(item) && matchesDate(item),
   ) ?? [],
 )
 
 const tableData = computed(() => (filterDisabled.value ? [] : filteredFileList.value))
 
 
+async function loadCategoriesForMode() {
+  const searchType = selectMode.value === 'md' ? CategoryQueryType.File : CategoryQueryType.File
+  try {
+    const result = await categoryApi.apiCategoryGet({ searchType })
+    categories.value = result.items ?? []
+  } catch (error) {
+    categories.value = []
+    notify.error(error instanceof Error ? error.message : '分类列表加载失败')
+  }
+}
+
 async function loadFilesForMode() {
   const version = ++modeLoadVersion
+  await loadCategoriesForMode()
   const scope = selectMode.value === 'image'
     ? FileScope.Image
     : selectMode.value === 'video'
@@ -572,6 +604,7 @@ onBeforeMount(loadFilesForMode)
 watch(selectMode, async () => {
   searchText.value = ''
   searchTerm.value = ''
+  selectedCategory.value = ''
   selectedTags.value = []
   dateRange.value = null
   await loadFilesForMode()
