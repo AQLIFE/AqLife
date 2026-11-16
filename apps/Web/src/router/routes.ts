@@ -60,6 +60,7 @@ export const routes = [
       showInNav: false,
       order: 3,
       sidebarType: SidebarType.Preview,
+      hideNavigation: true,
     },
   },
   {
@@ -93,6 +94,7 @@ export const routes = [
       showInNav: false,
       order: 5,
       sidebarType: SidebarType.None,
+      hideNavigation: true,
     },
   },
   {
