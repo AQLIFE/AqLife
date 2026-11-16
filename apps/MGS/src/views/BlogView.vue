@@ -247,7 +247,10 @@ async function onTagsChanged(value: FileDto['tags']) {
   if (!file.value?.uid || !value) return
 
   try {
-    const dto = await new FileTagUpdateWorkflow(file.value, value, fileApi, fileStore).run()
+    const tagsWithCategory = file.value.category?.uid
+      ? [...value, { uid: file.value.category.uid } as TagDto]
+      : value
+    const dto = await new FileTagUpdateWorkflow(file.value, tagsWithCategory, fileApi, fileStore).run()
     file.value = dto
     selectedTags.value = dto.tags ?? []
     notify.success('标签已更新')
