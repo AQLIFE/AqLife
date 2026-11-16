@@ -198,7 +198,7 @@ const sideManager = computed(():{component:Component,props:object}|null => {
 }
 
 
-#content.is-navigation-hidden {
+#baseLayout.is-navigation-hidden #content {
   grid-template-rows: minmax(0, 1fr);
 }
 
@@ -334,7 +334,7 @@ const sideManager = computed(():{component:Component,props:object}|null => {
     grid-template-rows: 44px 52px minmax(0, 1fr);
   }
 
-  #content.is-navigation-hidden {
+  #baseLayout.is-navigation-hidden #content {
     grid-template-rows: 44px minmax(0, 1fr);
   }
 
