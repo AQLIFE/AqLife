@@ -79,6 +79,23 @@
           <ElInput :model-value="activeImageFile.uid" readonly />
           <ElButton :icon="CopyDocument" :disabled="!activeImageFile.uid" @click="copyActiveFileUid">复制</ElButton>
         </div>
+        <label class="management-label">分类</label>
+        <ElSelect
+          :model-value="imageSelectedCategory"
+          clearable
+          filterable
+          placeholder="选择分类"
+          class="image-category-select"
+          :disabled="imageSaving || imageDeleting"
+          @change="onImageCategoryChanged"
+        >
+          <ElOption
+            v-for="category in categories"
+            :key="category.uid"
+            :label="category.categoryName ?? '未命名分类'"
+            :value="category.uid ?? ''"
+          />
+        </ElSelect>
         <label class="management-label">标签</label>
         <TagSelect
           v-model:tag-list="imageSelectedTags"
@@ -171,6 +188,7 @@ const previewVideoUrl = ref('')
 let videoPreviewRequestVersion = 0
 const activeImageFile = ref<FileDto | null>(null)
 const imageSelectedTags = ref<TagDto[]>([])
+const imageSelectedCategory = ref<string>('')
 const imagePublishStatus = ref<FileStatus>(FileStatus.Draft)
 const imageScheduledAt = ref<Date | null>(null)
 const imageSaving = ref(false)
@@ -271,6 +289,7 @@ function openImagePreview(uid: string) {
   activeImageFile.value = file
   previewImageUrl.value = url
   imageSelectedTags.value = file.tags ?? []
+  imageSelectedCategory.value = file.category?.uid ?? ''
   imagePublishStatus.value = file.publishStatus ?? FileStatus.Draft
   imageScheduledAt.value = parseImagePublishAt(file.publishAt)
 }
@@ -303,6 +322,7 @@ async function openVideoPreview(uid: string) {
   previewVideoUrl.value = ''
   activeImageFile.value = file
   imageSelectedTags.value = file.tags ?? []
+  imageSelectedCategory.value = file.category?.uid ?? ''
   imagePublishStatus.value = file.publishStatus ?? FileStatus.Draft
   imageScheduledAt.value = parseImagePublishAt(file.publishAt)
 
@@ -356,6 +376,39 @@ function closeImagePreview() {
   previewImageUrl.value = ''
   previewVideoUrl.value = ''
   activeImageFile.value = null
+}
+
+async function onImageCategoryChanged(value: string | undefined) {
+  const current = activeImageFile.value
+  if (!current?.uid || imageSaving.value) return
+
+  const previousCategory = current.category?.uid ?? ''
+  if ((value ?? '') === previousCategory) return
+
+  const tagIds = (current.tags ?? [])
+    .map(tag => tag.uid)
+    .filter((uid): uid is string => !!uid && uid !== previousCategory)
+  if (value) tagIds.push(value)
+
+  try {
+    imageSaving.value = true
+    const uid = await fileApi.apiFileTagPatch({
+      updateFileTagCommand: { uid: current.uid, tags: [...new Set(tagIds)] },
+    })
+    const latest = await fileApi.apiFileGet({ uID: uid })
+    const updated = latest.items?.[0]
+    if (!updated) throw new Error('文件分类更新失败')
+    fileStore.upsertFile(updated)
+    activeImageFile.value = updated
+    imageSelectedCategory.value = updated.category?.uid ?? ''
+    imageSelectedTags.value = updated.tags ?? []
+    notify.success('文件分类已更新')
+  } catch (error) {
+    imageSelectedCategory.value = previousCategory
+    notify.error(error instanceof Error ? error.message : '文件分类更新失败')
+  } finally {
+    imageSaving.value = false
+  }
 }
 
 async function onImageTagsChanged(value: FileDto['tags']) {
@@ -717,6 +770,11 @@ function handleAddFile() {
 .management-label {
   font-size: 13px;
   color: var(--el-text-color-secondary);
+}
+
+.image-category-select {
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .image-schedule-picker {
