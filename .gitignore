@@ -124,3 +124,9 @@ API/API.mermaid
 *.http.local
 services/API/Web/Configurations/appsettings.Development.json
 .https/
+
+# --- Vite shared environment files ---
+# Shared by apps/Web and apps/MGS; only the template is committed.
+/config/env/.env.dev
+/config/env/.env.prod
+!/config/env/.env.example
