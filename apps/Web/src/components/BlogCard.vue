@@ -15,7 +15,7 @@
       </p>
 
       <div class="blog-card-tags">
-        <ElTag type="success">{{ blog.category?.categoryName }}</ElTag>
+        <ElTag size="small" type="success">{{ blog.category?.categoryName }}</ElTag>
         <ElTag v-for="(tag, index) in blog.tags" :key="index" size="small" effect="plain" :type="'info'">
           {{ tag.name }}
         </ElTag>
