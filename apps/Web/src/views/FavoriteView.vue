@@ -83,7 +83,7 @@ function changeTag(value: string) {
 
 onBeforeMount(async () => {
   try {
-    const [tagResult, categoryResult] = await Promise.all([
+    const [tagResult,categoryResult] = await Promise.all([
       tagApi.apiTagGet({ page: 1, pageSize: 100 }),
       categoryApi.apiCategoryGet({ searchType: CategoryQueryType.Favorite }),
     ])
@@ -132,7 +132,7 @@ onBeforeUnmount(() => {
         </div>
         <div class="card-body">
           <div class="card-meta">
-            <span>{{ categories.find(category => category.uid === item.cid)?.categoryName ?? '未分类' }}</span>
+            <span>{{ categories.find(e=>e.uid == item.cid)?.categoryName ?? '未分类' }}</span>
             <span v-if="item.createdAt">{{ item.createdAt.slice(0, 10) }}</span>
           </div>
           <h2>{{ item.title || '未命名收藏' }}</h2>
