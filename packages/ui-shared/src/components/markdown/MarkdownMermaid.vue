@@ -6,27 +6,6 @@
       <div class="viewerActions">
         <ElButton
           class="viewerButton"
-          title="缩小"
-          :icon="ZoomOut"
-          :disabled="scale <= MIN_SCALE"
-          @click="zoomOut"
-        />
-        <span class="zoomPercentage">{{ Math.round(scale * 100) }}%</span>
-        <ElButton
-          class="viewerButton"
-          title="放大"
-          :icon="ZoomIn"
-          :disabled="scale >= MAX_SCALE"
-          @click="zoomIn"
-        />
-        <ElButton
-          class="viewerButton"
-          title="重置视图"
-          :icon="Refresh"
-          @click="resetView"
-        />
-        <ElButton
-          class="viewerButton"
           title="全屏预览"
           :icon="FullScreen"
           @click="openFullscreen"
@@ -37,17 +16,10 @@
     <div class="codeContent">
       <div
         class="mermaid-viewport"
-        @wheel.prevent="handleWheel"
-        @pointerdown="startPan"
-        @pointermove="movePan"
-        @pointerup="endPan"
-        @pointercancel="endPan"
-        @dblclick="resetView"
       >
         <div
           v-if="svgHtml"
           class="mermaid-svg-wrapper"
-          :style="viewportStyle"
           v-html="svgHtml"
         />
 
@@ -103,7 +75,7 @@
         >
           <div
             v-if="svgHtml"
-            class="mermaid-svg-wrapper"
+            class="mermaid-svg-wrapper fullscreen-svg-wrapper"
             :style="viewportStyle"
             v-html="svgHtml"
           />
@@ -376,12 +348,15 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  touch-action: none;
-  cursor: grab;
   background: var(--topColor);
 }
 
-.mermaid-viewport:active {
+.fullscreen-viewport {
+  touch-action: none;
+  cursor: grab;
+}
+
+.fullscreen-viewport:active {
   cursor: grabbing;
 }
 
@@ -392,6 +367,9 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.fullscreen-svg-wrapper {
   transform-origin: center center;
   will-change: transform;
 }
