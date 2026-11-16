@@ -417,7 +417,10 @@ async function onImageTagsChanged(value: FileDto['tags']) {
 
   try {
     imageSaving.value = true
-    const updated = await new FileTagUpdateWorkflow(current, value, fileApi, fileStore).run()
+    const tagsWithCategory = current.category?.uid
+      ? [...value, { uid: current.category.uid } as TagDto]
+      : value
+    const updated = await new FileTagUpdateWorkflow(current, tagsWithCategory, fileApi, fileStore).run()
     activeImageFile.value = updated
     imageSelectedTags.value = updated.tags ?? []
     notify.success('文件标签已更新')
