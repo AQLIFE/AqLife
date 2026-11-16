@@ -193,7 +193,6 @@ const tableColumns: FileTableColumn[] = [
     prop: 'category',
     label: '分类',
     width: 150,
-    sortable: true,
   },
   {
     prop: 'tags',
@@ -561,9 +560,8 @@ const tableData = computed(() => (filterDisabled.value ? [] : filteredFileList.v
 
 
 async function loadCategoriesForMode() {
-  const searchType = selectMode.value === 'md' ? CategoryQueryType.File : CategoryQueryType.File
   try {
-    const result = await categoryApi.apiCategoryGet({ searchType })
+    const result = await categoryApi.apiCategoryGet({ searchType: CategoryQueryType.File })
     categories.value = result.items ?? []
   } catch (error) {
     categories.value = []
