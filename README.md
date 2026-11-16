@@ -107,7 +107,45 @@ cp services/API/Web/Configurations/appsettings.Development.example.json services
 
 > 注意：当前仓库中的 `appsettings.Development.example.json` 仍包含旧的 MYSQL 示例字段。项目当前数据库实现只接受 `DbType=PostgreSQL`，请按上面的配置调整，不要直接使用模板中的 MYSQL 值。
 
-### 3. 更新数据库结构
+API 文件存储使用 Cloudflare R2。首次运行 API 前，需要在当前电脑为该 API 项目配置以下四项 .NET User Secrets：
+
+```bash
+dotnet user-secrets set "R2:SecretKey" "YOUR_R2_SECRET_KEY" --project services/API/Web/Web.csproj
+dotnet user-secrets set "R2:Endpoint" "YOUR_R2_ENDPOINT" --project services/API/Web/Web.csproj
+dotnet user-secrets set "R2:BucketName" "YOUR_R2_BUCKET_NAME" --project services/API/Web/Web.csproj
+dotnet user-secrets set "R2:AccessKey" "YOUR_R2_ACCESS_KEY" --project services/API/Web/Web.csproj
+```
+
+请替换为 Cloudflare R2 控制台提供的实际值。User Secrets 保存在本机用户配置目录中，不会提交到 Git；每台需要运行 API 的电脑都必须单独设置。不要将密钥写入 `appsettings*.json` 或提交到仓库。
+
+### 3. 配置 Web 和 MGS 环境变量
+
+Web 和 MGS 共用仓库根目录下的 `config/env` 环境配置目录（由 Vite 的 `envDir` 指定）。首次运行任一前端前，先从模板创建两个环境文件：
+
+```bash
+cp config/env/.env.example config/env/.env.dev
+cp config/env/.env.example config/env/.env.prod
+```
+
+Windows PowerShell 也可以使用：
+
+```powershell
+Copy-Item config/env/.env.example config/env/.env.dev
+Copy-Item config/env/.env.example config/env/.env.prod
+```
+
+模板内容如下：
+
+```dotenv
+# .env.development
+VITE_API=http://192.168.0.100:5110
+```
+
+根据当前电脑的 API 地址修改 `VITE_API`。开发模式读取 `.env.dev`，Production 模式读取 `.env.prod`；两个前端应用共用这两个文件。若生产 API 使用 HTTPS 或不同域名/端口，请相应修改 `.env.prod` 中的地址，并确保前端与 API 协议一致。
+
+Git 会跟踪 `config/env/.env.example`，但忽略本机的 `.env.dev` 和 `.env.prod`。环境文件应在每台运行前端的电脑上分别创建，不要将本机环境配置提交到仓库。
+
+### 4. 更新数据库结构
 
 在仓库根目录执行：
 
