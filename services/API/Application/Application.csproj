@@ -19,6 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Abstractions\Contracts\Category\" />
+    <Folder Include="Abstractions\新文件夹\" />
     <Folder Include="Business\Category\Handler\" />
   </ItemGroup>
 

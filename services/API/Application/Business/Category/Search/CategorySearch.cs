@@ -45,7 +45,7 @@ public sealed class CategorySearch(
             => queryMapper.ToCriteria(query);
 
     protected private override IQueryable<CategoryEntity> ApplyDefaultOrder(IQueryable<CategoryEntity> queryble, CategoryQuery query)
-        => queryble.OrderBy(x => x.CategoryName);
+        => queryble.OrderByDescending(x => x.Files.Count+x.Favorites.Count);
 
     protected private override IQueryable<CategoryEntity> BuildPageQuery(IQueryable<CategoryEntity> queryable, IPageQuery pageQuery)
         => IsValid ? base.BuildPageQuery(queryable, pageQuery) : queryable.Skip(0).Take(10); // 未认证用户只能看到前10条记录
