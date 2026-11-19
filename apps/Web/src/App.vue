@@ -14,7 +14,7 @@ import { useArticleStore } from './stores/articleStore.ts'
 
 const articleStore = useArticleStore()
 const route = useRoute()
-const isPreviewFullscreen = computed(() => route.path.startsWith('/preview/') && articleStore.isFullscreen)
+const hideNavigation = computed(() => route.meta.hideNavigation === true)
 const mobileDrawerOpen = ref(false)
 const mobilePanel = ref<'search' | 'sidebar' | 'account'>('search')
 
@@ -47,8 +47,8 @@ const sideManager = computed(():{component:Component,props:object}|null => {
 </script>
 
 <template>
-  <div id="baseLayout" :class="{ 'is-preview-fullscreen': isPreviewFullscreen }">
-    <aside v-if="!isPreviewFullscreen" id="tools">
+  <div id="baseLayout" :class="{ 'is-navigation-hidden': hideNavigation }">
+    <aside id="tools">
      <div class="tools-search">
       <SearchBox/>
      </div>
@@ -60,8 +60,8 @@ const sideManager = computed(():{component:Component,props:object}|null => {
         <component v-else :is="sideManager?.component" v-bind="sideManager?.props"/>
       </div>
     </aside>
-    <main id="content" :class="{ 'is-preview-fullscreen': isPreviewFullscreen }">
-      <div v-if="!isPreviewFullscreen" class="mobile-toolbar" aria-label="移动端工具栏">
+    <main id="content">
+      <div class="mobile-toolbar" aria-label="移动端工具栏">
         <ElButton :icon="Search" text @click="openMobilePanel('search')">
           搜索
         </ElButton>
@@ -72,14 +72,14 @@ const sideManager = computed(():{component:Component,props:object}|null => {
           个人
         </ElButton>
       </div>
-      <div v-if="!isPreviewFullscreen" id="navigation">
+      <div v-if="!hideNavigation" id="navigation">
         <NavigationBar/>
       </div>
       <div id="mainViewport">
         <RouterView/>
       </div>
     </main>
-    <aside v-if="!isPreviewFullscreen" id="account">
+    <aside id="account">
       <div class="account-author">
         <FAuthorCard/>
       </div>
@@ -89,7 +89,6 @@ const sideManager = computed(():{component:Component,props:object}|null => {
     </aside>
 
     <ElDrawer
-      v-if="!isPreviewFullscreen"
       v-model="mobileDrawerOpen"
       class="mobile-drawer"
       :title="mobilePanel === 'search' ? '搜索' : mobilePanel === 'sidebar' ? (route.meta.sidebarType === SidebarType.Preview ? '文章目录' : '工具') : '个人与博文'"
@@ -116,10 +115,6 @@ const sideManager = computed(():{component:Component,props:object}|null => {
 </template>
 
 <style scoped>
-#baseLayout.is-preview-fullscreen {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 #baseLayout {
   width: 100%;
   height: 100%;
@@ -187,10 +182,6 @@ const sideManager = computed(():{component:Component,props:object}|null => {
    中间
    ========================================================= */
 
-.is-preview-fullscreen {
-  grid-template-rows: minmax(0, 1fr) !important;
-}
-
 #content {
   min-width: 0;
   min-height: 0;
@@ -206,6 +197,10 @@ const sideManager = computed(():{component:Component,props:object}|null => {
   /* background-color: var(--topColor); */
 }
 
+
+#baseLayout.is-navigation-hidden #content {
+  grid-template-rows: minmax(0, 1fr);
+}
 
 /* =========================================================
    NavigationBar
@@ -337,6 +332,10 @@ const sideManager = computed(():{component:Component,props:object}|null => {
 
   #content {
     grid-template-rows: 44px 52px minmax(0, 1fr);
+  }
+
+  #baseLayout.is-navigation-hidden #content {
+    grid-template-rows: 44px minmax(0, 1fr);
   }
 
   .mobile-toolbar {

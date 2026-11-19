@@ -17,6 +17,12 @@
         </template>
       </ElInput>
 
+      <ElSelect v-model="selectedCategory" clearable filterable placeholder="全部分类" :disabled="filterDisabled"
+        class="toolbar-control">
+        <ElOption v-for="category in categories" :key="category.uid" :label="category.categoryName ?? '未命名分类'"
+          :value="category.uid ?? ''" />
+      </ElSelect>
+
       <ElSelect v-model="selectedTags" multiple collapse-tags filterable placeholder="Tags" :disabled="filterDisabled"
         class="toolbar-control" value-key="uid">
         <ElOption v-for="(tag, index) in tagOptions" :key="tag.uid ?? tag.name ?? index" :label="tag.name ?? ''"
@@ -48,6 +54,7 @@
             :row="row"
             :value="row[column.prop]"
           />
+          <template v-else-if="column.prop === 'category'">{{ row.category?.categoryName || '未分类' }}</template>
           <template v-else>{{ row[column.prop] }}</template>
         </template>
       </ElTableColumn>
@@ -72,6 +79,23 @@
           <ElInput :model-value="activeImageFile.uid" readonly />
           <ElButton :icon="CopyDocument" :disabled="!activeImageFile.uid" @click="copyActiveFileUid">复制</ElButton>
         </div>
+        <label class="management-label">分类</label>
+        <ElSelect
+          :model-value="imageSelectedCategory"
+          clearable
+          filterable
+          placeholder="选择分类"
+          class="image-category-select"
+          :disabled="imageSaving || imageDeleting"
+          @change="onImageCategoryChanged"
+        >
+          <ElOption
+            v-for="category in categories"
+            :key="category.uid"
+            :label="category.categoryName ?? '未命名分类'"
+            :value="category.uid ?? ''"
+          />
+        </ElSelect>
         <label class="management-label">标签</label>
         <TagSelect
           v-model:tag-list="imageSelectedTags"
@@ -120,7 +144,7 @@ import {
   ElButton,
   ElSegmented
 } from 'element-plus'
-import { FileApi, FileScope, FileStatus, type FileDto, type TagDto } from '@/api'
+import { CategoryApi, CategoryQueryType, FileApi, FileScope, FileStatus, type CategoryDto, type FileDto, type TagDto } from '@/api'
 import { apiConfiguration } from '@/services/api'
 import { tokenStore } from '@aqlife/api-client'
 import { onBeforeMount, ref, computed, watch, type Component } from 'vue'
@@ -164,6 +188,7 @@ const previewVideoUrl = ref('')
 let videoPreviewRequestVersion = 0
 const activeImageFile = ref<FileDto | null>(null)
 const imageSelectedTags = ref<TagDto[]>([])
+const imageSelectedCategory = ref<string>('')
 const imagePublishStatus = ref<FileStatus>(FileStatus.Draft)
 const imageScheduledAt = ref<Date | null>(null)
 const imageSaving = ref(false)
@@ -181,6 +206,11 @@ const tableColumns: FileTableColumn[] = [
     prop: 'fileName',
     label: '文件名',
     width: 200
+  },
+  {
+    prop: 'category',
+    label: '分类',
+    width: 150,
   },
   {
     prop: 'tags',
@@ -224,7 +254,10 @@ const dateRange = ref<string[] | null>(null)
 
 // ---组件属性
 const fileApi = new FileApi(apiConfiguration)
+const categoryApi = new CategoryApi(apiConfiguration)
 const fileStore = useFileStore()
+const categories = ref<CategoryDto[]>([])
+const selectedCategory = ref('')
 const router = useRouter()
 
 const imagePublishOptions = computed(() =>
@@ -256,6 +289,7 @@ function openImagePreview(uid: string) {
   activeImageFile.value = file
   previewImageUrl.value = url
   imageSelectedTags.value = file.tags ?? []
+  imageSelectedCategory.value = file.category?.uid ?? ''
   imagePublishStatus.value = file.publishStatus ?? FileStatus.Draft
   imageScheduledAt.value = parseImagePublishAt(file.publishAt)
 }
@@ -288,6 +322,7 @@ async function openVideoPreview(uid: string) {
   previewVideoUrl.value = ''
   activeImageFile.value = file
   imageSelectedTags.value = file.tags ?? []
+  imageSelectedCategory.value = file.category?.uid ?? ''
   imagePublishStatus.value = file.publishStatus ?? FileStatus.Draft
   imageScheduledAt.value = parseImagePublishAt(file.publishAt)
 
@@ -343,13 +378,49 @@ function closeImagePreview() {
   activeImageFile.value = null
 }
 
+async function onImageCategoryChanged(value: string | undefined) {
+  const current = activeImageFile.value
+  if (!current?.uid || imageSaving.value) return
+
+  const previousCategory = current.category?.uid ?? ''
+  if ((value ?? '') === previousCategory) return
+
+  const tagIds = (current.tags ?? [])
+    .map(tag => tag.uid)
+    .filter((uid): uid is string => !!uid && uid !== previousCategory)
+  if (value) tagIds.push(value)
+
+  try {
+    imageSaving.value = true
+    const uid = await fileApi.apiFileTagPatch({
+      updateFileTagCommand: { uid: current.uid, tags: [...new Set(tagIds)] },
+    })
+    const latest = await fileApi.apiFileGet({ uID: uid })
+    const updated = latest.items?.[0]
+    if (!updated) throw new Error('文件分类更新失败')
+    fileStore.upsertFile(updated)
+    activeImageFile.value = updated
+    imageSelectedCategory.value = updated.category?.uid ?? ''
+    imageSelectedTags.value = updated.tags ?? []
+    notify.success('文件分类已更新')
+  } catch (error) {
+    imageSelectedCategory.value = previousCategory
+    notify.error(error instanceof Error ? error.message : '文件分类更新失败')
+  } finally {
+    imageSaving.value = false
+  }
+}
+
 async function onImageTagsChanged(value: FileDto['tags']) {
   const current = activeImageFile.value
   if (!current?.uid || !value) return
 
   try {
     imageSaving.value = true
-    const updated = await new FileTagUpdateWorkflow(current, value, fileApi, fileStore).run()
+    const tagsWithCategory = current.category?.uid
+      ? [...value, { uid: current.category.uid } as TagDto]
+      : value
+    const updated = await new FileTagUpdateWorkflow(current, tagsWithCategory, fileApi, fileStore).run()
     activeImageFile.value = updated
     imageSelectedTags.value = updated.tags ?? []
     notify.success('文件标签已更新')
@@ -511,6 +582,10 @@ function matchesSearch(row: FileDto) {
   return textValue.toLowerCase().includes(searchTerm.value.toLowerCase())
 }
 
+function matchesCategory(row: FileDto) {
+  return !selectedCategory.value || row.category?.uid === selectedCategory.value
+}
+
 function matchesTags(row: FileDto) {
   if (!selectedTags.value.length) return true
   const rowTags = row.tags ?? []
@@ -533,15 +608,26 @@ function matchesDate(row: FileDto) {
 
 const filteredFileList = computed(() =>
   fileStore.fileList?.filter((item: FileDto) =>
-    matchesSearch(item) && matchesTags(item) && matchesDate(item),
+    matchesSearch(item) && matchesCategory(item) && matchesTags(item) && matchesDate(item),
   ) ?? [],
 )
 
 const tableData = computed(() => (filterDisabled.value ? [] : filteredFileList.value))
 
 
+async function loadCategoriesForMode() {
+  try {
+    const result = await categoryApi.apiCategoryGet({ searchType: CategoryQueryType.File })
+    categories.value = result.items ?? []
+  } catch (error) {
+    categories.value = []
+    notify.error(error instanceof Error ? error.message : '分类列表加载失败')
+  }
+}
+
 async function loadFilesForMode() {
   const version = ++modeLoadVersion
+  await loadCategoriesForMode()
   const scope = selectMode.value === 'image'
     ? FileScope.Image
     : selectMode.value === 'video'
@@ -572,6 +658,7 @@ onBeforeMount(loadFilesForMode)
 watch(selectMode, async () => {
   searchText.value = ''
   searchTerm.value = ''
+  selectedCategory.value = ''
   selectedTags.value = []
   dateRange.value = null
   await loadFilesForMode()
@@ -686,6 +773,11 @@ function handleAddFile() {
 .management-label {
   font-size: 13px;
   color: var(--el-text-color-secondary);
+}
+
+.image-category-select {
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .image-schedule-picker {

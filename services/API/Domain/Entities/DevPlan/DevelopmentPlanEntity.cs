@@ -50,6 +50,14 @@ namespace AqLife.Domain.Entities.DevPlan
             Name = RequireName(name);
             Description = NormalizeDescription(description);
         }
+        /// <summary>
+        /// 仅用于测试,禁止用于正常业务
+        /// </summary>
+        /// <param name="uid"></param>
+        public DevelopmentPlanEntity(Guid uid)
+        {
+            this.UID = uid;
+        }
 
         public void Rename(string name)
         {
@@ -57,6 +65,8 @@ namespace AqLife.Domain.Entities.DevPlan
             Name = RequireName(name);
             Touch();
         }
+
+        //public void SetUID(Guid uid) { this.UID = uid; }
 
         public void UpdateDescription(string? description)
         {

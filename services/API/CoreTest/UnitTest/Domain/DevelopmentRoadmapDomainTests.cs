@@ -18,10 +18,8 @@ namespace AqLife.CoreTest.UnitTest.Domain
             Assert.True(plan.IsArchived);
             Assert.Throws<DomainLegalityException>(() => plan.Rename("Renamed"));
 
-            var defaultPlan = new DevelopmentPlanEntity()
-            {
-                UID = DevelopmentPlanEntity.DefaultPlanId
-            };
+            var defaultPlan = new DevelopmentPlanEntity(DevelopmentPlanEntity.DefaultPlanId);
+            
             defaultPlan.Rename("默认开发计划");
             Assert.Throws<DomainLegalityException>(() => defaultPlan.Archive());
         }

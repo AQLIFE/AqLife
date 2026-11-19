@@ -24,8 +24,6 @@
 
       <template #extra>
         <ElButton :icon="Share" link title="分享文章" @click="shareArticle" />
-        <ElButton v-if="!isFullscreen" :icon="FullScreen" link title="全屏阅读" @click="enterFullscreen" />
-        <ElButton v-else :icon="Close" link title="退出全屏" @click="exitFullscreen" />
       </template>
     </ElPageHeader>
 
@@ -60,8 +58,6 @@ import {
 import {
   ArrowLeft,
   Share,
-  FullScreen,
-  Close,
 } from '@element-plus/icons-vue'
 import {
   onBeforeUnmount,
@@ -94,22 +90,6 @@ const articleStore = useArticleStore()
 const blogStore = useBlogStore()
 const fileApi = new FileApi(apiConfiguration)
 const baseurl = import.meta.env.VITE_API
-const isFullscreen = computed(() => articleStore.isFullscreen)
-
-function enterFullscreen() {
-  articleStore.isFullscreen = true
-}
-
-function exitFullscreen() {
-  articleStore.isFullscreen = false
-}
-
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape' && isFullscreen.value) {
-    exitFullscreen()
-  }
-}
-
 async function shareArticle() {
   const url = window.location.href
 
@@ -375,8 +355,6 @@ function handleMarkdownScroll() {
 }
 
 onMounted(async () => {
-  window.addEventListener('keydown', handleKeydown)
-
   await nextTick()
   const container = markdownContainer.value
 
@@ -403,8 +381,6 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeydown)
-  articleStore.isFullscreen = false
   articleStore.isLoading = false
   requestVersion++
 

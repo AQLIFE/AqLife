@@ -71,11 +71,7 @@ public class UpdateFileTagValidator(IApplicationDbContext context): AbstractVali
     {
         if (!command.tags.Any())
             return true;
-        var tagIds = command.tags.Where(id => id != Guid.Empty).Distinct().ToArray();
-
-
-        var count = await context.Tags.CountAsync(tag => tagIds.Contains(tag.UID), ct);
-        return count == tagIds.Length;
+        return command.tags.Where(id => id != Guid.Empty).Distinct().All(e => context.Tags.Any(tag => tag.UID == e));
     }
 }
 

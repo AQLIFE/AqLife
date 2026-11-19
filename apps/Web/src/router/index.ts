@@ -12,6 +12,7 @@ declare module 'vue-router' {
     showInNav: boolean
     order?: number
     sidebarType?: SidebarType
+    hideNavigation?: boolean
   }
 }
 

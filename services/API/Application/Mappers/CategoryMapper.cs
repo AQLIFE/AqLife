@@ -20,12 +20,19 @@ public partial class CategoryMapper : IViewMapper<CategoryEntity, CategoryDto>, 
     [MapperIgnoreSource(nameof(CategoryEntity.ParentCategory))]
     [MapperIgnoreSource(nameof(CategoryEntity.Files))]
     [MapperIgnoreSource(nameof(CategoryEntity.Favorites))]
-    [MapperIgnoreTarget(nameof(CategoryDto.ResultIds))]
+    [MapProperty(nameof(CategoryEntity), nameof(CategoryDto.ResultIds), Use = nameof(ToResultGuid))]
     [MapProperty(nameof(CategoryEntity.UID), nameof(CategoryDto.Uid))]
     [MapProperty(nameof(CategoryEntity.CategoryDescription), nameof(CategoryDto.CategoryDescription))]
     [MapProperty(nameof(CategoryEntity.CategoryName), nameof(CategoryDto.CategoryName))]
     [MapProperty(nameof(CategoryEntity.CategoryCount), nameof(CategoryDto.Count))]
     public partial CategoryDto ToDto(CategoryEntity source);
+
+    public static IEnumerable<Guid> ToResultGuid(CategoryEntity source)
+    {
+        if (source.Files.Count > 0) return source.Files.Select(e => e.UID);
+        else if (source.Favorites.Count > 0) return source.Favorites.Select(e => e.UID);
+        else return [];
+    }
 
 
 
