@@ -1,8 +1,9 @@
-using AqLife.Application.Abstractions.FileStorage;
-using AqLife.Application.Business.File.Service;
-using AqLife.Application.Business.File.Upload;
-using AqLife.Domain.Command;
-using AqLife.Shared.IView;
+﻿using AqLife.Application.Abstractions.Contracts.File;
+using AqLife.Application.Abstractions.Contracts.File.Storage;
+using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Modules.File;
+using AqLife.Application.Modules.File.Service;
+using AqLife.Application.Modules.File.Upload;
 using AqLife.Shared.Options;
 using AqLife.Web.Middlewares;
 using MediatR;
@@ -115,7 +116,7 @@ namespace AqLife.Web.Controllers
                     && (!long.TryParse(rangeParts[1], NumberStyles.None, CultureInfo.InvariantCulture, out end) || end < start))
                     return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
 
-                (string ContentType, AqLife.Application.Abstractions.FileStorage.FileStorageRangeReadResult Range) ranged;
+                (string ContentType, AqLife.Application.Abstractions.Contracts.File.Storage.FileStorageRangeReadResult Range) ranged;
                 try
                 {
                     ranged = await fileReader.ReadRangeAsync(uid, FileScope.Video, start, end, ct);

@@ -1,4 +1,4 @@
-﻿using AqLife.Domain.Command;
+﻿using AqLife.Application.Modules.Account;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 

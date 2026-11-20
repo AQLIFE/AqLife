@@ -1,6 +1,5 @@
 ﻿
-using AqLife.Domain.Command;
-using AqLife.Shared.IView;
+using AqLife.Application.Modules.Account;
 using AqLife.Shared.Tools;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

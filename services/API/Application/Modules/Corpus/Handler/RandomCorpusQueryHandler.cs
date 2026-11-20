@@ -1,0 +1,20 @@
+﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Domain.Entities;
+using AqLife.Shared.Exceptions;
+using MediatR;
+
+namespace AqLife.Application.Modules.Corpus.Handler
+{
+    public class RandomCorpusQueryHandler(ISearch<CorpusQuery, PageResult<CorpusDto>, CorpusEntity> search) : IRequestHandler<RandomCorpusQuery, string>
+    {
+        public async Task<string> Handle(RandomCorpusQuery query, CancellationToken ct)
+        {
+            var result = await search.SearchAsync(new CorpusQuery(), ct);
+            if (result.Count() == 0) throw new ResourceNotFoundException("没有语料");
+            var randomIndex = Random.Shared.Next(result.Count());
+            CorpusEntity corpus = result.OrderBy(e => e.CorpusContent).Skip(randomIndex).First();
+            //return mapper.ToDto(corpus);
+            return corpus.CorpusContent;
+        }
+    }
+}

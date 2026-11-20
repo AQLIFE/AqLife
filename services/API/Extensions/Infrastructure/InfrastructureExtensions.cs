@@ -1,12 +1,13 @@
+﻿using AqLife.Application.Abstractions.Contracts.File;
 using Amazon.Runtime;
 using Amazon.S3;
 using AqLife.Application.Abstractions.Authentication;
-using AqLife.Application.Abstractions.FileStorage;
+using AqLife.Application.Abstractions.Contracts.File.Storage;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
-using AqLife.Infrastructure;
 using AqLife.Infrastructure.Authentication;
 using AqLife.Infrastructure.FileStorage;
+using AqLife.Infrastructure.Persistence;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;

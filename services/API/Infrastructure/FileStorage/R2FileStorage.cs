@@ -1,6 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
-using AqLife.Application.Abstractions.FileStorage;
+using AqLife.Application.Abstractions.Contracts.File.Storage;
 using AqLife.Shared.Options;
 using Microsoft.Extensions.Options;
 

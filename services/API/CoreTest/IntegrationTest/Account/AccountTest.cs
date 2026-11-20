@@ -1,6 +1,6 @@
-﻿using AqLife.Domain.Command;
+﻿using AqLife.Application.Modules.Account;
 using AqLife.Domain.Entities;
-using AqLife.Infrastructure;
+using AqLife.Infrastructure.Persistence;
 using AqLife.Shared.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Testing.Platform.Services;

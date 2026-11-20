@@ -1,10 +1,10 @@
-﻿using AqLife.Shared.Contracts;
-using AqLife.Shared.IView;
+﻿using AqLife.Application.Abstractions.Commands;
+using AqLife.Shared.Contracts;
 
 namespace AqLife.Application.Abstractions.Search
 {
-    public interface ISearch<TQuery, TEntity>
-    where TQuery : class // 备用吧,等待未来实现
+    public interface ISearch<TQuery,TReseponse, TEntity>
+    where TQuery : IQuery<TReseponse> // 备用吧,等待未来实现
     where TEntity : IEntity
     {
         Task<IQueryable<TEntity>> SearchAsync(TQuery query, CancellationToken ct);

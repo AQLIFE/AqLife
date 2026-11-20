@@ -1,20 +1,30 @@
-﻿using AqLife.Application.Abstractions.Search;
+﻿using AqLife.Application.Abstractions.Commands;
+using AqLife.Application.Abstractions.Search;
 using AqLife.Shared.Contracts;
-using AqLife.Shared.Contracts.CommandInterface;
 using AqLife.Shared.IView;
 
-namespace AqLife.Application.Abstractions.Mapper
+namespace AqLife.Application.Abstractions.Mapping
 {
     public interface IBaseMapper<TSource, TTarget> { }
 
-    public interface IBaseEntityMapper<TSource, TTarget> : IBaseMapper<TSource, TTarget>
+    public interface IEntityFactory<TSource, TTarget> : IBaseMapper<TSource, TTarget>
     {
         public TSource ToEntity(TTarget target);
     }
 
-    public interface IBaseListEntityMapper<TSource, TTarget> : IBaseMapper<TSource, TTarget>
+    public interface IEntityCollectionFactory<TSource, TTarget> : IBaseMapper<TSource, TTarget>
     {
         public IEnumerable<TSource> ToEntity(TTarget target);
+    }
+
+    public interface IBaseEntityMapper<TSource, TTarget> : IBaseMapper<TSource, TTarget>
+    {
+        TSource ToEntity(TTarget target);
+    }
+
+    public interface IBaseListEntityMapper<TSource, TTarget> : IBaseMapper<TSource, TTarget>
+    {
+        IEnumerable<TSource> ToEntity(TTarget target);
     }
 
     public interface ICreateMapper<T, TCreate> : IBaseMapper<T, TCreate>
@@ -34,7 +44,8 @@ namespace AqLife.Application.Abstractions.Mapper
 
     // 3. 只负责视图转换的契约
     public interface IViewMapper<T, TView> : IBaseMapper<T, TView>
-        where T : IEntity where TView : IEntityDto
+        where T : IEntity 
+        where TView : IEntityDto
     {
         TView ToDto(T source);
     }

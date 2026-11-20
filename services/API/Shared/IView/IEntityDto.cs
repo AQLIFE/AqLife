@@ -1,6 +1,4 @@
 ﻿namespace AqLife.Shared.IView
 {
-    public interface IEntityDto
-    {
-    }
+    public interface IEntityDto{}
 }

@@ -1,5 +1,6 @@
-using AqLife.Domain.Command;
-using AqLife.Shared.IView;
+using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Modules.Category;
+using AqLife.Application.Modules.Tag;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

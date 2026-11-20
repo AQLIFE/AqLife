@@ -1,10 +1,10 @@
-using AqLife.Application.Business.File.Search;
-using AqLife.Domain.Command;
+using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Modules.File;
+using AqLife.Application.Modules.File.Search;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
-using AqLife.Infrastructure;
+using AqLife.Infrastructure.Persistence;
 using AqLife.Shared.Exceptions;
-using AqLife.Shared.IView;
 using AqLife.Shared.Options;
 using AqLife.Shared.Utils;
 using Microsoft.AspNetCore.Http;

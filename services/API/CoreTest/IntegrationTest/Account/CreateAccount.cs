@@ -1,5 +1,5 @@
-﻿using AqLife.CoreTest.TestData;
-using AqLife.Domain.Command;
+﻿using AqLife.Application.Modules.Account;
+using AqLife.CoreTest.TestData;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Utils;

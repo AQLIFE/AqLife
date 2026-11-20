@@ -1,5 +1,5 @@
-using AqLife.Application.Business.Account.Services;
-using AqLife.Infrastructure;
+using AqLife.Application.Modules.Account.Services;
+using AqLife.Infrastructure.Persistence;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Microsoft.EntityFrameworkCore;

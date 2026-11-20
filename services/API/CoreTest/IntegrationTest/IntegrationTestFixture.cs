@@ -4,7 +4,7 @@ using AqLife.Extensions.Configurations;
 using AqLife.Extensions.Database;
 using AqLife.Extensions.Infrastructure;
 using AqLife.Extensions.Logging;
-using AqLife.Infrastructure;
+using AqLife.Infrastructure.Persistence;
 using Duende.IdentityModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;

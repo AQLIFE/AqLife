@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Application/Abstractions/Abstractions.csproj" />
   <Project Path="Application/Application.csproj" />
   <Project Path="Application/Core/Core.csproj" Id="c6b1600b-de6a-44a9-a869-dda1d4fef2f5" />
   <Project Path="CoreTest/CoreTest.csproj" />

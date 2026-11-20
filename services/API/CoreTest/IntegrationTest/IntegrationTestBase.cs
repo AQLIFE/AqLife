@@ -1,5 +1,5 @@
 ﻿using AqLife.Extensions.Database;
-using AqLife.Infrastructure;
+using AqLife.Infrastructure.Persistence;
 using AqLife.Shared.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Http;
