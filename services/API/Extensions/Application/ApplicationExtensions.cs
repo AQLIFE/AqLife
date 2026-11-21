@@ -86,6 +86,11 @@ public static class ApplicationExtensions
         services.AddScoped<FileWriter>();
         services.AddScoped<FileDeleter>();
 
+        // File 模块对外只暴露资产契约；引用检查由各业务模块提供实现。
+        services.AddScoped<AqLife.Application.Abstractions.Contracts.File.IFileAssetService, FileAssetService>();
+        services.AddScoped<AqLife.Application.Abstractions.Contracts.File.IFileReferenceProvider, AqLife.Application.Modules.Account.Services.AccountFileReferenceProvider>();
+        services.AddScoped<AqLife.Application.Abstractions.Contracts.File.IFileReferenceProvider, AqLife.Application.Modules.Favorite.FavoriteFileReferenceProvider>();
+
         services.AddSingleton<TodoMapper>();
         services.AddSingleton<IViewMapper<TodoEntity, TodoDto>>(sp => sp.GetRequiredService<TodoMapper>());
         services.AddSingleton<IViewMapper<RoadmapNodeLayoutEntity, RoadmapNodeLayoutDto>>(sp => sp.GetRequiredService<TodoMapper>());
