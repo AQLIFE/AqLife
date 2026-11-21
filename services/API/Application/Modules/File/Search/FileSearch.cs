@@ -17,9 +17,9 @@ namespace AqLife.Application.Modules.File.Search;
 public sealed class FileSearch(
     IOptions<FilePolicyOption> options,
     ISearchMapper<FileQuery, PageResult<FileDto>, FileSearchCriteria> queryMapper,
-    IApplicationDbContext storage, IHttpContextAccessor httpContext,
+    IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
-    : BaseSearch<FileQuery, PageResult<FileDto>, FileMetaEntity, FileSearchCriteria>(storage, httpContext, searchStrategies)
+    : BaseSearch<FileQuery, PageResult<FileDto>, FileMetaEntity, FileSearchCriteria>(dbContext, httpContext, searchStrategies)
 {
     static readonly Expression<Func<FileMetaEntity, FileMetaEntity>> AnonymousProjection = e => e.Desensitize();
 
