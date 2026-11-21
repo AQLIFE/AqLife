@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Modules.Account.Handler
 {
-    public class UpdateAccountProfileHandler(IApplicationDbContext storage) : IRequestHandler<UpdateAccountProfileCommand, string>
+    public class UpdateAccountProfileHandler(IApplicationDbContext dbContext) : IRequestHandler<UpdateAccountProfileCommand, string>
     {
         public async Task<string> Handle(UpdateAccountProfileCommand command, CancellationToken ct)
         {
-            AccountEntity account = await storage.Accounts.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
+            AccountEntity account = await dbContext.Accounts.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
             account.UpdateProfile(command.Name, command.Desc ?? string.Empty);
             return account.LoginName;
         }
@@ -20,11 +20,11 @@ namespace AqLife.Application.Modules.Account.Handler
 
 
     // 需要准备用 Notification 优化业务表达 ,纳入 plan 2
-    public class UpdateAccountAvatarHandler(IApplicationDbContext storage, IFileAssetService fileAssetService) : IRequestHandler<UpdateAccountAvatarCommand, string>
+    public class UpdateAccountAvatarHandler(IApplicationDbContext dbContext, IFileAssetService fileAssetService) : IRequestHandler<UpdateAccountAvatarCommand, string>
     {
         public async Task<string> Handle(UpdateAccountAvatarCommand command, CancellationToken ct)
         {
-            AccountEntity account = await storage.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
+            AccountEntity account = await dbContext.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
 
             Guid newId = await fileAssetService.UploadAsync(command.Avatar, CategoryEntity.DefaultCategoryId, ct);
             Guid oldId = account.Avatar;
@@ -45,7 +45,7 @@ namespace AqLife.Application.Modules.Account.Handler
     /// 处理订阅列表更新，并自动发布其中的图像
     /// </summary>
     public class UpdateAccountSubscriptionsHandler(
-        IApplicationDbContext storage,
+        IApplicationDbContext dbContext,
         ICreateMapper<SubscriptionEntity, ISubscription> subscriptionMapper,
         IFileAssetService fileAssetService)
         : IRequestHandler<UpdateAccountSubscriptionsCommand, string>
@@ -53,7 +53,7 @@ namespace AqLife.Application.Modules.Account.Handler
         public async Task<string> Handle(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         {
             // 前置验证管道负责检查所有文件标识是否有效。
-            AccountEntity account = await storage.Accounts
+            AccountEntity account = await dbContext.Accounts
                 .Include(a => a.Subscriptions)
                 .SingleOrDefaultAsync(e => e.UID == command.UID, ct)
                 ?? throw new ResourceNotFoundException("账户不存在");
@@ -70,18 +70,18 @@ namespace AqLife.Application.Modules.Account.Handler
             foreach (var subscription in newSubscriptions)
                 subscription.BindAccount(account);
 
-            storage.Subscription.RemoveRange(account.Subscriptions);
-            storage.Subscription.AddRange(newSubscriptions);
+            dbContext.Subscription.RemoveRange(account.Subscriptions);
+            dbContext.Subscription.AddRange(newSubscriptions);
 
             return account.LoginName;
         }
     }
 
-    public class UpdatePasswordHandler(IApplicationDbContext storage) : IRequestHandler<UpdatePasswordCommand, string>
+    public class UpdatePasswordHandler(IApplicationDbContext dbContext) : IRequestHandler<UpdatePasswordCommand, string>
     {
         public async Task<string> Handle(UpdatePasswordCommand command, CancellationToken ct)
         {
-            AccountEntity account = await storage.Accounts.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
+            AccountEntity account = await dbContext.Accounts.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
             account.ChangePassword(command.NewPassword);
             return account.LoginName;
         }
