@@ -11,10 +11,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Modules.DevelopmentPlan.Search
 {
-    public sealed class DevelopmentPlanSearch<TDevPlanQuery, TResource>(IApplicationDbContext storage, IHttpContextAccessor httpContext,
+    public sealed class DevelopmentPlanSearch<TDevPlanQuery, TResource>(IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
         ISearchMapper<TDevPlanQuery, TResource, EntitySearchCriteria> queryMapper,
         IEnumerable<ISearchStrategy<DevelopmentPlanEntity, EntitySearchCriteria>> searchStrategies)
-        : BaseSearch<TDevPlanQuery, TResource, DevelopmentPlanEntity, EntitySearchCriteria>(storage, httpContext, searchStrategies)
+        : BaseSearch<TDevPlanQuery, TResource, DevelopmentPlanEntity, EntitySearchCriteria>(dbContext, httpContext, searchStrategies)
         where TDevPlanQuery : class, IReadDevPlan, IQuery<TResource>
         where TResource : class
     {
