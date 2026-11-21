@@ -7,6 +7,7 @@ using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
 using AqLife.Infrastructure.Authentication;
 using AqLife.Infrastructure.FileStorage;
+using AqLife.Infrastructure.BackServices;
 using AqLife.Infrastructure.Persistence;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Hosting;
@@ -24,6 +25,7 @@ public static class InfrastructureExtensions
     {
         services.AddScoped<IApplicationDbContext, AppStorage>();
         services.AddScoped<IResumableFileUploadService, ResumableFileUploadService>();
+        services.AddScoped<IScheduledFileQuery, BlogSearch>();
 
         if (!environment.IsTest()) // 非 Test 模式
         {
