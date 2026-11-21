@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Contracts.File;
+using AqLife.Application.Modules.File;
 
 namespace AqLife.Application.Modules.File.Service;
 
