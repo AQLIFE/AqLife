@@ -7,14 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure.BackServices
 {
-    public sealed class FilePublishService(IApplicationDbContext context) : IFilePublishService
+    public sealed class FilePublishService(IApplicationDbContext dbContext) : IFilePublishService
     {
-        private readonly IQueryable<FileMetaEntity> fileQueryable = context.File.Include(e => e.PublishMeta);
+        private readonly IQueryable<FileMetaEntity> fileQueryable = dbContext.File.Include(e => e.PublishMeta);
         public async Task<Guid> PublishAsync(Guid guid, CancellationToken ct = default)
         {
             FileMetaEntity file = await fileQueryable.SingleOrDefaultAsync(e => e.UID == guid, ct) ?? throw new ResourceNotFoundException("File not found");
             file.PublishMeta.Publish();
-            //await context.SaveChangesAsync(ct);
+            //await dbContext.SaveChangesAsync(ct);
             return guid;
         }
 
@@ -26,7 +26,7 @@ namespace AqLife.Infrastructure.BackServices
                 file.PublishMeta.Publish();
             }
             return files.Count;
-            //return await context.SaveChangesAsync(ct);// 返回发布的数量:对于数量是否一致或者其他要求,交由调用者处理
+            //return await dbContext.SaveChangesAsync(ct);// 返回发布的数量:对于数量是否一致或者其他要求,交由调用者处理
 
         }
         public async Task<Guid> Agreement(Guid guid, DateTimeOffset agreementTime, CancellationToken ct = default)
