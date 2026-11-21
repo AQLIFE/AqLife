@@ -22,8 +22,8 @@ namespace AqLife.Application.Modules.Account.Validator
     /// <summary>
     ///  更新的订阅ID 必须全部为有效ID
     /// </summary>
-    /// <param name="storage"></param>
-    public class SubscriptionIconExistenceValidator(IApplicationDbContext storage) : AbstractValidator<UpdateAccountSubscriptionsCommand>
+    /// <param name="dbContext"></param>
+    public class SubscriptionIconExistenceValidator(IApplicationDbContext dbContext) : AbstractValidator<UpdateAccountSubscriptionsCommand>
     {
         protected override string ErrorMessage { init; get; } = "配置账户的图像文件不存在";
         protected override async Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
@@ -32,7 +32,7 @@ namespace AqLife.Application.Modules.Account.Validator
             var iconsToCheck = command.Subscriptions.Where(s => s.SubscriptionIcon != Guid.Empty).Select(e => e.SubscriptionIcon).Distinct().ToList();
 
             // 3. 数据库侧验证：仅查询存在的数量是否与待检查数量一致 [cite: 27, 28]
-            var existingCount = await storage.File.Where(f => iconsToCheck.Contains(f.UID)).CountAsync(ct);
+            var existingCount = await dbContext.File.Where(f => iconsToCheck.Contains(f.UID)).CountAsync(ct);
 
             return existingCount == iconsToCheck.Count;
         }
@@ -59,7 +59,7 @@ namespace AqLife.Application.Modules.Account.Validator
     /// <summary>
     /// 更新时订阅平台名称重复性检查: 不允许重复
     /// </summary>
-    /// <param name="storage"></param>
+    /// <param name="dbContext"></param>
     public class SubscriptionContentValidator : AbstractValidator<UpdateAccountSubscriptionsCommand>
     {
         protected override string ErrorMessage { init; get; } = "不允许重复的订阅账户平台名称";
