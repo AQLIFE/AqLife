@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Modules.Todo.Search
 {
-    public sealed class TodoSearch(ISearchMapper<TodoQuery, PageResult<TodoDto>, TodoSearchCriteria> queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
+    public sealed class TodoSearch(ISearchMapper<TodoQuery, PageResult<TodoDto>, TodoSearchCriteria> queryMapper, IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
         IEnumerable<ISearchStrategy<TodoEntity, TodoSearchCriteria>> searchStrategies
-        ) : BaseSearch<TodoQuery, PageResult<TodoDto>, TodoEntity, TodoSearchCriteria>(storage, httpContext, searchStrategies)
+        ) : BaseSearch<TodoQuery, PageResult<TodoDto>, TodoEntity, TodoSearchCriteria>(dbContext, httpContext, searchStrategies)
     {
         protected override TodoSearchCriteria MapToCriteria(TodoQuery query)
         => queryMapper.ToCriteria(query);
