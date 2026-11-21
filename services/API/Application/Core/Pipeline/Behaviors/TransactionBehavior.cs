@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace Core.Pipeline.Behaviors
 {
     // 事务管道
-    public class TransactionBehavior<TRequest, TResponse>(IApplicationDbContext storage, IFileStorage fileStorage, UploadContext uploadContext,ILogger<TransactionBehavior<TRequest,TResponse>> logger) : IPipelineBehavior<TRequest, TResponse>
+    public class TransactionBehavior<TRequest, TResponse>(IApplicationDbContext dbContext, IFileStorage fileStorage, UploadContext uploadContext,ILogger<TransactionBehavior<TRequest,TResponse>> logger) : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
 
@@ -22,16 +22,16 @@ namespace Core.Pipeline.Behaviors
             if (request is not IRequireTransaction)
                 return await next(cancellationToken);
 
-            await using var transaction = await storage.BeginTransactionAsync(cancellationToken);
+            await using var transaction = await dbContext.BeginTransactionAsync(cancellationToken);
             try
             {
                 var response = await next(cancellationToken); // 执行真正的业务
                 if (request is IRequireDependencyVersionIncrement devPlan)
                 {
-                    DevelopmentPlanEntity developmentPlanEntity = await storage.DevelopmentPlans.SingleAsync(e => e.UID == devPlan.PlanId, cancellationToken);
+                    DevelopmentPlanEntity developmentPlanEntity = await dbContext.DevelopmentPlans.SingleAsync(e => e.UID == devPlan.PlanId, cancellationToken);
                     developmentPlanEntity.IncrementDependencyVersion();
                 }
-                await storage.SaveChangesAsync(cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken); // 提交 : 隐式事务回滚机制,若在Commit之前触发异常,则会自动回滚
                 foreach (var path in uploadContext.DeletePath)
                     await fileStorage.DeleteAsync(path, cancellationToken);
