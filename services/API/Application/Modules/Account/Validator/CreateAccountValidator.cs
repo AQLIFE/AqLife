@@ -16,12 +16,12 @@ namespace AqLife.Application.Modules.Account.Validator
     /// <summary>
     /// 创建时账户唯一性检查: 不允许创建第二个账户
     /// </summary>
-    /// <param name="storage"></param>
-    public class SingleAccountSystemValidator(IApplicationDbContext storage) : AbstractValidator<CreateAccountCommand>
+    /// <param name="dbContext"></param>
+    public class SingleAccountSystemValidator(IApplicationDbContext dbContext) : AbstractValidator<CreateAccountCommand>
     {
         protected override string ErrorMessage { init; get; } = "仅允许注册一个账户";
         protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
-        => !await storage.Accounts.AsNoTracking().AnyAsync(a => a.IsValid);
+        => !await dbContext.Accounts.AsNoTracking().AnyAsync(a => a.IsValid);
     }
 
     /// <summary>
