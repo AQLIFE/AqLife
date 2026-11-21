@@ -9,12 +9,12 @@ namespace AqLife.Infrastructure.BackServices;
 /// <summary>
 /// 定时发布查询的 EF Core 适配器。
 /// </summary>
-public sealed class ScheduledFileQuery(IApplicationDbContext context) : IScheduledFileQuery
+public sealed class ScheduledFileQuery(IApplicationDbContext dbContext) : IScheduledFileQuery
 {
     public async Task<IReadOnlyList<Guid>> GetDueFileIdsAsync(
         DateTimeOffset asOf,
         CancellationToken cancellationToken = default)
-        => await context.File
+        => await dbContext.File
             .Where(file => file.PublishMeta.PublishStatus == FileStatus.Scheduled
                 && file.PublishMeta.PublishAt <= asOf)
             .Select(file => file.UID)
