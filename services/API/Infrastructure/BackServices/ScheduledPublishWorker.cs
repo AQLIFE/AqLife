@@ -29,13 +29,13 @@ public sealed class ScheduledPublishWorker(
                 var services = scope.ServiceProvider;
 
                 var processor = services.GetRequiredService<IScheduledPublishProcessor>();
-                var context = services.GetRequiredService<IApplicationDbContext>();
+                var dbContext = services.GetRequiredService<IApplicationDbContext>();
 
-                await using var transaction = await context.BeginTransactionAsync(stoppingToken);
+                await using var transaction = await dbContext.BeginTransactionAsync(stoppingToken);
                 try
                 {
                     var result = await processor.ProcessDueAsync(stoppingToken);
-                    await context.SaveChangesAsync(stoppingToken);
+                    await dbContext.SaveChangesAsync(stoppingToken);
                     await transaction.CommitAsync(stoppingToken);
 
                     logger.LogInformation(
