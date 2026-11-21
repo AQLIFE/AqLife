@@ -29,6 +29,10 @@ namespace AqLife.Application.Modules.Account.Handler
             Guid newId = await fileAssetService.UploadAsync(command.Avatar, CategoryEntity.DefaultCategoryId, ct);
             Guid oldId = account.Avatar;
 
+            // 内容去重可能返回当前头像的既有文件 ID；相同 ID 时不能把它排入删除队列。
+            if (newId == oldId)
+                return account.LoginName;
+
             await fileAssetService.PublishAsync(newId, ct);
             account.ChangeAvatar(newId);
 
