@@ -1,0 +1,39 @@
+using Microsoft.AspNetCore.Http;
+
+namespace AqLife.Application.Abstractions.Contracts.File;
+
+/// <summary>
+/// 面向其他应用模块的文件资产业务契约。
+/// 调用方不直接依赖 File 模块的 Handler、Writer 或 Deleter。
+/// </summary>
+public interface IFileAssetService
+{
+    /// <summary>
+    /// 创建文件资产并返回其标识。文件元数据与物理文件写入沿用 File 模块的事务补偿机制。
+    /// </summary>
+    Task<Guid> UploadAsync(
+        IFormFile file,
+        Guid categoryId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 发布单个文件资产。
+    /// </summary>
+    Task<Guid> PublishAsync(
+        Guid fileId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 批量发布文件资产。
+    /// </summary>
+    Task<int> PublishAsync(
+        IEnumerable<Guid> fileIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 删除文件资产。物理文件删除由事务管道在数据库事务提交后执行。
+    /// </summary>
+    Task DeleteAsync(
+        IEnumerable<Guid> fileIds,
+        CancellationToken cancellationToken = default);
+}
