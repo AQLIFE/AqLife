@@ -25,7 +25,7 @@ public static class InfrastructureExtensions
     {
         services.AddScoped<IApplicationDbContext, AppStorage>();
         services.AddScoped<IResumableFileUploadService, ResumableFileUploadService>();
-        services.AddScoped<IScheduledFileQuery, BlogSearch>();
+        services.AddScoped<IScheduledFileQuery, ScheduledFileQuery>();
 
         if (!environment.IsTest()) // 非 Test 模式
         {
