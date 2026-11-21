@@ -41,13 +41,13 @@ public sealed class RestoreTodoPlanActiveValidator(AqLife.Application.Abstractio
 /// 解决 B10 问题,任何Command只要继承了 IRequireDevPlan , IRequireValidEntity<TodoEntity>
 /// </summary>
 /// <typeparam name="TRequest"></typeparam>
-/// <param name="storage"></param>
-public class TodoUpdateValidator<TRequest>(IApplicationDbContext storage) : AbstractValidator<TRequest>
+/// <param name="dbContext"></param>
+public class TodoUpdateValidator<TRequest>(IApplicationDbContext dbContext) : AbstractValidator<TRequest>
    where TRequest : IRequireDevPlan, IRequireValidEntity<TodoEntity>, IUpdateCommand
 {
     protected override string ErrorMessage { init; get; } = "已归档的任务不可操作";
     protected override async Task<bool> IsValidAsync(TRequest command, CancellationToken ct)
-        => command is RestoreTodoCommand || await storage.Todo.AnyAsync(x => x.UID == command.UID && !x.IsArchived, ct);
+        => command is RestoreTodoCommand || await dbContext.Todo.AnyAsync(x => x.UID == command.UID && !x.IsArchived, ct);
 
     protected override Exception CreateException(string message)
     => new DomainLegalityException(message);
@@ -56,13 +56,13 @@ public class TodoUpdateValidator<TRequest>(IApplicationDbContext storage) : Abst
 /// 预期更新的todo 不能改变其归属
 /// </summary>
 /// <typeparam name="TRequest"></typeparam>
-/// <param name="storage"></param>
-public class TodoAttributionValidityValidator<TRequest>(IApplicationDbContext storage) : AbstractValidator<TRequest>
+/// <param name="dbContext"></param>
+public class TodoAttributionValidityValidator<TRequest>(IApplicationDbContext dbContext) : AbstractValidator<TRequest>
    where TRequest : IRequireDevPlan, IRequireValidEntity<TodoEntity>, IUpdateCommand
 {
     protected override string ErrorMessage { init; get; } = "更新操作不能改变任务计划归属";
     protected override async Task<bool> IsValidAsync(TRequest command, CancellationToken ct)
-        => await storage.Todo.AnyAsync(x => x.UID == command.UID && x.PlanId == command.PlanId, ct);
+        => await dbContext.Todo.AnyAsync(x => x.UID == command.UID && x.PlanId == command.PlanId, ct);
 
     protected override Exception CreateException(string message)
     => new DomainLegalityException(message);
