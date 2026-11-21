@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace AqLife.Application.Modules.Tag.Search
 {
-    public sealed class TagSearch(ISearchMapper<TagQuery, PageResult<TagDto>, EntitySearchCriteria> queryMapper, IApplicationDbContext storage, IHttpContextAccessor httpContext,
+    public sealed class TagSearch(ISearchMapper<TagQuery, PageResult<TagDto>, EntitySearchCriteria> queryMapper, IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
      IEnumerable<ISearchStrategy<TagEntity, EntitySearchCriteria>> searchStrategies
-    ) : BaseSearch<TagQuery, PageResult<TagDto>, TagEntity, EntitySearchCriteria>(storage, httpContext, searchStrategies)
+    ) : BaseSearch<TagQuery, PageResult<TagDto>, TagEntity, EntitySearchCriteria>(dbContext, httpContext, searchStrategies)
     {
         protected override EntitySearchCriteria MapToCriteria(TagQuery query)
         => queryMapper.ToCriteria(query);
