@@ -3,11 +3,9 @@ using AqLife.Application.Abstractions.Pipeline.Markers;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Tools;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 
 namespace Core.Pipeline.Behaviors
 {
-
     public class UploadContextBehavior<TRequest, TResponse>(UploadContext uploadContext) : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>, IApplicationRequest
     {
@@ -22,27 +20,9 @@ namespace Core.Pipeline.Behaviors
                 throw new RequestCheckException("上传文件不能为空");
 
             foreach (var file in files)
-            {
-                var hash = await CalculateHashAsync(file, cancellationToken);
-                uploadContext.FileHashes.Add(file, hash);
-            }
+                await uploadContext.GetOrAddFileHashAsync(file, cancellationToken);
 
             return await next(cancellationToken);
-        }
-
-        private static async Task<string> CalculateHashAsync(
-            IFormFile file,
-            CancellationToken cancellationToken)
-        {
-            await using var stream = file.OpenReadStream();
-
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-
-            var hashBytes = await sha256.ComputeHashAsync(
-                stream,
-                cancellationToken);
-
-            return Convert.ToHexString(hashBytes).ToLowerInvariant();
         }
     }
 }
