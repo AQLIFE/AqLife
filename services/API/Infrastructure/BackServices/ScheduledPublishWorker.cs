@@ -1,70 +1,78 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Contracts.File;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Shared.Options;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace AqLife.Infrastructure.BackServices
-{
-    /// <summary>
-    /// 处理所有已到期的预约发布,将其发布到指定位置,并返回处理结果:后台任务
-    /// </summary>
-    public record ProcessScheduledPostsCommand : IRequest<ProcessScheduledPostsResult>;// 需要手动注册相关依赖
-    public class ProcessScheduledPostsResult(
-    int Found,
-    int Published,
-    int Failed)
-    {
-        public int Found { get; set; } = Found;
-        public int Published { get; set; } = Published;
-        public int Failed { get; set; } = Failed;
-    };
+namespace AqLife.Infrastructure.BackServices;
 
-    public class ScheduledPublishWorker(IServiceScopeFactory scopeFactory, ILogger<ScheduledPublishWorker> logger) : BackgroundService
+/// <summary>
+/// 定时发布宿主适配器。只负责调度应用层处理器及提供事务边界，不承载发布业务规则。
+/// </summary>
+public sealed class ScheduledPublishWorker(
+    IServiceScopeFactory scopeFactory,
+    ILogger<ScheduledPublishWorker> logger) : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        logger.LogInformation(
+            "[Serilog][{@LogType}]=>{@LogDesc}",
+            BehavioralLevel.ServiceType,
+            "Scheduled publish worker started.");
+
+        while (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogInformation("[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.ServiceType, "Scheduled publish worker started.");
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
+                using var scope = scopeFactory.CreateScope();
+                var services = scope.ServiceProvider;
+
+                var processor = services.GetRequiredService<IScheduledPublishProcessor>();
+                var context = services.GetRequiredService<IApplicationDbContext>();
+
+                await using var transaction = await context.BeginTransactionAsync(stoppingToken);
                 try
                 {
-                    using var scope = scopeFactory.CreateScope();
+                    var result = await processor.ProcessDueAsync(stoppingToken);
+                    await context.SaveChangesAsync(stoppingToken);
+                    await transaction.CommitAsync(stoppingToken);
 
-                    var mediator = scope.ServiceProvider
-                        .GetRequiredService<IMediator>();
-                    var context = scope.ServiceProvider
-                        .GetRequiredService<IApplicationDbContext>();
-                    await using var transaction = await context.BeginTransactionAsync(stoppingToken);
-
-                    try
-                    {
-                        var result = await mediator.Send(new ProcessScheduledPostsCommand(), stoppingToken);
-                        await context.SaveChangesAsync();
-                        await transaction.CommitAsync();
-                        logger.LogInformation("[Serilog][{@LogType}]=>{@LogDesc}", BehavioralLevel.ServiceType, $"Scheduled posts processed. Found: {result.Found}, Published: {result.Published}, Failed: {result.Failed}");
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError($"后台任务执行失败:{ex}");
-                        await transaction.RollbackAsync();
-                    }
+                    logger.LogInformation(
+                        "[Serilog][{@LogType}]=>{@LogDesc}",
+                        BehavioralLevel.ServiceType,
+                        $"Scheduled posts processed. Found: {result.Found}, Published: {result.Published}, Failed: {result.Failed}");
                 }
-                catch (OperationCanceledException)
-                    when (stoppingToken.IsCancellationRequested)
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
-                    break;
+                    await transaction.RollbackAsync(CancellationToken.None);
+                    throw;
                 }
-                catch (Exception ex)
+                catch (Exception exception)
                 {
-                    logger.LogError(ex, "Scheduled publish processing failed.");
+                    logger.LogError(exception, "Scheduled publish processing failed.");
+                    await transaction.RollbackAsync(CancellationToken.None);
                 }
-                await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Scheduled publish worker iteration failed.");
             }
 
-            logger.LogInformation("Scheduled publish worker stopped.");
+            try
+            {
+                await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
         }
+
+        logger.LogInformation("Scheduled publish worker stopped.");
     }
 }
-
