@@ -9,13 +9,13 @@ namespace AqLife.Application.Modules.Account.Validator
     /// 登录检查
     /// </summary>
     /// <param name="options"></param>
-    /// <param name="storage"></param>
-    public class AccountCredentialValidator(IApplicationDbContext storage) : AbstractValidator<LoginCommand>
+    /// <param name="dbContext"></param>
+    public class AccountCredentialValidator(IApplicationDbContext dbContext) : AbstractValidator<LoginCommand>
     {
         protected override string ErrorMessage { init; get; } = "登录失败";
         protected override async Task<bool> IsValidAsync(LoginCommand command, CancellationToken ct)
         {
-            var entity = await storage.Accounts.AsNoTracking().FirstAsync(a => a.IsValid);
+            var entity = await dbContext.Accounts.AsNoTracking().FirstAsync(a => a.IsValid);
             return entity.LoginName == command.AccountName && entity.LoginPasswordHash == FastHash.GetSha256Hash(command.SecretKey);
         }
     }
