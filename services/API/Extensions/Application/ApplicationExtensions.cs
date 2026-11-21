@@ -34,7 +34,6 @@ using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Domain.Entities.Favorite;
 using AqLife.Domain.Entities.File;
-using AqLife.Infrastructure.BackServices;
 using AqLife.Shared.Contracts;
 using AqLife.Application.Abstractions.Commands;
 using AqLife.Shared.Tools;
@@ -148,9 +147,7 @@ public static class ApplicationExtensions
         services.AddScoped(typeof(PageResultMapper<,>));
 
         services.AddScoped<SystemInitializationService>();
-        services.AddScoped<IFilePublishService, FilePublishService>();
         services.AddScoped<IScheduledPublishProcessor, ScheduledPublishProcessor>();
-        services.AddHostedService<ScheduledPublishWorker>();
 
         var implementationAssembly = typeof(AqLife.Application.Application).Assembly;
         services.AddMediatR(cfg =>
