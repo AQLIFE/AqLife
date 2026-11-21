@@ -1,8 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
-using AqLife.Application.Modules.File;
-using AqLife.Application.Modules.File.Service;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 using MediatR;
@@ -22,39 +20,45 @@ namespace AqLife.Application.Modules.Account.Handler
 
 
     // 需要准备用 Notification 优化业务表达 ,纳入 plan 2
-    public class UpdateAccountAvatarHandler(IApplicationDbContext storage, FileWriter fileWriter, FileDeleter fileDeleter, IFilePublishService filePublishService) : IRequestHandler<UpdateAccountAvatarCommand, string>
+    public class UpdateAccountAvatarHandler(IApplicationDbContext storage, IFileAssetService fileAssetService) : IRequestHandler<UpdateAccountAvatarCommand, string>
     {
         public async Task<string> Handle(UpdateAccountAvatarCommand command, CancellationToken ct)
         {
             AccountEntity account = await storage.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
 
-            Guid newIds = await fileWriter.WriteAsync(new CreateFileCommand(command.Avatar, CategoryEntity.DefaultCategoryId), ct); // 先创建 对应文件,这样即使后面失败了也没有太大影响; 使用立即发布策略
+            Guid newId = await fileAssetService.UploadAsync(command.Avatar, CategoryEntity.DefaultCategoryId, ct);
             Guid oldId = account.Avatar;
 
-            _ = await filePublishService.PublishAsync(newIds, ct);// 先发布
-            account.ChangeAvatar(newIds);      // 再更新
+            await fileAssetService.PublishAsync(newId, ct);
+            account.ChangeAvatar(newId);
 
-            await fileDeleter.DeleteAsync([oldId], ct);// 删除旧有头像,避免无效文件留存;
+            await fileAssetService.DeleteAsync([oldId], ct);
             return account.LoginName;
         }
     }
 
     /// <summary>
-    /// 处理 订阅列表 更新,并自动发布其中的图像
+    /// 处理订阅列表更新，并自动发布其中的图像
     /// </summary>
-    /// <param name="storage"></param>
-    /// <param name="subscriptionMapper"></param>
-    public class UpdateAccountSubscriptionsHandler(IApplicationDbContext storage, ICreateMapper<SubscriptionEntity, ISubscription> subscriptionMapper, IFilePublishService filePublishService) : IRequestHandler<UpdateAccountSubscriptionsCommand, string>
+    public class UpdateAccountSubscriptionsHandler(
+        IApplicationDbContext storage,
+        ICreateMapper<SubscriptionEntity, ISubscription> subscriptionMapper,
+        IFileAssetService fileAssetService)
+        : IRequestHandler<UpdateAccountSubscriptionsCommand, string>
     {
         public async Task<string> Handle(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         {
-            // 前置验证管道 负责检查 所有guid 是否属于 图像资源
-            AccountEntity account = await storage.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
-            _ = await filePublishService.PublishAsync(command.Subscriptions.Select(e => e.SubscriptionIcon), ct);// 该业务链路,默认传递的只有guid,没有file,所以不需要在该链路执行文件上传;所有的guid 一定是有效的guid值
-            // 这个方法,就只会发布所有存在且未发布(草稿和预约)的guid,因为在该链路之前,默认执行过文件上传,所以大部分预期都是草稿图像文件,流程合规可控
+            // 前置验证管道负责检查所有文件标识是否有效。
+            AccountEntity account = await storage.Accounts
+                .Include(a => a.Subscriptions)
+                .SingleOrDefaultAsync(e => e.UID == command.UID, ct)
+                ?? throw new ResourceNotFoundException("账户不存在");
+
+            await fileAssetService.PublishAsync(
+                command.Subscriptions.Select(e => e.SubscriptionIcon),
+                ct);
 
             // 明确维护 EF Core 实体状态，避免仅依赖导航集合 Clear/Add 的隐式关系变更检测。
-            // 旧订阅标记为 Deleted，新订阅标记为 Added；事务管道随后统一 SaveChangesAsync。
             var newSubscriptions = command.Subscriptions
                 .Select(subscriptionMapper.ToEntity)
                 .ToList();
