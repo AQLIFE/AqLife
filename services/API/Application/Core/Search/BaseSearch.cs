@@ -13,10 +13,10 @@ namespace Core.Search
     /// </summary>
     /// <typeparam name="TQuery"></typeparam>
     /// <typeparam name="TEntity"></typeparam>
-    /// <param name="storage"></param>
+    /// <param name="dbContext"></param>
     /// <param name="searchStrategies"></param>
     public abstract class BaseSearch<TQuery, TResponse, TEntity, TSearchCriteria>(
-    IApplicationDbContext storage,
+    IApplicationDbContext dbContext,
     IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<TEntity, TSearchCriteria>> searchStrategies
 ) : ISearch<TQuery,TResponse, TEntity>
@@ -72,7 +72,7 @@ namespace Core.Search
             TSearchCriteria criteria = MapToCriteria(query);
             ISearchStrategy<TEntity, TSearchCriteria> strategy = searchStrategies.FirstOrDefault(s => s.IsMatch(criteria)) ?? throw new RequestCheckException("无法完成搜索，请反馈");
 
-            IQueryable<TEntity> queryable = BuildBaseQuery(storage.Set<TEntity>().AsNoTracking(), query);
+            IQueryable<TEntity> queryable = BuildBaseQuery(dbContext.Set<TEntity>().AsNoTracking(), query);
             queryable = ApplyDefaultOrder(queryable, query);
             queryable = strategy.Execute(queryable, criteria, ct);
             queryable = ApplyResultPolicy(queryable, query);
