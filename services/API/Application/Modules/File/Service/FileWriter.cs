@@ -10,7 +10,7 @@ namespace AqLife.Application.Modules.File.Service
     /// 同时写入数据库和物理文件存储；如果写入失败，则回滚物理文件存储。
     /// </summary>
     public class FileWriter(
-        IApplicationDbContext appStorage,
+        IApplicationDbContext dbContext,
         AqLife.Application.Abstractions.Contracts.File.Storage.IFileStorage fileStorage,
         UploadContext uploadContext,
         ICreateMapper<FileMetaEntity, CreateFileCommand> fileMapper)
@@ -66,7 +66,7 @@ namespace AqLife.Application.Modules.File.Service
             else
                 meta.PublishMeta.Publish();
 
-            await appStorage.File.AddAsync(meta, ct);
+            await dbContext.File.AddAsync(meta, ct);
             uploadContext.SavePath.Add(meta.StorageKey);
 
             await using var content = command.File.OpenReadStream();
@@ -85,7 +85,7 @@ namespace AqLife.Application.Modules.File.Service
             IEnumerable<string> hashes,
             bool isTemplate,
             CancellationToken ct)
-            => await appStorage.File
+            => await dbContext.File
                 .Where(file => hashes.Contains(file.FileHash) && file.IsTemplate == isTemplate)
                 .ToDictionaryAsync(file => file.FileHash, file => file.UID, ct);
     }
