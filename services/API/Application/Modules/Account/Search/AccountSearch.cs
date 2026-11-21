@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Modules.Account.Search
 {
     // 尝试使用BaseSearch来实现AccountSearch，减少重复代码,等待测试
-    public sealed class AccountSearch(ISearchMapper<AccountQuery, AccountDto, EntitySearchCriteria> queryMapper/*无法解耦*/, IApplicationDbContext storage, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<AccountEntity, EntitySearchCriteria>> searchStrategies)
-        : BaseSearch<AccountQuery, AccountDto, AccountEntity, EntitySearchCriteria>(storage, httpContext, searchStrategies)
+    public sealed class AccountSearch(ISearchMapper<AccountQuery, AccountDto, EntitySearchCriteria> queryMapper/*无法解耦*/, IApplicationDbContext dbContext, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<AccountEntity, EntitySearchCriteria>> searchStrategies)
+        : BaseSearch<AccountQuery, AccountDto, AccountEntity, EntitySearchCriteria>(dbContext, httpContext, searchStrategies)
     {
         protected override IQueryable<AccountEntity> BuildBaseQuery(IQueryable<AccountEntity> queryable, AccountQuery query)
         => queryable.Include(e => e.Subscriptions);
