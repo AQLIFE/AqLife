@@ -27,7 +27,6 @@
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="Abstractions\Abstractions.csproj" />
     <ProjectReference Include="Core\Core.csproj" />
-    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
