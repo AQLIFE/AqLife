@@ -149,7 +149,7 @@ public static class ApplicationExtensions
 
         services.AddScoped<SystemInitializationService>();
         services.AddScoped<IFilePublishService, FilePublishService>();
-        services.AddScoped<BlogSearch>();
+        services.AddScoped<IScheduledPublishProcessor, ScheduledPublishProcessor>();
         services.AddHostedService<ScheduledPublishWorker>();
 
         var implementationAssembly = typeof(AqLife.Application.Application).Assembly;
