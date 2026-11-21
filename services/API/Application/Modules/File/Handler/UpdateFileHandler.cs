@@ -12,14 +12,14 @@ namespace AqLife.Application.Modules.File.Handler
     /// <summary>
     /// 更新文件内容
     /// </summary>
-    /// <param name="appStorage"></param>
+    /// <param name="dbContext"></param>
     /// <param name="fileStorage"></param>
     /// <param name="uploadContext"></param>
-    public class UpdateFileHandler(IApplicationDbContext appStorage, IFileStorage fileStorage, UploadContext uploadContext) : IRequestHandler<UpdateFileCommand, Guid>
+    public class UpdateFileHandler(IApplicationDbContext dbContext, IFileStorage fileStorage, UploadContext uploadContext) : IRequestHandler<UpdateFileCommand, Guid>
     {
         public async Task<Guid> Handle(UpdateFileCommand command, CancellationToken ct)
         {
-            FileMetaEntity entity = await appStorage.File.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法更新");
+            FileMetaEntity entity = await dbContext.File.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法更新");
             string hash = uploadContext.FileHashes[command.File];
             _ = entity.UpdateHash(hash);
             await fileStorage.SaveAsync(command.File.OpenReadStream(), entity.StorageKey, ct);// 覆写到原来的文件
@@ -51,12 +51,12 @@ namespace AqLife.Application.Modules.File.Handler
     /// <summary>
     /// 更新文件分类
     /// </summary>
-    /// <param name="appStorage"></param>
-    public class UpdateFileCategoryHandler(IApplicationDbContext appStorage) : IRequestHandler<UpdateFileCategoryCommand, Guid>
+    /// <param name="dbContext"></param>
+    public class UpdateFileCategoryHandler(IApplicationDbContext dbContext) : IRequestHandler<UpdateFileCategoryCommand, Guid>
     {
         public async Task<Guid> Handle(UpdateFileCategoryCommand command, CancellationToken ct)
         {
-            FileMetaEntity entity = await appStorage.File.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法更新");
+            FileMetaEntity entity = await dbContext.File.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法更新");
             entity.SetCategory(command.categoryId);
             return command.UID;
         }
@@ -74,12 +74,12 @@ namespace AqLife.Application.Modules.File.Handler
     /// <summary>
     /// 取消发布
     /// </summary>
-    /// <param name="appStorage"></param>
-    public class CancelScheduledFileHandler(IApplicationDbContext appStorage) : IRequestHandler<CancelScheduledFileCommand, Guid>
+    /// <param name="dbContext"></param>
+    public class CancelScheduledFileHandler(IApplicationDbContext dbContext) : IRequestHandler<CancelScheduledFileCommand, Guid>
     {
         public async Task<Guid> Handle(CancelScheduledFileCommand command, CancellationToken ct)
         {
-            FileMetaEntity entity = await appStorage.File.Include(e => e.PublishMeta).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法操作");
+            FileMetaEntity entity = await dbContext.File.Include(e => e.PublishMeta).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法操作");
             entity.PublishMeta.CancelSchedule();
             return command.UID;
         }
