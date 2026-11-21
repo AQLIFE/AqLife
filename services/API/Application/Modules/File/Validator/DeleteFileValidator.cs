@@ -1,30 +1,30 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Contracts.File;
 using Core.Validators;
-using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Modules.File.Validator
 {
-
     /// <summary>
-    /// 不允许删除和账户存在关联的文件
+    /// 不允许删除仍被其他业务模块引用的文件。
+    /// 每个业务模块通过 IFileReferenceProvider 自主检查自己的引用关系。
     /// </summary>
-    /// <param name="accountSearch"></param>
-    public class FileDeleteValidtor(IApplicationDbContext dbContext) : AbstractValidator<DeleteFileCommand>
+    public sealed class FileDeleteValidtor(
+        IEnumerable<IFileReferenceProvider> referenceProviders)
+        : AbstractValidator<DeleteFileCommand>
     {
-        protected override string ErrorMessage { init; get; } = "预期删除的文件被其他业务依赖着,不允许删除";
-        protected override async Task<bool> IsValidAsync(DeleteFileCommand command, CancellationToken ct)
+        protected override string ErrorMessage { init; get; } =
+            "预期删除的文件被其他业务依赖着,不允许删除";
+
+        protected override async Task<bool> IsValidAsync(
+            DeleteFileCommand command,
+            CancellationToken ct)
         {
-            bool useByAvatar = await dbContext.Accounts.AnyAsync(e => e.IsValid && e.Avatar == command.UID, ct);
+            foreach (var provider in referenceProviders)
+            {
+                if (await provider.IsReferencedAsync(command.UID, ct))
+                    return false;
+            }
 
-            bool usedBySubscription = await dbContext.Accounts
-                .Where(e => e.IsValid)
-                .SelectMany(e => e.Subscriptions)
-                .AnyAsync(e => e.SubscriptionIcon == command.UID, ct);
-
-            bool usedByFavorite = await dbContext.FavoriteItems
-                .SelectMany(e => e.Media)
-                .AnyAsync(e => e.FileId == command.UID, ct);
-            return !(useByAvatar || usedBySubscription || usedByFavorite);// 反之不包含即可允许删除
+            return true;
         }
     }
 }
