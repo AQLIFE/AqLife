@@ -5,6 +5,7 @@ namespace AqLife.Application.Abstractions.Contracts.File;
 /// <summary>
 /// 面向其他应用模块的文件资产业务契约。
 /// 调用方不直接依赖 File 模块的 Handler、Writer 或 Deleter。
+/// 上传和删除应在实现 IRequireTransaction 的应用请求中调用，以保证数据库与物理文件的补偿流程。
 /// </summary>
 public interface IFileAssetService
 {
