@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Search;
+using AqLife.Shared.IView;
 using Category;
 using Tag;
 using MediatR;
