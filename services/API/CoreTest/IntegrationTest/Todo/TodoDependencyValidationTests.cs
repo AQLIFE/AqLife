@@ -3,7 +3,7 @@ using AqLife.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using AqLife.Infrastructure.Persistence;
-using AqLife.Application.Modules.Todo;
+using Plan.Todo;
 
 namespace AqLife.CoreTest.IntegrationTest.Todo;
 
