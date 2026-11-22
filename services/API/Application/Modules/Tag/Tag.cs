@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Abstractions.Mapping;
+global using AqLife.Shared.IView;
+using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 using Core.Search;
