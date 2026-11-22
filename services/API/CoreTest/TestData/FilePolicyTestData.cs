@@ -1,4 +1,4 @@
-﻿using AqLife.Application.Modules.File;
+﻿using global::File;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
