@@ -1,4 +1,4 @@
-﻿using AqLife.Application.Modules.Account;
+﻿using AqLife.Application.Account;
 using AqLife.CoreTest.TestData;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
