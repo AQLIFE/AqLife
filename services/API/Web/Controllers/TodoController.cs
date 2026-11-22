@@ -1,6 +1,6 @@
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Modules.DevelopmentPlan;
-using AqLife.Application.Modules.Todo;
+using Plan.DevelopmentPlan;
+using Plan.Todo;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
