@@ -2,6 +2,7 @@ using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
+using AqLife.Shared.IView;
 using Core.Search;
 using Riok.Mapperly.Abstractions;
 
@@ -32,13 +33,13 @@ public partial class FileMapper :
     [MapProperty(nameof(FileMetaEntity.Category), nameof(FileDto.Category))]
     public partial FileDto ToDto(FileMetaEntity source);
 
-    public IEnumerable<FileTagSummaryDto> Convert(ICollection<FileTagEntity> source)
-        => source.Select(fileTag => new FileTagSummaryDto(
+    public IEnumerable<TagDto> Convert(ICollection<FileTagEntity> source)
+        => source.Select(fileTag => new TagDto(
             fileTag.Tag.UID.ToString(),
             fileTag.Tag.Name,
             fileTag.Tag.AliasName));
 
-    public FileCategorySummaryDto Convert(CategoryEntity source)
+    public CategoryDto Convert(CategoryEntity source)
         => new(
             source.UID,
             source.CategoryName,
