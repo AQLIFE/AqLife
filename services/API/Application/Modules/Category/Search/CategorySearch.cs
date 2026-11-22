@@ -2,7 +2,6 @@ using AqLife.Application.Abstractions.Commands;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
-using Tag;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
