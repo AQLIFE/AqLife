@@ -5,23 +5,12 @@ using System.Text.Json.Serialization;
 
 namespace File
 {
-    // File owns these projection contracts so its public response shape does not depend on other modules.
-    public record FileCategorySummaryDto(
-        Guid Uid,
-        string CategoryName,
-        string CategoryDescription,
-        int Count = 0,
-        Guid? ParentId = null,
-        IEnumerable<Guid>? ResultIds = null);
-
-    public record FileTagSummaryDto(string Uid, string Name, string? AliasName = null);
-
     public record FileDto
     (
         Guid UID,
         string FileName,
-        FileCategorySummaryDto Category,
-        IEnumerable<FileTagSummaryDto>? Tags,
+        CategoryDto Category,
+        IEnumerable<TagDto>? Tags,
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         FileStatus? PublishStatus,
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
