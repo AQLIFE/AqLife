@@ -45,7 +45,8 @@ public partial class FileMapper :
             source.CategoryName,
             source.CategoryDescription,
             source.CategoryCount,
-            source.ParentId);
+            source.ParentId,
+            []);
 
     public FileMetaEntity ToEntity(CreateFileCommand command)
         => new(command.File, command.CategoryId, isTemplate: command.IsTemplate);
