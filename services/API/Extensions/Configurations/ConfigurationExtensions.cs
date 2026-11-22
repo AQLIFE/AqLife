@@ -30,7 +30,7 @@ public static class ConfigurationExtensions
     {
         var path = Path.Combine(folder, fileName);
 
-        if (!File.Exists(path))
+        if (!System.IO.File.Exists(path))
         {
             Log.Error(
                 "[Serilog][{@LogType}]=>{@LogDesc}",
@@ -51,7 +51,7 @@ public static class ConfigurationExtensions
     {
         var path = Path.Combine(folder, fileName);
 
-        if (File.Exists(path))
+        if (System.IO.File.Exists(path))
         {
             configuration.AddJsonFile(path, optional: true, reloadOnChange: true);
 
