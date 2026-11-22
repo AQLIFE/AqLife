@@ -3,7 +3,7 @@ using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 using MediatR;
 
-namespace AqLife.Application.Modules.Corpus.Handler
+namespace Corpus.Handler
 {
     public class UpdateCorpusCommandHandler(IApplicationDbContext dbContext) : IRequestHandler<UpdateCorpusCommand, Guid>
     {

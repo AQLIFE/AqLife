@@ -1,6 +1,6 @@
 ﻿using AqLife.Shared.IView;
 
-namespace AqLife.Application.Modules.Account
+namespace AqLife.Application.Account
 {
     public record SubscriptionDto(
     string AliasName,

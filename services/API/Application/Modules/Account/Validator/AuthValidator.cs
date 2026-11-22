@@ -1,9 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Account;
 using AqLife.Shared.Utils;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
 
-namespace AqLife.Application.Modules.Account.Validator
+namespace AqLife.Application.Account.Validator
 {
     /// <summary>
     /// 登录检查

@@ -1,11 +1,11 @@
 using AqLife.Application.Abstractions.Commands;
 using AqLife.Application.Abstractions.Pipeline.Markers;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Modules.Tag;
+using Tag;
 using AqLife.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace AqLife.Application.Modules.Category
+namespace Category
 {
     public enum CategoryQueryType
     {

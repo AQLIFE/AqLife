@@ -1,5 +1,4 @@
-﻿using AqLife.Application.Abstractions.Contracts.File;
-using AqLife.Application.Abstractions.Contracts.File.Storage;
+﻿using AqLife.Application.Abstractions.Contracts.File.Storage;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Shared.Exceptions;
 using AqLife.Application.Abstractions.Commands;
@@ -8,8 +7,10 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Core.Validators;
+using File;
+using File.Service;
 
-namespace AqLife.Application.Modules.File.Upload;
+namespace File.Upload;
 
 /// <summary>Starts a resumable video upload session.</summary>
 public sealed record StartVideoUploadCommand(string FileName, long FileSize, Guid CategoryId, int ChunkSize = 4 * 1024 * 1024)

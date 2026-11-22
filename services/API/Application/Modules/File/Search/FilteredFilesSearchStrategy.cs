@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 
-namespace AqLife.Application.Modules.File.Search
+namespace File.Search
 {
     public sealed class FilteredFilesSearchStrategy
         : FilteredSearchStrategyBase<FileMetaEntity, FileSearchCriteria>

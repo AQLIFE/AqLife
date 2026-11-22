@@ -3,10 +3,11 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Options;
 using Core.Validators;
+using File;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace AqLife.Application.Modules.File.Validator;
+namespace File.Validator;
 
 /// <summary>
 /// 不允许更新非 MD 文件

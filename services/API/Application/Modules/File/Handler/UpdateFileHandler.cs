@@ -6,8 +6,9 @@ using AqLife.Shared.Exceptions;
 using AqLife.Shared.Tools;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using File;
 
-namespace AqLife.Application.Modules.File.Handler
+namespace File.Handler
 {
     /// <summary>
     /// 更新文件内容

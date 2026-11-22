@@ -1,9 +1,9 @@
 ﻿using Core.Search;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Modules.Corpus;
 using AqLife.Domain.Entities;
 using Riok.Mapperly.Abstractions;
+using Corpus;
 
 namespace AqLife.Application.Business.Corpus
 {

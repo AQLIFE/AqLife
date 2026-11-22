@@ -1,13 +1,12 @@
 ﻿using Core.Search;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Modules.Favorite;
 using AqLife.Domain.Entities.Favorite;
 using Riok.Mapperly.Abstractions;
 using System.Collections;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
-namespace AqLife.Application.Mappers
+namespace Favorite
 {
     [Mapper]
     public partial class FavoriteMapper(FavoriteMediaMapper mediaMapper)

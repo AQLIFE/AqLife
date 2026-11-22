@@ -1,6 +1,6 @@
 using AqLife.Shared.IView;
 
-namespace AqLife.Application.Modules.Favorite;
+namespace Favorite;
 
 public record FavoriteMediaDto(Guid FavoriteId, Guid FileId, string Role, int SortOrder) : IEntityDto;
 public record FavoriteDto(

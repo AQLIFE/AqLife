@@ -1,8 +1,9 @@
 using AqLife.Application.Abstractions.Persistence;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
+using Tag;
 
-namespace AqLife.Application.Modules.Tag.Validator
+namespace Tag.Validator
 {
     public class DeleteTagValidator(IApplicationDbContext dbContext) : AbstractValidator<DeleteTagCommand>
     {

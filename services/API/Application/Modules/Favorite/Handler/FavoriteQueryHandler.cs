@@ -3,7 +3,7 @@ using AqLife.Domain.Entities.Favorite;
 using Core.Mappers;
 using MediatR;
 
-namespace AqLife.Application.Modules.Favorite.Handler
+namespace Favorite.Handler
 {
     public class FavoriteQueryHandler(ISearch<FavoriteQuery, PageResult<FavoriteDto>, FavoriteItemEntity> favoriteSearch, PageResultMapper<FavoriteItemEntity, FavoriteDto> mapper) : IRequestHandler<FavoriteQuery, PageResult<FavoriteDto>>
     {

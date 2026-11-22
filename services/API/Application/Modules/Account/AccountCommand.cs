@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 
-namespace AqLife.Application.Modules.Account
+namespace AqLife.Application.Account
 {
     public record AccountQuery(Guid? UID = null) : IQuery<AccountDto>;
     public record LoginCommand(

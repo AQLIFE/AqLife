@@ -2,6 +2,13 @@
   <Project Path="Application/Abstractions/Abstractions.csproj" />
   <Project Path="Application/Application.csproj" />
   <Project Path="Application/Core/Core.csproj" Id="c6b1600b-de6a-44a9-a869-dda1d4fef2f5" />
+  <Project Path="Application/Modules/Account/Account.csproj" />
+  <Project Path="Application/Modules/Category/Category.csproj" />
+  <Project Path="Application/Modules/Corpus/Corpus.csproj" />
+  <Project Path="Application/Modules/Favorite/Favorite.csproj" />
+  <Project Path="Application/Modules/File/File.csproj" />
+  <Project Path="Application/Modules/Plan/Plan.csproj" />
+  <Project Path="Application/Modules/Tag/Tag.csproj" />
   <Project Path="CoreTest/CoreTest.csproj" />
   <Project Path="Domain/Domain.csproj" />
   <Project Path="Extensions/Extension.csproj" />

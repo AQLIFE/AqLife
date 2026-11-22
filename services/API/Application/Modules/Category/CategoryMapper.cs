@@ -1,12 +1,11 @@
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Modules.Category;
-using AqLife.Application.Modules.Tag;
+using Tag;
 using AqLife.Domain.Entities;
 using Core.Search;
 using Riok.Mapperly.Abstractions;
 
-namespace AqLife.Application.Mappers;
+namespace Category;
 
 [Mapper]
 public partial class CategoryMapper : IViewMapper<CategoryEntity, CategoryDto>, ICreateMapper<CategoryEntity, CreateCategoryCommand>,

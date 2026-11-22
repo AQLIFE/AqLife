@@ -1,11 +1,12 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Account;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace AqLife.Application.Modules.Account.Handler;
+namespace AqLife.Application.Account.Handler;
 
 public class DeleteAccountHandler(
     IApplicationDbContext dbContext,

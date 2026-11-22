@@ -1,10 +1,11 @@
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Modules.Tag;
+using Tag;
 using AqLife.Domain.Entities;
+using Category;
 using Core.Mappers;
 using MediatR;
 
-namespace AqLife.Application.Modules.Category.Handler;
+namespace Category.Handler;
 
 public sealed class CategoryQueryHandler(ISearch<CategoryQuery,PageResult<CategoryDto>, CategoryEntity> categorySearch, PageResultMapper<CategoryEntity, CategoryDto> pageResultMapper)
     : IRequestHandler<CategoryQuery, PageResult<CategoryDto>?>

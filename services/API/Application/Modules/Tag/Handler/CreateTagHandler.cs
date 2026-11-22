@@ -2,8 +2,9 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
 using MediatR;
+using Tag;
 
-namespace AqLife.Application.Modules.Tag.Handler
+namespace Tag.Handler
 {
     public class CreateTagHandler(IApplicationDbContext dbContext, ICreateMapper<TagEntity, CreateTagCommand> tagMapper) : IRequestHandler<CreateTagCommand, Guid>
     {

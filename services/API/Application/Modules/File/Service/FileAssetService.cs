@@ -1,7 +1,6 @@
 using AqLife.Application.Abstractions.Contracts.File;
-using AqLife.Application.Modules.File;
 
-namespace AqLife.Application.Modules.File.Service;
+namespace File.Service;
 
 /// <summary>
 /// File 模块对外提供的文件资产应用服务。

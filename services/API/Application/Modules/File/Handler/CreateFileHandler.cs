@@ -1,7 +1,8 @@
-﻿using AqLife.Application.Modules.File.Service;
+﻿using File;
+using File.Service;
 using MediatR;
 
-namespace AqLife.Application.Modules.File.Handler
+namespace File.Handler
 {
     public class CreateFileHandler(FileWriter fileWriter) : IRequestHandler<CreateFileCommand, Guid>, IRequestHandler<UploadFilesCommand, IEnumerable<Guid>>
     {

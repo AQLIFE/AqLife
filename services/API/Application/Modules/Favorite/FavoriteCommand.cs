@@ -4,7 +4,7 @@ using AqLife.Shared.IView;
 using System.ComponentModel.DataAnnotations;
 using AqLife.Application.Abstractions.Search;
 
-namespace AqLife.Application.Modules.Favorite;
+namespace Favorite;
 
 public record FavoriteQuery(Guid? UID = null, Guid? CategoryId = null, Guid? TagId = null, string? CName = null,
     int Page = 1, int PageSize = 10)

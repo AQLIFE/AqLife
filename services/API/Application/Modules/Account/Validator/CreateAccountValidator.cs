@@ -1,9 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
-using AqLife.Application.Modules.Account.Services;
+using AqLife.Application.Account;
+using AqLife.Application.Account.Services;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
 
-namespace AqLife.Application.Modules.Account.Validator
+namespace AqLife.Application.Account.Validator
 {
 
     public class CreateAccount_InvalidName_ShouldRejectValidator : AbstractValidator<CreateAccountCommand>

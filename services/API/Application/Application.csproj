@@ -10,10 +10,43 @@
   <ItemGroup>
     <Compile Remove="Abstractions\**" />
     <Compile Remove="Core\**" />
+    <Compile Remove="Modules\**" />
     <EmbeddedResource Remove="Abstractions\**" />
     <EmbeddedResource Remove="Core\**" />
+    <EmbeddedResource Remove="Modules\**" />
     <None Remove="Abstractions\**" />
     <None Remove="Core\**" />
+    <None Remove="Modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Abstractions\**" />
+    <Compile Remove="Account\**" />
+    <Compile Remove="Category\**" />
+    <Compile Remove="Core\**" />
+    <Compile Remove="Corpus\**" />
+    <Compile Remove="Favorite\**" />
+    <Compile Remove="File\**" />
+    <Compile Remove="Plan\**" />
+    <Compile Remove="Tag\**" />
+    <EmbeddedResource Remove="Abstractions\**" />
+    <EmbeddedResource Remove="Account\**" />
+    <EmbeddedResource Remove="Category\**" />
+    <EmbeddedResource Remove="Core\**" />
+    <EmbeddedResource Remove="Corpus\**" />
+    <EmbeddedResource Remove="Favorite\**" />
+    <EmbeddedResource Remove="File\**" />
+    <EmbeddedResource Remove="Plan\**" />
+    <EmbeddedResource Remove="Tag\**" />
+    <None Remove="Abstractions\**" />
+    <None Remove="Account\**" />
+    <None Remove="Category\**" />
+    <None Remove="Core\**" />
+    <None Remove="Corpus\**" />
+    <None Remove="Favorite\**" />
+    <None Remove="File\**" />
+    <None Remove="Plan\**" />
+    <None Remove="Tag\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +61,13 @@
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="Abstractions\Abstractions.csproj" />
     <ProjectReference Include="Core\Core.csproj" />
+    <ProjectReference Include="Modules\Account\Account.csproj" />
+    <ProjectReference Include="Modules\Category\Category.csproj" />
+    <ProjectReference Include="Modules\Corpus\Corpus.csproj" />
+    <ProjectReference Include="Modules\Favorite\Favorite.csproj" />
+    <ProjectReference Include="Modules\File\File.csproj" />
+    <ProjectReference Include="Modules\Plan\Plan.csproj" />
+    <ProjectReference Include="Modules\Tag\Tag.csproj" />
   </ItemGroup>
 
 </Project>

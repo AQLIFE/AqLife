@@ -4,7 +4,7 @@ using AqLife.Shared.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace AqLife.Application.Modules.Favorite.Handler
+namespace Favorite.Handler
 {
     public class UpdateFavoriteHandler(IApplicationDbContext dbContext)
         : IRequestHandler<UpdateFavoriteCommand, Guid>, IRequestHandler<SetFavoritePublishedCommand, Guid>

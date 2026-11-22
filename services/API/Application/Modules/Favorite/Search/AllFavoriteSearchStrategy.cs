@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.Favorite;
 using Microsoft.AspNetCore.Http;
 
-namespace AqLife.Application.Modules.Favorite.Search
+namespace Favorite.Search
 {
     public sealed class AllFavoriteSearchStrategy(IHttpContextAccessor httpContext) : AllSearchStrategyBase<FavoriteItemEntity, FavoriteSearchCriteria>(httpContext)
     {

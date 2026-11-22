@@ -1,8 +1,9 @@
 using AqLife.Application.Abstractions.Persistence;
+using Category;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
 
-namespace AqLife.Application.Modules.Category.Validator;
+namespace Category.Validator;
 
 public sealed class CreateCategoryParentValidator(IApplicationDbContext dbContext)
     : AbstractValidator<CreateCategoryCommand>

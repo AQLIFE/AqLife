@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Account;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
@@ -6,7 +7,7 @@ using AqLife.Shared.Utils;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
 
-namespace AqLife.Application.Modules.Account.Validator
+namespace AqLife.Application.Account.Validator
 {
     /// <summary>
     /// 更新头像必须是图像类型

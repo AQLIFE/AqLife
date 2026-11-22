@@ -3,7 +3,7 @@ using AqLife.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 
-namespace AqLife.Application.Modules.Account.Services
+namespace AqLife.Application.Account.Services
 {
     public class SystemInitializationService(IApplicationDbContext context)
     {

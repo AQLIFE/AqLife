@@ -2,7 +2,8 @@
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 using MediatR;
-namespace AqLife.Application.Modules.Tag.Handler
+using Tag;
+namespace Tag.Handler
 {
     public class UpdateTagHandler(IApplicationDbContext dbContext) : IRequestHandler<UpdateTagCommand, Guid>
     {

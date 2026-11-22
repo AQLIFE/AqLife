@@ -2,7 +2,7 @@
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 
-namespace AqLife.Application.Modules.Tag.Search
+namespace Tag.Search
 {
     public sealed class FilterTagSearchStrategy : FilteredSearchStrategyBase<TagEntity, EntitySearchCriteria>
     {

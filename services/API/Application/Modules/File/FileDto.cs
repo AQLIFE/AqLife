@@ -1,10 +1,11 @@
-﻿using AqLife.Application.Modules.Tag;
+﻿using Tag;
+using Category;
 using AqLife.Shared.IView;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Shared.Options;
 using System.Text.Json.Serialization;
 
-namespace AqLife.Application.Modules.File
+namespace File
 {
     public record FileDto
     (

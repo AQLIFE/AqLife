@@ -1,7 +1,7 @@
 ﻿using AqLife.Domain.Entities;
 using Core.Search;
 
-namespace AqLife.Application.Modules.Account.Search
+namespace AqLife.Application.Account.Search
 {
     public sealed class ValidAccount : FilteredSearchStrategyBase<AccountEntity, EntitySearchCriteria>
     {

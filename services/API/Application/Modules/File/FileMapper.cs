@@ -1,14 +1,13 @@
 ﻿using Core.Search;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Mappers;
-using AqLife.Application.Modules.File;
-using AqLife.Application.Modules.Tag;
+using Tag;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
+using Category;
 using Riok.Mapperly.Abstractions;
 
-namespace AqLife.Application.Business.File
+namespace File
 {
     [Mapper]
     public partial class FileMapper(IViewMapper<TagEntity, TagDto> tagMapper, IViewMapper<CategoryEntity, CategoryDto> categoryMapper)

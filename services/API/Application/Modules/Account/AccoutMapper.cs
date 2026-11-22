@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
-using AqLife.Application.Modules.Account;
+using AqLife.Application.Account;
 using AqLife.Domain.Entities;
 using Core.Search;
 using Riok.Mapperly.Abstractions;

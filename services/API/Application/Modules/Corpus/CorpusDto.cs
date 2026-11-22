@@ -1,6 +1,6 @@
 ﻿using AqLife.Shared.IView;
 
-namespace AqLife.Application.Modules.Corpus
+namespace Corpus
 {
     public record CorpusDto(
          Guid UID,

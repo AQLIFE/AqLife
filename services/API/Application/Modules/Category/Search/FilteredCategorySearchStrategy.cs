@@ -1,7 +1,7 @@
 using AqLife.Domain.Entities;
 using Core.Search;
 
-namespace AqLife.Application.Modules.Category.Search;
+namespace Category.Search;
 
 public sealed class FilteredCategorySearchStrategy
     : FilteredSearchStrategyBase<CategoryEntity, EntitySearchCriteria>

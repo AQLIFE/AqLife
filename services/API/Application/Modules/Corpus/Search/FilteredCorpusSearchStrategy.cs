@@ -2,7 +2,7 @@
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 
-namespace AqLife.Application.Modules.Corpus.Search
+namespace Corpus.Search
 {
     public sealed class FilteredCorpusSearchStrategy : FilteredSearchStrategyBase<CorpusEntity, EntitySearchCriteria>
     {

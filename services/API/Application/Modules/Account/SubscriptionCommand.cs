@@ -2,7 +2,7 @@
 using AqLife.Application.Abstractions.Pipeline.Markers;
 using AqLife.Domain.Entities;
 
-namespace AqLife.Application.Modules.Account
+namespace AqLife.Application.Account
 {
     public record SubscriptionQuery(Guid UID) : IQuery<SubscriptionDto>, IRequireValidEntity<SubscriptionEntity>;
     public record CreateSubscriptionCommand(string AliasName, string SubscriptionLink, string SubscriptionPlatform, Guid SubscriptionIcon) : ISubscription, ICreateCommand;

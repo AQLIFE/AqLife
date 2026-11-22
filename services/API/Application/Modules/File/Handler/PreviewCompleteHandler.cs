@@ -4,7 +4,7 @@ using AqLife.Shared.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace AqLife.Application.Modules.File.Handler
+namespace File.Handler
 {
    
 }

@@ -1,18 +1,19 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Modules.File.Service;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Core.Mappers;
+using File;
+using File.Service;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Options;
 
-namespace AqLife.Application.Modules.File.Handler
+namespace File.Handler
 {
     public class FileQueryHandler(ISearch<FileQuery, PageResult<FileDto>, FileMetaEntity> search, IOptions<FilePolicyOption> options, FileReader fileReader, PageResultMapper<FileMetaEntity, FileDto> mapper) : IRequestHandler<FileQuery, PageResult<FileDto>>
     {

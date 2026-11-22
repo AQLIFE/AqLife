@@ -2,9 +2,10 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Tools;
+using File;
 using Microsoft.EntityFrameworkCore;
 
-namespace AqLife.Application.Modules.File.Service
+namespace File.Service
 {
     /// <summary>
     /// 同时写入数据库和物理文件存储；如果写入失败，则回滚物理文件存储。

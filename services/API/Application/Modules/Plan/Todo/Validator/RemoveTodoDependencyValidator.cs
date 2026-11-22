@@ -1,0 +1,15 @@
+using AqLife.Shared.Exceptions;
+using Core.Validators;
+using Microsoft.EntityFrameworkCore;
+using Plan.Todo;
+namespace Plan.Todo.Validator;
+
+
+public sealed class RemoveTodoDependencyLegalityValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<RemoveTodoDependencyCommand>
+{
+    protected override string ErrorMessage { init; get; } = "不存在该任务依赖";
+    protected override async Task<bool> IsValidAsync(RemoveTodoDependencyCommand command, CancellationToken ct)
+        => await db.DevelopmentPlans.AnyAsync(x => x.UID == command.PlanId && x.Todos.Any(e => e.IncomingDependencies.Any(d => d.UID == command.UID) || e.OutgoingDependencies.Any(p => p.UID == command.UID)), ct);
+
+    protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
+}

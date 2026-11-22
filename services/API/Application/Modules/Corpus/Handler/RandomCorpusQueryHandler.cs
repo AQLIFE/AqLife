@@ -1,9 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
+using Corpus;
 using MediatR;
 
-namespace AqLife.Application.Modules.Corpus.Handler
+namespace Corpus.Handler
 {
     public class RandomCorpusQueryHandler(ISearch<CorpusQuery, PageResult<CorpusDto>, CorpusEntity> search) : IRequestHandler<RandomCorpusQuery, string>
     {

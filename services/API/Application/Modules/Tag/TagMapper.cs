@@ -1,11 +1,10 @@
 ﻿using Core.Search;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Modules.Tag;
 using AqLife.Domain.Entities;
 using Riok.Mapperly.Abstractions;
 
-namespace AqLife.Application.Business.Tag
+namespace Tag
 {
     [Mapper]
     public partial class TagMapper : IViewMapper<TagEntity, TagDto>, ICreateMapper<TagEntity, CreateTagCommand>,

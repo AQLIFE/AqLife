@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
 using MediatR;
 
-namespace AqLife.Application.Modules.Corpus.Handler
+namespace Corpus.Handler
 {
     public class CreateCorpusCommandHandler(ICreateMapper<CorpusEntity, CreateCorpusCommand> mapper, IApplicationDbContext dbContext) : IRequestHandler<CreateCorpusCommand, Guid>
     {

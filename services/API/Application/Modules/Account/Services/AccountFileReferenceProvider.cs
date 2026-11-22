@@ -2,7 +2,7 @@ using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Application.Abstractions.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace AqLife.Application.Modules.Account.Services;
+namespace AqLife.Application.Account.Services;
 
 /// <summary>
 /// Account 模块拥有的文件引用检查：账户头像和订阅图标。

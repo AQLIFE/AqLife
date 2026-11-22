@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.Favorite;
 using AqLife.Shared.Exceptions;
 
-namespace AqLife.Application.Modules.Favorite.Search
+namespace Favorite.Search
 {
     public sealed class FilteredFavoriteSearchStrategy
         : FilteredSearchStrategyBase<FavoriteItemEntity, FavoriteSearchCriteria>

@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.File;
 using Microsoft.AspNetCore.Http;
 
-namespace AqLife.Application.Modules.File.Search
+namespace File.Search
 {
     public sealed class AllFilesSearchStrategy(IHttpContextAccessor httpContext) : AllSearchStrategyBase<FileMetaEntity, FileSearchCriteria>(httpContext)
     {

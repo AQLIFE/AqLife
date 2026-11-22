@@ -1,12 +1,11 @@
-﻿using AqLife.Application.Abstractions.Contracts.File;
-using AqLife.Application.Abstractions.Contracts.File.Storage;
-using AqLife.Application.Modules.File;
+﻿using AqLife.Application.Abstractions.Contracts.File.Storage;
 using AqLife.Shared.Options;
+using File;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace AqLife.Infrastructure.FileStorage;
+namespace File.Service;
 
 /// <summary>
 /// Disk-backed resumable upload sessions. For multi-instance deployments, the configured storage path must be shared.

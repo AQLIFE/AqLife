@@ -1,7 +1,7 @@
 ﻿using AqLife.Shared;
 using AqLife.Shared.IView;
 
-namespace AqLife.Application.Modules.Account
+namespace AqLife.Application.Account
 {
     /// <summary>
     /// 作为 Account -  API 结果,不再需要进行校验

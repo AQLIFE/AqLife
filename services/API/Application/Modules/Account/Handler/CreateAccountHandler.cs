@@ -1,10 +1,11 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
-using AqLife.Application.Modules.Account.Services;
+using AqLife.Application.Account;
+using AqLife.Application.Account.Services;
 using AqLife.Domain.Entities;
 using MediatR;
 
-namespace AqLife.Application.Modules.Account.Handler
+namespace AqLife.Application.Account.Handler
 {
     public class CreateAccountHandler(IApplicationDbContext dbContext, ICreateMapper<AccountEntity, CreateAccountCommand> mapper, SystemInitializationService initializationService) : IRequestHandler<CreateAccountCommand, string>
     {
