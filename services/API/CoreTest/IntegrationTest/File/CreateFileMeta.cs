@@ -1,4 +1,4 @@
-﻿using AqLife.Application.Modules.File;
+﻿using global::File;
 using AqLife.CoreTest.TestData;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
