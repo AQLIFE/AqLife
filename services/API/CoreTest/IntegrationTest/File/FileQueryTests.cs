@@ -1,6 +1,6 @@
 using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Modules.File;
-using AqLife.Application.Modules.File.Search;
+using global::File;
+using global::File.Search;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using AqLife.Infrastructure.Persistence;
