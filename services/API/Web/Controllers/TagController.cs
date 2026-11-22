@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Search;
-using AqLife.Application.Modules.Tag;
+using Tag;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
