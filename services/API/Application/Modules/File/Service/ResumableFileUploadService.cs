@@ -38,14 +38,14 @@ public sealed class ResumableFileUploadService(IOptions<FilePolicyOption> option
         var session = new ResumableUploadSession(id, name, request.FileSize, request.CategoryId, request.ChunkSize,
             checked((int)((request.FileSize + request.ChunkSize - 1) / request.ChunkSize)), DateTimeOffset.UtcNow);
         Directory.CreateDirectory(SessionPath(id));
-        await File.WriteAllTextAsync(MetadataPath(id), JsonSerializer.Serialize(session, JsonOptions), ct);
+        await System.IO.File.WriteAllTextAsync(MetadataPath(id), JsonSerializer.Serialize(session, JsonOptions), ct);
         return session;
     }
 
     public async Task<ResumableUploadStatus> GetStatusAsync(Guid id, CancellationToken ct)
     {
         var session = await ReadSessionAsync(id, ct);
-        var uploaded = Enumerable.Range(0, session.ChunkCount).Where(i => File.Exists(ChunkPath(id, i))).ToArray();
+        var uploaded = Enumerable.Range(0, session.ChunkCount).Where(i => System.IO.File.Exists(ChunkPath(id, i))).ToArray();
         return new ResumableUploadStatus(id, session.FileSize, session.CategoryId, session.ChunkSize, session.ChunkCount, uploaded);
     }
 
@@ -64,7 +64,7 @@ public sealed class ResumableFileUploadService(IOptions<FilePolicyOption> option
         await gate.WaitAsync(ct);
         try
         {
-            if (File.Exists(ChunkPath(id, index)))
+            if (System.IO.File.Exists(ChunkPath(id, index)))
                 throw new InvalidOperationException("该分片已上传；请先查询任务状态，不允许覆盖已确认的分片。");
             await using var output = new FileStream(ChunkPath(id, index), FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, useAsync: true);
             await using var input = chunk.OpenReadStream();
@@ -84,12 +84,12 @@ public sealed class ResumableFileUploadService(IOptions<FilePolicyOption> option
         try
         {
             for (var i = 0; i < session.ChunkCount; i++)
-                if (!File.Exists(ChunkPath(id, i)))
+                if (!System.IO.File.Exists(ChunkPath(id, i)))
                     throw new InvalidOperationException($"缺少分片 {i}，无法完成上传。");
 
             var assembledPath = Path.Combine(SessionPath(id), "assembled.tmp");
-            if (File.Exists(assembledPath))
-                File.Delete(assembledPath);
+            if (System.IO.File.Exists(assembledPath))
+                System.IO.File.Delete(assembledPath);
             await using (var output = new FileStream(assembledPath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, useAsync: true))
             {
                 for (var i = 0; i < session.ChunkCount; i++)
@@ -102,7 +102,7 @@ public sealed class ResumableFileUploadService(IOptions<FilePolicyOption> option
             var info = new FileInfo(assembledPath);
             if (info.Length != session.FileSize)
             {
-                File.Delete(assembledPath);
+                System.IO.File.Delete(assembledPath);
                 throw new InvalidOperationException("合并后文件大小与声明大小不一致。");
             }
             return new CompletedResumableUpload(session.FileName, session.FileSize, session.CategoryId, assembledPath);
@@ -126,9 +126,9 @@ public sealed class ResumableFileUploadService(IOptions<FilePolicyOption> option
     private async Task<ResumableUploadSession> ReadSessionAsync(Guid id, CancellationToken ct)
     {
         var path = MetadataPath(id);
-        if (!File.Exists(path))
+        if (!System.IO.File.Exists(path))
             throw new FileNotFoundException("上传任务不存在或已过期。");
-        await using var stream = File.OpenRead(path);
+        await using var stream = System.IO.File.OpenRead(path);
         return await JsonSerializer.DeserializeAsync<ResumableUploadSession>(stream, JsonOptions, ct)
             ?? throw new InvalidDataException("上传任务元数据损坏。");
     }
