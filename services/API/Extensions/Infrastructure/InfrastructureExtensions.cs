@@ -3,6 +3,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using AqLife.Application.Abstractions.Authentication;
 using AqLife.Application.Abstractions.Contracts.File.Storage;
+using AqLife.Application.File.Service;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
 using AqLife.Infrastructure.Authentication;
