@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Exceptions;
 
-namespace Plan.Todo.Search
+namespace AqLife.Application.Plan.Todo.Search
 {
     public sealed class FilterTodoSearchStrategy : FilteredSearchStrategyBase<TodoEntity, TodoSearchCriteria>
     {

@@ -1,9 +1,8 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
 using Core.Validators;
-using Corpus;
 using Microsoft.EntityFrameworkCore;
 
-namespace Corpus.Validator
+namespace AqLife.Application.Corpus.Validator
 {
     public class CreateCorpusValidator(IApplicationDbContext dbContext) : AbstractValidator<CreateCorpusCommand>
     {

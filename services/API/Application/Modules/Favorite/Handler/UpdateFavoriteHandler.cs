@@ -1,10 +1,11 @@
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Favorite;
 using AqLife.Domain.Entities.Favorite;
 using AqLife.Shared.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Favorite.Handler
+namespace AqLife.Application.Favorite.Handler
 {
     public class UpdateFavoriteHandler(IApplicationDbContext dbContext)
         : IRequestHandler<UpdateFavoriteCommand, Guid>, IRequestHandler<SetFavoritePublishedCommand, Guid>

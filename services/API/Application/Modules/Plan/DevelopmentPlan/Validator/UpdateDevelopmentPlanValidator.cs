@@ -1,10 +1,9 @@
 using AqLife.Shared.Exceptions;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
-using Plan.DevelopmentPlan;
-namespace Plan.DevelopmentPlan.Validator;
+namespace AqLife.Application.Plan.DevelopmentPlan.Validator;
 
-public sealed class UpdateDevelopmentPlanExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<UpdateDevelopmentPlanCommand>
+public sealed class UpdateDevelopmentPlanExistsValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<UpdateDevelopmentPlanCommand>
 {
     protected override string ErrorMessage { init; get; } = "开发计划不存在";
     protected override async Task<bool> IsValidAsync(UpdateDevelopmentPlanCommand command, CancellationToken ct)

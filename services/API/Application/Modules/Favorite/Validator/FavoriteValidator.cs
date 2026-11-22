@@ -1,9 +1,9 @@
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Favorite;
 using Core.Validators;
-using Favorite;
 using Microsoft.EntityFrameworkCore;
 
-namespace Favorite.Validator
+namespace AqLife.Application.Favorite.Validator
 {
     public class CreateValidTagsFavoriteValidator(IApplicationDbContext dbContext)
         : AbstractValidator<CreateFavoriteCommand>

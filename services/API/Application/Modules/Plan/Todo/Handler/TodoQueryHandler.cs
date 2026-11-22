@@ -1,13 +1,13 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Plan.DevelopmentPlan;
+using AqLife.Application.Plan.Todo;
 using AqLife.Domain.Entities.DevPlan;
 using Core.Mappers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Plan.DevelopmentPlan;
-using Plan.Todo;
 
-namespace Plan.Todo.Handler;
+namespace AqLife.Application.Plan.Todo.Handler;
 
 public sealed class TodoQueryHandler(
     ISearch<TodoQuery, PageResult<TodoDto>, TodoEntity> todoSearch,

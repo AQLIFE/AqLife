@@ -1,8 +1,8 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Tag;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
-using Tag;
-namespace Tag.Validator
+namespace AqLife.Application.Tag.Validator
 {
 
     public class CreateTagValidator(IApplicationDbContext dbContext) : AbstractValidator<CreateTagCommand>

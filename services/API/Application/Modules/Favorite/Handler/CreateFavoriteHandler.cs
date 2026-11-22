@@ -1,10 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Favorite;
 using AqLife.Domain.Entities.Favorite;
-using Favorite;
 using MediatR;
 
-namespace Favorite.Handler
+namespace AqLife.Application.Favorite.Handler
 {
     public class CreateFavoriteHandler(IApplicationDbContext dbContext, ICreateMapper<FavoriteItemEntity, CreateFavoriteCommand> mapper)
         : IRequestHandler<CreateFavoriteCommand, Guid>

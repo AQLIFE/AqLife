@@ -3,6 +3,7 @@ using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 using Riok.Mapperly.Abstractions;
+using AqLife.Application.Tag;
 
 namespace Tag
 {

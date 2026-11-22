@@ -1,7 +1,7 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File;
 using Core.Validators;
 
-namespace File.Validator
+namespace AqLife.Application.File.Validator
 {
     /// <summary>
     /// 不允许删除仍被其他业务模块引用的文件。

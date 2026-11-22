@@ -8,9 +8,8 @@ using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Plan.DevelopmentPlan;
 
-namespace Plan.DevelopmentPlan.Search
+namespace AqLife.Application.Plan.DevelopmentPlan.Search
 {
     public sealed class DevelopmentPlanSearch<TDevPlanQuery, TResource>(IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
         ISearchMapper<TDevPlanQuery, TResource, EntitySearchCriteria> queryMapper,

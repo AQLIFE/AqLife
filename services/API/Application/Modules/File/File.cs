@@ -1,16 +1,17 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.File.Search;
+using AqLife.Application.File.Service;
+using AqLife.Application.File.Validator;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Contracts;
 using AqLife.Shared.Tools;
 using Core.Search;
-using File.Search;
-using File.Service;
-using File.Validator;
+using File;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace File
+namespace AqLife.Application.File
 {
     public static class File
     {

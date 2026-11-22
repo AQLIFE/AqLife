@@ -1,7 +1,8 @@
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Plan.Todo;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-namespace Plan.Todo.Handler;
+namespace AqLife.Application.Plan.Todo.Handler;
 
 public sealed class DeleteTodoCommandHandler(IApplicationDbContext db) : IRequestHandler<DeleteTodoCommand, Unit>
 {

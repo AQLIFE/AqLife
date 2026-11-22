@@ -4,9 +4,9 @@ using AqLife.Application.Abstractions.Commands;
 using AqLife.Shared.IView;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
-using Plan.Todo;
+using AqLife.Application.Plan.Todo;
 
-namespace Plan.DevelopmentPlan
+namespace AqLife.Application.Plan.DevelopmentPlan
 {
     /// <summary>
     /// 开发计划全量查询: 包含 任务 , 任务依赖 , 任务布局

@@ -1,12 +1,13 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Favorite.Search;
 using AqLife.Domain.Entities.Favorite;
 using Core.Search;
-using Favorite.Search;
+using Favorite;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Favorite
+namespace AqLife.Application.Favorite
 {
     public static class Favorite
     {

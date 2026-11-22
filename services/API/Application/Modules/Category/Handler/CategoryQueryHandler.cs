@@ -1,9 +1,10 @@
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Category;
 using AqLife.Domain.Entities;
 using Core.Mappers;
 using MediatR;
 
-namespace Category.Handler;
+namespace AqLife.Application.Category.Handler;
 
 public sealed class CategoryQueryHandler(
     ISearch<CategoryQuery, PageResult<CategoryDto>, CategoryEntity> categorySearch,

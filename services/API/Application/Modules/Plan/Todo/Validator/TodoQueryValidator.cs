@@ -1,4 +1,4 @@
-namespace Plan.Todo.Validator;
+namespace AqLife.Application.Plan.Todo.Validator;
 
 //public sealed class TodoQueryPlanExistsValidator(IApplicationDbContext dbContext) : AbstractValidator<TodoQuery>
 //{

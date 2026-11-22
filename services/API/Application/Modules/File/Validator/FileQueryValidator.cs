@@ -1,12 +1,12 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Core.Validators;
-using File;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace File.Validator
+namespace AqLife.Application.File.Validator
 {
     public class FileQueryValidator(IHttpContextAccessor httpContext) : AbstractValidator<FileOverviewQuery>
     {

@@ -1,7 +1,7 @@
 using AqLife.Application.Abstractions.Contracts.File;
 using Microsoft.Extensions.Logging;
 
-namespace File.Service;
+namespace AqLife.Application.File.Service;
 
 /// <summary>
 /// 定时发布应用用例。业务处理位于 Application，定时触发器由 Infrastructure 承担。

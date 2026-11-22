@@ -1,11 +1,11 @@
+using AqLife.Application.Plan.Todo;
 using AqLife.Shared.Exceptions;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
-using Plan.Todo;
-namespace Plan.Todo.Validator;
+namespace AqLife.Application.Plan.Todo.Validator;
 
 
-public sealed class RemoveTodoDependencyLegalityValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<RemoveTodoDependencyCommand>
+public sealed class RemoveTodoDependencyLegalityValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<RemoveTodoDependencyCommand>
 {
     protected override string ErrorMessage { init; get; } = "不存在该任务依赖";
     protected override async Task<bool> IsValidAsync(RemoveTodoDependencyCommand command, CancellationToken ct)

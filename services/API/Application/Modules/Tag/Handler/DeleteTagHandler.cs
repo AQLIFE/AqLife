@@ -1,9 +1,9 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Tag;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 using MediatR;
-using Tag;
-namespace Tag.Handler
+namespace AqLife.Application.Tag.Handler
 {
     public class DeleteTagHandler(IApplicationDbContext dbContext) : IRequestHandler<DeleteTagCommand, Unit>
     {

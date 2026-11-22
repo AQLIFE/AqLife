@@ -4,9 +4,9 @@ using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 using Microsoft.AspNetCore.Http;
-using Tag;
+using AqLife.Application.Tag;
 
-namespace Tag.Search
+namespace AqLife.Application.Tag.Search
 {
     public sealed class TagSearch(ISearchMapper<TagQuery, PageResult<TagDto>, EntitySearchCriteria> queryMapper, IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
      IEnumerable<ISearchStrategy<TagEntity, EntitySearchCriteria>> searchStrategies

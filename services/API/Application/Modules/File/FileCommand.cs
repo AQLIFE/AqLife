@@ -8,7 +8,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace File
+namespace AqLife.Application.File
 {
     /// <summary>
     /// 获取处于预约状态但尚未发布的博客文章

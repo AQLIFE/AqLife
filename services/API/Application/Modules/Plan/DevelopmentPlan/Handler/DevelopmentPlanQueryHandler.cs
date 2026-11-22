@@ -1,12 +1,11 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Plan.Todo;
 using AqLife.Domain.Entities.DevPlan;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Plan.DevelopmentPlan;
-using Plan.Todo;
 
-namespace Plan.DevelopmentPlan.Handler;
+namespace AqLife.Application.Plan.DevelopmentPlan.Handler;
 
 public sealed class DevelopmentPlanQueryHandler(ISearch<DevelopmentPlanQuery, IReadOnlyList<DevelopmentPlanDto>, DevelopmentPlanEntity> searcher,
     IViewMapper<DevelopmentPlanEntity, DevelopmentPlanDto> mapper) : IRequestHandler<DevelopmentPlanQuery, IReadOnlyList<DevelopmentPlanDto>>

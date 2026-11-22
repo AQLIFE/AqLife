@@ -1,9 +1,9 @@
 ﻿using AqLife.Application.Abstractions.Search;
 using AqLife.Shared.IView;
-using Tag;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AqLife.Application.Tag;
 
 namespace AqLife.Web.Controllers
 {

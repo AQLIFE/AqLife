@@ -1,9 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Corpus;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 using MediatR;
 
-namespace Corpus.Handler
+namespace AqLife.Application.Corpus.Handler
 {
     public class UpdateCorpusCommandHandler(IApplicationDbContext dbContext) : IRequestHandler<UpdateCorpusCommand, Guid>
     {

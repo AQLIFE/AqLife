@@ -1,10 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Plan.Todo;
 using AqLife.Domain.Entities.DevPlan;
 using MediatR;
-using Plan.Todo;
 
-namespace Plan.Todo.Handler;
+namespace AqLife.Application.Plan.Todo.Handler;
 
 public sealed class CreateTodoCommandHandler(
     IApplicationDbContext db,

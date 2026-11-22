@@ -1,12 +1,12 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Business.Corpus;
+using AqLife.Application.Corpus.Search;
 using AqLife.Domain.Entities;
 using Core.Search;
-using Corpus.Search;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Corpus
+namespace AqLife.Application.Corpus
 {
     public static class Corpus
     {

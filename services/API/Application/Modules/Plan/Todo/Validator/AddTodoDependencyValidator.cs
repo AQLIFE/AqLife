@@ -1,16 +1,16 @@
+using AqLife.Application.Plan.Todo;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Exceptions;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
-using Plan.Todo;
-namespace Plan.Todo.Validator;
+namespace AqLife.Application.Plan.Todo.Validator;
 
 
 /// <summary>
 /// Todo 存在性 : 前置Todo是否存在
 /// </summary>
 /// <param name="db"></param>
-public sealed class AddTodoDependencyPredecessorIdExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
+public sealed class AddTodoDependencyPredecessorIdExistsValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     protected override string ErrorMessage { init; get; } = "前置任务依赖不存在";
     protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
@@ -22,7 +22,7 @@ public sealed class AddTodoDependencyPredecessorIdExistsValidator(AqLife.Applica
 /// Todo 存在性 : 继任者是否存在
 /// </summary>
 /// <param name="db"></param>
-public sealed class AddTodoDependencySuccessorIdExistsValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
+public sealed class AddTodoDependencySuccessorIdExistsValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     protected override string ErrorMessage { init; get; } = "继任者任务不存在";
     protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
@@ -33,7 +33,7 @@ public sealed class AddTodoDependencySuccessorIdExistsValidator(AqLife.Applicati
 /// 计划归属
 /// </summary>
 /// <param name="db"></param>
-public sealed class AddTodoDependencyPlanLegalityValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
+public sealed class AddTodoDependencyPlanLegalityValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     protected override string ErrorMessage { init; get; } = "创建的依赖关系中存在不属于当前计划的任务";
     protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
@@ -60,7 +60,7 @@ public sealed class AddTodoDependencyLegalityValidator : AbstractValidator<AddTo
 /// 重复依赖
 /// </summary>
 /// <param name="db"></param>
-public sealed class AddTodoDependencyRepetitivenessValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
+public sealed class AddTodoDependencyRepetitivenessValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     protected override string ErrorMessage { init; get; } = "该依赖关系已存在";
     protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
@@ -71,7 +71,7 @@ public sealed class AddTodoDependencyRepetitivenessValidator(AqLife.Application.
 /// 归档合法性
 /// </summary>
 /// <param name="db"></param>
-public sealed class AddTodoDependencyArchiveLegalityValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
+public sealed class AddTodoDependencyArchiveLegalityValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     protected override string ErrorMessage { init; get; } = "依赖关系中存在归档任务,禁止创建";
     protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)
@@ -87,7 +87,7 @@ public sealed class AddTodoDependencyArchiveLegalityValidator(AqLife.Application
 /// 图循环检查 :检查即将创建的依赖是否存在循环引用;疑似可以替代 AddTodoDependencyLegalityValidator
 /// </summary>
 /// <param name="db"></param>
-public sealed class AddTodoDependencyGraphValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
+public sealed class AddTodoDependencyGraphValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<AddTodoDependencyCommand>
 {
     protected override string ErrorMessage { init; get; } = "禁止创建循环依赖";
     protected override async Task<bool> IsValidAsync(AddTodoDependencyCommand command, CancellationToken ct)

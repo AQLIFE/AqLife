@@ -8,7 +8,7 @@ using MediatR;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Plan.Todo
+namespace AqLife.Application.Plan.Todo
 {
     /// <summary>
     ///  任务 查询

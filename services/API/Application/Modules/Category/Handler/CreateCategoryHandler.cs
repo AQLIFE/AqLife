@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities;
 using MediatR;
 
-namespace Category.Handler;
+namespace AqLife.Application.Category.Handler;
 
 public sealed class CreateCategoryHandler(IApplicationDbContext dbContext, ICreateMapper<CategoryEntity, CreateCategoryCommand> createMapper)
     : IRequestHandler<CreateCategoryCommand, Guid>

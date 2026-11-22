@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Shared.Options;
 using System.Text.Json.Serialization;
 
-namespace File
+namespace AqLife.Application.File
 {
     public record FileDto
     (

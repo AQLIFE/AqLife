@@ -7,10 +7,10 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Core.Validators;
-using File;
-using File.Service;
+using AqLife.Application.File;
+using AqLife.Application.File.Service;
 
-namespace File.Upload;
+namespace AqLife.Application.File.Upload;
 
 /// <summary>Starts a resumable video upload session.</summary>
 public sealed record StartVideoUploadCommand(string FileName, long FileSize, Guid CategoryId, int ChunkSize = 4 * 1024 * 1024)

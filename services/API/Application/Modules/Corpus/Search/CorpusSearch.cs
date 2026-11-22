@@ -4,9 +4,9 @@ using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 using Microsoft.AspNetCore.Http;
-using Corpus;
+using AqLife.Application.Corpus;
 
-namespace Corpus.Search
+namespace AqLife.Application.Corpus.Search
 {
     public sealed class CorpusSearch(ISearchMapper<CorpusQuery, PageResult<CorpusDto>, EntitySearchCriteria> queryMapper, IApplicationDbContext dbContext, IHttpContextAccessor httpContext, IEnumerable<ISearchStrategy<CorpusEntity, EntitySearchCriteria>> searchStrategies)
         : BaseSearch<CorpusQuery, PageResult<CorpusDto>, CorpusEntity, EntitySearchCriteria>(dbContext, httpContext, searchStrategies)

@@ -1,10 +1,10 @@
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Favorite;
 using AqLife.Shared.Exceptions;
-using Favorite;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Favorite.Handler;
+namespace AqLife.Application.Favorite.Handler;
 
 public class DeleteFavoriteHandler(IApplicationDbContext dbContext) : IRequestHandler<DeleteFavoriteCommand, Unit>
 {

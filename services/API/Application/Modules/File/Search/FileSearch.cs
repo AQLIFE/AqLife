@@ -9,10 +9,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
-using File;
 
 
-namespace File.Search;
+namespace AqLife.Application.File.Search;
 
 
 public sealed class FileSearch(

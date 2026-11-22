@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Pipeline.Markers;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 
-namespace Corpus
+namespace AqLife.Application.Corpus
 {
     public record RandomCorpusQuery : IQuery<string>;
     public record CorpusQuery(Guid? UID = null, string? Content = null, int Page = 1, int PageSize = 3) : IPageQuery, IQuery<PageResult<CorpusDto>>;

@@ -1,10 +1,10 @@
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Category;
 using AqLife.Shared.Exceptions;
-using Category;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Category.Handler;
+namespace AqLife.Application.Category.Handler;
 
 public sealed class DeleteCategoryHandler(IApplicationDbContext dbContext)
     : IRequestHandler<DeleteCategoryCommand, Unit>

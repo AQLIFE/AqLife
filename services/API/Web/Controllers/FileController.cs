@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using AqLife.Application.File;
+using AqLife.Application.File.Service;
+using AqLife.Application.File.Upload;
 
 namespace AqLife.Web.Controllers
 {

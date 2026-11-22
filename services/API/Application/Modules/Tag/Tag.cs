@@ -1,12 +1,13 @@
 global using AqLife.Shared.IView;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Tag.Search;
 using AqLife.Domain.Entities;
 using Core.Search;
 using Microsoft.Extensions.DependencyInjection;
-using Tag.Search;
+using Tag;
 
-namespace Tag
+namespace AqLife.Application.Tag
 {
     public static class Tag
     {

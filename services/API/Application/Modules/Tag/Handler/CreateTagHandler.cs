@@ -1,10 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Tag;
 using AqLife.Domain.Entities;
 using MediatR;
-using Tag;
 
-namespace Tag.Handler
+namespace AqLife.Application.Tag.Handler
 {
     public class CreateTagHandler(IApplicationDbContext dbContext, ICreateMapper<TagEntity, CreateTagCommand> tagMapper) : IRequestHandler<CreateTagCommand, Guid>
     {

@@ -1,12 +1,12 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File.Storage;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.File;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
-using File;
 using Microsoft.AspNetCore.StaticFiles;
 
-namespace File.Service
+namespace AqLife.Application.File.Service
 {
     public class FileReader(FileExtensionContentTypeProvider extProvider, ISearch<FileQuery, PageResult<FileDto>, FileMetaEntity> fileSearch, IFileStorage fileStorage)
     {

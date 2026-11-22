@@ -5,10 +5,10 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.DevPlan;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Plan.Todo;
+using AqLife.Application.Plan.Todo;
 
 
-namespace Plan.Todo.Search
+namespace AqLife.Application.Plan.Todo.Search
 {
     public sealed class TodoSearch(ISearchMapper<TodoQuery, PageResult<TodoDto>, TodoSearchCriteria> queryMapper, IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
         IEnumerable<ISearchStrategy<TodoEntity, TodoSearchCriteria>> searchStrategies

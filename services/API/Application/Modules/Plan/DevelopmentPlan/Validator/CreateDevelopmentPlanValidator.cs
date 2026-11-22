@@ -1,6 +1,5 @@
 using Core.Validators;
-using Plan.DevelopmentPlan;
-namespace Plan.DevelopmentPlan.Validator;
+namespace AqLife.Application.Plan.DevelopmentPlan.Validator;
 
 public sealed class CreateDevelopmentPlanNameValidator() : AbstractValidator<CreateDevelopmentPlanCommand>
 {

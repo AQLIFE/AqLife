@@ -1,12 +1,13 @@
 global using AqLife.Shared.IView;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Category.Search;
 using AqLife.Domain.Entities;
-using Category.Search;
+using Category;
 using Core.Search;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Category
+namespace AqLife.Application.Category
 {
     public static class Category
     {

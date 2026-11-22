@@ -4,7 +4,7 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace Category
+namespace AqLife.Application.Category
 {
     public enum CategoryQueryType
     {

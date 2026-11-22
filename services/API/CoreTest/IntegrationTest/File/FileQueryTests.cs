@@ -9,6 +9,8 @@ using AqLife.Shared.Options;
 using AqLife.Shared.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using AqLife.Application.File.Search;
+using AqLife.Application.File;
 
 namespace AqLife.CoreTest.IntegrationTest.File;
 

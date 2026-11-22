@@ -1,10 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Corpus;
 using AqLife.Domain.Entities;
 using Core.Mappers;
-using Corpus;
 using MediatR;
 
-namespace Corpus.Handler
+namespace AqLife.Application.Corpus.Handler
 {
     public class CorpusQueryHandler(ISearch<CorpusQuery, PageResult<CorpusDto>, CorpusEntity> search, PageResultMapper<CorpusEntity, CorpusDto> mapper) : IRequestHandler<CorpusQuery, PageResult<CorpusDto>>
     {

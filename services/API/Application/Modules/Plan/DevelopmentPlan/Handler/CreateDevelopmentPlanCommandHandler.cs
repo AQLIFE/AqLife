@@ -2,9 +2,8 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Domain.Entities.DevPlan;
 using MediatR;
-using Plan.DevelopmentPlan;
 
-namespace Plan.DevelopmentPlan.Handler;
+namespace AqLife.Application.Plan.DevelopmentPlan.Handler;
 
 public sealed class CreateDevelopmentPlanCommandHandler(
     IApplicationDbContext db,

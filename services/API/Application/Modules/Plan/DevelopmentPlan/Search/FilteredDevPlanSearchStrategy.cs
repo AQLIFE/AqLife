@@ -2,7 +2,7 @@
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.DevPlan;
 
-namespace Plan.DevelopmentPlan.Search
+namespace AqLife.Application.Plan.DevelopmentPlan.Search
 {
     public class FilteredDevPlanSearchStrategy : FilteredSearchStrategyBase<DevelopmentPlanEntity, EntitySearchCriteria>
     {

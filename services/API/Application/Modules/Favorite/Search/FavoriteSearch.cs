@@ -6,7 +6,7 @@ using AqLife.Domain.Entities.Favorite;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace Favorite.Search
+namespace AqLife.Application.Favorite.Search
 {
     public sealed class FavoriteSearch(IApplicationDbContext dbContext,
         ISearchMapper<FavoriteQuery, PageResult<FavoriteDto>, FavoriteSearchCriteria> queryMapper,

@@ -1,9 +1,9 @@
 using AqLife.Application.Abstractions.Search;
-using Plan.DevelopmentPlan;
-using Plan.Todo;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AqLife.Application.Plan.Todo;
+using AqLife.Application.Plan.DevelopmentPlan;
 
 namespace AqLife.Web.Controllers
 {

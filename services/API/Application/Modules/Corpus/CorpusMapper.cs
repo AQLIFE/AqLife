@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 using Riok.Mapperly.Abstractions;
-using Corpus;
+using AqLife.Application.Corpus;
 
 namespace AqLife.Application.Business.Corpus
 {

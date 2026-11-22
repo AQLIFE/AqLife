@@ -5,6 +5,7 @@ using AqLife.Domain.Entities.Favorite;
 using Riok.Mapperly.Abstractions;
 using System.Collections;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using AqLife.Application.Favorite;
 
 namespace Favorite
 {

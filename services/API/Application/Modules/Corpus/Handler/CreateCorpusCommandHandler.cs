@@ -1,9 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Corpus;
 using AqLife.Domain.Entities;
 using MediatR;
 
-namespace Corpus.Handler
+namespace AqLife.Application.Corpus.Handler
 {
     public class CreateCorpusCommandHandler(ICreateMapper<CorpusEntity, CreateCorpusCommand> mapper, IApplicationDbContext dbContext) : IRequestHandler<CreateCorpusCommand, Guid>
     {

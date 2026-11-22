@@ -3,7 +3,7 @@ using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 
-namespace Tag.Search
+namespace AqLife.Application.Tag.Search
 {
     public sealed class AllTagSearchStrategy(IHttpContextAccessor httpContext) : AllSearchStrategyBase<TagEntity, EntitySearchCriteria>(httpContext)
     {

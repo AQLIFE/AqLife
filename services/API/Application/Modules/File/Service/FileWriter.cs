@@ -1,18 +1,18 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.File;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Tools;
-using File;
 using Microsoft.EntityFrameworkCore;
 
-namespace File.Service
+namespace AqLife.Application.File.Service
 {
     /// <summary>
     /// 同时写入数据库和物理文件存储；如果写入失败，则回滚物理文件存储。
     /// </summary>
     public class FileWriter(
         IApplicationDbContext dbContext,
-        AqLife.Application.Abstractions.Contracts.File.Storage.IFileStorage fileStorage,
+        Abstractions.Contracts.File.Storage.IFileStorage fileStorage,
         UploadContext uploadContext,
         ICreateMapper<FileMetaEntity, CreateFileCommand> fileMapper)
     {

@@ -1,9 +1,9 @@
+using AqLife.Application.File;
+using AqLife.Application.File.Service;
 using AqLife.Shared.Options;
-using File;
-using File.Service;
 using MediatR;
 
-namespace File.Handler
+namespace AqLife.Application.File.Handler
 {
     public class DownloadFileHandler(FileReader fileReader) : IRequestHandler<DownloadFileQuery, FileDownloadModel>
     {

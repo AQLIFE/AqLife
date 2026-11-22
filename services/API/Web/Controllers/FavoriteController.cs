@@ -1,5 +1,5 @@
 using AqLife.Application.Abstractions.Search;
-using Favorite;
+using AqLife.Application.Favorite;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,6 +1,6 @@
 using AqLife.Shared.IView;
 
-namespace Plan.Todo
+namespace AqLife.Application.Plan.Todo
 {
     public record TodoDto(
         Guid UID,

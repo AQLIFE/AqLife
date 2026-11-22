@@ -1,10 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Tag;
 using AqLife.Domain.Entities;
 using Core.Mappers;
 using MediatR;
-using Tag;
 
-namespace Tag.Handler
+namespace AqLife.Application.Tag.Handler
 {
     public class TagQueryHandler(ISearch<TagQuery, PageResult<TagDto>, TagEntity> search, PageResultMapper<TagEntity, TagDto> mapper) : IRequestHandler<TagQuery, PageResult<TagDto>?>
     {

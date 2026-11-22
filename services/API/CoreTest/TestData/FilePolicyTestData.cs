@@ -3,6 +3,7 @@ using AqLife.Domain.Entities;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using AqLife.Application.File;
 
 namespace AqLife.CoreTest.TestData
 {

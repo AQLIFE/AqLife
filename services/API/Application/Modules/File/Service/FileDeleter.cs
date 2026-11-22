@@ -2,7 +2,7 @@
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Tools;
-namespace File.Service
+namespace AqLife.Application.File.Service
 {
     public class FileDeleter(IApplicationDbContext dbContext, UploadContext uploadContext)
     {

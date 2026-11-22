@@ -1,10 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Category;
 using AqLife.Domain.Entities;
-using Category;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
 
-namespace Category.Validator
+namespace AqLife.Application.Category.Validator
 {
     /// <summary>
     /// 父分类必须存在或者等于null

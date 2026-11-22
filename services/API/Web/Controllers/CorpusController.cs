@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Search;
-using Corpus;
+using AqLife.Application.Corpus;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

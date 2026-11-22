@@ -4,6 +4,7 @@ using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using Microsoft.AspNetCore.Http;
+using AqLife.Application.File;
 
 namespace AqLife.CoreTest.IntegrationTest.File
 {

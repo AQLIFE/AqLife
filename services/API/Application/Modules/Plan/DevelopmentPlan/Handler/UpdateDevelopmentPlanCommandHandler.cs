@@ -1,8 +1,7 @@
 using AqLife.Application.Abstractions.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Plan.DevelopmentPlan;
-namespace Plan.DevelopmentPlan.Handler;
+namespace AqLife.Application.Plan.DevelopmentPlan.Handler;
 
 public sealed class UpdateDevelopmentPlanCommandHandler(IApplicationDbContext db) : IRequestHandler<UpdateDevelopmentPlanCommand, Guid>
 {

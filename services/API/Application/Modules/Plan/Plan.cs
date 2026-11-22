@@ -1,17 +1,19 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Plan.DevelopmentPlan;
+using AqLife.Application.Plan.DevelopmentPlan.Search;
+using AqLife.Application.Plan.DevelopmentPlan.Validator;
+using AqLife.Application.Plan.Todo;
+using AqLife.Application.Plan.Todo.Search;
+using AqLife.Application.Plan.Todo.Validator;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Contracts;
 using Core.Search;
 using Microsoft.Extensions.DependencyInjection;
 using Plan.DevelopmentPlan;
-using Plan.DevelopmentPlan.Search;
-using Plan.DevelopmentPlan.Validator;
 using Plan.Todo;
-using Plan.Todo.Search;
-using Plan.Todo.Validator;
 
-namespace Plan
+namespace AqLife.Application.Plan
 {
     public static class Plan
     {

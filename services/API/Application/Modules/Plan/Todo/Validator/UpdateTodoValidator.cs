@@ -6,11 +6,11 @@ using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
-using Plan.Todo;
-namespace Plan.Todo.Validator;
+using AqLife.Application.Plan.Todo;
+namespace AqLife.Application.Plan.Todo.Validator;
 
 // 所属开发计划的归档状态检查 由 DevPlanValidator 覆盖
-public sealed class UpdateTodoDependencyCompletionValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<UpdateTodoStatusCommand>
+public sealed class UpdateTodoDependencyCompletionValidator(IApplicationDbContext db) : AbstractValidator<UpdateTodoStatusCommand>
 {
     protected override string ErrorMessage { init; get; } = "仍有未完成的前置任务，当前任务不能完成";
     protected override async Task<bool> IsValidAsync(UpdateTodoStatusCommand command, CancellationToken ct)
@@ -20,7 +20,7 @@ public sealed class UpdateTodoDependencyCompletionValidator(AqLife.Application.A
 }
 
 // 所属开发计划的归档状态检查 由 DevPlanValidator 覆盖
-public sealed class ArchiveTodoPlanActiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<ArchiveTodoCommand>
+public sealed class ArchiveTodoPlanActiveValidator(IApplicationDbContext db) : AbstractValidator<ArchiveTodoCommand>
 {
     protected override string ErrorMessage { init; get; } = "目标任务处于未归档状态方可操作";
     protected override async Task<bool> IsValidAsync(ArchiveTodoCommand command, CancellationToken ct)
@@ -29,7 +29,7 @@ public sealed class ArchiveTodoPlanActiveValidator(AqLife.Application.Abstractio
 }
 
 // 所属开发计划的归档状态检查 由 DevPlanValidator 覆盖
-public sealed class RestoreTodoPlanActiveValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<RestoreTodoCommand>
+public sealed class RestoreTodoPlanActiveValidator(IApplicationDbContext db) : AbstractValidator<RestoreTodoCommand>
 {
     protected override string ErrorMessage { init; get; } = "目标任务处于归档状态方可操作";
     protected override async Task<bool> IsValidAsync(RestoreTodoCommand command, CancellationToken ct)

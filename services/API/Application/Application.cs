@@ -1,12 +1,12 @@
 using System.Reflection;
 using AqLife.Application.Account;
-using Category;
-using Corpus;
-using Favorite;
-using File;
+using AqLife.Application.Category;
+using AqLife.Application.Corpus;
+using AqLife.Application.Favorite;
+using AqLife.Application.File;
+using AqLife.Application.Plan;
+using AqLife.Application.Tag;
 using Microsoft.Extensions.DependencyInjection;
-using Plan;
-using Tag;
 
 namespace AqLife.Application;
 
@@ -20,12 +20,12 @@ public static class Application
     [
         typeof(Application).Assembly,
         typeof(AqLife.Application.Account.Account).Assembly,
-        typeof(global::Category.Category).Assembly,
-        typeof(global::Corpus.Corpus).Assembly,
-        typeof(global::Favorite.Favorite).Assembly,
-        typeof(global::File.File).Assembly,
-        typeof(global::Plan.Plan).Assembly,
-        typeof(global::Tag.Tag).Assembly
+        typeof(global::AqLife.Application.Category.Category).Assembly,
+        typeof(global::AqLife.Application.Corpus.Corpus).Assembly,
+        typeof(global::AqLife.Application.Favorite.Favorite).Assembly,
+        typeof(global::AqLife.Application.File.File).Assembly,
+        typeof(global::AqLife.Application.Plan.Plan).Assembly,
+        typeof(global::AqLife.Application.Tag.Tag).Assembly
     ];
 
     public static IServiceCollection AddApplication(this IServiceCollection services)

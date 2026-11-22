@@ -1,11 +1,11 @@
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Category;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
-using Category;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Category.Handler;
+namespace AqLife.Application.Category.Handler;
 
 public sealed class UpdateCategoryHandler(IApplicationDbContext dbContext)
     : IRequestHandler<UpdateCategoryCommand, Guid>

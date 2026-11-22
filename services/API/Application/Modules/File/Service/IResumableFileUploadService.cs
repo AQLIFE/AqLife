@@ -1,4 +1,4 @@
-﻿using File;
+﻿using AqLife.Application.File;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace File.Service
+namespace AqLife.Application.File.Service
 {
     public interface IResumableFileUploadService
     {

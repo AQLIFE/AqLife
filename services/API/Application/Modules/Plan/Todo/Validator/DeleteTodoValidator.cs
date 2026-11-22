@@ -1,10 +1,10 @@
+using AqLife.Application.Plan.Todo;
 using AqLife.Shared.Exceptions;
 using Core.Validators;
 using Microsoft.EntityFrameworkCore;
-using Plan.Todo;
-namespace Plan.Todo.Validator;
+namespace AqLife.Application.Plan.Todo.Validator;
 
-public sealed class DeleteTodoNotCompletedValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
+public sealed class DeleteTodoNotCompletedValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
 {
     protected override string ErrorMessage { init; get; } = "已完成任务不能直接删除，请使用归档";
     protected override async Task<bool> IsValidAsync(DeleteTodoCommand command, CancellationToken ct)
@@ -15,7 +15,7 @@ public sealed class DeleteTodoNotCompletedValidator(AqLife.Application.Abstracti
 
 }
 
-public sealed class DeleteTodoHasNoDependenciesValidator(AqLife.Application.Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
+public sealed class DeleteTodoHasNoDependenciesValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<DeleteTodoCommand>
 {
     protected override string ErrorMessage { init; get; } = "存在依赖关系，请先移除依赖再删除任务";
     protected override async Task<bool> IsValidAsync(DeleteTodoCommand command, CancellationToken ct)

@@ -4,9 +4,9 @@ using AqLife.Shared.Options;
 using Core.Validators;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using File;
+using AqLife.Application.File;
 
-namespace File.Validator
+namespace AqLife.Application.File.Validator
 {
 
     /// <summary>

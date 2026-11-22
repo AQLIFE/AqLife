@@ -2,16 +2,16 @@ using AqLife.Application.Abstractions.Commands;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
+using AqLife.Application.Category;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
-using Category;
 using Core.Search;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Category.Search;
+namespace AqLife.Application.Category.Search;
 
 //public readonly record struct EntitySearchCriteria(Guid? UID, string? Keyword = null) : ISearchCriteria;
 

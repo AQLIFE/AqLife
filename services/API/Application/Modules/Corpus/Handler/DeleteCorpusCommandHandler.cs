@@ -1,10 +1,10 @@
 ﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Corpus;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
-using Corpus;
 using MediatR;
 
-namespace Corpus.Handler
+namespace AqLife.Application.Corpus.Handler
 {
     public class DeleteCorpusCommandHandler(IApplicationDbContext dbContext) : IRequestHandler<DeleteCorepusCommand, Unit>
     {

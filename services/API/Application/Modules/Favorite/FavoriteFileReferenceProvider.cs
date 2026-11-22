@@ -2,7 +2,7 @@ using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Application.Abstractions.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Favorite;
+namespace AqLife.Application.Favorite;
 
 /// <summary>
 /// Favorite 模块拥有的文件引用检查：收藏内容关联的媒体文件。
