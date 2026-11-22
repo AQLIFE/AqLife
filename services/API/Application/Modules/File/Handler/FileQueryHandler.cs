@@ -20,7 +20,7 @@ namespace File.Handler
         public async Task<PageResult<FileDto>> Handle(FileQuery query, CancellationToken ct)
         {
             var result = await search.SearchPageAsync(query, ct);
-            if (query.Order == Shared.Options.FileOrder.Latest)
+            if (query.Order == FileOrder.Latest)
             {
                 var items = result.Items.ToList();
                 foreach (var item in items)
