@@ -40,6 +40,7 @@ namespace AqLife.Application.File
             services.AddScoped(typeof(IValidator<>), typeof(FileSizeValidator<>));
             services.AddScoped(typeof(IValidator<>), typeof(FileDuplicateValidator<>));
             services.AddScoped<IScheduledPublishProcessor, ScheduledPublishProcessor>();
+            services.AddScoped<ResumableFileUploadService>();
 
             return services;
         }

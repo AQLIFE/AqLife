@@ -1,9 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Application.Abstractions.Contracts.File.Storage;
 using AqLife.Application.Abstractions.Search;
-using global::File;
-using global::File.Service;
-using global::File.Upload;
 using AqLife.Shared.Options;
 using AqLife.Web.Middlewares;
 using MediatR;

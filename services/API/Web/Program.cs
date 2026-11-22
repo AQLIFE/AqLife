@@ -33,7 +33,6 @@ builder.Services.AddRouteAdapter();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<FileUploadFilter>();
-builder.Services.AddScoped<ResumableFileUploadService>();
 
 var configuredCorsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 if (builder.Environment.IsDevelopment() && configuredCorsOrigins.Length == 0)
