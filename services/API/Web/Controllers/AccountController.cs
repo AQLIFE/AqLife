@@ -1,5 +1,5 @@
 ﻿
-using AqLife.Application.Modules.Account;
+using AqLife.Application.Account;
 using AqLife.Shared.Tools;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
