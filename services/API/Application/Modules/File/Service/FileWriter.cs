@@ -1,9 +1,8 @@
-﻿using AqLife.Application.Abstractions.Mapping;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Mapping;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Application.File;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Tools;
-using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.File.Service
 {
@@ -11,7 +10,7 @@ namespace AqLife.Application.File.Service
     /// 同时写入数据库和物理文件存储；如果写入失败，则回滚物理文件存储。
     /// </summary>
     public class FileWriter(
-        IApplicationDbContext dbContext,
+        IFilePersistence persistence,
         Abstractions.Contracts.File.Storage.IFileStorage fileStorage,
         UploadContext uploadContext,
         ICreateMapper<FileMetaEntity, CreateFileCommand> fileMapper)
@@ -44,13 +43,10 @@ namespace AqLife.Application.File.Service
             }
         }
 
-        /// <summary>
-        /// 写入成功后返回数据 ID，并将物理路径登记到 UploadContext。
-        /// </summary>
         public async Task<Guid> WriteAsync(CreateFileCommand command, CancellationToken ct)
         {
             var hash = await uploadContext.GetOrAddFileHashAsync(command.File, ct);
-            var existingFiles = await FindExistingFilesAsync(
+            var existingFiles = await persistence.FindExistingFilesAsync(
                 uploadContext.FileHashes.Values,
                 command.IsTemplate,
                 ct);
@@ -67,12 +63,11 @@ namespace AqLife.Application.File.Service
             else
                 meta.PublishMeta.Publish();
 
-            await dbContext.File.AddAsync(meta, ct);
+            await persistence.AddFileAsync(meta, ct);
             uploadContext.SavePath.Add(meta.StorageKey);
 
             await using var content = command.File.OpenReadStream();
             await fileStorage.SaveAsync(content, meta.StorageKey, ct);
-
             return meta.UID;
         }
 
@@ -81,13 +76,5 @@ namespace AqLife.Application.File.Service
             foreach (var path in savedPaths)
                 await fileStorage.DeleteAsync(path, ct);
         }
-
-        private async Task<Dictionary<string, Guid>> FindExistingFilesAsync(
-            IEnumerable<string> hashes,
-            bool isTemplate,
-            CancellationToken ct)
-            => await dbContext.File
-                .Where(file => hashes.Contains(file.FileHash) && file.IsTemplate == isTemplate)
-                .ToDictionaryAsync(file => file.FileHash, file => file.UID, ct);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.File;
 using AqLife.Application.File.Service;
@@ -35,11 +35,11 @@ namespace AqLife.Application.File.Handler
             return mapper.ToDto(result);
         }
     }
-    public class FileOverviewQueryHandler(IApplicationDbContext dbContext, IViewMapper<FileMetaEntity, FileDto> fileMapper) : IRequestHandler<FileOverviewQuery, FileOverviewDto>
+    public class FileOverviewQueryHandler(IFilePersistence persistence, IViewMapper<FileMetaEntity, FileDto> fileMapper) : IRequestHandler<FileOverviewQuery, FileOverviewDto>
     {
         public async Task<FileOverviewDto> Handle(FileOverviewQuery query, CancellationToken ct)
         {
-            IIncludableQueryable<FileMetaEntity, TagEntity> filequery = dbContext.File.AsNoTracking()
+            IIncludableQueryable<FileMetaEntity, TagEntity> filequery = persistence.Files.AsNoTracking()
                 .Where(file => !file.IsTemplate)
                 .Include(file => file.Category)
                 .Include(file => file.PublishMeta)

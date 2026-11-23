@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure.Persistence
 {
-    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence, ICategoryPersistence, ICorpusPersistence, IFavoritePersistence
+    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence, ICategoryPersistence, ICorpusPersistence, IFavoritePersistence, IFilePersistence
     {
         public DbSet<FileMetaEntity> File { get; set; }
         public DbSet<CorpusEntity> Corpus { get; set; }
@@ -59,6 +59,16 @@ namespace AqLife.Infrastructure.Persistence
             => await FavoriteItems.AddAsync(favorite, cancellationToken);
         void IFavoritePersistence.RemoveFavorite(FavoriteItemEntity favorite) => FavoriteItems.Remove(favorite);
         IQueryable<FileMetaEntity> IFileMetaQuerySource.Query() => File;
+        IQueryable<FileMetaEntity> IFilePersistence.Files => File;
+        async Task<FileMetaEntity?> IFilePersistence.FindAsync(Guid uid, CancellationToken cancellationToken)
+            => await File.FindAsync([uid], cancellationToken);
+        async Task IFilePersistence.AddFileAsync(FileMetaEntity file, CancellationToken cancellationToken)
+            => await File.AddAsync(file, cancellationToken);
+        void IFilePersistence.RemoveFile(FileMetaEntity file) => File.Remove(file);
+        async Task<Dictionary<string, Guid>> IFilePersistence.FindExistingFilesAsync(
+            IEnumerable<string> hashes, bool isTemplate, CancellationToken cancellationToken)
+            => await File.Where(file => hashes.Contains(file.FileHash) && file.IsTemplate == isTemplate)
+                .ToDictionaryAsync(file => file.FileHash, file => file.UID, cancellationToken);
         IQueryable<DevelopmentPlanEntity> IDevelopmentPlanQuerySource.Query() => DevelopmentPlans;
         IQueryable<TodoEntity> ITodoQuerySource.Query() => Todo;
         IQueryable<TagEntity> ITagQuerySource.Query() => Tags;
