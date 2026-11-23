@@ -1,5 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Application.Abstractions.Contracts.Category;
+using AqLife.Application.Abstractions.Contracts.Tag;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Favorite.Search;
@@ -26,6 +27,7 @@ namespace AqLife.Application.Favorite
 
             services.AddScoped<IFileReferenceProvider, FavoriteFileReferenceProvider>();
             services.AddScoped<ICategoryReferenceProvider, CategoryFavoriteReferenceProvider>();
+            services.AddScoped<ITagReferenceProvider, FavoriteTagReferenceProvider>();
 
             return services;
         }

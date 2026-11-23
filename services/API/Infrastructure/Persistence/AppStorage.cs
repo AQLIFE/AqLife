@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure.Persistence
 {
-    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence, ICategoryPersistence, ICorpusPersistence, IFavoritePersistence, IFilePersistence
+    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence, ICategoryPersistence, ICorpusPersistence, IFavoritePersistence, IFilePersistence, ITagPersistence
     {
         public DbSet<FileMetaEntity> File { get; set; }
         public DbSet<CorpusEntity> Corpus { get; set; }
@@ -72,6 +72,12 @@ namespace AqLife.Infrastructure.Persistence
         IQueryable<DevelopmentPlanEntity> IDevelopmentPlanQuerySource.Query() => DevelopmentPlans;
         IQueryable<TodoEntity> ITodoQuerySource.Query() => Todo;
         IQueryable<TagEntity> ITagQuerySource.Query() => Tags;
+        IQueryable<TagEntity> ITagPersistence.Tags => Tags;
+        async Task<TagEntity?> ITagPersistence.FindAsync(Guid uid, CancellationToken cancellationToken)
+            => await Tags.FindAsync([uid], cancellationToken);
+        async Task ITagPersistence.AddTagAsync(TagEntity tag, CancellationToken cancellationToken)
+            => await Tags.AddAsync(tag, cancellationToken);
+        void ITagPersistence.RemoveTag(TagEntity tag) => Tags.Remove(tag);
         public async Task<ITransaction> BeginTransactionAsync(CancellationToken ct)
         {
             var transaction = await Database.BeginTransactionAsync(ct);

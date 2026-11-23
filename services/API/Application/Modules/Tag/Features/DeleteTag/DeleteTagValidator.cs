@@ -1,21 +1,22 @@
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Contracts.Tag;
 using AqLife.Application.Tag;
 using Core.Validators;
-using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Tag.Validator
 {
-    public class DeleteTagValidator(IApplicationDbContext dbContext) : AbstractValidator<DeleteTagCommand>
+    public class DeleteTagValidator(IEnumerable<ITagReferenceProvider> referenceProviders)
+        : AbstractValidator<DeleteTagCommand>
     {
         protected override string ErrorMessage { init; get; } = "该 Tag 仍在使用,不允许删除";
 
         protected override async Task<bool> IsValidAsync(DeleteTagCommand command, CancellationToken ct)
         {
-            var usedByFiles = await dbContext.BlogTags.AnyAsync(e => e.TagId == command.UID, ct);
-            if (usedByFiles)
-                return false;
-
-            return !await dbContext.FavoriteTags.AnyAsync(e => e.TagId == command.UID, ct);
+            foreach (var provider in referenceProviders)
+            {
+                if (await provider.IsReferencedAsync(command.UID, ct))
+                    return false;
+            }
+            return true;
         }
     }
 }

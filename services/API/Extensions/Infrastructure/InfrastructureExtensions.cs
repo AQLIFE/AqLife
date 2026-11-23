@@ -41,6 +41,7 @@ public static class InfrastructureExtensions
         services.AddScoped<IDevelopmentPlanQuerySource>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<ITodoQuerySource>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<ITagQuerySource>(sp => sp.GetRequiredService<AppStorage>());
+        services.AddScoped<ITagPersistence>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<IResumableFileUploadService, ResumableFileUploadService>();
         services.AddScoped<IScheduledFileQuery, ScheduledFileQuery>();
         services.AddScoped<IFilePublishService, FilePublishService>();
