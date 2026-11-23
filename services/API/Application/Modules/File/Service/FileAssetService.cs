@@ -11,7 +11,7 @@ public sealed class FileAssetService(
     FileWriter fileWriter,
     FileDeleter fileDeleter,
     IFilePublishService filePublishService,
-    IEnumerable<IFileReferenceProvider> referenceProviders) : IFileAssetService
+    FileReferenceChecker fileReferenceChecker) : IFileAssetService
 {
     public Task<Guid> UploadAsync(
         Microsoft.AspNetCore.Http.IFormFile file,
@@ -49,17 +49,7 @@ public sealed class FileAssetService(
         var deletableFileIds = new List<Guid>();
         foreach (var fileId in fileIds.Where(id => id != Guid.Empty).Distinct())
         {
-            var isReferenced = false;
-            foreach (var provider in referenceProviders)
-            {
-                if (await provider.IsReferencedAsync(fileId, cancellationToken))
-                {
-                    isReferenced = true;
-                    break;
-                }
-            }
-
-            if (!isReferenced)
+            if (!await fileReferenceChecker.IsReferencedAsync(fileId, cancellationToken))
                 deletableFileIds.Add(fileId);
         }
 
