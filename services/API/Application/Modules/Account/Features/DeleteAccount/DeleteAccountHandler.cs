@@ -1,4 +1,4 @@
-﻿using AqLife.Application.Abstractions.Contracts.File;
+using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Account;
 using AqLife.Domain.Entities;
@@ -27,9 +27,12 @@ public class DeleteAccountHandler(
         if (account.Avatar is Guid avatar)
             fileIds.Add(avatar);
 
-        await fileAssetService.DeleteAsync(fileIds, ct);
+        // 先在当前事务内释放 Account 模块持有的引用，
+        // File 模块随后才能准确判断文件是否仍被 Favorite 等模块使用。
         dbContext.Accounts.Remove(account);
+        await dbContext.SaveChangesAsync(ct);
 
+        await fileAssetService.DeleteAsync(fileIds, ct);
         return Unit.Value;
     }
 }
