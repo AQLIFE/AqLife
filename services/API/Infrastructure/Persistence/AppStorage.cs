@@ -77,6 +77,12 @@ namespace AqLife.Infrastructure.Persistence
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<FileMetaEntity>()
+                .HasOne(f => f.Category)
+                .WithMany(category => category.Files)
+                .HasForeignKey(f => f.CategoryUID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FileMetaEntity>()
                 .HasOne(f => f.PublishMeta)
                 .WithOne()
                 .HasForeignKey<PublishMetaEntity>(p => p.UID)
