@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File;
+using AqLife.Application.Abstractions.Contracts.Category;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Favorite.Search;
@@ -24,6 +25,7 @@ namespace AqLife.Application.Favorite
             services.AddSingleton<ISearchMapper<FavoriteQuery, PageResult<FavoriteDto>, FavoriteSearchCriteria>>(sp => sp.GetRequiredService<FavoriteMapper>());
 
             services.AddScoped<IFileReferenceProvider, FavoriteFileReferenceProvider>();
+            services.AddScoped<ICategoryReferenceProvider, CategoryFavoriteReferenceProvider>();
 
             return services;
         }
