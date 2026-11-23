@@ -39,7 +39,7 @@ public interface IFileAssetService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// 删除文件资产。物理文件删除由事务管道在数据库事务提交后执行。
+    /// 请求删除文件资产。若任一引用模块仍在使用该文件，则 File 模块会保留文件；物理文件删除由事务管道在数据库事务提交后执行。
     /// </summary>
     Task DeleteAsync(
         IEnumerable<Guid> fileIds,
