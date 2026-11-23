@@ -19,7 +19,8 @@ public sealed class CategorySearch(
     ICategoryQuerySource querySource, ISearchMapper<CategoryQuery, PageResult<CategoryDto>, EntitySearchCriteria> queryMapper, IHttpContextAccessor httpContext, IOptions<FilePolicyOption> options,
     IEnumerable<ISearchStrategy<CategoryEntity, EntitySearchCriteria>> strategies) :
     BaseSearch<CategoryQuery, PageResult<CategoryDto>, CategoryEntity, EntitySearchCriteria>(httpContext, strategies)
-{    protected override IQueryable<CategoryEntity> GetQuery() => querySource.Query();
+{
+    protected override IQueryable<CategoryEntity> GetQuery() => querySource.Query();
 
 
     protected  override IQueryable<CategoryEntity> ApplyResultPolicy(

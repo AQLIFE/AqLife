@@ -12,7 +12,6 @@ namespace Core.Search
     /// </summary>
     /// <typeparam name="TQuery"></typeparam>
     /// <typeparam name="TEntity"></typeparam>
-    /// <param name="dbContext"></param>
     /// <param name="searchStrategies"></param>
     public abstract class BaseSearch<TQuery, TResponse, TEntity, TSearchCriteria>(
     IHttpContextAccessor httpContext,

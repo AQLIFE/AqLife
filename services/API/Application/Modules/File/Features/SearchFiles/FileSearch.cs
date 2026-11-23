@@ -20,7 +20,8 @@ public sealed class FileSearch(
     IFileMetaQuerySource querySource, IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
     : BaseSearch<FileQuery, PageResult<FileDto>, FileMetaEntity, FileSearchCriteria>(httpContext, searchStrategies)
-{    protected override IQueryable<FileMetaEntity> GetQuery() => querySource.Query();
+{
+    protected override IQueryable<FileMetaEntity> GetQuery() => querySource.Query();
 
 
     static readonly Expression<Func<FileMetaEntity, FileMetaEntity>> AnonymousProjection = e => e.Desensitize();
