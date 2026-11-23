@@ -617,7 +617,7 @@ namespace PostgreSqlMigrations.Migrations
                     b.HasOne("AqLife.Domain.Entities.CategoryEntity", "Category")
                         .WithMany("Files")
                         .HasForeignKey("CategoryUID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Category");
