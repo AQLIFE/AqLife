@@ -30,36 +30,67 @@ namespace Core.Pipeline.Behaviors
                 return await next(cancellationToken);
 
             await using var transaction = await dbContext.BeginTransactionAsync(cancellationToken);
+            TResponse response;
+
+            // Only failures before a successful commit may compensate newly uploaded files.
             try
             {
                 // Inner module behaviors and the handler execute before this transaction commits.
-                var response = await next(cancellationToken);
+                response = await next(cancellationToken);
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
-
-                foreach (var path in uploadContext.DeletePath)
-                    await fileStorage.DeleteAsync(path, cancellationToken);
-
-                return response;
             }
             catch (DbUpdateConcurrencyException)
             {
                 await transaction.RollbackAsync(cancellationToken);
+                await CleanupNewUploadsAsync();
                 throw new ResourceConflictException("数据已被其他请求修改，请刷新后重试");
             }
             catch (DbUpdateException ex)
             {
-                logger.LogError("保存的数据不符合业务规范: {$0}", ex.InnerException?.Message);
+                logger.LogError("保存的数据不符合业务规范: {InnerMessage}", ex.InnerException?.Message);
                 await transaction.RollbackAsync(cancellationToken);
+                await CleanupNewUploadsAsync();
                 throw new ResourceConflictException("数据不符合业务规范");
             }
             catch
             {
-                using var cleanupCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 await transaction.RollbackAsync(cancellationToken);
-                foreach (var path in uploadContext.SavePath)
-                    await fileStorage.DeleteAsync(path, cleanupCts.Token);
+                await CleanupNewUploadsAsync();
                 throw;
+            }
+
+            // The database is committed. Old-file cleanup is best-effort and must never
+            // enter the transaction-failure compensation path or delete newly saved files.
+            foreach (var path in uploadContext.DeletePath)
+            {
+                try
+                {
+                    using var cleanupCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                    await fileStorage.DeleteAsync(path, cleanupCts.Token);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "数据库事务已提交，但旧文件清理失败，需后续重试: {StoragePath}", path);
+                }
+            }
+
+            return response;
+        }
+
+        private async Task CleanupNewUploadsAsync()
+        {
+            using var cleanupCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            foreach (var path in uploadContext.SavePath)
+            {
+                try
+                {
+                    await fileStorage.DeleteAsync(path, cleanupCts.Token);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "事务失败后清理新上传文件失败: {StoragePath}", path);
+                }
             }
         }
     }
