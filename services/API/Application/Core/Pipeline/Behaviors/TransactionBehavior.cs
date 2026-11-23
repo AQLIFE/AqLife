@@ -31,32 +31,41 @@ namespace Core.Pipeline.Behaviors
 
             await using var transaction = await dbContext.BeginTransactionAsync(cancellationToken);
             TResponse response;
+            var commitAttempted = false;
 
-            // Only failures before a successful commit may compensate newly uploaded files.
+            // Only failures known to occur before commit may compensate newly uploaded files.
             try
             {
                 // Inner module behaviors and the handler execute before this transaction commits.
                 response = await next(cancellationToken);
                 await dbContext.SaveChangesAsync(cancellationToken);
+                // Once commit starts, its outcome may be ambiguous after a connection failure.
+                // Prefer a possible orphaned upload over deleting a file that may now be referenced.
+                commitAttempted = true;
                 await transaction.CommitAsync(cancellationToken);
             }
             catch (DbUpdateConcurrencyException)
             {
-                await transaction.RollbackAsync(cancellationToken);
-                await CleanupNewUploadsAsync();
+                await TryRollbackAsync(transaction, cancellationToken);
+                if (!commitAttempted)
+                    await CleanupNewUploadsAsync();
                 throw new ResourceConflictException("数据已被其他请求修改，请刷新后重试");
             }
             catch (DbUpdateException ex)
             {
                 logger.LogError("保存的数据不符合业务规范: {InnerMessage}", ex.InnerException?.Message);
-                await transaction.RollbackAsync(cancellationToken);
-                await CleanupNewUploadsAsync();
+                await TryRollbackAsync(transaction, cancellationToken);
+                if (!commitAttempted)
+                    await CleanupNewUploadsAsync();
                 throw new ResourceConflictException("数据不符合业务规范");
             }
             catch
             {
-                await transaction.RollbackAsync(cancellationToken);
-                await CleanupNewUploadsAsync();
+                await TryRollbackAsync(transaction, cancellationToken);
+                if (!commitAttempted)
+                    await CleanupNewUploadsAsync();
+                else
+                    logger.LogError("数据库提交结果不确定，保留本次新上传文件以避免删除可能已被引用的文件"); 
                 throw;
             }
 
@@ -76,6 +85,18 @@ namespace Core.Pipeline.Behaviors
             }
 
             return response;
+        }
+
+        private async Task TryRollbackAsync(ITransaction transaction, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await transaction.RollbackAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "数据库事务回滚失败或事务已结束");
+            }
         }
 
         private async Task CleanupNewUploadsAsync()
