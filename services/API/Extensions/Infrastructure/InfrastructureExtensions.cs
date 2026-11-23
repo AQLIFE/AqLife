@@ -24,7 +24,7 @@ public static class InfrastructureExtensions
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services, IHostEnvironment environment)
     {
-        services.AddScoped<IApplicationDbContext, AppStorage>();
+        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<IResumableFileUploadService, ResumableFileUploadService>();
         services.AddScoped<IScheduledFileQuery, ScheduledFileQuery>();
         services.AddScoped<IFilePublishService, FilePublishService>();
