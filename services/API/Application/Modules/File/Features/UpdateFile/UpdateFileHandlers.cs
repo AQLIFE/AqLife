@@ -67,36 +67,4 @@ namespace AqLife.Application.File.Handler
     /// 若没有指定发布时间，则立即发布；若指定了发布时间，则设置为定时发布
     /// </summary>
     /// <param name="context"></param>
-    public class ScheduledBlogHandler(IFilePublishService publishService) : IRequestHandler<ScheduledFileCommand, Guid>
-    {
-        public async Task<Guid> Handle(ScheduledFileCommand command, CancellationToken ct)
-        => await publishService.Handle(command.UID, command.ScheduledAt, ct);
-    }
-    /// <summary>
-    /// 取消发布
-    /// </summary>
-    /// <param name="dbContext"></param>
-    public class CancelScheduledFileHandler(IApplicationDbContext dbContext) : IRequestHandler<CancelScheduledFileCommand, Guid>
-    {
-        public async Task<Guid> Handle(CancelScheduledFileCommand command, CancellationToken ct)
-        {
-            FileMetaEntity entity = await dbContext.File.Include(e => e.PublishMeta).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法操作");
-            entity.PublishMeta.CancelSchedule();
-            return command.UID;
-        }
-    }
-    /// <summary>
-    /// 阅览完成
-    /// </summary>
-    /// <param name="dbContext"></param>
-    public class PreviewCompleteHandler(IApplicationDbContext dbContext) : IRequestHandler<BlogPreviewCompleteCommand, Guid>
-    {
-        public async Task<Guid> Handle(BlogPreviewCompleteCommand command, CancellationToken ct)
-        {
-
-            FileMetaEntity fileMeta = await dbContext.File.Include(i => i.InteractionMeta).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("不存在的文件");
-            fileMeta.InteractionMeta.Viewed();
-            return command.UID;
-        }
-    }
 }
