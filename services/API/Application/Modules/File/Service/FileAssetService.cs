@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Contracts.File;
+using AqLife.Domain.Entities;
 
 namespace AqLife.Application.File.Service;
 
@@ -23,6 +24,11 @@ public sealed class FileAssetService(
             new CreateFileCommand(file, categoryId),
             cancellationToken);
     }
+
+    public Task<Guid> UploadToDefaultCategoryAsync(
+        Microsoft.AspNetCore.Http.IFormFile file,
+        CancellationToken cancellationToken = default)
+        => UploadAsync(file, CategoryEntity.DefaultCategoryId, cancellationToken);
 
     public Task<Guid> PublishAsync(
         Guid fileId,
