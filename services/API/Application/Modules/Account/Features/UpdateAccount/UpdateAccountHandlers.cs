@@ -27,7 +27,7 @@ namespace AqLife.Application.Account.Handler
         {
             AccountEntity account = await dbContext.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
 
-            Guid newId = await fileAssetService.UploadAsync(command.Avatar, CategoryEntity.DefaultCategoryId, ct);
+            Guid newId = await fileAssetService.UploadToDefaultCategoryAsync(command.Avatar, ct);
             Guid oldId = account.Avatar;
 
             // 内容去重可能返回当前头像的既有文件 ID；相同 ID 时不能把它排入删除队列。
