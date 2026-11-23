@@ -7,7 +7,7 @@ using Core.Validators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace AqLife.Application.File.Validator;
+namespace AqLife.Application.File.Features.UpdateFile;
 
 /// <summary>
 /// 不允许更新非 MD 文件
