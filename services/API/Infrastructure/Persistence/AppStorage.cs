@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure.Persistence
 {
-    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence
+    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence, ICategoryPersistence
     {
         public DbSet<FileMetaEntity> File { get; set; }
         public DbSet<CorpusEntity> Corpus { get; set; }
@@ -42,6 +42,10 @@ namespace AqLife.Infrastructure.Persistence
         void IAccountPersistence.RemoveSubscriptions(IEnumerable<SubscriptionEntity> subscriptions)
             => Subscription.RemoveRange(subscriptions);
         IQueryable<CategoryEntity> ICategoryQuerySource.Query() => Categories;
+        IQueryable<CategoryEntity> ICategoryPersistence.Categories => Categories;
+        async Task ICategoryPersistence.AddCategoryAsync(CategoryEntity category, CancellationToken cancellationToken)
+            => await Categories.AddAsync(category, cancellationToken);
+        void ICategoryPersistence.RemoveCategory(CategoryEntity category) => Categories.Remove(category);
         IQueryable<CorpusEntity> ICorpusQuerySource.Query() => Corpus;
         IQueryable<FavoriteItemEntity> IFavoriteItemQuerySource.Query() => FavoriteItems;
         IQueryable<FileMetaEntity> IFileMetaQuerySource.Query() => File;

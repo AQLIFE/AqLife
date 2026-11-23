@@ -1,5 +1,5 @@
 using AqLife.Application.Abstractions.Contracts.Category;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Application.Category;
 using AqLife.Domain.Entities;
 using Core.Validators;
@@ -16,7 +16,7 @@ namespace AqLife.Application.Category.Validator
     }
 
     public sealed class DeleteCategoryQuoteValidator(
-        IApplicationDbContext dbContext,
+        ICategoryPersistence persistence,
         IEnumerable<ICategoryReferenceProvider> referenceProviders)
         : AbstractValidator<DeleteCategoryCommand>
     {
@@ -24,7 +24,7 @@ namespace AqLife.Application.Category.Validator
 
         protected override async Task<bool> IsValidAsync(DeleteCategoryCommand command, CancellationToken ct)
         {
-            var hasChildren = await dbContext.Categories
+            var hasChildren = await persistence.Categories
                 .AnyAsync(category => category.ParentId == command.UID, ct);
             if (hasChildren)
                 return false;

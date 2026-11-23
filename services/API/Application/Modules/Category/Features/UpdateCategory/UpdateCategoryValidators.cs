@@ -1,4 +1,4 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Application.Category;
 using AqLife.Domain.Entities;
 using Core.Validators;
@@ -10,13 +10,13 @@ namespace AqLife.Application.Category.Validator
     /// 父分类必须存在或者等于null
     /// </summary>
     /// <param name="dbContext"></param>
-    public sealed class UpdateCategoryValidator(IApplicationDbContext dbContext)
+    public sealed class UpdateCategoryValidator(ICategoryPersistence persistence)
     : AbstractValidator<UpdateCategoryCommand>
     {
         protected override string ErrorMessage { init; get; } = "父分类不存在";
 
         protected override async Task<bool> IsValidAsync(UpdateCategoryCommand command, CancellationToken ct)
-            => command.ParentId == null || await dbContext.Categories.AnyAsync(category => category.UID == command.ParentId, ct);
+            => command.ParentId == null || await persistence.Categories.AnyAsync(category => category.UID == command.ParentId, ct);
     }// 允许父分类为null
 
     /// <summary>
@@ -34,19 +34,19 @@ namespace AqLife.Application.Category.Validator
     /// 重名校验
     /// </summary>
     /// <param name="dbContext"></param>
-    public sealed class UpdateCategoryRepeatNameValidator(IApplicationDbContext dbContext) : AbstractValidator<UpdateCategoryCommand>
+    public sealed class UpdateCategoryRepeatNameValidator(ICategoryPersistence persistence) : AbstractValidator<UpdateCategoryCommand>
     {
         protected override string ErrorMessage { init; get; } = "不允许分类重名";
 
         protected override async Task<bool> IsValidAsync(UpdateCategoryCommand command, CancellationToken ct)
-            => await dbContext.Categories.AllAsync(e => command.UID == e.UID || e.CategoryName != command.Name.Trim(), ct);
+            => await persistence.Categories.AllAsync(e => command.UID == e.UID || e.CategoryName != command.Name.Trim(), ct);
     }
 
     /// <summary>
     /// 分类循环依赖验证器: 默认 command.UID 和 command.ParentId 都是存在的; 该验证器间接实现  command.UID 和 command.ParentId 不可相同的验证逻辑
     /// </summary>
     /// <param name="dbContext"></param>
-    public sealed class UpdateCategoryCircularDependencyValidator(IApplicationDbContext dbContext)
+    public sealed class UpdateCategoryCircularDependencyValidator(ICategoryPersistence persistence)
    : AbstractValidator<UpdateCategoryCommand>
     {
         protected override string ErrorMessage { init; get; } = "分类依赖存在循环";
@@ -59,7 +59,7 @@ namespace AqLife.Application.Category.Validator
             if (parentId == command.UID)
                 return false;// 两者不可相同
 
-            var parentMap = await dbContext.Categories
+            var parentMap = await persistence.Categories
                 .AsNoTracking()
                 .Select(category => new { category.UID, category.ParentId })
                 .ToDictionaryAsync(category => category.UID, category => category.ParentId, ct);// 得到字典
