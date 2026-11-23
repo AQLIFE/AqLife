@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Account.Services;
 
 /// <summary>
-/// Account 模块拥有的文件引用检查：账户头像和订阅图标。
+/// Account 模块拥有的文件引用检查：所有持久化账户的头像和订阅图标。
+/// 账户被禁用不代表其文件引用已释放。
 /// </summary>
 public sealed class AccountFileReferenceProvider(IApplicationDbContext dbContext)
     : IFileReferenceProvider
@@ -15,13 +16,12 @@ public sealed class AccountFileReferenceProvider(IApplicationDbContext dbContext
         CancellationToken cancellationToken = default)
     {
         var usedByAvatar = await dbContext.Accounts
-            .AnyAsync(account => account.IsValid && account.Avatar == fileId, cancellationToken);
+            .AnyAsync(account => account.Avatar == fileId, cancellationToken);
 
         if (usedByAvatar)
             return true;
 
         return await dbContext.Accounts
-            .Where(account => account.IsValid)
             .SelectMany(account => account.Subscriptions)
             .AnyAsync(subscription => subscription.SubscriptionIcon == fileId, cancellationToken);
     }
