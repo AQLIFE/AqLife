@@ -6,6 +6,7 @@ using AqLife.Application.Abstractions.Contracts.File.Storage;
 using AqLife.Application.File.Service;
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Persistence.Queries;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Domain.Entities;
 using AqLife.Infrastructure.Authentication;
 using AqLife.Infrastructure.FileStorage;
@@ -28,6 +29,7 @@ public static class InfrastructureExtensions
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped(typeof(IEntityExistenceChecker<>), typeof(EfEntityExistenceChecker<>));
         services.AddScoped<IAccountQuerySource>(sp => sp.GetRequiredService<AppStorage>());
+        services.AddScoped<IAccountPersistence>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<ICategoryQuerySource>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<ICorpusQuerySource>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<IFavoriteItemQuerySource>(sp => sp.GetRequiredService<AppStorage>());

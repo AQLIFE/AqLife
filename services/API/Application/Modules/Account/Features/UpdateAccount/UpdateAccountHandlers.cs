@@ -1,6 +1,7 @@
-﻿using AqLife.Application.Abstractions.Contracts.File;
+using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Application.Account;
 using AqLife.Domain.Entities;
 using AqLife.Shared.Exceptions;
@@ -9,64 +10,53 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Account.Handler
 {
-    public class UpdateAccountProfileHandler(IApplicationDbContext dbContext) : IRequestHandler<UpdateAccountProfileCommand, string>
+    public class UpdateAccountProfileHandler(IAccountPersistence persistence) : IRequestHandler<UpdateAccountProfileCommand, string>
     {
         public async Task<string> Handle(UpdateAccountProfileCommand command, CancellationToken ct)
         {
-            AccountEntity account = await dbContext.Accounts.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
+            AccountEntity account = await persistence.Accounts.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
             account.UpdateProfile(command.Name, command.Desc ?? string.Empty);
             return account.LoginName;
         }
     }
 
-
     // 需要准备用 Notification 优化业务表达 ,纳入 plan 2
-    public class UpdateAccountAvatarHandler(IApplicationDbContext dbContext, IFileAssetService fileAssetService) : IRequestHandler<UpdateAccountAvatarCommand, string>
+    public class UpdateAccountAvatarHandler(IAccountPersistence persistence, IApplicationDbContext dbContext, IFileAssetService fileAssetService) : IRequestHandler<UpdateAccountAvatarCommand, string>
     {
         public async Task<string> Handle(UpdateAccountAvatarCommand command, CancellationToken ct)
         {
-            AccountEntity account = await dbContext.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
+            AccountEntity account = await persistence.Accounts.Include(a => a.Subscriptions).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
 
             Guid newId = await fileAssetService.UploadToDefaultCategoryAsync(command.Avatar, ct);
             Guid oldId = account.Avatar;
-
-            // 内容去重可能返回当前头像的既有文件 ID；相同 ID 时不能把它排入删除队列。
             if (newId == oldId)
                 return account.LoginName;
 
             await fileAssetService.PublishAsync(newId, ct);
             account.ChangeAvatar(newId);
 
-            // 先持久化新的头像引用（仍处于当前命令事务内），
-            // File 模块再检查旧文件是否还被 Favorite 等其他模块引用。
+            // 先保存新的头像引用，再让 File 模块判断旧文件是否仍被其他模块引用。
             await dbContext.SaveChangesAsync(ct);
             await fileAssetService.DeleteAsync([oldId], ct);
             return account.LoginName;
         }
     }
 
-    /// <summary>
-    /// 处理订阅列表更新，并自动发布其中的图像
-    /// </summary>
     public class UpdateAccountSubscriptionsHandler(
-        IApplicationDbContext dbContext,
+        IAccountPersistence persistence,
         ICreateMapper<SubscriptionEntity, ISubscription> subscriptionMapper,
         IFileAssetService fileAssetService)
         : IRequestHandler<UpdateAccountSubscriptionsCommand, string>
     {
         public async Task<string> Handle(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         {
-            // 前置验证管道负责检查所有文件标识是否有效。
-            AccountEntity account = await dbContext.Accounts
+            AccountEntity account = await persistence.Accounts
                 .Include(a => a.Subscriptions)
                 .SingleOrDefaultAsync(e => e.UID == command.UID, ct)
                 ?? throw new ResourceNotFoundException("账户不存在");
 
-            await fileAssetService.PublishAsync(
-                command.Subscriptions.Select(e => e.SubscriptionIcon),
-                ct);
+            await fileAssetService.PublishAsync(command.Subscriptions.Select(e => e.SubscriptionIcon), ct);
 
-            // 明确维护 EF Core 实体状态，避免仅依赖导航集合 Clear/Add 的隐式关系变更检测。
             var newSubscriptions = command.Subscriptions
                 .Select(subscriptionMapper.ToEntity)
                 .ToList();
@@ -74,18 +64,17 @@ namespace AqLife.Application.Account.Handler
             foreach (var subscription in newSubscriptions)
                 subscription.BindAccount(account);
 
-            dbContext.Subscription.RemoveRange(account.Subscriptions);
-            dbContext.Subscription.AddRange(newSubscriptions);
-
+            persistence.RemoveSubscriptions(account.Subscriptions);
+            persistence.AddSubscriptions(newSubscriptions);
             return account.LoginName;
         }
     }
 
-    public class UpdatePasswordHandler(IApplicationDbContext dbContext) : IRequestHandler<UpdatePasswordCommand, string>
+    public class UpdatePasswordHandler(IAccountPersistence persistence) : IRequestHandler<UpdatePasswordCommand, string>
     {
         public async Task<string> Handle(UpdatePasswordCommand command, CancellationToken ct)
         {
-            AccountEntity account = await dbContext.Accounts.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
+            AccountEntity account = await persistence.Accounts.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
             account.ChangePassword(command.NewPassword);
             return account.LoginName;
         }

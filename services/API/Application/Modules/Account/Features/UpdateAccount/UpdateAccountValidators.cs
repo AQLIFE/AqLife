@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Modules;
+using AqLife.Application.Abstractions.Persistence.Queries;
 using AqLife.Application.Account;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.File;
@@ -9,32 +10,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Account.Validator
 {
-    /// <summary>
-    /// 更新头像必须是图像类型
-    /// </summary>
     public class AvatarExtensionValidator : AbstractValidator<UpdateAccountAvatarCommand>
     {
         readonly HashSet<string> Extension = [".png", ".jpeg", ".jpg"];
         protected override string ErrorMessage { init; get; } = "更新账户头像必须是图像类型";
         protected override async Task<bool> IsValidAsync(UpdateAccountAvatarCommand command, CancellationToken ct)
-        => Extension.Contains(Path.GetExtension(command.Avatar.FileName).ToLowerInvariant());
+            => Extension.Contains(Path.GetExtension(command.Avatar.FileName).ToLowerInvariant());
     }
 
-    /// <summary>
-    ///  更新的订阅ID 必须全部为有效ID
-    /// </summary>
-    /// <param name="dbContext"></param>
-    public class SubscriptionIconExistenceValidator(IApplicationDbContext dbContext) : AbstractValidator<UpdateAccountSubscriptionsCommand>
+    public class SubscriptionIconExistenceValidator(IFileMetaQuerySource fileQuery) : AbstractValidator<UpdateAccountSubscriptionsCommand>
     {
         protected override string ErrorMessage { init; get; } = "配置账户的图像文件不存在";
         protected override async Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         {
-            // 1. 提取所有非空且非 Empty 的 GUID（去重），实现“按需验证” [cite: 16]
-            var iconsToCheck = command.Subscriptions.Where(s => s.SubscriptionIcon != Guid.Empty).Select(e => e.SubscriptionIcon).Distinct().ToList();
-
-            // 3. 数据库侧验证：仅查询存在的数量是否与待检查数量一致 [cite: 27, 28]
-            var existingCount = await dbContext.File.Where(f => iconsToCheck.Contains(f.UID)).CountAsync(ct);
-
+            var iconsToCheck = command.Subscriptions.Where(s => s.SubscriptionIcon != Guid.Empty)
+                .Select(e => e.SubscriptionIcon).Distinct().ToList();
+            var existingCount = await fileQuery.Query()
+                .Where(f => iconsToCheck.Contains(f.UID)).CountAsync(ct);
             return existingCount == iconsToCheck.Count;
         }
     }
@@ -43,46 +35,40 @@ namespace AqLife.Application.Account.Validator
     {
         protected override string ErrorMessage { init; get; } = "账户名称不允许存在空格";
         protected override async Task<bool> IsValidAsync(UpdateAccountProfileCommand command, CancellationToken ct)
-        => !string.IsNullOrWhiteSpace(command.Name) && command.Name.All(c => !char.IsWhiteSpace(c));
+            => !string.IsNullOrWhiteSpace(command.Name) && command.Name.All(c => !char.IsWhiteSpace(c));
     }
 
-    public class SubscriptionIconExtensionValidator(IApplicationDbContext dbContext) : AbstractValidator<UpdateAccountSubscriptionsCommand>
+    public class SubscriptionIconExtensionValidator(IFileMetaQuerySource fileQuery) : AbstractValidator<UpdateAccountSubscriptionsCommand>
     {
         protected override string ErrorMessage { init; get; } = "订阅图像必须是SVG文件类型";
         protected override async Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         {
-            IEnumerable<Guid> guids = command.Subscriptions.Select(e => e.SubscriptionIcon).AsEnumerable();
-            List<FileMetaEntity> files = await dbContext.File.AsNoTracking().Where(r => guids.Contains(r.UID)).ToListAsync();
+            IEnumerable<Guid> guids = command.Subscriptions.Select(e => e.SubscriptionIcon);
+            List<FileMetaEntity> files = await fileQuery.Query().AsNoTracking()
+                .Where(r => guids.Contains(r.UID)).ToListAsync(ct);
             return files.All(e => e.Extension == ".svg");
         }
     }
 
-    /// <summary>
-    /// 更新时订阅平台名称重复性检查: 不允许重复
-    /// </summary>
-    /// <param name="dbContext"></param>
     public class SubscriptionContentValidator : AbstractValidator<UpdateAccountSubscriptionsCommand>
     {
         protected override string ErrorMessage { init; get; } = "不允许重复的订阅账户平台名称";
         protected override Task<bool> IsValidAsync(UpdateAccountSubscriptionsCommand command, CancellationToken ct)
         {
-            var names = command.Subscriptions
-                .Select(e => e.SubscriptionPlatform?.Trim())
-                .Where(e => !string.IsNullOrWhiteSpace(e))
-                .ToList();
-
-            return Task.FromResult(
-                names.Count == names.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+            var names = command.Subscriptions.Select(e => e.SubscriptionPlatform?.Trim())
+                .Where(e => !string.IsNullOrWhiteSpace(e)).ToList();
+            return Task.FromResult(names.Count == names.Distinct(StringComparer.OrdinalIgnoreCase).Count());
         }
     }
 
-    public class UpdatePasswordValidator(IApplicationDbContext dbContext) : AbstractValidator<UpdatePasswordCommand>
+    public class UpdatePasswordValidator(IAccountPersistence persistence) : AbstractValidator<UpdatePasswordCommand>
     {
         protected override string ErrorMessage { init; get; } = "错误的密码";
         protected override async Task<bool> IsValidAsync(UpdatePasswordCommand command, CancellationToken ct)
         {
-            AccountEntity account = await dbContext.Accounts.AsNoTracking().SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("账户不存在");
-
+            AccountEntity account = await persistence.Accounts.AsNoTracking()
+                .SingleOrDefaultAsync(e => e.UID == command.UID, ct)
+                ?? throw new ResourceNotFoundException("账户不存在");
             return account.LoginPasswordHash == FastHash.GetSha256Hash(command.OldPassword);
         }
     }

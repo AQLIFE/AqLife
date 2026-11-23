@@ -1,4 +1,4 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Application.Account;
 using AqLife.Shared.Utils;
 using Core.Validators;
@@ -11,12 +11,12 @@ namespace AqLife.Application.Account.Validator
     /// </summary>
     /// <param name="options"></param>
     /// <param name="dbContext"></param>
-    public class AccountCredentialValidator(IApplicationDbContext dbContext) : AbstractValidator<LoginCommand>
+    public class AccountCredentialValidator(IAccountPersistence persistence) : AbstractValidator<LoginCommand>
     {
         protected override string ErrorMessage { init; get; } = "登录失败";
         protected override async Task<bool> IsValidAsync(LoginCommand command, CancellationToken ct)
         {
-            var entity = await dbContext.Accounts.AsNoTracking().FirstAsync(a => a.IsValid);
+            var entity = await persistence.Accounts.AsNoTracking().FirstAsync(a => a.IsValid);
             return entity.LoginName == command.AccountName && entity.LoginPasswordHash == FastHash.GetSha256Hash(command.SecretKey);
         }
     }

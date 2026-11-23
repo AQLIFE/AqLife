@@ -1,4 +1,4 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+﻿using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Application.Account;
 using AqLife.Application.Account.Services;
 using Core.Validators;
@@ -18,11 +18,11 @@ namespace AqLife.Application.Account.Validator
     /// 创建时账户唯一性检查: 不允许创建第二个账户
     /// </summary>
     /// <param name="dbContext"></param>
-    public class SingleAccountSystemValidator(IApplicationDbContext dbContext) : AbstractValidator<CreateAccountCommand>
+    public class SingleAccountSystemValidator(IAccountPersistence persistence) : AbstractValidator<CreateAccountCommand>
     {
         protected override string ErrorMessage { init; get; } = "仅允许注册一个账户";
         protected override async Task<bool> IsValidAsync(CreateAccountCommand command, CancellationToken ct)
-        => !await dbContext.Accounts.AsNoTracking().AnyAsync(a => a.IsValid);
+        => !await persistence.Accounts.AsNoTracking().AnyAsync(a => a.IsValid);
     }
 
     /// <summary>

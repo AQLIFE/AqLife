@@ -1,5 +1,6 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Persistence.Queries;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Domain.Entities.Favorite;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure.Persistence
 {
-    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources
+    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence
     {
         public DbSet<FileMetaEntity> File { get; set; }
         public DbSet<CorpusEntity> Corpus { get; set; }
@@ -29,6 +30,17 @@ namespace AqLife.Infrastructure.Persistence
         public DbSet<CategoryEntity> Categories { get; set; }
 
         IQueryable<AccountEntity> IAccountQuerySource.Query() => Accounts;
+        IQueryable<AccountEntity> IAccountPersistence.Accounts => Accounts;
+        IQueryable<SystemStateEntity> IAccountPersistence.SystemStates => SystemStates;
+        async Task IAccountPersistence.AddAccountAsync(AccountEntity account, CancellationToken cancellationToken)
+            => await Accounts.AddAsync(account, cancellationToken);
+        void IAccountPersistence.RemoveAccount(AccountEntity account) => Accounts.Remove(account);
+        async Task IAccountPersistence.AddSystemStateAsync(SystemStateEntity state, CancellationToken cancellationToken)
+            => await SystemStates.AddAsync(state, cancellationToken);
+        void IAccountPersistence.AddSubscriptions(IEnumerable<SubscriptionEntity> subscriptions)
+            => Subscription.AddRange(subscriptions);
+        void IAccountPersistence.RemoveSubscriptions(IEnumerable<SubscriptionEntity> subscriptions)
+            => Subscription.RemoveRange(subscriptions);
         IQueryable<CategoryEntity> ICategoryQuerySource.Query() => Categories;
         IQueryable<CorpusEntity> ICorpusQuerySource.Query() => Corpus;
         IQueryable<FavoriteItemEntity> IFavoriteItemQuerySource.Query() => FavoriteItems;
