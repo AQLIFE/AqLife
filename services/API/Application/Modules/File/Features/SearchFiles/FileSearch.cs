@@ -20,7 +20,9 @@ public sealed class FileSearch(
     IFileMetaQuerySource querySource, IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
     : BaseSearch<FileQuery, PageResult<FileDto>, FileMetaEntity, FileSearchCriteria>(httpContext, searchStrategies)
-{
+{    protected override IQueryable<FileMetaEntity> GetQuery() => querySource.Query();
+
+
     static readonly Expression<Func<FileMetaEntity, FileMetaEntity>> AnonymousProjection = e => e.Desensitize();
 
     /// <summary>
@@ -36,8 +38,6 @@ public sealed class FileSearch(
     protected override IQueryable<FileMetaEntity> ApplyDefaultOrder(IQueryable<FileMetaEntity> queryble, FileQuery query)
         => query.Order switch
         {
-        protected override IQueryable<FileMetaEntity> GetQuery() => querySource.Query();
-
 
             FileOrder.MostViewed => queryble.Include(i => i.InteractionMeta).OrderByDescending(e => e.InteractionMeta.ViewCount),
             FileOrder.Latest => queryble.Include(t => t.PublishMeta).OrderByDescending(e => e.PublishMeta.PublishAt),
