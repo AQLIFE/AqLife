@@ -1,4 +1,5 @@
-﻿using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Contracts.Category;
+using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Category;
 using AqLife.Domain.Entities;
 using Core.Validators;
@@ -11,26 +12,30 @@ namespace AqLife.Application.Category.Validator
         protected override string ErrorMessage { init; get; } = "不允许删除默认分类";
 
         protected override async Task<bool> IsValidAsync(DeleteCategoryCommand command, CancellationToken ct)
-        => command.UID != CategoryEntity.DefaultCategoryId;
+            => command.UID != CategoryEntity.DefaultCategoryId;
     }
 
-    public sealed class DeleteCategoryQuoteValidator(IApplicationDbContext dbContext)
+    public sealed class DeleteCategoryQuoteValidator(
+        IApplicationDbContext dbContext,
+        IEnumerable<ICategoryReferenceProvider> referenceProviders)
         : AbstractValidator<DeleteCategoryCommand>
     {
         protected override string ErrorMessage { init; get; } = "分类仍被子分类、文件或收藏使用，不能删除";
 
         protected override async Task<bool> IsValidAsync(DeleteCategoryCommand command, CancellationToken ct)
         {
-            bool hasChildren = await dbContext.Categories.AnyAsync(category => category.ParentId == command.UID, ct);
+            var hasChildren = await dbContext.Categories
+                .AnyAsync(category => category.ParentId == command.UID, ct);
             if (hasChildren)
                 return false;
 
-            var hasFiles = await dbContext.File.AnyAsync(file => file.CategoryUID == command.UID, ct);
-            if (hasFiles)
-                return false;
+            foreach (var provider in referenceProviders)
+            {
+                if (await provider.IsReferencedAsync(command.UID, ct))
+                    return false;
+            }
 
-            return !await dbContext.FavoriteItems.AnyAsync(favorite => favorite.CategoryUID == command.UID, ct);
+            return true;
         }
     }
-
 }
