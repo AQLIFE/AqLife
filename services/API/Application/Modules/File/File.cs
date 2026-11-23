@@ -27,6 +27,7 @@ namespace AqLife.Application.File
             services.AddScoped<FileReader>();
             services.AddScoped<FileWriter>();
             services.AddScoped<FileDeleter>();
+            services.AddScoped<FileReferenceChecker>();
 
             services.AddScoped<IFileAssetService, FileAssetService>();
 
