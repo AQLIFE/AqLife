@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File;
+using AqLife.Application.Abstractions.Contracts.Category;
 using AqLife.Application.Abstractions.Mapping;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.File.Search;
@@ -28,6 +29,7 @@ namespace AqLife.Application.File
             services.AddScoped<FileWriter>();
             services.AddScoped<FileDeleter>();
             services.AddScoped<FileReferenceChecker>();
+            services.AddScoped<ICategoryReferenceProvider, CategoryFileReferenceProvider>();
 
             services.AddScoped<IFileAssetService, FileAssetService>();
 
