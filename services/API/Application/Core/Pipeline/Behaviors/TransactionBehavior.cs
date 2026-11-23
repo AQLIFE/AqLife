@@ -1,8 +1,6 @@
-﻿using AqLife.Application.Abstractions.Commands;
+using AqLife.Application.Abstractions.Commands;
 using AqLife.Application.Abstractions.Contracts.File.Storage;
 using AqLife.Application.Abstractions.Persistence;
-using AqLife.Application.Abstractions.Pipeline.Markers;
-using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Tools;
 using MediatR;
@@ -11,39 +9,48 @@ using Microsoft.Extensions.Logging;
 
 namespace Core.Pipeline.Behaviors
 {
-    // 事务管道
-    public class TransactionBehavior<TRequest, TResponse>(IApplicationDbContext dbContext, IFileStorage fileStorage, UploadContext uploadContext,ILogger<TransactionBehavior<TRequest,TResponse>> logger) : IPipelineBehavior<TRequest, TResponse>
+    /// <summary>
+    /// Owns the application transaction and file-storage compensation lifecycle.
+    /// Business-module-specific rules are implemented by behaviors in their own modules.
+    /// </summary>
+    public class TransactionBehavior<TRequest, TResponse>(
+        IApplicationDbContext dbContext,
+        IFileStorage fileStorage,
+        UploadContext uploadContext,
+        ILogger<TransactionBehavior<TRequest, TResponse>> logger)
+        : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
-
-        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        public async Task<TResponse> Handle(
+            TRequest request,
+            RequestHandlerDelegate<TResponse> next,
+            CancellationToken cancellationToken)
         {
-            // 💡 核心强制逻辑：判断当前的请求是否继承了 IRequireTransaction 标签
             if (request is not IRequireTransaction)
                 return await next(cancellationToken);
 
             await using var transaction = await dbContext.BeginTransactionAsync(cancellationToken);
             try
             {
-                var response = await next(cancellationToken); // 执行真正的业务
-                if (request is IRequireDependencyVersionIncrement devPlan)
-                {
-                    DevelopmentPlanEntity developmentPlanEntity = await dbContext.DevelopmentPlans.SingleAsync(e => e.UID == devPlan.PlanId, cancellationToken);
-                    developmentPlanEntity.IncrementDependencyVersion();
-                }
+                // Inner module behaviors and the handler execute before this transaction commits.
+                var response = await next(cancellationToken);
                 await dbContext.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken); // 提交 : 隐式事务回滚机制,若在Commit之前触发异常,则会自动回滚
+                await transaction.CommitAsync(cancellationToken);
+
                 foreach (var path in uploadContext.DeletePath)
                     await fileStorage.DeleteAsync(path, cancellationToken);
+
                 return response;
             }
             catch (DbUpdateConcurrencyException)
             {
                 await transaction.RollbackAsync(cancellationToken);
                 throw new ResourceConflictException("数据已被其他请求修改，请刷新后重试");
-            }catch(DbUpdateException ex)
+            }
+            catch (DbUpdateException ex)
             {
                 logger.LogError("保存的数据不符合业务规范: {$0}", ex.InnerException?.Message);
+                await transaction.RollbackAsync(cancellationToken);
                 throw new ResourceConflictException("数据不符合业务规范");
             }
             catch
@@ -54,7 +61,6 @@ namespace Core.Pipeline.Behaviors
                     await fileStorage.DeleteAsync(path, cleanupCts.Token);
                 throw;
             }
-            //FixForeignKeys
         }
     }
 }
