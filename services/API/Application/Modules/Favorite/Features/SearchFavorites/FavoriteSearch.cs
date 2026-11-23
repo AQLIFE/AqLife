@@ -1,6 +1,6 @@
 ﻿using Core.Search;
 using AqLife.Application.Abstractions.Mapping;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Queries;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.Favorite;
 using Microsoft.AspNetCore.Http;
@@ -8,12 +8,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Favorite.Search
 {
-    public sealed class FavoriteSearch(IApplicationDbContext dbContext,
+    public sealed class FavoriteSearch(IFavoriteItemQuerySource querySource,
         ISearchMapper<FavoriteQuery, PageResult<FavoriteDto>, FavoriteSearchCriteria> queryMapper,
         IHttpContextAccessor httpContext,
         IEnumerable<ISearchStrategy<FavoriteItemEntity, FavoriteSearchCriteria>> searchStrategies)
-        : BaseSearch<FavoriteQuery, PageResult<FavoriteDto>, FavoriteItemEntity, FavoriteSearchCriteria>(dbContext, httpContext, searchStrategies)
+        : BaseSearch<FavoriteQuery, PageResult<FavoriteDto>, FavoriteItemEntity, FavoriteSearchCriteria>(httpContext, searchStrategies)
     {
+        protected override IQueryable<FavoriteItemEntity> GetQuery() => querySource.Query();
+
         protected override FavoriteSearchCriteria MapToCriteria(FavoriteQuery query)
         => queryMapper.ToCriteria(query);
 

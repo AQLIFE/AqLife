@@ -1,6 +1,6 @@
 ﻿using Core.Search;
 using AqLife.Application.Abstractions.Mapping;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Queries;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -8,10 +8,12 @@ using AqLife.Application.Tag;
 
 namespace AqLife.Application.Tag.Search
 {
-    public sealed class TagSearch(ISearchMapper<TagQuery, PageResult<TagDto>, EntitySearchCriteria> queryMapper, IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
+    public sealed class TagSearch(ISearchMapper<TagQuery, PageResult<TagDto>, EntitySearchCriteria> queryMapper, ITagQuerySource querySource, IHttpContextAccessor httpContext,
      IEnumerable<ISearchStrategy<TagEntity, EntitySearchCriteria>> searchStrategies
-    ) : BaseSearch<TagQuery, PageResult<TagDto>, TagEntity, EntitySearchCriteria>(dbContext, httpContext, searchStrategies)
+    ) : BaseSearch<TagQuery, PageResult<TagDto>, TagEntity, EntitySearchCriteria>(httpContext, searchStrategies)
     {
+        protected override IQueryable<TagEntity> GetQuery() => querySource.Query();
+
         protected override EntitySearchCriteria MapToCriteria(TagQuery query)
         => queryMapper.ToCriteria(query);
 

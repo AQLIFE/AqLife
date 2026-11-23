@@ -3,7 +3,7 @@ using AqLife.Application.Plan.Contracts;
 using Core.Search;
 using AqLife.Application.Abstractions.Commands;
 using AqLife.Application.Abstractions.Mapping;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Queries;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Exceptions;
@@ -12,13 +12,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Plan.DevelopmentPlan.Search
 {
-    public sealed class DevelopmentPlanSearch<TDevPlanQuery, TResource>(IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
+    public sealed class DevelopmentPlanSearch<TDevPlanQuery, TResource>(IDevelopmentPlanQuerySource querySource, IHttpContextAccessor httpContext,
         ISearchMapper<TDevPlanQuery, TResource, EntitySearchCriteria> queryMapper,
         IEnumerable<ISearchStrategy<DevelopmentPlanEntity, EntitySearchCriteria>> searchStrategies)
-        : BaseSearch<TDevPlanQuery, TResource, DevelopmentPlanEntity, EntitySearchCriteria>(dbContext, httpContext, searchStrategies)
+        : BaseSearch<TDevPlanQuery, TResource, DevelopmentPlanEntity, EntitySearchCriteria>(httpContext, searchStrategies)
         where TDevPlanQuery : class, IReadDevPlan, IQuery<TResource>
         where TResource : class
     {
+        protected override IQueryable<DevelopmentPlanEntity> GetQuery() => querySource.Query();
+
         protected override EntitySearchCriteria MapToCriteria(TDevPlanQuery query)
         => queryMapper.ToCriteria(query);
 

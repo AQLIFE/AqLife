@@ -1,5 +1,4 @@
 ﻿using AqLife.Application.Abstractions.Commands;
-using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Shared.Contracts;
 using AqLife.Shared.Exceptions;
@@ -16,7 +15,6 @@ namespace Core.Search
     /// <param name="dbContext"></param>
     /// <param name="searchStrategies"></param>
     public abstract class BaseSearch<TQuery, TResponse, TEntity, TSearchCriteria>(
-    IApplicationDbContext dbContext,
     IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<TEntity, TSearchCriteria>> searchStrategies
 ) : ISearch<TQuery,TResponse, TEntity>
@@ -36,6 +34,7 @@ namespace Core.Search
         /// <param name="query"></param>
         /// <returns></returns>
         protected abstract TSearchCriteria MapToCriteria(TQuery query);
+        protected abstract IQueryable<TEntity> GetQuery();
         /// <summary>
         /// 构建查询：子类实现; 推荐只做 Include 和 Where ,条件，排序和分页在基类中处理
         /// </summary>
@@ -72,7 +71,7 @@ namespace Core.Search
             TSearchCriteria criteria = MapToCriteria(query);
             ISearchStrategy<TEntity, TSearchCriteria> strategy = searchStrategies.FirstOrDefault(s => s.IsMatch(criteria)) ?? throw new RequestCheckException("无法完成搜索，请反馈");
 
-            IQueryable<TEntity> queryable = BuildBaseQuery(dbContext.Set<TEntity>().AsNoTracking(), query);
+            IQueryable<TEntity> queryable = BuildBaseQuery(GetQuery().AsNoTracking(), query);
             queryable = ApplyDefaultOrder(queryable, query);
             queryable = strategy.Execute(queryable, criteria, ct);
             queryable = ApplyResultPolicy(queryable, query);

@@ -1,6 +1,6 @@
 ﻿using Core.Search;
 using AqLife.Application.Abstractions.Mapping;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Queries;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
@@ -17,9 +17,9 @@ namespace AqLife.Application.File.Search;
 public sealed class FileSearch(
     IOptions<FilePolicyOption> options,
     ISearchMapper<FileQuery, PageResult<FileDto>, FileSearchCriteria> queryMapper,
-    IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
+    IFileMetaQuerySource querySource, IHttpContextAccessor httpContext,
     IEnumerable<ISearchStrategy<FileMetaEntity, FileSearchCriteria>> searchStrategies)
-    : BaseSearch<FileQuery, PageResult<FileDto>, FileMetaEntity, FileSearchCriteria>(dbContext, httpContext, searchStrategies)
+    : BaseSearch<FileQuery, PageResult<FileDto>, FileMetaEntity, FileSearchCriteria>(httpContext, searchStrategies)
 {
     static readonly Expression<Func<FileMetaEntity, FileMetaEntity>> AnonymousProjection = e => e.Desensitize();
 
@@ -36,6 +36,8 @@ public sealed class FileSearch(
     protected override IQueryable<FileMetaEntity> ApplyDefaultOrder(IQueryable<FileMetaEntity> queryble, FileQuery query)
         => query.Order switch
         {
+        protected override IQueryable<FileMetaEntity> GetQuery() => querySource.Query();
+
 
             FileOrder.MostViewed => queryble.Include(i => i.InteractionMeta).OrderByDescending(e => e.InteractionMeta.ViewCount),
             FileOrder.Latest => queryble.Include(t => t.PublishMeta).OrderByDescending(e => e.PublishMeta.PublishAt),

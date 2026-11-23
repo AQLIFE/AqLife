@@ -1,6 +1,6 @@
 ﻿using Core.Search;
 using AqLife.Application.Abstractions.Mapping;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Queries;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Domain.Entities.DevPlan;
 using Microsoft.AspNetCore.Http;
@@ -10,10 +10,12 @@ using AqLife.Application.Plan.Todo;
 
 namespace AqLife.Application.Plan.Todo.Search
 {
-    public sealed class TodoSearch(ISearchMapper<TodoQuery, PageResult<TodoDto>, TodoSearchCriteria> queryMapper, IApplicationDbContext dbContext, IHttpContextAccessor httpContext,
+    public sealed class TodoSearch(ISearchMapper<TodoQuery, PageResult<TodoDto>, TodoSearchCriteria> queryMapper, ITodoQuerySource querySource, IHttpContextAccessor httpContext,
         IEnumerable<ISearchStrategy<TodoEntity, TodoSearchCriteria>> searchStrategies
-        ) : BaseSearch<TodoQuery, PageResult<TodoDto>, TodoEntity, TodoSearchCriteria>(dbContext, httpContext, searchStrategies)
+        ) : BaseSearch<TodoQuery, PageResult<TodoDto>, TodoEntity, TodoSearchCriteria>(httpContext, searchStrategies)
     {
+        protected override IQueryable<TodoEntity> GetQuery() => querySource.Query();
+
         protected override TodoSearchCriteria MapToCriteria(TodoQuery query)
         => queryMapper.ToCriteria(query);
 

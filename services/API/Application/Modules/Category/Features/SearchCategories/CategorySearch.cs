@@ -1,6 +1,6 @@
 using AqLife.Application.Abstractions.Commands;
 using AqLife.Application.Abstractions.Mapping;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Queries;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Category;
 using AqLife.Domain.Entities;
@@ -16,14 +16,16 @@ namespace AqLife.Application.Category.Search;
 //public readonly record struct EntitySearchCriteria(Guid? UID, string? Keyword = null) : ISearchCriteria;
 
 public sealed class CategorySearch(
-    IApplicationDbContext dbContext, ISearchMapper<CategoryQuery, PageResult<CategoryDto>, EntitySearchCriteria> queryMapper, IHttpContextAccessor httpContext, IOptions<FilePolicyOption> options,
+    ICategoryQuerySource querySource, ISearchMapper<CategoryQuery, PageResult<CategoryDto>, EntitySearchCriteria> queryMapper, IHttpContextAccessor httpContext, IOptions<FilePolicyOption> options,
     IEnumerable<ISearchStrategy<CategoryEntity, EntitySearchCriteria>> strategies) :
-    BaseSearch<CategoryQuery, PageResult<CategoryDto>, CategoryEntity, EntitySearchCriteria>(dbContext, httpContext, strategies)
+    BaseSearch<CategoryQuery, PageResult<CategoryDto>, CategoryEntity, EntitySearchCriteria>(httpContext, strategies)
 {
     protected  override IQueryable<CategoryEntity> ApplyResultPolicy(
         IQueryable<CategoryEntity> queryable, CategoryQuery query)
         => query.SearchType switch
         {
+        protected override IQueryable<CategoryEntity> GetQuery() => querySource.Query();
+
             CategoryQueryType.Default => IsValid ? queryable.Include(e => e.Files).Include(e => e.Favorites) : queryable,
             CategoryQueryType.File => IsValid
                 ? queryable.Include(e => e.Files) // include 所有文件,不用筛选发布状态,所以不再使用 ThenInclude

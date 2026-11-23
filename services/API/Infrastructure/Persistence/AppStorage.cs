@@ -1,4 +1,5 @@
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Queries;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Domain.Entities.Favorite;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure.Persistence
 {
-    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext
+    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources
     {
         public DbSet<FileMetaEntity> File { get; set; }
         public DbSet<CorpusEntity> Corpus { get; set; }
@@ -27,6 +28,14 @@ namespace AqLife.Infrastructure.Persistence
         public DbSet<FavoriteTagEntity> FavoriteTags { get; set; }
         public DbSet<CategoryEntity> Categories { get; set; }
 
+        IQueryable<AccountEntity> IAccountQuerySource.Query() => Accounts;
+        IQueryable<CategoryEntity> ICategoryQuerySource.Query() => Categories;
+        IQueryable<CorpusEntity> ICorpusQuerySource.Query() => Corpus;
+        IQueryable<FavoriteItemEntity> IFavoriteItemQuerySource.Query() => FavoriteItems;
+        IQueryable<FileMetaEntity> IFileMetaQuerySource.Query() => File;
+        IQueryable<DevelopmentPlanEntity> IDevelopmentPlanQuerySource.Query() => DevelopmentPlans;
+        IQueryable<TodoEntity> ITodoQuerySource.Query() => Todo;
+        IQueryable<TagEntity> ITagQuerySource.Query() => Tags;
         public async Task<ITransaction> BeginTransactionAsync(CancellationToken ct)
         {
             var transaction = await Database.BeginTransactionAsync(ct);
