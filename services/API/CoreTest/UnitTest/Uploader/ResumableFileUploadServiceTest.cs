@@ -77,7 +77,7 @@ public sealed class ResumableFileUploadServiceTest : IDisposable
         {
             Assert.Equal(bytes.Length, assembled.FileSize);
             Assert.Equal("movie.mp4", assembled.FileName);
-            Assert.Equal(bytes, await File.ReadAllBytesAsync(assembled.TempFilePath, TestContext.Current.CancellationToken));
+            Assert.Equal(bytes, await System.IO.File.ReadAllBytesAsync(assembled.TempFilePath, TestContext.Current.CancellationToken));
         }
         finally
         {
