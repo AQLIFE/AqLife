@@ -1,4 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Mapping;
+using AqLife.Application.Plan.Pipeline;
 using AqLife.Application.Abstractions.Search;
 using AqLife.Application.Plan.DevelopmentPlan;
 using AqLife.Application.Plan.DevelopmentPlan.Search;
@@ -10,6 +11,7 @@ using AqLife.Domain.Entities.DevPlan;
 using AqLife.Shared.Contracts;
 using Core.Search;
 using Microsoft.Extensions.DependencyInjection;
+using MediatR;
 using Plan.DevelopmentPlan;
 using Plan.Todo;
 
@@ -47,6 +49,16 @@ namespace AqLife.Application.Plan
             services.AddScoped(typeof(IValidator<>), typeof(TodoUpdateValidator<>));
             services.AddScoped(typeof(IValidator<>), typeof(TodoAttributionValidityValidator<>));
 
+            return services;
+        }
+
+        /// <summary>
+        /// Register Plan-owned pipeline rules after the host's transaction behavior,
+        /// so dependency-version changes participate in the same transaction.
+        /// </summary>
+        public static IServiceCollection AddPlanPipelineBehaviors(this IServiceCollection services)
+        {
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(DependencyVersionIncrementBehavior<,>));
             return services;
         }
     }
