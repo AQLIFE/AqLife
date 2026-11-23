@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Plan.Todo.Validator;
 
-public sealed class TodoRoadmapPlanAvailableValidator(Abstractions.Persistence.IApplicationDbContext db)
+public sealed class TodoRoadmapPlanAvailableValidator(AqLife.Application.Abstractions.Persistence.Modules.IPlanPersistence persistence)
     : AbstractValidator<TodoRoadmapQuery>
 {
     protected override string ErrorMessage { init; get; } = "开发计划不存在";
 
     protected override async Task<bool> IsValidAsync(TodoRoadmapQuery command, CancellationToken ct)
-        => await db.DevelopmentPlans.AnyAsync(x => x.UID == command.PlanId && !x.IsArchived, ct);
+        => await persistence.DevelopmentPlans.AnyAsync(x => x.UID == command.PlanId && !x.IsArchived, ct);
 
     protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
 }

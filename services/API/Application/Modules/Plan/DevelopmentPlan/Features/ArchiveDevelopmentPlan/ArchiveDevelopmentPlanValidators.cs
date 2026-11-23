@@ -4,12 +4,12 @@ using Core.Validators;
 using Microsoft.EntityFrameworkCore;
 namespace AqLife.Application.Plan.DevelopmentPlan.Validator;
 
-public sealed class ArchiveDevelopmentPlanExistsValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<ArchiveDevelopmentPlanCommand>
+public sealed class ArchiveDevelopmentPlanExistsValidator(AqLife.Application.Abstractions.Persistence.Modules.IPlanPersistence persistence) : AbstractValidator<ArchiveDevelopmentPlanCommand>
 {
     protected override string ErrorMessage { init; get; } = "开发计划不存在";
     protected override async Task<bool> IsValidAsync(ArchiveDevelopmentPlanCommand command, CancellationToken ct)
     {
-        return await db.DevelopmentPlans.AnyAsync(x => x.UID == command.UID, ct);
+        return await persistence.DevelopmentPlans.AnyAsync(x => x.UID == command.UID, ct);
     }
     protected override Exception CreateException(string message) => new ResourceNotFoundException(message);
 
@@ -26,12 +26,12 @@ public sealed class ArchiveDevelopmentPlanNotDefaultValidator() : AbstractValida
 
 }
 
-public sealed class ArchiveDevelopmentPlanHasNoActiveTodosValidator(Abstractions.Persistence.IApplicationDbContext db) : AbstractValidator<ArchiveDevelopmentPlanCommand>
+public sealed class ArchiveDevelopmentPlanHasNoActiveTodosValidator(AqLife.Application.Abstractions.Persistence.Modules.IPlanPersistence persistence) : AbstractValidator<ArchiveDevelopmentPlanCommand>
 {
     protected override string ErrorMessage { init; get; } = "开发计划仍包含未归档任务，不能归档";
     protected override async Task<bool> IsValidAsync(ArchiveDevelopmentPlanCommand command, CancellationToken ct)
     {
-        return !await db.Todo.AnyAsync(x => x.PlanId == command.UID && !x.IsArchived, ct);
+        return !await persistence.Todos.AnyAsync(x => x.PlanId == command.UID && !x.IsArchived, ct);
     }
     protected override Exception CreateException(string message) => new DomainLegalityException(message);
 

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure.Persistence
 {
-    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence, ICategoryPersistence, ICorpusPersistence, IFavoritePersistence, IFilePersistence, ITagPersistence
+    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence, ICategoryPersistence, ICorpusPersistence, IFavoritePersistence, IFilePersistence, ITagPersistence, IPlanPersistence
     {
         public DbSet<FileMetaEntity> File { get; set; }
         public DbSet<CorpusEntity> Corpus { get; set; }
@@ -70,6 +70,20 @@ namespace AqLife.Infrastructure.Persistence
             => await File.Where(file => hashes.Contains(file.FileHash) && file.IsTemplate == isTemplate)
                 .ToDictionaryAsync(file => file.FileHash, file => file.UID, cancellationToken);
         IQueryable<DevelopmentPlanEntity> IDevelopmentPlanQuerySource.Query() => DevelopmentPlans;
+        IQueryable<DevelopmentPlanEntity> IPlanPersistence.DevelopmentPlans => DevelopmentPlans;
+        IQueryable<TodoEntity> IPlanPersistence.Todos => Todo;
+        IQueryable<TodoDependencyEntity> IPlanPersistence.TodoDependencies => TodoDependencies;
+        IQueryable<RoadmapNodeLayoutEntity> IPlanPersistence.RoadmapNodeLayouts => RoadmapNodeLayouts;
+        async Task IPlanPersistence.AddDevelopmentPlanAsync(DevelopmentPlanEntity plan, CancellationToken cancellationToken)
+            => await DevelopmentPlans.AddAsync(plan, cancellationToken);
+        async Task IPlanPersistence.AddTodoAsync(TodoEntity todo, CancellationToken cancellationToken)
+            => await Todo.AddAsync(todo, cancellationToken);
+        async Task IPlanPersistence.AddTodoDependencyAsync(TodoDependencyEntity dependency, CancellationToken cancellationToken)
+            => await TodoDependencies.AddAsync(dependency, cancellationToken);
+        async Task IPlanPersistence.AddRoadmapNodeLayoutAsync(RoadmapNodeLayoutEntity layout, CancellationToken cancellationToken)
+            => await RoadmapNodeLayouts.AddAsync(layout, cancellationToken);
+        void IPlanPersistence.RemoveTodo(TodoEntity todo) => Todo.Remove(todo);
+        void IPlanPersistence.RemoveTodoDependency(TodoDependencyEntity dependency) => TodoDependencies.Remove(dependency);
         IQueryable<TodoEntity> ITodoQuerySource.Query() => Todo;
         IQueryable<TagEntity> ITagQuerySource.Query() => Tags;
         IQueryable<TagEntity> ITagPersistence.Tags => Tags;
