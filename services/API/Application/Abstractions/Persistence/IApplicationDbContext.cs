@@ -27,6 +27,5 @@ namespace AqLife.Application.Abstractions.Persistence
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         Task<ITransaction> BeginTransactionAsync(CancellationToken ct);
-        DbSet<TEntity> Set<TEntity>() where TEntity : class;
     }
 }
