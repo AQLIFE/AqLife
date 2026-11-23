@@ -4,6 +4,7 @@ using AqLife.Shared.Contracts;
 using Core.Mappers;
 using Core.Pipeline.Behaviors;
 using Core.Validators;
+using AqLife.Application.Plan.Pipeline;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,6 +27,8 @@ public static class ApplicationExtensions
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UploadContextBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+            // Plan-specific rules run inside the transaction behavior.
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(DependencyVersionIncrementBehavior<,>));
         });
 
         var applicationTypes = applicationAssemblies
