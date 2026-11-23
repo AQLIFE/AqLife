@@ -1,4 +1,4 @@
-using AqLife.Infrastructure.FileStorage;
+using AqLife.Application.File.Service;
 using AqLife.Shared.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
