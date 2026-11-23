@@ -1,4 +1,4 @@
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Application.Favorite;
 using AqLife.Domain.Entities.Favorite;
 using AqLife.Shared.Exceptions;
@@ -7,13 +7,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Application.Favorite.Handler
 {
-    public class UpdateFavoriteHandler(IApplicationDbContext dbContext)
+    public class UpdateFavoriteHandler(IFavoritePersistence persistence)
         : IRequestHandler<UpdateFavoriteCommand, Guid>, IRequestHandler<SetFavoritePublishedCommand, Guid>
     {
         public async Task<Guid> Handle(UpdateFavoriteCommand command, CancellationToken ct)
         {
 
-            FavoriteItemEntity entity = await dbContext.FavoriteItems
+            FavoriteItemEntity entity = await persistence.FavoriteItems
                 .Include(x => x.Media)
                 .Include(x => x.Tags)
                 .SingleOrDefaultAsync(x => x.UID == command.UID, ct)
@@ -44,7 +44,7 @@ namespace AqLife.Application.Favorite.Handler
 
         public async Task<Guid> Handle(SetFavoritePublishedCommand command, CancellationToken ct)
         {
-            var entity = await dbContext.FavoriteItems.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("Favorite 不存在");
+            var entity = await persistence.FavoriteItems.SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("Favorite 不存在");
             entity.SetPublished(command.IsPublished);
             return entity.UID;
         }

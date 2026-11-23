@@ -35,6 +35,7 @@ public static class InfrastructureExtensions
         services.AddScoped<ICorpusQuerySource>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<ICorpusPersistence>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<IFavoriteItemQuerySource>(sp => sp.GetRequiredService<AppStorage>());
+        services.AddScoped<IFavoritePersistence>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<IFileMetaQuerySource>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<IDevelopmentPlanQuerySource>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<ITodoQuerySource>(sp => sp.GetRequiredService<AppStorage>());

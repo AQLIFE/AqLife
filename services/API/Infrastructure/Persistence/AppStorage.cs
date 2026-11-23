@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure.Persistence
 {
-    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence, ICategoryPersistence, ICorpusPersistence
+    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IApplicationDbContext, IModuleQuerySources, IAccountPersistence, ICategoryPersistence, ICorpusPersistence, IFavoritePersistence
     {
         public DbSet<FileMetaEntity> File { get; set; }
         public DbSet<CorpusEntity> Corpus { get; set; }
@@ -54,6 +54,10 @@ namespace AqLife.Infrastructure.Persistence
             => await Corpus.AddAsync(corpus, cancellationToken);
         void ICorpusPersistence.RemoveCorpus(CorpusEntity corpus) => Corpus.Remove(corpus);
         IQueryable<FavoriteItemEntity> IFavoriteItemQuerySource.Query() => FavoriteItems;
+        IQueryable<FavoriteItemEntity> IFavoritePersistence.FavoriteItems => FavoriteItems;
+        async Task IFavoritePersistence.AddFavoriteAsync(FavoriteItemEntity favorite, CancellationToken cancellationToken)
+            => await FavoriteItems.AddAsync(favorite, cancellationToken);
+        void IFavoritePersistence.RemoveFavorite(FavoriteItemEntity favorite) => FavoriteItems.Remove(favorite);
         IQueryable<FileMetaEntity> IFileMetaQuerySource.Query() => File;
         IQueryable<DevelopmentPlanEntity> IDevelopmentPlanQuerySource.Query() => DevelopmentPlans;
         IQueryable<TodoEntity> ITodoQuerySource.Query() => Todo;
