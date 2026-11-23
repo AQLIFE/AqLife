@@ -18,6 +18,13 @@ public interface IFileAssetService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// 上传到 File 模块定义的默认分类，调用方无需依赖 Category 模块的默认分类标识。
+    /// </summary>
+    Task<Guid> UploadToDefaultCategoryAsync(
+        IFormFile file,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// 发布单个文件资产。
     /// </summary>
     Task<Guid> PublishAsync(
