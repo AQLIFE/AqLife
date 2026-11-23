@@ -37,6 +37,9 @@ namespace AqLife.Application.Account.Handler
             await fileAssetService.PublishAsync(newId, ct);
             account.ChangeAvatar(newId);
 
+            // 先持久化新的头像引用（仍处于当前命令事务内），
+            // File 模块再检查旧文件是否还被 Favorite 等其他模块引用。
+            await dbContext.SaveChangesAsync(ct);
             await fileAssetService.DeleteAsync([oldId], ct);
             return account.LoginName;
         }
