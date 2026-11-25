@@ -1,5 +1,6 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File.Storage;
 using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Shared.Exceptions;
 using AqLife.Application.Abstractions.Commands;
 using AqLife.Domain.Entities;
@@ -16,14 +17,14 @@ namespace AqLife.Application.File.Upload;
 public sealed record StartVideoUploadCommand(string FileName, long FileSize, Guid CategoryId, int ChunkSize = 4 * 1024 * 1024)
     : IRequest<ResumableUploadSession>, IApplicationRequest;
 
-public sealed class StartVideoUploadValidator(IApplicationDbContext db)
+public sealed class StartVideoUploadValidator(IEntityExistenceChecker<CategoryEntity> categories)
     : AbstractValidator<StartVideoUploadCommand>
 {
     protected override string ErrorMessage { init; get; } = "必须选择一个有效的文件分类";
 
     protected override async Task<bool> IsValidAsync(StartVideoUploadCommand command, CancellationToken ct)
         => command.CategoryId != Guid.Empty
-            && await db.Categories.AnyAsync(category => category.UID == command.CategoryId, ct);
+            && await categories.ExistsAsync(command.CategoryId, ct);
 }
 
 public sealed class StartVideoUploadHandler(IResumableFileUploadService uploads)
@@ -61,7 +62,7 @@ public sealed record CompleteVideoUploadCommand(Guid UploadId) : IRequest<Guid>;
 
 public sealed class CompleteVideoUploadHandler(
     IResumableFileUploadService uploads,
-    IApplicationDbContext db,
+    IEntityExistenceChecker<CategoryEntity> categories,
     ISender sender) : IRequestHandler<CompleteVideoUploadCommand, Guid>
 {
     public async Task<Guid> Handle(CompleteVideoUploadCommand request, CancellationToken ct)
@@ -71,7 +72,7 @@ public sealed class CompleteVideoUploadHandler(
         {
             if (assembled.CategoryId == Guid.Empty)
                 throw new RequestCheckException("该上传任务没有有效分类信息，请重新选择分类并上传。");
-            if (!await db.Categories.AnyAsync(category => category.UID == assembled.CategoryId, ct))
+            if (!await categories.ExistsAsync(assembled.CategoryId, ct))
                 throw new RequestCheckException("上传期间所选分类已不存在，请重新选择分类并上传。");
 
             await using var stream = new FileStream(assembled.TempFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -97,7 +98,7 @@ public sealed record CheckFileHashQuery(string Hash) : IRequest<FileHashCheckRes
 public sealed record FileHashMatch(Guid UID, string FileName, string Extension, ulong FileSize, DateTimeOffset UploadTime);
 public sealed record FileHashCheckResult(bool IsDuplicate, FileHashMatch? ExistingFile);
 
-public sealed class CheckFileHashHandler(IApplicationDbContext db)
+public sealed class CheckFileHashHandler(IFilePersistence persistence)
     : IRequestHandler<CheckFileHashQuery, FileHashCheckResult>
 {
     public async Task<FileHashCheckResult> Handle(CheckFileHashQuery request, CancellationToken ct)
@@ -106,7 +107,7 @@ public sealed class CheckFileHashHandler(IApplicationDbContext db)
         if (hash is null || hash.Length != 64 || hash.Any(c => !Uri.IsHexDigit(c)))
             throw new ArgumentException("文件哈希必须是 64 位 SHA-256 十六进制字符串。", nameof(request.Hash));
 
-        var match = await db.File.AsNoTracking()
+        var match = await persistence.Files.AsNoTracking()
             .Where(file => file.FileHash == hash && !file.IsTemplate)
             .OrderBy(file => file.UploadTime)
             .Select(file => new FileHashMatch(file.UID, file.FileName + file.Extension, file.Extension, file.FileSize, file.UploadTime))
