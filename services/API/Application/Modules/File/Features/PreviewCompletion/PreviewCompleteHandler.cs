@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File.Storage;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
@@ -16,12 +16,12 @@ namespace AqLife.Application.File.Handler
     /// <param name="dbContext"></param>
     /// <param name="fileStorage"></param>
     /// <param name="uploadContext"></param>
-    public class PreviewCompleteHandler(IApplicationDbContext dbContext) : IRequestHandler<BlogPreviewCompleteCommand, Guid>
+    public class PreviewCompleteHandler(IFilePersistence persistence) : IRequestHandler<BlogPreviewCompleteCommand, Guid>
     {
         public async Task<Guid> Handle(BlogPreviewCompleteCommand command, CancellationToken ct)
         {
 
-            FileMetaEntity fileMeta = await dbContext.File.Include(i => i.InteractionMeta).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("不存在的文件");
+            FileMetaEntity fileMeta = await persistence.Files.Include(i => i.InteractionMeta).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new ResourceNotFoundException("不存在的文件");
             fileMeta.InteractionMeta.Viewed();
             return command.UID;
         }
