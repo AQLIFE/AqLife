@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File.Storage;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Application.Abstractions.Contracts.File;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
@@ -25,11 +25,11 @@ namespace AqLife.Application.File.Handler
     /// 取消发布
     /// </summary>
     /// <param name="dbContext"></param>
-    public class CancelScheduledFileHandler(IApplicationDbContext dbContext) : IRequestHandler<CancelScheduledFileCommand, Guid>
+    public class CancelScheduledFileHandler(IFilePersistence persistence) : IRequestHandler<CancelScheduledFileCommand, Guid>
     {
         public async Task<Guid> Handle(CancelScheduledFileCommand command, CancellationToken ct)
         {
-            FileMetaEntity entity = await dbContext.File.Include(e => e.PublishMeta).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法操作");
+            FileMetaEntity entity = await persistence.Files.Include(e => e.PublishMeta).SingleOrDefaultAsync(e => e.UID == command.UID, ct) ?? throw new FileNotFoundException("不存在的文件,无法操作");
             entity.PublishMeta.CancelSchedule();
             return command.UID;
         }
