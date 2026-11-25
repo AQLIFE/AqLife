@@ -11,7 +11,7 @@ namespace AqLife.Application.Account.Handler;
 
 public class DeleteAccountHandler(
     IAccountPersistence persistence,
-    IApplicationDbContext dbContext,
+    IUnitOfWork unitOfWork,
     IFileAssetService fileAssetService)
     : IRequestHandler<DeleteAccountCommand, Unit>
 {
@@ -32,7 +32,7 @@ public class DeleteAccountHandler(
         // 先在当前事务内释放 Account 模块持有的引用，
         // File 模块随后才能准确判断文件是否仍被 Favorite 等模块使用。
         persistence.RemoveAccount(account);
-        await dbContext.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
         await fileAssetService.DeleteAsync(fileIds, ct);
         return Unit.Value;
