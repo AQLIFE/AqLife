@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace AqLife.Application.Account.Services
 {
-    public class SystemInitializationService(IAccountPersistence persistence, IApplicationDbContext unitOfWork)
+    public class SystemInitializationService(IAccountPersistence persistence, IUnitOfWork unitOfWork)
     {
         public async Task<bool> Initialization(CancellationToken ct = default)
         {
