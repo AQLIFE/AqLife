@@ -14,7 +14,7 @@ namespace Core.Pipeline.Behaviors
     /// Business-module-specific rules are implemented by behaviors in their own modules.
     /// </summary>
     public class TransactionBehavior<TRequest, TResponse>(
-        IApplicationDbContext dbContext,
+        IUnitOfWork dbContext,
         IFileStorage fileStorage,
         UploadContext uploadContext,
         ILogger<TransactionBehavior<TRequest, TResponse>> logger)
