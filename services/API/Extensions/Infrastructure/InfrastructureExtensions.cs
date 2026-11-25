@@ -26,7 +26,7 @@ public static class InfrastructureExtensions
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services, IHostEnvironment environment)
     {
-        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppStorage>());
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped(typeof(IEntityExistenceChecker<>), typeof(EfEntityExistenceChecker<>));
         services.AddScoped<IAccountQuerySource>(sp => sp.GetRequiredService<AppStorage>());
         services.AddScoped<IAccountPersistence>(sp => sp.GetRequiredService<AppStorage>());
