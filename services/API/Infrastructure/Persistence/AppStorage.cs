@@ -1,5 +1,4 @@
 using AqLife.Application.Abstractions.Persistence;
-using AqLife.Application.Abstractions.Persistence.Queries;
 using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.DevPlan;
@@ -9,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure.Persistence
 {
-    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IUnitOfWork, IModuleQuerySources, IAccountPersistence, ICategoryPersistence, ICorpusPersistence, IFavoritePersistence, IFilePersistence, ITagPersistence, IPlanPersistence
+    public class AppStorage(DbContextOptions<AppStorage> options) : DbContext(options), IUnitOfWork, IAccountPersistence, ICategoryPersistence, ICorpusPersistence, IFavoritePersistence, IFilePersistence, ITagPersistence, IPlanPersistence
     {
         public DbSet<FileMetaEntity> File { get; set; }
         public DbSet<CorpusEntity> Corpus { get; set; }
