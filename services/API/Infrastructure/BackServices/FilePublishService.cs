@@ -1,5 +1,5 @@
 ﻿using AqLife.Application.Abstractions.Contracts.File;
-using AqLife.Application.Abstractions.Persistence;
+using AqLife.Application.Abstractions.Persistence.Modules;
 using AqLife.Domain.Entities.File;
 using AqLife.Shared.Exceptions;
 using AqLife.Shared.Options;
@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AqLife.Infrastructure.BackServices
 {
-    public sealed class FilePublishService(IApplicationDbContext dbContext) : IFilePublishService
+    public sealed class FilePublishService(IFilePersistence persistence) : IFilePublishService
     {
-        private readonly IQueryable<FileMetaEntity> fileQueryable = dbContext.File.Include(e => e.PublishMeta);
+        private readonly IQueryable<FileMetaEntity> fileQueryable = persistence.Files.Include(e => e.PublishMeta);
         public async Task<Guid> PublishAsync(Guid guid, CancellationToken ct = default)
         {
             FileMetaEntity file = await fileQueryable.SingleOrDefaultAsync(e => e.UID == guid, ct) ?? throw new ResourceNotFoundException("File not found");
