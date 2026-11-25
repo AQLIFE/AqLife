@@ -29,7 +29,7 @@ public sealed class ScheduledPublishWorker(
                 var services = scope.ServiceProvider;
 
                 var processor = services.GetRequiredService<IScheduledPublishProcessor>();
-                var dbContext = services.GetRequiredService<IApplicationDbContext>();
+                var dbContext = services.GetRequiredService<IUnitOfWork>();
 
                 await using var transaction = await dbContext.BeginTransactionAsync(stoppingToken);
                 try
