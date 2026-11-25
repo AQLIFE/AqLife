@@ -14,7 +14,7 @@ namespace Core.Pipeline.Behaviors
     /// Business-module-specific rules are implemented by behaviors in their own modules.
     /// </summary>
     public class TransactionBehavior<TRequest, TResponse>(
-        IUnitOfWork dbContext,
+        IUnitOfWork unitOfWork,
         IFileStorage fileStorage,
         UploadContext uploadContext,
         ILogger<TransactionBehavior<TRequest, TResponse>> logger)
@@ -29,7 +29,7 @@ namespace Core.Pipeline.Behaviors
             if (request is not IRequireTransaction)
                 return await next(cancellationToken);
 
-            await using var transaction = await dbContext.BeginTransactionAsync(cancellationToken);
+            await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
             TResponse response;
             var commitAttempted = false;
 
@@ -38,7 +38,7 @@ namespace Core.Pipeline.Behaviors
             {
                 // Inner module behaviors and the handler execute before this transaction commits.
                 response = await next(cancellationToken);
-                await dbContext.SaveChangesAsync(cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
                 // Once commit starts, its outcome may be ambiguous after a connection failure.
                 // Prefer a possible orphaned upload over deleting a file that may now be referenced.
                 commitAttempted = true;
@@ -80,7 +80,7 @@ namespace Core.Pipeline.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning(ex, "数据库事务已提交，但旧文件清理失败，需后续重试: {StoragePath}", path);
+                    logger.LogWarning(ex, "数据库事务已提交，但旧文件清理失败，需后续人工检查: {StoragePath}", path);
                 }
             }
 
