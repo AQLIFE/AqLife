@@ -21,7 +21,7 @@ namespace AqLife.Application.Account.Handler
     }
 
     // 需要准备用 Notification 优化业务表达 ,纳入 plan 2
-    public class UpdateAccountAvatarHandler(IAccountPersistence persistence, IApplicationDbContext dbContext, IFileAssetService fileAssetService) : IRequestHandler<UpdateAccountAvatarCommand, string>
+    public class UpdateAccountAvatarHandler(IAccountPersistence persistence, IUnitOfWork unitOfWork, IFileAssetService fileAssetService) : IRequestHandler<UpdateAccountAvatarCommand, string>
     {
         public async Task<string> Handle(UpdateAccountAvatarCommand command, CancellationToken ct)
         {
@@ -36,7 +36,7 @@ namespace AqLife.Application.Account.Handler
             account.ChangeAvatar(newId);
 
             // 先保存新的头像引用，再让 File 模块判断旧文件是否仍被其他模块引用。
-            await dbContext.SaveChangesAsync(ct);
+            await unitOfWork.SaveChangesAsync(ct);
             await fileAssetService.DeleteAsync([oldId], ct);
             return account.LoginName;
         }
