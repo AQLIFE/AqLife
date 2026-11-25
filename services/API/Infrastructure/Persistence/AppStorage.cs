@@ -1,5 +1,6 @@
 using AqLife.Application.Abstractions.Persistence;
 using AqLife.Application.Abstractions.Persistence.Modules;
+using AqLife.Application.Abstractions.Persistence.Queries;
 using AqLife.Domain.Entities;
 using AqLife.Domain.Entities.DevPlan;
 using AqLife.Domain.Entities.Favorite;
